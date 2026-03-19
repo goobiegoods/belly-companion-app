@@ -1,0 +1,4 @@
+project_id = "ejeukjectfjxclhaqkkr"
+
+[functions.belly-chat]
+verify_jwt = false
