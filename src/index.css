@@ -1,96 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 24 100% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 24 100% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 24 100% 8%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 20 100% 80%;
+    --primary-foreground: 24 100% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 20 100% 93%;
+    --secondary-foreground: 24 100% 8%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 20 100% 95%;
+    --muted-foreground: 20 50% 62%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 20 100% 90%;
+    --accent-foreground: 24 100% 8%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 20 100% 92%;
+    --input: 20 100% 92%;
+    --ring: 20 50% 62%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
+
+    /* BELLY custom tokens */
+    --belly-bg: 25 100% 91%;
+    --belly-hero: 20 100% 80%;
+    --belly-card-border: 20 100% 92%;
+    --belly-icon-bg: 20 100% 95%;
+    --belly-upsell-bg: 20 100% 96%;
+    --belly-upsell-border: 20 100% 85%;
+    --belly-text-primary: 24 100% 8%;
+    --belly-text-muted: 20 50% 62%;
+    --belly-text-hint: 20 30% 73%;
+    --belly-accent: 20 50% 62%;
+    --belly-divider: 20 100% 95%;
+    --belly-success: 145 35% 74%;
+    --belly-pink: 340 100% 91%;
+    --belly-premium: 20 100% 80%;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
+    --background: 24 100% 8%;
+    --foreground: 20 100% 95%;
+    --card: 24 50% 12%;
+    --card-foreground: 20 100% 95%;
+    --popover: 24 50% 12%;
+    --popover-foreground: 20 100% 95%;
+    --primary: 20 100% 80%;
+    --primary-foreground: 24 100% 8%;
+    --secondary: 24 30% 18%;
+    --secondary-foreground: 20 100% 95%;
+    --muted: 24 30% 18%;
+    --muted-foreground: 20 30% 65%;
+    --accent: 24 30% 18%;
+    --accent-foreground: 20 100% 95%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 24 30% 18%;
+    --input: 24 30% 18%;
+    --ring: 20 50% 62%;
   }
 }
 
@@ -98,8 +89,54 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 }
+
+@layer utilities {
+  .font-display {
+    font-family: 'Playfair Display', Georgia, 'Palatino Linotype', serif;
+  }
+  .font-body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+/* BELLY interactions */
+.belly-press {
+  transition: transform 120ms ease;
+}
+.belly-press:active {
+  transform: scale(0.975);
+}
+.belly-btn-press {
+  transition: transform 120ms ease;
+}
+.belly-btn-press:active {
+  transform: scale(0.97);
+}
+.belly-input-focus:focus {
+  box-shadow: 0 0 0 3px rgba(255,184,153,0.35);
+  outline: none;
+}
+
+/* Scrollbar hide for horizontal scrolls */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pulsing dots animation */
+@keyframes belly-pulse {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+.belly-dot-1 { animation: belly-pulse 1.4s infinite 0s; }
+.belly-dot-2 { animation: belly-pulse 1.4s infinite 0.2s; }
+.belly-dot-3 { animation: belly-pulse 1.4s infinite 0.4s; }
