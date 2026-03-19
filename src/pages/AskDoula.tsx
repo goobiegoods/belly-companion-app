@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Send, Square } from "lucide-react";
@@ -18,6 +19,7 @@ const QUICK_PROMPTS = [
 ];
 
 const AskDoula = () => {
+  const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -30,7 +32,6 @@ const AskDoula = () => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  // Load today's message count
   useEffect(() => {
     if (!user) return;
     const today = new Date().toISOString().split("T")[0];
@@ -57,14 +58,12 @@ const AskDoula = () => {
     setIsStreaming(true);
     setMessageCount(c => c + 1);
 
-    // Save user message
     if (user) {
       await supabase.from("chat_messages").insert({ user_id: user.id, role: "user", content: text });
     }
 
     const abortController = new AbortController();
     abortRef.current = abortController;
-
     let assistantContent = "";
 
     try {
@@ -79,9 +78,9 @@ const AskDoula = () => {
       });
 
       if (!resp.ok) {
-        if (resp.status === 429) { toast.error("Too many requests. Please wait a moment."); }
-        else if (resp.status === 402) { toast.error("AI credits exhausted. Please try again later."); }
-        else { toast.error("Something went wrong. Please try again."); }
+        if (resp.status === 429) toast.error("Too many requests. Please wait a moment.");
+        else if (resp.status === 402) toast.error("AI credits exhausted. Please try again later.");
+        else toast.error("Something went wrong. Please try again.");
         setIsStreaming(false);
         return;
       }
@@ -123,35 +122,29 @@ const AskDoula = () => {
         }
       }
 
-      // Save assistant message
       if (user && assistantContent) {
         await supabase.from("chat_messages").insert({ user_id: user.id, role: "assistant", content: assistantContent });
       }
     } catch (e: any) {
-      if (e.name !== "AbortError") {
-        toast.error("Connection failed. Please try again.");
-      }
+      if (e.name !== "AbortError") toast.error("Connection failed. Please try again.");
     } finally {
       setIsStreaming(false);
       abortRef.current = null;
     }
   };
 
-  const cancelStream = () => {
-    abortRef.current?.abort();
-  };
-
-  const showUpsell = !profile?.is_premium && messages.filter(m => m.role === "assistant").length > 0 && messages.filter(m => m.role === "assistant").length % 3 === 0;
+  const cancelStream = () => { abortRef.current?.abort(); };
 
   return (
-    <div className="flex flex-col h-screen bg-belly-bg">
+    <div className="flex flex-col h-screen" style={{ background: "#FFF8F5" }}>
       {/* Header */}
-      <div className="px-5 pt-5 pb-3 bg-card border-b border-belly-card-border">
-        <div className="flex items-center gap-2">
-          <h1 className="font-display text-[18px] font-bold text-foreground">Ask the Doula</h1>
-          <span className="text-[9px] bg-belly-icon-bg text-belly-accent px-2 py-0.5 rounded-pill font-medium">AI</span>
+      <div className="px-5 pt-5 pb-3 bg-white" style={{ borderBottom: "1px solid #FFE4D4" }}>
+        <div className="flex items-center gap-2 mb-0.5">
+          <button onClick={() => navigate("/")} className="text-[12px] font-semibold mr-1" style={{ color: "#D4906A" }}>← Home</button>
+          <h1 className="font-display text-[18px] font-bold" style={{ color: "#2A1200" }}>Ask the Doula</h1>
+          <span className="text-[9px] px-2 py-0.5 rounded-full font-medium" style={{ background: "#FFF0E8", color: "#D4906A" }}>AI</span>
         </div>
-        <p className="text-[11px] text-belly-text-muted">Your natural pregnancy guide</p>
+        <p className="text-[11px]" style={{ color: "#D4B0A0" }}>Your natural pregnancy guide</p>
       </div>
 
       {/* Messages */}
@@ -159,8 +152,10 @@ const AskDoula = () => {
         {messages.length === 0 && (
           <div className="grid grid-cols-2 gap-3 mt-8">
             {QUICK_PROMPTS.map(prompt => (
-              <button key={prompt} onClick={() => sendMessage(prompt)} className="bg-card border border-belly-card-border rounded-card p-3 text-left belly-press">
-                <p className="font-display text-[13px] font-bold text-belly-accent">{prompt}</p>
+              <button key={prompt} onClick={() => sendMessage(prompt)}
+                className="rounded-[16px] p-3 text-left active:scale-[0.975] transition-transform"
+                style={{ background: "white", border: "1px solid #FFE4D4" }}>
+                <p className="font-display text-[13px] font-bold" style={{ color: "#D4906A" }}>{prompt}</p>
               </button>
             ))}
           </div>
@@ -169,19 +164,20 @@ const AskDoula = () => {
         {messages.map((msg, i) => (
           <div key={i}>
             <div className={`max-w-[85%] ${msg.role === "user" ? "ml-auto" : "mr-auto"}`}>
-              <div className={`px-4 py-3 text-[13px] leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-primary text-primary-foreground rounded-[18px_18px_4px_18px]"
-                  : "bg-card border border-belly-card-border text-foreground rounded-[18px_18px_18px_4px]"
-              }`}>
+              <div className={`px-4 py-3 text-[13px] leading-[1.65] ${
+                msg.role === "user" ? "rounded-[18px_18px_4px_18px]" : "rounded-[18px_18px_18px_4px]"
+              }`} style={msg.role === "user"
+                ? { background: "#FFB899", color: "#2A1200" }
+                : { background: "white", border: "1px solid #FFE4D4", color: "#2A1200" }
+              }>
                 {msg.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                  <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "#2A1200" }}>
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : msg.content}
               </div>
               {msg.role === "assistant" && (
-                <p className="text-[10px] text-belly-text-hint mt-1 px-1">
+                <p className="text-[10px] mt-1 px-1" style={{ color: "#D4B0A0" }}>
                   This is wellness guidance, not medical advice. Always consult your care provider.
                 </p>
               )}
@@ -190,47 +186,43 @@ const AskDoula = () => {
         ))}
 
         {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
-          <div className="flex items-center gap-2 text-belly-accent text-xs">
+          <div className="flex items-center gap-2 text-xs" style={{ color: "#D4906A" }}>
             <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-belly-accent belly-dot-1" />
-              <div className="w-1.5 h-1.5 rounded-full bg-belly-accent belly-dot-2" />
-              <div className="w-1.5 h-1.5 rounded-full bg-belly-accent belly-dot-3" />
+              <div className="w-1.5 h-1.5 rounded-full belly-dot-1" style={{ background: "#D4906A" }} />
+              <div className="w-1.5 h-1.5 rounded-full belly-dot-2" style={{ background: "#D4906A" }} />
+              <div className="w-1.5 h-1.5 rounded-full belly-dot-3" style={{ background: "#D4906A" }} />
             </div>
             Belly is thinking...
           </div>
         )}
-
-        {showUpsell && (
-          <div className="bg-belly-upsell-bg border border-belly-upsell-border rounded-card p-3 text-center">
-            <p className="text-[12px] text-belly-accent">Want a certified doula to review your questions? <span className="font-semibold">Upgrade to Premium</span></p>
-          </div>
-        )}
       </div>
 
-      {/* Message limit banner */}
+      {/* Message limit */}
       {!profile?.is_premium && messageCount > 0 && (
-        <div className="px-5 py-2 bg-belly-upsell-bg border-t border-belly-upsell-border">
-          <p className="text-[11px] text-belly-accent text-center">{messageCount}/10 free messages today</p>
+        <div className="px-5 py-2" style={{ background: "#FFF4EE", borderTop: "1px solid #FFCDB4" }}>
+          <p className="text-[11px] text-center" style={{ color: "#D4906A" }}>{messageCount}/10 free messages today</p>
         </div>
       )}
 
       {/* Input */}
-      <div className="px-4 py-3 bg-card border-t border-belly-card-border">
+      <div className="px-4 py-3 bg-white" style={{ borderTop: "1px solid #FFE4D4" }}>
         <div className="flex items-center gap-2">
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
             placeholder="Ask anything about your pregnancy..."
-            className="flex-1 h-10 rounded-input border border-belly-card-border bg-background px-4 text-sm belly-input-focus placeholder:text-belly-text-hint"
+            className="flex-1 h-10 rounded-[10px] px-4 text-sm outline-none"
+            style={{ border: "1px solid #FFE4D4", background: "#FFF8F5", color: "#2A1200" }}
           />
           {isStreaming ? (
-            <button onClick={cancelStream} className="w-10 h-10 rounded-input bg-primary flex items-center justify-center belly-btn-press">
-              <Square size={14} className="text-primary-foreground" />
+            <button onClick={cancelStream} className="w-10 h-10 rounded-[10px] flex items-center justify-center" style={{ background: "#FFB899" }}>
+              <Square size={14} style={{ color: "#2A1200" }} />
             </button>
           ) : (
-            <button onClick={() => sendMessage(input)} disabled={!input.trim()} className="w-10 h-10 rounded-input bg-primary flex items-center justify-center belly-btn-press disabled:opacity-40">
-              <Send size={16} className="text-primary-foreground" />
+            <button onClick={() => sendMessage(input)} disabled={!input.trim()}
+              className="w-10 h-10 rounded-[10px] flex items-center justify-center disabled:opacity-40" style={{ background: "#FFB899" }}>
+              <Send size={16} style={{ color: "#2A1200" }} />
             </button>
           )}
         </div>
