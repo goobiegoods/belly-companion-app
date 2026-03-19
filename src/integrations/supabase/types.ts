@@ -14,7 +14,244 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journal_entries: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          mood: string | null
+          note: string | null
+          symptoms: string[] | null
+          user_id: string
+          week_number: number | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          mood?: string | null
+          note?: string | null
+          symptoms?: string[] | null
+          user_id: string
+          week_number?: number | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          mood?: string | null
+          note?: string | null
+          symptoms?: string[] | null
+          user_id?: string
+          week_number?: number | null
+        }
+        Relationships: []
+      }
+      kick_counts: {
+        Row: {
+          count: number
+          id: string
+          recorded_at: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          id?: string
+          recorded_at?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          id?: string
+          recorded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lesson_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          lesson_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          lesson_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          lesson_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          id: string
+          likes: number
+          title: string
+          user_id: string
+          week_posted: number | null
+        }
+        Insert: {
+          body: string
+          category?: string
+          created_at?: string
+          id?: string
+          likes?: number
+          title: string
+          user_id: string
+          week_posted?: number | null
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          id?: string
+          likes?: number
+          title?: string
+          user_id?: string
+          week_posted?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          due_date: string | null
+          first_name: string | null
+          has_provider: boolean | null
+          id: string
+          is_premium: boolean | null
+          onboarding_completed: boolean | null
+          pregnancy_number: number | null
+          premium_expires_at: string | null
+          premium_since: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          due_date?: string | null
+          first_name?: string | null
+          has_provider?: boolean | null
+          id?: string
+          is_premium?: boolean | null
+          onboarding_completed?: boolean | null
+          pregnancy_number?: number | null
+          premium_expires_at?: string | null
+          premium_since?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          due_date?: string | null
+          first_name?: string | null
+          has_provider?: boolean | null
+          id?: string
+          is_premium?: boolean | null
+          onboarding_completed?: boolean | null
+          pregnancy_number?: number | null
+          premium_expires_at?: string | null
+          premium_since?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
