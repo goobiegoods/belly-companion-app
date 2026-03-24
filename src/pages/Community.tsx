@@ -281,17 +281,17 @@ const Community = () => {
   if (selectedPost) {
     const isSeeded = selectedPost.id.startsWith("seed-");
     return (
-      <div className="h-screen flex flex-col" style={{ background: "#FFF8F5" }}>
+      <div className="fixed inset-0 z-40 flex flex-col" style={{ background: "#FFF8F5" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 bg-white shrink-0" style={{ borderBottom: "1px solid #FFE4D4" }}>
-          <button onClick={() => setSelectedPost(null)} className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
+          <button onClick={() => { setSelectedPost(null); fetchPosts(); }} className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
           <span className="text-[10px] font-semibold px-[10px] py-[3px] rounded-full capitalize" style={{ background: CATEGORY_COLORS[selectedPost.category] || "#FFF0E8", color: "#D4906A" }}>
             {selectedPost.category}
           </span>
         </div>
 
         {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4">
           {/* Author row */}
           <div className="flex items-center gap-2 mb-4">
             <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-semibold shrink-0" style={{ background: "#FFF0E8", color: "#D4906A" }}>
@@ -338,36 +338,37 @@ const Community = () => {
               </div>
             ))
           )}
-          {/* Bottom spacer for reply bar */}
           <div className="h-4" />
         </div>
 
         {/* Sticky reply bar */}
-        <div className="shrink-0 bg-white flex items-center gap-2 px-4 py-[10px] pb-5" style={{ borderTop: "1px solid #FFE4D4" }}>
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0" style={{ background: "#FFF0E8", color: "#D4906A" }}>
-            {initials(userName)}
+        <div className="shrink-0 bg-white px-4 pt-[10px]" style={{ borderTop: "1px solid #FFE4D4", paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}>
+          {replyError && (
+            <p className="text-[12px] mb-2" style={{ color: "#D4906A" }}>{replyError}</p>
+          )}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0" style={{ background: "#FFF0E8", color: "#D4906A" }}>
+              {initials(userName)}
+            </div>
+            <input
+              value={commentText}
+              onChange={e => setCommentText(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
+              placeholder={isSeeded ? "Sign in to reply" : `Reply to ${selectedPost.author_name}...`}
+              disabled={isSeeded || !user}
+              className="flex-1 h-10 rounded-[22px] px-4 text-[13px] font-display italic outline-none disabled:opacity-50"
+              style={{ border: "1px solid #FFE4D4", background: "#FFF8F5", color: "#2A1200" }}
+            />
+            <button
+              onClick={addComment}
+              disabled={!commentText.trim() || sendingReply || isSeeded || !user}
+              className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 disabled:opacity-40 active:scale-[0.92] transition-transform"
+              style={{ background: "#FFB899" }}
+            >
+              <Send size={14} style={{ color: "#2A1200" }} />
+            </button>
           </div>
-          <input
-            value={commentText}
-            onChange={e => setCommentText(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
-            placeholder={isSeeded ? "Sign in to reply" : `Reply to ${selectedPost.author_name}...`}
-            disabled={isSeeded || !user}
-            className="flex-1 h-10 rounded-[22px] px-4 text-[13px] font-display italic outline-none disabled:opacity-50"
-            style={{ border: "1px solid #FFE4D4", background: "#FFF8F5", color: "#2A1200" }}
-          />
-          <button
-            onClick={addComment}
-            disabled={!commentText.trim() || sendingReply || isSeeded || !user}
-            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 disabled:opacity-40 active:scale-[0.92] transition-transform"
-            style={{ background: "#FFB899" }}
-          >
-            <Send size={14} style={{ color: "#2A1200" }} />
-          </button>
         </div>
-        {replyError && (
-          <div className="px-5 pb-2 text-[12px]" style={{ color: "#D4906A" }}>{replyError}</div>
-        )}
       </div>
     );
   }
@@ -455,10 +456,9 @@ const Community = () => {
 
       {/* Create post sheet */}
       {showCreate && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end" onClick={() => { setShowCreate(false); setPostError(""); }}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end" onClick={() => { setShowCreate(false); setPostError(""); fetchPosts(); }}>
           <div
-            className="bg-white w-full rounded-t-[24px] flex flex-col"
-            style={{ maxHeight: "85vh" }}
+            className="bg-white w-full rounded-t-[24px] flex flex-col max-h-[85vh] overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
             {/* Handle */}
@@ -470,7 +470,7 @@ const Community = () => {
             <h2 className="font-display text-[20px] font-bold px-5 pt-4 pb-4 shrink-0" style={{ color: "#2A1200" }}>Create a post</h2>
 
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto px-5 pb-2">
+            <div className="flex-1 overflow-y-auto min-h-0 px-5 pb-2">
               <input
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
