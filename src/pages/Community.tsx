@@ -470,7 +470,7 @@ const Community = () => {
             <h2 className="font-display text-[20px] font-bold px-5 pt-4 pb-4 shrink-0" style={{ color: "#2A1200" }}>Create a post</h2>
 
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto px-5 pb-2">
+            <div className="flex-1 overflow-y-auto min-h-0 px-5 pb-2">
               <input
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
