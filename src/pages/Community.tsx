@@ -456,7 +456,7 @@ const Community = () => {
 
       {/* Create post sheet */}
       {showCreate && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end" onClick={() => { setShowCreate(false); setPostError(""); }}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end" onClick={() => { setShowCreate(false); setPostError(""); fetchPosts(); }}>
           <div
             className="bg-white w-full rounded-t-[24px] flex flex-col max-h-[85vh] overflow-hidden"
             onClick={e => e.stopPropagation()}
