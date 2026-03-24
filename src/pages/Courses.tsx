@@ -265,7 +265,7 @@ const Courses = () => {
         {/* Sticky bottom bar */}
         <div className="fixed bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3 bg-white" style={{ borderTop: "1px solid #FFE4D4" }}>
           {selectedLesson > 0 && (
-            <button onClick={() => { setSelectedLesson(selectedLesson - 1); setReflectionText(""); setQuizAnswer(null); setQuizSubmitted(false); }}
+            <button onClick={() => { setSelectedLesson(selectedLesson - 1); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
               className="h-11 px-4 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FFF0E8", color: "#D4906A" }}>
               ← Previous
             </button>
