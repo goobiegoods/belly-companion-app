@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
-import { Heart, MessageCircle, Plus, Send } from "lucide-react";
+import { Heart, MessageCircle, Plus, Send, Bell } from "lucide-react";
 import { toast } from "sonner";
 
 interface Post {
@@ -17,6 +17,15 @@ interface Post {
   author_name?: string;
   comment_count?: number;
   is_liked?: boolean;
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  body: string | null;
+  post_id: string | null;
+  is_read: boolean;
+  created_at: string;
 }
 
 const CATEGORIES = ["All", "Questions", "Stories", "Tips", "Support"];
@@ -49,8 +58,40 @@ const Community = () => {
   const [comments, setComments] = useState<any[]>([]);
   const [commentText, setCommentText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (data) setNotifications(data as Notification[]);
+  };
+
+  const markAsRead = async (notif: Notification) => {
+    if (notif.is_read) return;
+    await supabase.from("notifications").update({ is_read: true }).eq("id", notif.id);
+    setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
+  };
+
+  const handleNotifTap = async (notif: Notification) => {
+    await markAsRead(notif);
+    setShowNotifications(false);
+    if (notif.post_id) {
+      const { data } = await supabase.from("posts").select("*").eq("id", notif.post_id).single();
+      if (data) {
+        const { data: prof } = await supabase.from("profiles").select("first_name").eq("user_id", data.user_id).single();
+        openPost({ ...data, author_name: prof?.first_name || "Mama", comment_count: 0, is_liked: false });
+      }
+    }
+  };
 
   const fetchPosts = async () => {
     let query = supabase.from("posts").select("*").order("created_at", { ascending: false });
@@ -83,7 +124,6 @@ const Community = () => {
         is_liked: !!likeMap[p.id],
       }));
 
-      // Merge with seeded posts (filter out seeded if real posts exist for same titles)
       const realTitles = new Set(dbPosts.map(p => p.title));
       const filtered = SEEDED_POSTS.filter(s => !realTitles.has(s.title));
       if (activeCategory !== "All") {
@@ -104,6 +144,7 @@ const Community = () => {
   };
 
   useEffect(() => { fetchPosts(); }, [activeCategory]);
+  useEffect(() => { fetchNotifications(); }, [user]);
 
   const createPost = async () => {
     if (!newTitle.trim() || !user) return;
@@ -171,6 +212,38 @@ const Community = () => {
 
   const initials = (name: string) => name?.charAt(0).toUpperCase() || "M";
 
+  // --- NOTIFICATIONS SHEET ---
+  if (showNotifications) {
+    return (
+      <div className="min-h-screen flex flex-col pb-20" style={{ background: "#FFF8F5" }}>
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 bg-white" style={{ borderBottom: "1px solid #FFE4D4" }}>
+          <button onClick={() => setShowNotifications(false)} className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
+          <h1 className="font-display text-[18px] font-bold" style={{ color: "#2A1200" }}>Notifications</h1>
+          <div className="w-10" />
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {notifications.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="font-display text-[13px] italic" style={{ color: "#D4B0A0" }}>No notifications yet 🌸</p>
+            </div>
+          ) : (
+            notifications.map(n => (
+              <button key={n.id} onClick={() => handleNotifTap(n)}
+                className="w-full text-left px-4 py-3 flex gap-3" style={{ borderBottom: "1px solid #FFF0E8", opacity: n.is_read ? 0.6 : 1 }}>
+                {!n.is_read && <div className="w-[3px] rounded-full self-stretch shrink-0" style={{ background: "#FFB899" }} />}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold" style={{ color: "#2A1200" }}>{n.title}</p>
+                  {n.body && <p className="text-[12px] leading-[1.4] mt-0.5 line-clamp-2" style={{ color: "#D4906A" }}>{n.body}</p>}
+                </div>
+                <span className="text-[10px] shrink-0" style={{ color: "#D4B0A0" }}>{timeAgo(n.created_at)}</span>
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // --- POST DETAIL ---
   if (selectedPost) {
     return (
@@ -181,7 +254,7 @@ const Community = () => {
             {selectedPost.category}
           </span>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="flex-1 overflow-y-auto px-5 py-4" style={{ paddingBottom: selectedPost.id.startsWith("seed-") ? "20px" : "80px" }}>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold" style={{ background: "#FFF0E8", color: "#D4906A" }}>
               {initials(selectedPost.author_name || "")}
@@ -205,34 +278,41 @@ const Community = () => {
           </button>
 
           <p className="text-[10px] uppercase tracking-wider mb-3" style={{ color: "#D4B0A0" }}>Replies</p>
-          <div className="space-y-3">
+          <div>
             {comments.length === 0 && (
               <p className="text-[12px] italic" style={{ color: "#D4B0A0" }}>No replies yet. Be the first to respond!</p>
             )}
-            {comments.map((c: any) => (
-              <div key={c.id} className="flex gap-2 rounded-[14px] p-3" style={{ background: "white", border: "1px solid #FFE4D4" }}>
-                <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0" style={{ background: "#FFF0E8", color: "#D4906A" }}>
-                  {initials(c.author_name)}
+            {comments.map((c: any, idx: number) => (
+              <div key={c.id}>
+                <div className="flex gap-2.5 py-3">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0" style={{ background: "#FFF0E8", color: "#D4906A" }}>
+                    {initials(c.author_name)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] font-semibold" style={{ color: "#2A1200" }}>{c.author_name}</span>
+                      <span className="text-[10px]" style={{ color: "#D4B0A0" }}>{timeAgo(c.created_at)}</span>
+                    </div>
+                    <p className="text-[13px] leading-[1.55] mt-0.5" style={{ color: "#2A1200" }}>{c.body}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[11px]" style={{ color: "#D4B0A0" }}>{c.author_name} · {timeAgo(c.created_at)}</p>
-                  <p className="text-[13px]" style={{ color: "#2A1200" }}>{c.body}</p>
-                </div>
+                {idx < comments.length - 1 && <div className="h-[1px]" style={{ background: "#FFF0E8" }} />}
               </div>
             ))}
           </div>
         </div>
-        {/* Comment input */}
+        {/* Sticky reply bar */}
         {!selectedPost.id.startsWith("seed-") && (
-          <div className="fixed bottom-16 left-0 right-0 px-4 py-3 bg-white flex gap-2" style={{ borderTop: "1px solid #FFE4D4" }}>
+          <div className="fixed bottom-16 left-0 right-0 px-4 py-2.5 bg-white flex items-center gap-2" style={{ borderTop: "1px solid #FFE4D4" }}>
             <input value={commentText} onChange={e => setCommentText(e.target.value)}
               onKeyDown={e => e.key === "Enter" && addComment()}
-              placeholder="Add your reply..." className="flex-1 h-10 rounded-[10px] px-4 text-sm font-display italic outline-none"
+              placeholder="Add your reply..."
+              className="flex-1 h-10 rounded-[22px] px-4 text-[13px] font-display italic outline-none"
               style={{ border: "1px solid #FFE4D4", background: "#FFF8F5", color: "#2A1200" }} />
             <button onClick={addComment} disabled={!commentText.trim()}
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center disabled:opacity-40"
+              className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0"
               style={{ background: "#FFB899" }}>
-              <Send size={16} style={{ color: "#2A1200" }} />
+              <Send size={14} style={{ color: "#2A1200" }} />
             </button>
           </div>
         )}
@@ -248,10 +328,18 @@ const Community = () => {
           <h1 className="font-display text-[22px] font-bold" style={{ color: "#2A1200" }}>Community</h1>
           <p className="text-[11px]" style={{ color: "#D4B0A0" }}>You're not alone in this</p>
         </div>
-        <button onClick={() => setShowCreate(true)} className="rounded-full px-3 py-1.5 text-[11px] font-semibold flex items-center gap-1 active:scale-[0.95] transition-transform"
-          style={{ background: "#FFB899", color: "#2A1200" }}>
-          <Plus size={14} /> Post
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowNotifications(true)} className="relative w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#FFF0E8" }}>
+            <Bell size={16} style={{ color: "#D4906A" }} />
+            {unreadCount > 0 && (
+              <div className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#FF6B6B" }} />
+            )}
+          </button>
+          <button onClick={() => setShowCreate(true)} className="rounded-full px-3 py-1.5 text-[11px] font-semibold flex items-center gap-1 active:scale-[0.95] transition-transform"
+            style={{ background: "#FFB899", color: "#2A1200" }}>
+            <Plus size={14} /> Post
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-2 px-5 mb-4 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
@@ -341,14 +429,11 @@ const Community = () => {
                 </button>
               ))}
             </div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowCreate(false)} className="flex-1 h-11 rounded-[14px] text-sm" style={{ border: "1px solid #FFE4D4", color: "#D4B0A0" }}>Cancel</button>
-              <button onClick={createPost} disabled={!newTitle.trim()}
-                className="flex-1 h-11 rounded-[14px] text-[14px] font-bold disabled:opacity-50 transition-opacity"
-                style={{ background: "#FFB899", color: "#2A1200" }}>
-                Post to community
-              </button>
-            </div>
+            <button onClick={createPost} disabled={!newTitle.trim()}
+              className="w-full h-[48px] rounded-[14px] text-[14px] font-bold disabled:opacity-50 transition-opacity"
+              style={{ background: "#FFB899", color: "#2A1200" }}>
+              Post to community 🌸
+            </button>
           </div>
         </div>
       )}

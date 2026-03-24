@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, Square } from "lucide-react";
+import { Send, Square, Camera, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
 interface Message {
   role: "user" | "assistant";
-  content: string;
+  content: string | Array<{ type: string; text?: string; source?: any }>;
+  imageUrl?: string;
 }
 
 const QUICK_PROMPTS = [
@@ -16,6 +17,7 @@ const QUICK_PROMPTS = [
   "Natural nausea remedies",
   "Help me sleep better",
   "What should I avoid eating?",
+  "Is this product safe? 📷",
 ];
 
 const AskDoula = () => {
@@ -25,8 +27,12 @@ const AskDoula = () => {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
+  const [attachedImage, setAttachedImage] = useState<{ base64: string; url: string } | null>(null);
+  const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -44,22 +50,57 @@ const AskDoula = () => {
       .then(({ count }) => setMessageCount(count || 0));
   }, [user]);
 
-  const sendMessage = async (text: string) => {
-    if (!text.trim() || isStreaming) return;
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setShowPhotoMenu(false);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64 = result.split(",")[1];
+      setAttachedImage({ base64, url: result });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const sendMessage = async (text: string, triggerPhoto = false) => {
+    if (triggerPhoto) {
+      fileInputRef.current?.click();
+      return;
+    }
+    if ((!text.trim() && !attachedImage) || isStreaming) return;
     if (!profile?.is_premium && messageCount >= 10) {
       toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
       return;
     }
 
-    const userMsg: Message = { role: "user", content: text };
+    const hasImage = !!attachedImage;
+    const imageUrl = attachedImage?.url;
+
+    // Build message content for API
+    let apiContent: any = text.trim() || (hasImage ? "Is this product safe to use during pregnancy?" : "");
+    if (hasImage) {
+      apiContent = [
+        { type: "image_url", image_url: { url: attachedImage.url } },
+        { type: "text", text: text.trim() || "Is this product safe to use during pregnancy?" },
+      ];
+    }
+
+    const userMsg: Message = { role: "user", content: typeof apiContent === "string" ? apiContent : text.trim() || "Is this product safe to use during pregnancy?", imageUrl: hasImage ? imageUrl : undefined };
+    const apiMsg = { role: "user" as const, content: apiContent };
+
     const newMessages = [...messages, userMsg];
+    const apiMessages = [...messages.map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : m.content })), apiMsg];
+
     setMessages(newMessages);
     setInput("");
+    setAttachedImage(null);
     setIsStreaming(true);
     setMessageCount(c => c + 1);
 
     if (user) {
-      await supabase.from("chat_messages").insert({ user_id: user.id, role: "user", content: text });
+      await supabase.from("chat_messages").insert({ user_id: user.id, role: "user", content: typeof userMsg.content === "string" ? userMsg.content : JSON.stringify(userMsg.content) });
     }
 
     const abortController = new AbortController();
@@ -73,7 +114,7 @@ const AskDoula = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: apiMessages }),
         signal: abortController.signal,
       });
 
@@ -135,8 +176,17 @@ const AskDoula = () => {
 
   const cancelStream = () => { abortRef.current?.abort(); };
 
+  const getTextContent = (content: Message["content"]) => {
+    if (typeof content === "string") return content;
+    return content.find(c => c.type === "text")?.text || "";
+  };
+
   return (
     <div className="flex flex-col h-screen" style={{ background: "#FFF8F5" }}>
+      {/* Hidden file inputs */}
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
+
       {/* Header */}
       <div className="px-5 pt-5 pb-3 bg-white" style={{ borderBottom: "1px solid #FFE4D4" }}>
         <div className="flex items-center gap-2 mb-0.5">
@@ -151,8 +201,8 @@ const AskDoula = () => {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
         {messages.length === 0 && (
           <div className="grid grid-cols-2 gap-3 mt-8">
-            {QUICK_PROMPTS.map(prompt => (
-              <button key={prompt} onClick={() => sendMessage(prompt)}
+            {QUICK_PROMPTS.map((prompt, idx) => (
+              <button key={prompt} onClick={() => idx === 4 ? sendMessage("", true) : sendMessage(prompt)}
                 className="rounded-[16px] p-3 text-left active:scale-[0.975] transition-transform"
                 style={{ background: "white", border: "1px solid #FFE4D4" }}>
                 <p className="font-display text-[13px] font-bold" style={{ color: "#D4906A" }}>{prompt}</p>
@@ -170,11 +220,14 @@ const AskDoula = () => {
                 ? { background: "#FFB899", color: "#2A1200" }
                 : { background: "white", border: "1px solid #FFE4D4", color: "#2A1200" }
               }>
+                {msg.imageUrl && (
+                  <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
+                )}
                 {msg.role === "assistant" ? (
                   <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "#2A1200" }}>
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    <ReactMarkdown>{typeof msg.content === "string" ? msg.content : getTextContent(msg.content)}</ReactMarkdown>
                   </div>
-                ) : msg.content}
+                ) : getTextContent(msg.content)}
               </div>
               {msg.role === "assistant" && (
                 <p className="text-[10px] mt-1 px-1" style={{ color: "#D4B0A0" }}>
@@ -204,14 +257,46 @@ const AskDoula = () => {
         </div>
       )}
 
+      {/* Photo menu */}
+      {showPhotoMenu && (
+        <div className="px-4 py-2 bg-white flex gap-2" style={{ borderTop: "1px solid #FFE4D4" }}>
+          <button onClick={() => { cameraInputRef.current?.click(); setShowPhotoMenu(false); }}
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FFF0E8", color: "#D4906A" }}>
+            📸 Take a photo
+          </button>
+          <button onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }}
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FFF0E8", color: "#D4906A" }}>
+            🖼️ Choose from library
+          </button>
+        </div>
+      )}
+
+      {/* Attached image preview */}
+      {attachedImage && (
+        <div className="px-4 py-2 bg-white" style={{ borderTop: "1px solid #FFE4D4" }}>
+          <div className="relative inline-block">
+            <img src={attachedImage.url} alt="Preview" className="w-[60px] h-[60px] rounded-[10px] object-cover" style={{ border: "1px solid #FFE4D4" }} />
+            <button onClick={() => setAttachedImage(null)}
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-white flex items-center justify-center" style={{ border: "1px solid #FFE4D4" }}>
+              <X size={10} style={{ color: "#D4906A" }} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <div className="px-4 py-3 bg-white" style={{ borderTop: "1px solid #FFE4D4" }}>
         <div className="flex items-center gap-2">
+          <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
+            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: "#FFF0E8" }}>
+            <Camera size={16} style={{ color: "#D4906A" }} />
+          </button>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
-            placeholder="Ask anything about your pregnancy..."
+            placeholder={attachedImage ? "Ask about this product..." : "Ask anything about your pregnancy..."}
             className="flex-1 h-10 rounded-[10px] px-4 text-sm outline-none"
             style={{ border: "1px solid #FFE4D4", background: "#FFF8F5", color: "#2A1200" }}
           />
@@ -220,7 +305,7 @@ const AskDoula = () => {
               <Square size={14} style={{ color: "#2A1200" }} />
             </button>
           ) : (
-            <button onClick={() => sendMessage(input)} disabled={!input.trim()}
+            <button onClick={() => sendMessage(input)} disabled={!input.trim() && !attachedImage}
               className="w-10 h-10 rounded-[10px] flex items-center justify-center disabled:opacity-40" style={{ background: "#FFB899" }}>
               <Send size={16} style={{ color: "#2A1200" }} />
             </button>

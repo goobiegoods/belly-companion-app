@@ -19,7 +19,15 @@ Always format your responses as follows:
 
 5. Close with a short warm sign-off (e.g. "You've got this, mama 🌸")
 
-Keep each point to 1–2 sentences maximum. Clarity over completeness.`;
+Keep each point to 1–2 sentences maximum. Clarity over completeness.
+
+When a user sends an image of a product, analyze the visible ingredients, label, or packaging and assess its pregnancy safety. Structure your response as:
+
+1. What you can see: briefly describe what the product appears to be
+2. Safety assessment: clearly state if it appears safe, use with caution, or avoid — with a simple headline like '✅ Generally considered safe' or '⚠️ Use with caution' or '🚫 Best to avoid during pregnancy'
+3. Key ingredients to note: call out any specific ingredients that are relevant to pregnancy safety
+4. Recommendation: one clear actionable sentence
+5. Always end with: 'When in doubt, check with your OB or midwife before using any new product during pregnancy.'`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });

@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { coursesData, Course } from "@/data/coursesData";
 import { getLessonContent, LessonContent } from "@/data/lessonContent";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, ChevronRight, Check, ArrowLeft } from "lucide-react";
+import { Lock, ChevronRight, Check, ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
 
 const FILTER_TABS = ["All", "Trimester", "Wellness", "Birth prep"];
@@ -21,6 +21,7 @@ const Courses = () => {
   const [showCompletion, setShowCompletion] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
   const [reflectionText, setReflectionText] = useState("");
+  const [reflectionSaved, setReflectionSaved] = useState(false);
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
 
@@ -116,6 +117,7 @@ const Courses = () => {
         toast.success("Lesson complete! ✓");
         setSelectedLesson(selectedLesson + 1);
         setReflectionText("");
+        setReflectionSaved(false);
         setQuizAnswer(null);
         setQuizSubmitted(false);
       }
@@ -125,7 +127,7 @@ const Courses = () => {
       <div className="min-h-screen flex flex-col" style={{ background: "#FFF8F5" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-white" style={{ borderBottom: "1px solid #FFE4D4" }}>
-          <button onClick={() => { setSelectedLesson(null); setReflectionText(""); setQuizAnswer(null); setQuizSubmitted(false); }}
+          <button onClick={() => { setSelectedLesson(null); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
             className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
           <p className="text-[13px] font-semibold truncate max-w-[180px]" style={{ color: "#2A1200" }}>{course.title}</p>
           <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: "#FFF0E8", color: "#D4906A" }}>
@@ -194,12 +196,24 @@ const Courses = () => {
             <p className="font-display text-[14px] italic mb-3" style={{ color: "#2A1200" }}>{lesson.reflection}</p>
             <textarea
               value={reflectionText}
-              onChange={e => setReflectionText(e.target.value)}
-              onBlur={() => saveReflection(lessonId, reflectionText)}
+              onChange={e => { setReflectionText(e.target.value); setReflectionSaved(false); }}
               placeholder="Write your thoughts..."
               className="w-full rounded-[10px] p-3 text-[13px] resize-none min-h-[80px] font-display italic"
               style={{ background: "#FFF8F5", border: "1px solid #FFE4D4", color: "#2A1200" }}
             />
+            <button
+              disabled={!reflectionText.trim() || reflectionSaved}
+              onClick={async () => {
+                await saveReflection(lessonId, reflectionText);
+                setReflectionSaved(true);
+              }}
+              className="mt-2 rounded-[12px] px-5 py-2.5 text-[13px] font-semibold disabled:opacity-50 transition-opacity"
+              style={{ background: "#FFB899", color: "#2A1200" }}>
+              Save my reflection 💭
+            </button>
+            {reflectionSaved && (
+              <p className="text-[12px] mt-1.5" style={{ color: "#C8E6C0" }}>Saved 🌸</p>
+            )}
           </div>
 
           {/* Block 6: Quiz */}
@@ -251,7 +265,7 @@ const Courses = () => {
         {/* Sticky bottom bar */}
         <div className="fixed bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3 bg-white" style={{ borderTop: "1px solid #FFE4D4" }}>
           {selectedLesson > 0 && (
-            <button onClick={() => { setSelectedLesson(selectedLesson - 1); setReflectionText(""); setQuizAnswer(null); setQuizSubmitted(false); }}
+            <button onClick={() => { setSelectedLesson(selectedLesson - 1); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
               className="h-11 px-4 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FFF0E8", color: "#D4906A" }}>
               ← Previous
             </button>
