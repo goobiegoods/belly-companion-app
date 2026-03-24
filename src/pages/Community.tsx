@@ -58,6 +58,10 @@ const Community = () => {
   const [comments, setComments] = useState<any[]>([]);
   const [commentText, setCommentText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState("");
+  const [replyError, setReplyError] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -148,6 +152,8 @@ const Community = () => {
 
   const createPost = async () => {
     if (!newTitle.trim() || !user) return;
+    setPosting(true);
+    setPostError("");
     const { error } = await supabase.from("posts").insert({
       user_id: user.id,
       title: newTitle.trim(),
@@ -156,13 +162,15 @@ const Community = () => {
       week_posted: currentWeek,
     });
     if (error) {
-      toast.error("Failed to post. Please try again.");
+      setPostError("Something went wrong. Please try again.");
+      setPosting(false);
       return;
     }
     setShowCreate(false);
     setNewTitle("");
     setNewBody("");
     setNewCategory("question");
+    setPosting(false);
     toast.success("Your post is live! 🌸");
     fetchPosts();
   };
@@ -181,6 +189,7 @@ const Community = () => {
 
   const openPost = async (post: Post) => {
     setSelectedPost(post);
+    setReplyError("");
     if (post.id.startsWith("seed-")) { setComments([]); return; }
     const { data } = await supabase.from("comments").select("*").eq("post_id", post.id).order("created_at", { ascending: true });
     if (data && data.length > 0) {
@@ -196,8 +205,31 @@ const Community = () => {
 
   const addComment = async () => {
     if (!commentText.trim() || !user || !selectedPost || selectedPost.id.startsWith("seed-")) return;
-    await supabase.from("comments").insert({ post_id: selectedPost.id, user_id: user.id, body: commentText });
+    setSendingReply(true);
+    setReplyError("");
+    const body = commentText.trim();
+    // Optimistic update
+    const optimisticComment = {
+      id: "temp-" + Date.now(),
+      post_id: selectedPost.id,
+      user_id: user.id,
+      body,
+      created_at: new Date().toISOString(),
+      author_name: profile?.first_name || "Mama",
+    };
+    setComments(prev => [...prev, optimisticComment]);
     setCommentText("");
+
+    const { error } = await supabase.from("comments").insert({ post_id: selectedPost.id, user_id: user.id, body });
+    setSendingReply(false);
+    if (error) {
+      // Rollback optimistic
+      setComments(prev => prev.filter(c => c.id !== optimisticComment.id));
+      setReplyError("Couldn't send. Try again.");
+      setCommentText(body);
+      return;
+    }
+    // Refetch to get real id
     openPost(selectedPost);
   };
 
@@ -211,17 +243,18 @@ const Community = () => {
   };
 
   const initials = (name: string) => name?.charAt(0).toUpperCase() || "M";
+  const userName = profile?.first_name || "Mama";
 
   // --- NOTIFICATIONS SHEET ---
   if (showNotifications) {
     return (
-      <div className="min-h-screen flex flex-col pb-20" style={{ background: "#FFF8F5" }}>
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 bg-white" style={{ borderBottom: "1px solid #FFE4D4" }}>
+      <div className="h-screen flex flex-col" style={{ background: "#FFF8F5" }}>
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 bg-white shrink-0" style={{ borderBottom: "1px solid #FFE4D4" }}>
           <button onClick={() => setShowNotifications(false)} className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
           <h1 className="font-display text-[18px] font-bold" style={{ color: "#2A1200" }}>Notifications</h1>
           <div className="w-10" />
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto pb-20">
           {notifications.length === 0 ? (
             <div className="text-center py-16">
               <p className="font-display text-[13px] italic" style={{ color: "#D4B0A0" }}>No notifications yet 🌸</p>
@@ -246,75 +279,94 @@ const Community = () => {
 
   // --- POST DETAIL ---
   if (selectedPost) {
+    const isSeeded = selectedPost.id.startsWith("seed-");
     return (
-      <div className="min-h-screen flex flex-col pb-20" style={{ background: "#FFF8F5" }}>
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 bg-white" style={{ borderBottom: "1px solid #FFE4D4" }}>
+      <div className="h-screen flex flex-col" style={{ background: "#FFF8F5" }}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 bg-white shrink-0" style={{ borderBottom: "1px solid #FFE4D4" }}>
           <button onClick={() => setSelectedPost(null)} className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
-          <span className="text-[9.5px] font-semibold px-2 py-1 rounded-full capitalize" style={{ background: CATEGORY_COLORS[selectedPost.category] || "#FFF0E8", color: "#D4906A" }}>
+          <span className="text-[10px] font-semibold px-[10px] py-[3px] rounded-full capitalize" style={{ background: CATEGORY_COLORS[selectedPost.category] || "#FFF0E8", color: "#D4906A" }}>
             {selectedPost.category}
           </span>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-4" style={{ paddingBottom: selectedPost.id.startsWith("seed-") ? "20px" : "80px" }}>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {/* Author row */}
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold" style={{ background: "#FFF0E8", color: "#D4906A" }}>
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-semibold shrink-0" style={{ background: "#FFF0E8", color: "#D4906A" }}>
               {initials(selectedPost.author_name || "")}
             </div>
             <div>
-              <span className="text-[13px] font-semibold" style={{ color: "#2A1200" }}>{selectedPost.author_name}</span>
-              <span className="text-[10px] ml-2" style={{ color: "#D4B0A0" }}>{timeAgo(selectedPost.created_at)}</span>
+              <span className="text-[14px] font-semibold" style={{ color: "#2A1200" }}>{selectedPost.author_name}</span>
+              <span className="text-[11px] ml-2" style={{ color: "#D4B0A0" }}>{timeAgo(selectedPost.created_at)}</span>
             </div>
             {selectedPost.week_posted && (
-              <span className="text-[9.5px] px-2 py-0.5 rounded-full ml-auto" style={{ background: "#FFF4EE", border: "1px solid #FFCDB4", color: "#D4906A" }}>
+              <span className="text-[9.5px] px-[9px] py-[2px] rounded-full ml-auto" style={{ background: "#FFF4EE", border: "1px solid #FFCDB4", color: "#D4906A" }}>
                 Week {selectedPost.week_posted} mama
               </span>
             )}
           </div>
-          <h2 className="font-display text-[20px] font-bold mb-3" style={{ color: "#2A1200" }}>{selectedPost.title}</h2>
-          <p className="text-[13px] leading-[1.75] mb-4" style={{ color: "#2A1200" }}>{selectedPost.body}</p>
 
-          <button onClick={() => toggleLike(selectedPost)} className="flex items-center gap-1.5 text-[12px] mb-6" style={{ color: "#D4B0A0" }}>
+          <h2 className="font-display text-[22px] font-bold mb-3" style={{ color: "#2A1200", textTransform: "none" }}>{selectedPost.title}</h2>
+          <p className="text-[14px] leading-[1.75] mb-4" style={{ color: "#2A1200" }}>{selectedPost.body}</p>
+
+          <button onClick={() => toggleLike(selectedPost)} className="flex items-center gap-1.5 text-[12px] mb-4" style={{ color: "#D4B0A0" }}>
             <Heart size={16} className={selectedPost.is_liked ? "fill-current" : ""} style={selectedPost.is_liked ? { color: "#D4906A" } : {}} />
             {selectedPost.likes} likes
           </button>
 
-          <p className="text-[10px] uppercase tracking-wider mb-3" style={{ color: "#D4B0A0" }}>Replies</p>
-          <div>
-            {comments.length === 0 && (
-              <p className="text-[12px] italic" style={{ color: "#D4B0A0" }}>No replies yet. Be the first to respond!</p>
-            )}
-            {comments.map((c: any, idx: number) => (
-              <div key={c.id}>
-                <div className="flex gap-2.5 py-3">
+          <div className="h-[1px] my-2" style={{ background: "#FFE4D4" }} />
+
+          <p className="text-[10px] uppercase tracking-wider mb-3 mt-4" style={{ color: "#D4B0A0", letterSpacing: "0.1em" }}>Replies</p>
+
+          {comments.length === 0 ? (
+            <p className="text-[13px] font-display italic text-center py-5" style={{ color: "#D4B0A0" }}>
+              No replies yet. Be the first to respond! 💕
+            </p>
+          ) : (
+            comments.map((c: any) => (
+              <div key={c.id} className="rounded-[14px] p-[12px_14px] mb-2" style={{ background: "#FFFFFF", border: "1px solid #FFE4D4" }}>
+                <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0" style={{ background: "#FFF0E8", color: "#D4906A" }}>
                     {initials(c.author_name)}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[12px] font-semibold" style={{ color: "#2A1200" }}>{c.author_name}</span>
-                      <span className="text-[10px]" style={{ color: "#D4B0A0" }}>{timeAgo(c.created_at)}</span>
-                    </div>
-                    <p className="text-[13px] leading-[1.55] mt-0.5" style={{ color: "#2A1200" }}>{c.body}</p>
-                  </div>
+                  <span className="text-[12px] font-semibold" style={{ color: "#2A1200" }}>{c.author_name}</span>
+                  <span className="text-[10px]" style={{ color: "#D4B0A0" }}>{timeAgo(c.created_at)}</span>
                 </div>
-                {idx < comments.length - 1 && <div className="h-[1px]" style={{ background: "#FFF0E8" }} />}
+                <p className="text-[13px] leading-[1.55] mt-1.5" style={{ color: "#2A1200" }}>{c.body}</p>
               </div>
-            ))}
-          </div>
+            ))
+          )}
+          {/* Bottom spacer for reply bar */}
+          <div className="h-4" />
         </div>
+
         {/* Sticky reply bar */}
-        {!selectedPost.id.startsWith("seed-") && (
-          <div className="fixed bottom-16 left-0 right-0 px-4 py-2.5 bg-white flex items-center gap-2" style={{ borderTop: "1px solid #FFE4D4" }}>
-            <input value={commentText} onChange={e => setCommentText(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && addComment()}
-              placeholder="Add your reply..."
-              className="flex-1 h-10 rounded-[22px] px-4 text-[13px] font-display italic outline-none"
-              style={{ border: "1px solid #FFE4D4", background: "#FFF8F5", color: "#2A1200" }} />
-            <button onClick={addComment} disabled={!commentText.trim()}
-              className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0"
-              style={{ background: "#FFB899" }}>
-              <Send size={14} style={{ color: "#2A1200" }} />
-            </button>
+        <div className="shrink-0 bg-white flex items-center gap-2 px-4 py-[10px] pb-5" style={{ borderTop: "1px solid #FFE4D4" }}>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0" style={{ background: "#FFF0E8", color: "#D4906A" }}>
+            {initials(userName)}
           </div>
+          <input
+            value={commentText}
+            onChange={e => setCommentText(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
+            placeholder={isSeeded ? "Sign in to reply" : `Reply to ${selectedPost.author_name}...`}
+            disabled={isSeeded || !user}
+            className="flex-1 h-10 rounded-[22px] px-4 text-[13px] font-display italic outline-none disabled:opacity-50"
+            style={{ border: "1px solid #FFE4D4", background: "#FFF8F5", color: "#2A1200" }}
+          />
+          <button
+            onClick={addComment}
+            disabled={!commentText.trim() || sendingReply || isSeeded || !user}
+            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 disabled:opacity-40 active:scale-[0.92] transition-transform"
+            style={{ background: "#FFB899" }}
+          >
+            <Send size={14} style={{ color: "#2A1200" }} />
+          </button>
+        </div>
+        {replyError && (
+          <div className="px-5 pb-2 text-[12px]" style={{ color: "#D4906A" }}>{replyError}</div>
         )}
       </div>
     );
@@ -386,7 +438,7 @@ const Community = () => {
               <span className="inline-block text-[9.5px] font-semibold px-2 py-0.5 rounded-full capitalize mb-1" style={{ background: CATEGORY_COLORS[post.category] || "#FFF0E8", color: "#D4906A" }}>
                 {post.category}
               </span>
-              <p className="font-display text-[14px] font-bold mt-1 mb-1" style={{ color: "#2A1200" }}>{post.title}</p>
+              <p className="font-display text-[14px] font-bold mt-1 mb-1" style={{ color: "#2A1200", textTransform: "none" }}>{post.title}</p>
               <p className="text-[12px] line-clamp-2 leading-[1.5]" style={{ color: "#D4906A" }}>{post.body}</p>
               <div className="flex items-center gap-4 mt-2.5 pt-2" style={{ borderTop: "1px solid #FFF0E8" }}>
                 <button onClick={(e) => { e.stopPropagation(); toggleLike(post); }} className="flex items-center gap-1 text-[11px]" style={{ color: "#D4B0A0" }}>
@@ -403,37 +455,68 @@ const Community = () => {
 
       {/* Create post sheet */}
       {showCreate && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end" onClick={() => setShowCreate(false)}>
-          <div className="bg-white w-full rounded-t-[24px] p-5 space-y-4 animate-in slide-in-from-bottom" onClick={e => e.stopPropagation()}>
-            <div className="w-12 h-1.5 rounded-full mx-auto" style={{ background: "#FFE4D4" }} />
-            <h2 className="font-display text-[18px] font-bold" style={{ color: "#2A1200" }}>Create a post</h2>
-            <input value={newTitle} onChange={e => setNewTitle(e.target.value)}
-              placeholder="Give your post a title..."
-              className="w-full rounded-[12px] p-[12px_14px] text-[14px] font-display italic outline-none"
-              style={{ background: "#FFF8F5", border: "1px solid #FFE4D4", color: "#2A1200" }} />
-            <textarea value={newBody} onChange={e => setNewBody(e.target.value)}
-              placeholder="What's on your mind, mama?"
-              rows={5}
-              className="w-full rounded-[12px] p-[12px_14px] text-[13px] font-display italic outline-none resize-none min-h-[120px]"
-              style={{ background: "#FFF8F5", border: "1px solid #FFE4D4", color: "#2A1200" }} />
-            <div className="flex gap-2">
-              {["question", "story", "tip", "support"].map(cat => (
-                <button key={cat} onClick={() => setNewCategory(cat)}
-                  className="rounded-full px-3 py-1.5 text-[11px] capitalize transition-all"
-                  style={{
-                    background: newCategory === cat ? "#FFB899" : "#FFF0E8",
-                    color: newCategory === cat ? "#2A1200" : "#D4906A",
-                    fontWeight: newCategory === cat ? 600 : 500,
-                  }}>
-                  {cat}
-                </button>
-              ))}
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end" onClick={() => { setShowCreate(false); setPostError(""); }}>
+          <div
+            className="bg-white w-full rounded-t-[24px] flex flex-col"
+            style={{ maxHeight: "85vh" }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Handle */}
+            <div className="pt-3 pb-0 flex justify-center shrink-0">
+              <div className="w-10 h-[5px] rounded-full" style={{ background: "#FFCDB4" }} />
             </div>
-            <button onClick={createPost} disabled={!newTitle.trim()}
-              className="w-full h-[48px] rounded-[14px] text-[14px] font-bold disabled:opacity-50 transition-opacity"
-              style={{ background: "#FFB899", color: "#2A1200" }}>
-              Post to community 🌸
-            </button>
+
+            {/* Title */}
+            <h2 className="font-display text-[20px] font-bold px-5 pt-4 pb-4 shrink-0" style={{ color: "#2A1200" }}>Create a post</h2>
+
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto px-5 pb-2">
+              <input
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                placeholder="Give your post a title..."
+                className="w-full rounded-[12px] p-[12px_16px] text-[15px] font-display italic outline-none mb-3"
+                style={{ background: "#FFF8F5", border: "1px solid #FFE4D4", color: "#2A1200", textTransform: "none" }}
+              />
+              <textarea
+                value={newBody}
+                onChange={e => setNewBody(e.target.value)}
+                placeholder="What's on your mind, mama?"
+                rows={5}
+                className="w-full rounded-[12px] p-[12px_16px] text-[13px] font-display italic outline-none resize-none mb-4"
+                style={{ background: "#FFF8F5", border: "1px solid #FFE4D4", color: "#2A1200", minHeight: "140px" }}
+              />
+              <p className="text-[10px] uppercase mb-2" style={{ color: "#D4B0A0", letterSpacing: "0.1em" }}>Post type</p>
+              <div className="flex gap-2 flex-wrap mb-2">
+                {["question", "story", "tip", "support"].map(cat => (
+                  <button key={cat} onClick={() => setNewCategory(cat)}
+                    className="rounded-full px-4 py-[7px] text-[12px] capitalize transition-all"
+                    style={{
+                      background: newCategory === cat ? "#FFB899" : "#FFF0E8",
+                      color: newCategory === cat ? "#2A1200" : "#D4906A",
+                      fontWeight: newCategory === cat ? 600 : 500,
+                      border: `1px solid ${newCategory === cat ? "#FFB899" : "#FFE4D4"}`,
+                    }}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Fixed bottom submit */}
+            <div className="shrink-0 px-5 py-4 bg-white" style={{ borderTop: "1px solid #FFF0E8" }}>
+              <button
+                onClick={createPost}
+                disabled={!newTitle.trim() || posting}
+                className="w-full rounded-[14px] py-[14px] text-[15px] font-display font-bold transition-all active:scale-[0.97] disabled:opacity-45 disabled:cursor-not-allowed"
+                style={{ background: "#FFB899", color: "#2A1200", border: "none" }}
+              >
+                {posting ? "Posting..." : "Post to community 🌸"}
+              </button>
+              {postError && (
+                <p className="text-[12px] text-center mt-2" style={{ color: "#D4906A" }}>{postError}</p>
+              )}
+            </div>
           </div>
         </div>
       )}
