@@ -504,7 +504,7 @@ const Community = () => {
             </div>
 
             {/* Fixed bottom submit */}
-            <div className="shrink-0 px-5 py-4 bg-white" style={{ borderTop: "1px solid #FFF0E8" }}>
+            <div className="shrink-0 px-5 bg-white" style={{ borderTop: "1px solid #FFF0E8", padding: "16px 20px calc(16px + env(safe-area-inset-bottom))" }}>
               <button
                 onClick={createPost}
                 disabled={!newTitle.trim() || posting}
