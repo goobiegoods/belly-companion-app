@@ -127,7 +127,7 @@ const Courses = () => {
       <div className="min-h-screen flex flex-col" style={{ background: "#FFF8F5" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-white" style={{ borderBottom: "1px solid #FFE4D4" }}>
-          <button onClick={() => { setSelectedLesson(null); setReflectionText(""); setQuizAnswer(null); setQuizSubmitted(false); }}
+          <button onClick={() => { setSelectedLesson(null); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
             className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
           <p className="text-[13px] font-semibold truncate max-w-[180px]" style={{ color: "#2A1200" }}>{course.title}</p>
           <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: "#FFF0E8", color: "#D4906A" }}>
