@@ -117,6 +117,7 @@ const Courses = () => {
         toast.success("Lesson complete! ✓");
         setSelectedLesson(selectedLesson + 1);
         setReflectionText("");
+        setReflectionSaved(false);
         setQuizAnswer(null);
         setQuizSubmitted(false);
       }
