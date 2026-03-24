@@ -281,7 +281,7 @@ const Community = () => {
   if (selectedPost) {
     const isSeeded = selectedPost.id.startsWith("seed-");
     return (
-      <div className="fixed inset-0 z-40 flex flex-col" style={{ background: "#FFF8F5" }}>
+      <div className="fixed inset-0 z-[100] flex flex-col" style={{ background: "#FFF8F5" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 bg-white shrink-0" style={{ borderBottom: "1px solid #FFE4D4" }}>
           <button onClick={() => { setSelectedPost(null); fetchPosts(); }} className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
@@ -342,7 +342,7 @@ const Community = () => {
         </div>
 
         {/* Sticky reply bar */}
-        <div className="shrink-0 bg-white px-4 pt-[10px]" style={{ borderTop: "1px solid #FFE4D4", paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}>
+        <div className="shrink-0 px-4 pt-[10px]" style={{ borderTop: "1px solid #FFE4D4", paddingBottom: "max(20px, env(safe-area-inset-bottom))", zIndex: 101, position: "relative", background: "#FFFFFF" }}>
           {replyError && (
             <p className="text-[12px] mb-2" style={{ color: "#D4906A" }}>{replyError}</p>
           )}
