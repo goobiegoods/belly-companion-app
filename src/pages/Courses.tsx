@@ -21,6 +21,7 @@ const Courses = () => {
   const [showCompletion, setShowCompletion] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
   const [reflectionText, setReflectionText] = useState("");
+  const [reflectionSaved, setReflectionSaved] = useState(false);
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
 

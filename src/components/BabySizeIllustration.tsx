@@ -98,7 +98,7 @@ const BabySizeIllustration = ({ week, size = 80 }: Props) => {
       <g><ellipse cx="40" cy="42" rx="20" ry="18" fill={f2} stroke={s} strokeWidth={sw} /><path d="M30 42 Q40 34 50 42" stroke={s} strokeWidth={0.8} fill="none" /><line x1="40" y1="24" x2="40" y2="18" stroke={s} strokeWidth={1.2} /></g>
     ),
     33: ( // Pineapple large
-      <g><ellipse cx="40" cy="46" rx="18" ry="22" fill={f2} stroke={s} strokeWidth={sw} /><path d="M32 24 L28 12" stroke={s} strokeWidth={1.2} /><path d="M40" y1="24" x2="40" y2="10" stroke={s} strokeWidth={1.2} /><path d="M48 24 L52 12" stroke={s} strokeWidth={1.2} /><line x1="28" y1="38" x2="52" y2="38" stroke={s} strokeWidth={0.5} /><line x1="28" y1="46" x2="52" y2="46" stroke={s} strokeWidth={0.5} /><line x1="28" y1="54" x2="52" y2="54" stroke={s} strokeWidth={0.5} /></g>
+      <g><ellipse cx="40" cy="46" rx="18" ry="22" fill={f2} stroke={s} strokeWidth={sw} /><line x1="32" y1="24" x2="28" y2="12" stroke={s} strokeWidth={1.2} /><line x1="40" y1="24" x2="40" y2="10" stroke={s} strokeWidth={1.2} /><line x1="48" y1="24" x2="52" y2="12" stroke={s} strokeWidth={1.2} /><line x1="28" y1="38" x2="52" y2="38" stroke={s} strokeWidth={0.5} /><line x1="28" y1="46" x2="52" y2="46" stroke={s} strokeWidth={0.5} /><line x1="28" y1="54" x2="52" y2="54" stroke={s} strokeWidth={0.5} /></g>
     ),
     34: ( // Cantaloupe
       <g><ellipse cx="40" cy="40" rx="22" ry="20" fill={f1} stroke={s} strokeWidth={sw} /><path d="M20 40 Q40 30 60 40" stroke={s} strokeWidth={0.6} fill="none" /><path d="M40 20 Q45 40 40 60" stroke={s} strokeWidth={0.6} fill="none" /></g>
