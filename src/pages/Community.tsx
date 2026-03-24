@@ -458,8 +458,7 @@ const Community = () => {
       {showCreate && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end" onClick={() => { setShowCreate(false); setPostError(""); }}>
           <div
-            className="bg-white w-full rounded-t-[24px] flex flex-col"
-            style={{ maxHeight: "85vh" }}
+            className="bg-white w-full rounded-t-[24px] flex flex-col max-h-[85vh] overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
             {/* Handle */}
