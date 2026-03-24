@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { coursesData, Course } from "@/data/coursesData";
 import { getLessonContent, LessonContent } from "@/data/lessonContent";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, ChevronRight, Check, ArrowLeft } from "lucide-react";
+import { Lock, ChevronRight, Check, ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
 
 const FILTER_TABS = ["All", "Trimester", "Wellness", "Birth prep"];
