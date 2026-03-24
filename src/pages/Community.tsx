@@ -281,7 +281,7 @@ const Community = () => {
   if (selectedPost) {
     const isSeeded = selectedPost.id.startsWith("seed-");
     return (
-      <div className="fixed inset-0 z-40 flex flex-col" style={{ background: "#FFF8F5" }}>
+      <div className="fixed inset-0 z-[100] flex flex-col" style={{ background: "#FFF8F5" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 bg-white shrink-0" style={{ borderBottom: "1px solid #FFE4D4" }}>
           <button onClick={() => { setSelectedPost(null); fetchPosts(); }} className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
