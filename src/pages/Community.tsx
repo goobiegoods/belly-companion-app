@@ -456,7 +456,7 @@ const Community = () => {
 
       {/* Create post sheet */}
       {showCreate && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end" onClick={() => { setShowCreate(false); setPostError(""); fetchPosts(); }}>
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-end" onClick={() => { setShowCreate(false); setPostError(""); fetchPosts(); }}>
           <div
             className="bg-white w-full rounded-t-[24px] flex flex-col max-h-[85vh] overflow-hidden"
             onClick={e => e.stopPropagation()}
@@ -504,7 +504,7 @@ const Community = () => {
             </div>
 
             {/* Fixed bottom submit */}
-            <div className="shrink-0 px-5 py-4 bg-white" style={{ borderTop: "1px solid #FFF0E8" }}>
+            <div className="shrink-0 px-5 bg-white" style={{ borderTop: "1px solid #FFF0E8", padding: "16px 20px calc(16px + env(safe-area-inset-bottom))" }}>
               <button
                 onClick={createPost}
                 disabled={!newTitle.trim() || posting}
