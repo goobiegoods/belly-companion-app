@@ -1,49 +1,45 @@
 
 
-# Fix Community Section — Submit Button & Reply Bar
+# Fix Community — Create Post Sheet & Reply Bar
 
-## Problems Identified
+## Root Causes Found
 
-1. **Create post sheet**: The bottom sheet uses `items-end` + no max-height, so on smaller screens the button gets pushed below the viewport. The sheet content needs a max-height with scrollable body and a fixed/sticky submit button.
+Both bugs are in **`src/pages/Community.tsx`** (single file, no separate components).
 
-2. **Reply bar**: The sticky reply bar is positioned at `bottom-16` (to account for bottom nav) but only renders for non-seeded posts. The bar exists in code but may be clipped by the `pb-20` and `bottom-16` positioning. The main issue is the reply bar needs better positioning and the input should use a textarea for multi-line support.
+**Bug 1 — Create Post Sheet (lines 456-522):** The sheet uses `maxHeight: "85vh"` with `flex-col`, but `flex-1 overflow-y-auto` on the scrollable area doesn't reliably expand because the parent height is set via `maxHeight` (not a fixed height). On mobile with virtual keyboard, the button gets pushed below. Fix: use `max-h-[85vh]` as a Tailwind class combined with explicit `overflow-hidden` on the outer container, and ensure the scrollable area gets `min-h-0` (required for flex overflow to work).
 
-3. **Title casing**: No text-transform issue in code — titles store as-typed, but need to add `style={{ textTransform: 'none' }}` explicitly to prevent any inherited styles.
+**Bug 2 — Reply Bar (lines 280-372):** The post detail uses `h-screen` but the page renders inside a layout with a bottom nav bar (~64px). The reply bar sits at the bottom of `h-screen` which means it's hidden behind the bottom nav. Fix: use `h-[100dvh]` or calculate height minus bottom nav, or use `pb-16` on the container to account for the nav.
 
-4. **Feed refresh**: Already calls `fetchPosts()` after create — working. Can add refetch on sheet close for safety.
+## Changes — `src/pages/Community.tsx`
 
-5. **Reply count**: Already fetches from comments table — working.
+### 1. Create Post Sheet rewrite (lines 456-522)
+- Change outer overlay to `fixed inset-0 z-50 flex items-end justify-center`
+- Sheet container: `w-full rounded-t-[24px] bg-white flex flex-col max-h-[85vh] overflow-hidden`
+- Handle bar: `shrink-0`
+- Title "Create a post": `shrink-0`
+- Scrollable content (inputs + category): `flex-1 overflow-y-auto min-h-0 px-5 pb-4`
+- Submit button area: `shrink-0 px-5 py-4 bg-white` with `borderTop` — never scrolls
+- Also add `onOpenChange` callback to refetch posts when sheet closes
 
-## Changes
+### 2. Post Detail rewrite (lines 280-372)
+- Change container from `h-screen` to `fixed inset-0 z-40 flex flex-col` so it overlays the entire viewport including the bottom nav
+- Header: `shrink-0`
+- Scrollable body: `flex-1 overflow-y-auto min-h-0`
+- Reply bar: `shrink-0` at the very bottom, add `pb-[env(safe-area-inset-bottom)]` for iOS
+- Move `replyError` display inside the reply bar div (above the input row) instead of below the entire bar
 
-### File: `src/pages/Community.tsx`
+### 3. Feed refresh on sheet close
+- In the overlay's `onClick` dismiss handler, call `fetchPosts()` after closing
+- Already calls `fetchPosts()` after successful create — keep that
 
-**1. Rebuild create post sheet (lines 405-438)**
-- Add `max-h-[85vh]` to the sheet container
-- Split into scrollable content area (title, body, category) and fixed bottom area (submit button)
-- Add "Post type" label above category pills
-- Add loading state to submit button
-- Add inline error display
-- Style submit button with active:scale-[0.97]
-
-**2. Fix reply bar in post detail (lines 248-320)**
-- Change the post detail container from `min-h-screen` to `h-screen flex flex-col` so the reply bar stays visible
-- Move reply bar from `fixed bottom-16` to a flex layout: scrollable body takes `flex-1 overflow-y-auto`, reply bar sits below as a non-scrolling element
-- Add current user avatar to reply bar
-- Change placeholder to "Reply to [author name]..."
-- Add optimistic update for new comments (append immediately, don't re-fetch)
-- Handle notification insert is already done by the DB trigger — no client-side insert needed
-- Show reply bar for all posts (including seeded, but disable send for seeded)
-- Add inline error state
-
-**3. Title text-transform**
-- Add `textTransform: 'none'` to title display in post cards and detail
-
-**4. Comment count accuracy**
-- Already working via the `countMap` logic in `fetchPosts`
+### 4. Minor
+- Ensure `textTransform: 'none'` on title input and display (already present)
+- Comment count already works via `countMap`
 
 ## Technical Details
-- Single file change: `src/pages/Community.tsx`
-- No database changes needed
+- Single file: `src/pages/Community.tsx`
+- No database changes
 - No new dependencies
+- The key CSS fix is `min-h-0` on the flex child with `overflow-y-auto` — without it, flex items don't shrink below their content size and overflow doesn't activate
+- Post detail uses `fixed inset-0` to escape the parent layout's constraints entirely
 
