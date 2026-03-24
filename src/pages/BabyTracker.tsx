@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek, getWeekData, pregnancyWeeks } from "@/data/pregnancyWeeks";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import BabySizeIllustration from "@/components/BabySizeIllustration";
 
 const BabyTracker = () => {
   const { profile, user } = useAuth();
@@ -36,9 +37,14 @@ const BabyTracker = () => {
     <div className="min-h-screen bg-belly-bg pb-20">
       {/* Hero */}
       <div className="bg-primary rounded-b-hero px-5 pt-6 pb-5">
-        <div className="text-center mb-4">
-          <p className="font-display text-[48px] font-bold text-primary-foreground">{selectedWeek}</p>
-          <p className="text-[11px] text-primary-foreground/60 uppercase tracking-wider">Weeks pregnant</p>
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="text-center">
+            <p className="font-display text-[48px] font-bold text-primary-foreground">{selectedWeek}</p>
+            <p className="text-[11px] text-primary-foreground/60 uppercase tracking-wider">Weeks pregnant</p>
+          </div>
+          <div className="opacity-85" style={{ background: "rgba(255,212,224,0.2)", borderRadius: "50%", padding: "8px" }}>
+            <BabySizeIllustration week={selectedWeek} size={80} />
+          </div>
         </div>
         <p className="text-center text-primary-foreground/80 text-sm">{weekData.babySize}</p>
       </div>
@@ -65,17 +71,25 @@ const BabyTracker = () => {
       {/* Week detail */}
       <div className="px-5 mb-5">
         <div className="bg-card border border-belly-card-border rounded-card overflow-hidden">
-          {[
-            { title: "Baby development", content: weekData.developmentHighlight },
-            { title: "Baby size", content: `${weekData.babySize} · ${weekData.babyLength} · ${weekData.babyWeight}` },
-            { title: "What you might feel", content: weekData.momSymptoms.join(" · ") },
-            { title: "Natural tip", content: weekData.naturalTip },
-          ].map((section, i) => (
-            <div key={i} className={`p-4 ${i > 0 ? "border-t border-belly-divider" : ""}`}>
-              <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-1">{section.title}</p>
-              <p className="text-[13px] text-foreground leading-relaxed">{section.content}</p>
+          <div className="p-4">
+            <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-1">Baby development</p>
+            <p className="text-[13px] text-foreground leading-relaxed">{weekData.developmentHighlight}</p>
+          </div>
+          <div className="p-4 border-t border-belly-divider flex items-center gap-3">
+            <BabySizeIllustration week={selectedWeek} size={60} />
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-1">Baby size</p>
+              <p className="text-[13px] text-foreground leading-relaxed">{weekData.babySize} · {weekData.babyLength} · {weekData.babyWeight}</p>
             </div>
-          ))}
+          </div>
+          <div className="p-4 border-t border-belly-divider">
+            <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-1">What you might feel</p>
+            <p className="text-[13px] text-foreground leading-relaxed">{weekData.momSymptoms.join(" · ")}</p>
+          </div>
+          <div className="p-4 border-t border-belly-divider">
+            <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-1">Natural tip</p>
+            <p className="text-[13px] text-foreground leading-relaxed">{weekData.naturalTip}</p>
+          </div>
         </div>
       </div>
 
@@ -99,7 +113,9 @@ const BabyTracker = () => {
           <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-2">KICK COUNTER</p>
           <p className="font-display text-[48px] font-bold text-foreground mb-3">{kickCount}</p>
           <div className="flex gap-3 justify-center">
-            <button onClick={addKick} className="bg-primary text-primary-foreground rounded-pill px-6 py-2.5 font-semibold text-sm belly-btn-press">
+            <button onClick={addKick}
+              className="rounded-pill px-6 py-2.5 font-semibold text-sm belly-btn-press active:scale-95"
+              style={{ background: "#FFD4E0", color: "#8B2252" }}>
               + Kick
             </button>
             <button onClick={() => setKickCount(0)} className="bg-belly-icon-bg text-belly-text-muted rounded-pill px-5 py-2.5 text-sm belly-btn-press">
