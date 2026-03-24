@@ -195,12 +195,24 @@ const Courses = () => {
             <p className="font-display text-[14px] italic mb-3" style={{ color: "#2A1200" }}>{lesson.reflection}</p>
             <textarea
               value={reflectionText}
-              onChange={e => setReflectionText(e.target.value)}
-              onBlur={() => saveReflection(lessonId, reflectionText)}
+              onChange={e => { setReflectionText(e.target.value); setReflectionSaved(false); }}
               placeholder="Write your thoughts..."
               className="w-full rounded-[10px] p-3 text-[13px] resize-none min-h-[80px] font-display italic"
               style={{ background: "#FFF8F5", border: "1px solid #FFE4D4", color: "#2A1200" }}
             />
+            <button
+              disabled={!reflectionText.trim() || reflectionSaved}
+              onClick={async () => {
+                await saveReflection(lessonId, reflectionText);
+                setReflectionSaved(true);
+              }}
+              className="mt-2 rounded-[12px] px-5 py-2.5 text-[13px] font-semibold disabled:opacity-50 transition-opacity"
+              style={{ background: "#FFB899", color: "#2A1200" }}>
+              Save my reflection 💭
+            </button>
+            {reflectionSaved && (
+              <p className="text-[12px] mt-1.5" style={{ color: "#C8E6C0" }}>Saved 🌸</p>
+            )}
           </div>
 
           {/* Block 6: Quiz */}
