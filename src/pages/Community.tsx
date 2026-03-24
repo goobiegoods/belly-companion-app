@@ -342,7 +342,7 @@ const Community = () => {
         </div>
 
         {/* Sticky reply bar */}
-        <div className="shrink-0 bg-white px-4 pt-[10px]" style={{ borderTop: "1px solid #FFE4D4", paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}>
+        <div className="shrink-0 px-4 pt-[10px]" style={{ borderTop: "1px solid #FFE4D4", paddingBottom: "max(20px, env(safe-area-inset-bottom))", zIndex: 101, position: "relative", background: "#FFFFFF" }}>
           {replyError && (
             <p className="text-[12px] mb-2" style={{ color: "#D4906A" }}>{replyError}</p>
           )}
