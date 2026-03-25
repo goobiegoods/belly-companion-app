@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Home, Heart, MessageCircle, Users, User } from "lucide-react";
+import { Home, Heart, MessageCircle, Users, ShoppingBag, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -9,6 +9,7 @@ const tabs = [
   { path: "/baby", icon: Heart, label: "Baby" },
   { path: "/ask", icon: MessageCircle, label: "Ask" },
   { path: "/community", icon: Users, label: "Community" },
+  { path: "/shop", icon: ShoppingBag, label: "Shop" },
   { path: "/me", icon: User, label: "Me" },
 ];
 
@@ -37,9 +38,9 @@ const BottomNav = () => {
             <button
               key={path}
               onClick={() => navigate(path)}
-              className="flex flex-col items-center gap-0.5 min-w-[56px] belly-btn-press relative"
+              className="flex flex-col items-center gap-0.5 min-w-[48px] belly-btn-press relative"
             >
-              <div className="relative">
+              <div className="relative" style={{ transition: "transform 200ms ease", transform: active ? "translateY(-2px)" : "none" }}>
                 <Icon size={20} className={active ? "text-belly-accent" : "text-belly-text-hint"} />
                 {path === "/community" && unreadNotifs > 0 && (
                   <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ background: "#FF6B6B" }} />
@@ -48,7 +49,9 @@ const BottomNav = () => {
               <span className={`text-[9px] uppercase tracking-[0.07em] ${active ? "text-belly-accent font-semibold" : "text-belly-text-hint"}`}>
                 {label}
               </span>
-              {active && <div className="w-1 h-1 rounded-full bg-belly-accent" />}
+              {active && (
+                <div className="w-1 h-1 rounded-full bg-belly-accent" style={{ animation: "dotScale 200ms cubic-bezier(0.34, 1.56, 0.64, 1)" }} />
+              )}
             </button>
           );
         })}

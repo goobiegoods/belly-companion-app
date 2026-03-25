@@ -19,7 +19,7 @@ const HomePage = () => {
   const firstSentence = weekData.developmentHighlight.split(/(?<=\.)\s/)[0] || weekData.developmentHighlight;
 
   return (
-    <div className="min-h-screen bg-belly-bg pb-20">
+    <div className="min-h-screen bg-belly-bg pb-20 page-enter">
       {/* Header */}
       <div className="px-5 pt-5 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
@@ -41,7 +41,7 @@ const HomePage = () => {
 
       {/* Hero card */}
       <div className="px-5 mb-5">
-        <div className="bg-primary rounded-hero p-5 relative overflow-hidden">
+        <div className="belly-hero-gradient rounded-hero p-5 relative overflow-hidden">
           <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-white/10" />
           <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-white/8" />
           <div className="absolute top-4 right-4 opacity-85">

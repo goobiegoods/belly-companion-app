@@ -34,9 +34,9 @@ const BabyTracker = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-belly-bg pb-20">
+    <div className="min-h-screen bg-belly-bg pb-20 page-enter">
       {/* Hero */}
-      <div className="bg-primary rounded-b-hero px-5 pt-6 pb-5">
+      <div className="belly-hero-gradient rounded-b-hero px-5 pt-6 pb-5">
         <div className="flex items-center justify-center gap-4 mb-4">
           <div className="text-center">
             <p className="font-display text-[48px] font-bold text-primary-foreground">{selectedWeek}</p>

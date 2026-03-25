@@ -182,7 +182,7 @@ const AskDoula = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen" style={{ background: "#FFF8F5" }}>
+    <div className="flex flex-col h-screen page-enter" style={{ background: "#FFF8F5" }}>
       {/* Hidden file inputs */}
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
