@@ -80,7 +80,7 @@ const Journal = () => {
   });
 
   return (
-    <div className="min-h-screen bg-belly-bg pb-20">
+    <div className="min-h-screen bg-belly-bg pb-20 page-enter">
       <div className="px-5 pt-5 pb-3">
         <h1 className="font-display text-[22px] font-bold text-foreground">Journal</h1>
         <p className="text-[11px] text-belly-text-muted">Track how you feel each day</p>

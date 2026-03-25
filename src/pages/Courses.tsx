@@ -322,7 +322,7 @@ const Courses = () => {
 
   // --- MAIN COURSE LIST ---
   return (
-    <div className="min-h-screen pb-20" style={{ background: "#FFF8F5" }}>
+    <div className="min-h-screen pb-20 page-enter" style={{ background: "#FFF8F5" }}>
       {/* Header */}
       <div className="px-5 pt-5 pb-1">
         <h1 className="font-display text-[26px] font-bold" style={{ color: "#2A1200" }}>Your courses</h1>
@@ -330,7 +330,7 @@ const Courses = () => {
       </div>
 
       {/* Hero Progress Card */}
-      <div className="mx-4 mt-3 mb-4 p-[18px_20px] rounded-[20px] relative overflow-hidden" style={{ background: "#FFB899" }}>
+      <div className="mx-4 mt-3 mb-4 p-[18px_20px] rounded-[20px] relative overflow-hidden belly-hero-gradient">
         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }} />
         <p className="text-[9.5px] uppercase tracking-widest mb-1" style={{ color: "rgba(42,18,0,0.5)" }}>YOUR PROGRESS</p>
         <p className="font-display text-[18px] font-bold mb-2" style={{ color: "#2A1200" }}>

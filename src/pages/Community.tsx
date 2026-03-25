@@ -375,7 +375,7 @@ const Community = () => {
 
   // --- FEED ---
   return (
-    <div className="min-h-screen pb-20" style={{ background: "#FFF8F5" }}>
+    <div className="min-h-screen pb-20 page-enter" style={{ background: "#FFF8F5" }}>
       <div className="px-5 pt-5 pb-3 flex items-center justify-between">
         <div>
           <h1 className="font-display text-[22px] font-bold" style={{ color: "#2A1200" }}>Community</h1>

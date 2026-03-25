@@ -37,9 +37,9 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-belly-bg pb-20">
+    <div className="min-h-screen bg-belly-bg pb-20 page-enter">
       {/* Hero */}
-      <div className="bg-primary rounded-b-hero px-5 pt-8 pb-6 text-center">
+      <div className="belly-hero-gradient rounded-b-hero px-5 pt-8 pb-6 text-center">
         <div className="w-[60px] h-[60px] rounded-full bg-white mx-auto mb-3 flex items-center justify-center">
           <span className="text-belly-accent font-display text-2xl font-bold">{initials}</span>
         </div>
