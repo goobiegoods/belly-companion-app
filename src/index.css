@@ -109,12 +109,22 @@
   }
 }
 
-/* BELLY interactions */
+/* ===== PAGE ENTER TRANSITION ===== */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageEnter 280ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ===== BELLY interactions ===== */
 .belly-press {
-  transition: transform 120ms ease;
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
 .belly-press:active {
   transform: scale(0.975);
+  box-shadow: 0 1px 4px rgba(42,18,0,0.08);
 }
 .belly-btn-press {
   transition: transform 120ms ease;
@@ -123,8 +133,74 @@
   transform: scale(0.97);
 }
 .belly-input-focus:focus {
-  box-shadow: 0 0 0 3px rgba(255,184,153,0.35);
+  border-color: #FFB899 !important;
+  box-shadow: 0 0 0 3px rgba(255,184,153,0.2);
   outline: none;
+  transition: all 200ms ease;
+}
+
+/* ===== SHIMMER SKELETON ===== */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== HEART LIKE ANIMATION ===== */
+@keyframes heartPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+.heart-pop {
+  animation: heartPop 300ms ease forwards;
+}
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translateY(0) scale(0.8); }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.4); }
+}
+
+/* ===== LESSON COMPLETION BURST ===== */
+@keyframes burst {
+  0%   { opacity: 1; transform: scale(0) translate(0,0); }
+  100% { opacity: 0; transform: scale(1) translate(var(--tx), var(--ty)); }
+}
+
+/* ===== BOTTOM SHEET SLIDE UP ===== */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0.8; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.belly-slide-up {
+  animation: slideUp 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ===== TAB BAR ACTIVE DOT ===== */
+@keyframes dotScale {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+/* ===== PREMIUM POLISH UTILITIES ===== */
+.belly-divider-elegant {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #FFE4D4, transparent);
+}
+
+.belly-card-shadow {
+  box-shadow: 0 1px 3px rgba(42,18,0,0.04), 0 4px 12px rgba(42,18,0,0.03);
+}
+
+.belly-avatar-ring {
+  box-shadow: 0 0 0 2px #FFCDB4;
+}
+
+.belly-badge-glass {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.belly-hero-gradient {
+  background: radial-gradient(ellipse at top right, #FFCDB4 0%, #FFB899 45%, #FFA882 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(42,18,0,0.06);
 }
 
 /* Scrollbar hide for horizontal scrolls */
