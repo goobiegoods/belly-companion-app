@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { Heart, MessageCircle, Plus, Send, Bell } from "lucide-react";
 import { toast } from "sonner";
+import NotificationBell, { useNotifications } from "@/components/NotificationBell";
 
 interface Post {
   id: string; user_id: string; title: string; body: string; category: string;
@@ -52,24 +53,12 @@ const Community = () => {
   const [postError, setPostError] = useState("");
   const [replyError, setReplyError] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [likeAnimating, setLikeAnimating] = useState<string | null>(null);
 
+  const { notifications, unreadCount, markAsRead, markAllRead } = useNotifications();
+
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
-  const unreadCount = notifications.filter(n => !n.is_read).length;
-
-  const fetchNotifications = async () => {
-    if (!user) return;
-    const { data } = await supabase.from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20);
-    if (data) setNotifications(data as Notification[]);
-  };
-
-  const markAsRead = async (notif: Notification) => {
-    if (notif.is_read) return;
-    await supabase.from("notifications").update({ is_read: true }).eq("id", notif.id);
-    setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
-  };
 
   const handleNotifTap = async (notif: Notification) => {
     await markAsRead(notif);
