@@ -237,12 +237,12 @@ const QuizTab = ({ userId }: { userId?: string }) => {
       </div>
 
       {/* Fun fact */}
-      {answered && q.funFact && (
+      {answered && selected !== null && q.options[selected]?.funFact && (
         <div style={{ marginTop: 10, borderRadius: 14, padding: "12px 14px", background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", backdropFilter: "blur(8px)", animation: "fadeSwap 300ms ease" }}>
           <p style={{ fontSize: 9, fontWeight: 600, color: selected === correctIdx ? "#5A9E5A" : "#C85828", marginBottom: 4 }}>
             {selected === correctIdx ? "✓ Correct! 🌸" : "Almost! Here's why 💡"}
           </p>
-          <p style={{ fontSize: 10, color: "rgba(180,100,60,0.7)", lineHeight: 1.5 }}>{q.funFact}</p>
+          <p style={{ fontSize: 10, color: "rgba(180,100,60,0.7)", lineHeight: 1.5 }}>{q.options[selected].funFact}</p>
         </div>
       )}
 
