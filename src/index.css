@@ -302,3 +302,9 @@
 .belly-dot-1 { animation: belly-pulse 1.4s infinite 0s; }
 .belly-dot-2 { animation: belly-pulse 1.4s infinite 0.2s; }
 .belly-dot-3 { animation: belly-pulse 1.4s infinite 0.4s; }
+
+@keyframes bellBadgePop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
