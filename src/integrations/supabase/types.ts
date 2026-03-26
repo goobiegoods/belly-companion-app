@@ -263,6 +263,7 @@ export type Database = {
           body: string
           category: string
           created_at: string
+          display_name: string | null
           id: string
           likes: number
           title: string
@@ -273,6 +274,7 @@ export type Database = {
           body: string
           category?: string
           created_at?: string
+          display_name?: string | null
           id?: string
           likes?: number
           title: string
@@ -283,6 +285,7 @@ export type Database = {
           body?: string
           category?: string
           created_at?: string
+          display_name?: string | null
           id?: string
           likes?: number
           title?: string
