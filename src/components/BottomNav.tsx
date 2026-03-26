@@ -41,24 +41,28 @@ const BottomNav = () => {
               className="flex flex-col items-center gap-0.5 min-w-[48px] belly-btn-press relative"
             >
               <div className="relative" style={{ transition: "transform 200ms ease", transform: active ? "translateY(-2px)" : "none" }}>
-                <Icon size={20} style={{ color: active ? "#D4906A" : "#D4B0A0" }} />
+                <Icon size={20} style={{ color: active ? "#FF7840" : "rgba(180,100,60,0.35)" }} />
                 {path === "/community" && unreadNotifs > 0 && (
                   <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ background: "#FF6B6B" }} />
                 )}
               </div>
               <span
-                className="text-[9px] uppercase tracking-[0.07em]"
-                style={{ color: active ? "#D4906A" : "#D4B0A0", fontWeight: active ? 600 : 400 }}
+                style={{
+                  fontSize: 6,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  color: active ? "#FF7840" : "rgba(180,100,60,0.35)",
+                  fontWeight: active ? 600 : 400,
+                }}
               >
                 {label}
               </span>
               {active && (
                 <div
-                  className="rounded-sm"
                   style={{
-                    width: 20,
-                    height: 3,
-                    background: "#FFB899",
+                    width: 16,
+                    height: 2,
+                    background: "linear-gradient(to right, #FF7840, #FFBA90)",
                     borderRadius: 2,
                     animation: "dotScale 200ms cubic-bezier(0.34, 1.56, 0.64, 1)",
                   }}

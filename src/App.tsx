@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import Journal from "./pages/Journal";
 import Courses from "./pages/Courses";
 import Shop from "./pages/Shop";
+import CantSleep from "./pages/CantSleep";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 
@@ -29,7 +30,7 @@ const SplashScreen = ({ onDone }: { onDone: () => void }) => {
   }, [onDone]);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center" style={{ background: "#FEF8F4" }}>
       <div
         style={{
           opacity: showLogo ? 1 : 0,
@@ -38,10 +39,10 @@ const SplashScreen = ({ onDone }: { onDone: () => void }) => {
         }}
         className="text-center"
       >
-        <h1 className="font-display text-[32px] font-bold tracking-[-0.5px]" style={{ color: "#2A1200" }}>
+        <h1 className="font-display text-[32px] font-semibold tracking-[-0.5px]" style={{ color: "#C85828" }}>
           BELLY
         </h1>
-        <p className="text-[11px] uppercase tracking-[0.12em] mt-1" style={{ color: "#D4906A" }}>
+        <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", marginTop: 4, color: "#C4906A" }}>
           Virtual Doula
         </p>
       </div>
@@ -51,7 +52,7 @@ const SplashScreen = ({ onDone }: { onDone: () => void }) => {
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, profile, loading } = useAuth();
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#FFB899", borderTopColor: "transparent" }} /></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#FF7840", borderTopColor: "transparent" }} /></div>;
   if (!session) return <Navigate to="/auth" replace />;
   if (!profile?.onboarding_completed) return <Navigate to="/onboarding" replace />;
   return <>{children}</>;
@@ -90,6 +91,7 @@ const AppContent = () => {
       <Route path="/me" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
       <Route path="/journal" element={<ProtectedRoute><AppLayout><Journal /></AppLayout></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><AppLayout><Courses /></AppLayout></ProtectedRoute>} />
+      <Route path="/cant-sleep" element={<ProtectedRoute><CantSleep /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
