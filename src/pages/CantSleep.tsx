@@ -166,21 +166,29 @@ const QuizTab = ({ userId }: { userId?: string }) => {
   };
 
   return (
-    <div className="px-4">
-      <div className="flex items-center justify-between mb-3">
-        <p style={{ fontSize: 7, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(200,88,40,0.4)", fontWeight: 600 }}>Baby Brain 🧠</p>
-        <p style={{ fontSize: 14, fontWeight: 300, color: "#FF7840" }}>{score}/{qIdx + 1}</p>
+    <div className="fixed inset-0 flex flex-col" style={{ zIndex: 100, background: "linear-gradient(160deg, #2A1A40 0%, #3D2055 50%, #2A1A40 100%)" }}>
+      <div className="shrink-0 px-5 pt-14 pb-4">
+        <button onClick={() => window.history.back()} style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,200,255,0.6)" }}>← Back</button>
       </div>
-      <QuizBlock
-        key={key}
-        question={q.question}
-        options={q.options}
-        darkTheme
-        onAnswer={handleAnswer}
-        onContinue={handleContinue}
-        continueLabel={qIdx < BABY_QUIZ_QUESTIONS.length - 1 ? "Next question →" : "Play again 🔄"}
-        progressDots={{ total: BABY_QUIZ_QUESTIONS.length, current: qIdx }}
-      />
+      <div className="flex-1 flex flex-col items-center justify-center px-5" style={{ minHeight: 0 }}>
+        <div className="w-full" style={{ maxWidth: 360 }}>
+          <div className="flex items-center justify-between mb-4">
+            <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,220,255,0.55)", fontWeight: 600 }}>Baby Brain 🧠</p>
+            <p style={{ fontSize: 18, fontWeight: 300, color: "rgba(255,180,255,0.8)" }}>{score}/{qIdx + 1}</p>
+          </div>
+          <QuizBlock
+            key={key}
+            question={q.question}
+            options={q.options}
+            darkTheme
+            onAnswer={handleAnswer}
+            onContinue={handleContinue}
+            continueLabel={qIdx < BABY_QUIZ_QUESTIONS.length - 1 ? "Next question →" : "Play again 🔄"}
+            progressDots={{ total: BABY_QUIZ_QUESTIONS.length, current: qIdx }}
+          />
+        </div>
+      </div>
+      <p className="text-center shrink-0 pb-10" style={{ fontSize: 11, fontStyle: "italic", color: "rgba(255,200,255,0.3)" }}>Learning about your little one 💜</p>
     </div>
   );
 };
@@ -215,28 +223,30 @@ const BreatheTab = () => {
   const phaseLabel = phase === "inhale" ? "Inhale slowly..." : phase === "hold" ? "Hold..." : "Exhale slowly...";
 
   return (
-    <div className="flex flex-col items-center" style={{ padding: 16, gap: 16 }}>
-      <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(200,88,40,0.5)", fontWeight: 600, textAlign: "center" }}>
+    <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ zIndex: 100, background: "linear-gradient(160deg, #2A1A40 0%, #3D2055 50%, #2A1A40 100%)", padding: "32px 24px", gap: 20 }}>
+      <button onClick={() => window.history.back()} className="absolute" style={{ top: 52, left: 20, fontSize: 13, fontWeight: 500, color: "rgba(255,200,255,0.6)" }}>← Back</button>
+
+      <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,220,255,0.6)", fontWeight: 600, textAlign: "center" }}>
         {active ? phaseLabel : "4-7-8 breathing"}
       </p>
 
-      <div className="relative flex items-center justify-center" style={{ width: 140, height: 140, margin: "0 auto" }}>
-        {[50, 70, 95, 120].map((size, i) => (
+      <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
+        {[70, 100, 140, 180].map((size, i) => (
           <div key={i} className="absolute rounded-full" style={{
             width: size, height: size,
-            border: `1.5px dashed rgba(255,140,90,${0.12 + i * 0.06})`,
+            border: `1.5px dashed rgba(255,180,255,${0.1 + i * 0.06})`,
             animation: active ? `ringPulse 4s ease-in-out infinite ${i * 0.4}s` : "none",
           }} />
         ))}
         <div className="flex items-center justify-center rounded-full" style={{
-          width: 36, height: 36,
-          background: "linear-gradient(145deg, rgba(255,140,90,0.5), rgba(255,180,130,0.4))",
-          boxShadow: "0 0 20px rgba(255,140,90,0.25)",
+          width: 48, height: 48,
+          background: "linear-gradient(145deg, rgba(255,180,255,0.4), rgba(200,140,255,0.3))",
+          boxShadow: "0 0 30px rgba(255,180,255,0.2)",
           animation: active ? "breathe 4s ease-in-out infinite" : "none",
-          fontSize: 18,
+          fontSize: 24,
         }}>🫧</div>
         {active && (
-          <p className="absolute" style={{ fontSize: 28, fontWeight: 300, color: "#A84E28", letterSpacing: -1 }}>{count}</p>
+          <p className="absolute" style={{ fontSize: 34, fontWeight: 300, color: "#FFF0FF", letterSpacing: -1 }}>{count}</p>
         )}
       </div>
 
@@ -244,19 +254,19 @@ const BreatheTab = () => {
         {[0, 1, 2, 3].map(i => (
           <div key={i} className="rounded-full" style={{
             width: 6, height: 6,
-            background: cycle % 4 === i && active ? "rgba(200,88,40,0.7)" : "rgba(200,88,40,0.2)",
+            background: cycle % 4 === i && active ? "rgba(255,180,255,0.7)" : "rgba(255,255,255,0.18)",
           }} />
         ))}
       </div>
 
-      <p className="text-center" style={{ fontSize: 11, fontStyle: "italic", color: "rgba(180,100,60,0.45)", maxWidth: 260, lineHeight: 1.6 }}>
+      <p className="text-center" style={{ fontSize: 11, fontStyle: "italic", color: "rgba(255,200,255,0.4)", maxWidth: 260, lineHeight: 1.6 }}>
         "Breathe in the love you have for this little one. Breathe out the worry."
       </p>
 
       <button onClick={() => active ? stop() : setActive(true)}
         style={{
-          background: "rgba(255,120,64,0.12)", border: "0.5px solid rgba(255,120,64,0.25)",
-          borderRadius: 14, padding: "11px 24px", color: "#C85828", fontSize: 12, fontWeight: 600,
+          background: "rgba(255,180,255,0.15)", border: "0.5px solid rgba(255,180,255,0.3)",
+          borderRadius: 14, padding: "11px 24px", color: "#FFF0FF", fontSize: 12, fontWeight: 600,
         }}>
         {active ? "Stop" : "Start breathing guide"}
       </button>
