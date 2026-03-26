@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { Heart, MessageCircle, Plus, Send, Bell } from "lucide-react";
 import { toast } from "sonner";
+import NotificationBell, { useNotifications } from "@/components/NotificationBell";
 
 interface Post {
   id: string; user_id: string; title: string; body: string; category: string;
@@ -52,27 +53,15 @@ const Community = () => {
   const [postError, setPostError] = useState("");
   const [replyError, setReplyError] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [likeAnimating, setLikeAnimating] = useState<string | null>(null);
 
+  const { notifications, unreadCount, markAsRead, markAllRead } = useNotifications();
+
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
-  const unreadCount = notifications.filter(n => !n.is_read).length;
 
-  const fetchNotifications = async () => {
-    if (!user) return;
-    const { data } = await supabase.from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20);
-    if (data) setNotifications(data as Notification[]);
-  };
-
-  const markAsRead = async (notif: Notification) => {
-    if (notif.is_read) return;
-    await supabase.from("notifications").update({ is_read: true }).eq("id", notif.id);
-    setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
-  };
-
-  const handleNotifTap = async (notif: Notification) => {
-    await markAsRead(notif);
+  const handleNotifTap = async (notif: { id: string; post_id: string | null; is_read: boolean; title: string; body: string | null; created_at: string }) => {
+    await markAsRead(notif.id);
     setShowNotifications(false);
     if (notif.post_id) {
       const { data } = await supabase.from("posts").select("*").eq("id", notif.post_id).single();
@@ -123,7 +112,7 @@ const Community = () => {
   };
 
   useEffect(() => { fetchPosts(); }, [activeCategory]);
-  useEffect(() => { fetchNotifications(); }, [user]);
+  
 
   const createPost = async () => {
     if (!newTitle.trim() || !user) return;
@@ -195,7 +184,9 @@ const Community = () => {
         <div className="flex items-center justify-between px-5 pt-5 pb-3 belly-glass-nav shrink-0" style={{ borderBottom: "1px solid rgba(255,228,212,0.6)" }}>
           <button onClick={() => setShowNotifications(false)} className="text-[12px] font-semibold" style={{ color: "#C4906A" }}>← Back</button>
           <h1 className="font-display text-[18px] font-semibold" style={{ color: "#C85828" }}>Notifications</h1>
-          <div className="w-10" />
+          {unreadCount > 0 ? (
+            <button onClick={markAllRead} className="text-[11px] font-medium" style={{ color: "#FF7840" }}>Mark all read</button>
+          ) : <div className="w-10" />}
         </div>
         <div className="flex-1 overflow-y-auto pb-20">
           {notifications.length === 0 ? (
@@ -304,10 +295,7 @@ const Community = () => {
           <p className="text-[11px]" style={{ color: "#D4906A", fontWeight: 400 }}>You're not alone in this</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowNotifications(true)} className="relative w-9 h-9 rounded-full flex items-center justify-center belly-glass" style={{ border: "none" }}>
-            <Bell size={16} style={{ color: "#C4906A" }} />
-            {unreadCount > 0 && <div className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#FF6B6B" }} />}
-          </button>
+          <NotificationBell onOpenNotifications={() => setShowNotifications(true)} unreadCount={unreadCount} />
           <button onClick={() => setShowCreate(true)} className="rounded-full px-3 py-1.5 text-[11px] font-semibold flex items-center gap-1 belly-btn-primary"
             style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>
             <Plus size={14} /> Post

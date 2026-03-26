@@ -15,6 +15,7 @@ import Journal from "./pages/Journal";
 import Courses from "./pages/Courses";
 import Shop from "./pages/Shop";
 import CantSleep from "./pages/CantSleep";
+import Orders from "./pages/Orders";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 
@@ -92,6 +93,7 @@ const AppContent = () => {
       <Route path="/journal" element={<ProtectedRoute><AppLayout><Journal /></AppLayout></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><AppLayout><Courses /></AppLayout></ProtectedRoute>} />
       <Route path="/cant-sleep" element={<ProtectedRoute><CantSleep /></ProtectedRoute>} />
+      <Route path="/orders" element={<ProtectedRoute><AppLayout><Orders /></AppLayout></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

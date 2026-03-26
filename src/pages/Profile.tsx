@@ -115,7 +115,7 @@ const Profile = () => {
                   { icon: "✏️", label: "Edit pregnancy details", action: () => setEditing(true) },
                   { icon: "📔", label: "Journal & Symptom Tracker", action: () => navigate("/journal") },
                   { icon: "📚", label: "My Courses", action: () => navigate("/courses") },
-                  { icon: "🛍️", label: "My Orders", action: () => navigate("/shop") },
+                  { icon: "🛍️", label: "My Orders", action: () => navigate("/orders") },
                 ].map((row, i, arr) => (
                   <button key={row.label} onClick={row.action} className="w-full p-4 flex items-center justify-between text-left"
                     style={{ borderBottom: i < arr.length - 1 ? "0.5px solid rgba(255,170,130,0.1)" : "none" }}>
