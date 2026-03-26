@@ -15,6 +15,7 @@ export interface LessonContent {
   id: string;
   title: string;
   duration: number;
+  description?: string;
   intro: string;
   whatYoullLearn: string[];
   sections: LessonSection[];
@@ -235,11 +236,52 @@ export const firstTrimesterLessons: LessonContent[] = [
   }
 ];
 
+const LESSON_DESCRIPTIONS: Record<string, string[]> = {
+  c1: [
+    "The foundational changes happening inside your body during weeks 1–13 — from the hormone surge to the placenta building itself from scratch.",
+    "Why morning sickness happens, when it peaks, and the natural remedies that actually help — from ginger tea to acupressure.",
+    "Essential nutrients your baby needs now, foods to avoid, and how to eat well when nothing sounds good.",
+    "The emotional rollercoaster of early pregnancy explained — mood swings, anxiety, and how to support your mental health.",
+    "What happens at your first prenatal visit — the tests, the dating scan, and the questions you should bring.",
+    "Protecting your energy, optimizing sleep, and building self-care habits that carry you through all 40 weeks.",
+  ],
+  c2: [
+    "Understanding why nausea strikes and the science behind pregnancy-related digestive changes.",
+    "Ginger, peppermint, and acupressure — evidence-based natural remedies ranked by effectiveness.",
+    "Meal timing, portion strategies, and the specific foods that calm a sensitive stomach.",
+    "Aromatherapy and environmental triggers — controlling your space to reduce nausea episodes.",
+    "When natural remedies aren't enough — recognizing hyperemesis and knowing your options.",
+  ],
+  c3: [
+    "Welcome to the golden trimester — what changes to expect as energy returns and your bump grows.",
+    "Your baby's rapid growth phase — from first kicks to the anatomy scan milestone.",
+    "Nutrition upgrades for the second trimester — iron, calcium, and omega-3 needs increase.",
+    "Exercise and movement — safe workouts that build strength for labor.",
+    "Common second trimester concerns — round ligament pain, Braxton Hicks, and skin changes.",
+    "Bonding with your baby — how to connect through movement, music, and mindfulness.",
+    "Preparing your birth preferences — starting the conversation early.",
+  ],
+  c5: [
+    "Your natural medicine cabinet — safe herbs, teas, and remedies for pregnancy.",
+    "Chamomile, ginger, and raspberry leaf — when to use each and dosing guidelines.",
+    "Aromatherapy safety — which essential oils are safe and which to avoid.",
+    "Homeopathic remedies for common pregnancy complaints — nausea, insomnia, and anxiety.",
+    "Building a natural birth kit — what to gather and when to start.",
+    "Integrating natural remedies with conventional care — communication strategies.",
+  ],
+};
+
+export function getLessonDescription(courseId: string, lessonIndex: number): string {
+  const descriptions = LESSON_DESCRIPTIONS[courseId];
+  if (descriptions && lessonIndex < descriptions.length) return descriptions[lessonIndex];
+  const content = getLessonContent(courseId, lessonIndex);
+  return content.intro.split(".").slice(0, 2).join(".") + ".";
+}
+
 export function getLessonContent(courseId: string, lessonIndex: number): LessonContent {
   if (courseId === "c1" && lessonIndex < firstTrimesterLessons.length) {
     return firstTrimesterLessons[lessonIndex];
   }
-  // Generate placeholder content for other courses
   const lessonNum = lessonIndex + 1;
   return {
     id: `${courseId}-L${lessonNum}`,
