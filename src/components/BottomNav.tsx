@@ -30,7 +30,7 @@ const BottomNav = () => {
   }, [user, location.pathname]);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-belly-card-border z-50">
+    <nav className="fixed bottom-0 left-0 right-0 belly-glass-nav z-50">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
         {tabs.map(({ path, icon: Icon, label }) => {
           const active = location.pathname === path;
@@ -41,16 +41,28 @@ const BottomNav = () => {
               className="flex flex-col items-center gap-0.5 min-w-[48px] belly-btn-press relative"
             >
               <div className="relative" style={{ transition: "transform 200ms ease", transform: active ? "translateY(-2px)" : "none" }}>
-                <Icon size={20} className={active ? "text-belly-accent" : "text-belly-text-hint"} />
+                <Icon size={20} style={{ color: active ? "#D4906A" : "#D4B0A0" }} />
                 {path === "/community" && unreadNotifs > 0 && (
                   <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ background: "#FF6B6B" }} />
                 )}
               </div>
-              <span className={`text-[9px] uppercase tracking-[0.07em] ${active ? "text-belly-accent font-semibold" : "text-belly-text-hint"}`}>
+              <span
+                className="text-[9px] uppercase tracking-[0.07em]"
+                style={{ color: active ? "#D4906A" : "#D4B0A0", fontWeight: active ? 600 : 400 }}
+              >
                 {label}
               </span>
               {active && (
-                <div className="w-1 h-1 rounded-full bg-belly-accent" style={{ animation: "dotScale 200ms cubic-bezier(0.34, 1.56, 0.64, 1)" }} />
+                <div
+                  className="rounded-sm"
+                  style={{
+                    width: 20,
+                    height: 3,
+                    background: "#FFB899",
+                    borderRadius: 2,
+                    animation: "dotScale 200ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  }}
+                />
               )}
             </button>
           );

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { Send, Square, Camera, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -11,14 +12,6 @@ interface Message {
   content: string | Array<{ type: string; text?: string; source?: any }>;
   imageUrl?: string;
 }
-
-const QUICK_PROMPTS = [
-  "What's normal this trimester?",
-  "Natural nausea remedies",
-  "Help me sleep better",
-  "What should I avoid eating?",
-  "Is this product safe? 📷",
-];
 
 const AskDoula = () => {
   const navigate = useNavigate();
@@ -33,6 +26,18 @@ const AskDoula = () => {
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
+  const titleCase = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
+  const displayName = titleCase(profile?.first_name || "") || "mama";
+
+  const QUICK_PROMPTS = [
+    `What's normal in week ${currentWeek}?`,
+    "Natural nausea remedies",
+    "Help me sleep better",
+    "What should I avoid eating?",
+    "Is this product safe? 📷",
+  ];
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -65,10 +70,7 @@ const AskDoula = () => {
   };
 
   const sendMessage = async (text: string, triggerPhoto = false) => {
-    if (triggerPhoto) {
-      fileInputRef.current?.click();
-      return;
-    }
+    if (triggerPhoto) { fileInputRef.current?.click(); return; }
     if ((!text.trim() && !attachedImage) || isStreaming) return;
     if (!profile?.is_premium && messageCount >= 10) {
       toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
@@ -77,8 +79,6 @@ const AskDoula = () => {
 
     const hasImage = !!attachedImage;
     const imageUrl = attachedImage?.url;
-
-    // Build message content for API
     let apiContent: any = text.trim() || (hasImage ? "Is this product safe to use during pregnancy?" : "");
     if (hasImage) {
       apiContent = [
@@ -89,7 +89,6 @@ const AskDoula = () => {
 
     const userMsg: Message = { role: "user", content: typeof apiContent === "string" ? apiContent : text.trim() || "Is this product safe to use during pregnancy?", imageUrl: hasImage ? imageUrl : undefined };
     const apiMsg = { role: "user" as const, content: apiContent };
-
     const newMessages = [...messages, userMsg];
     const apiMessages = [...messages.map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : m.content })), apiMsg];
 
@@ -110,10 +109,7 @@ const AskDoula = () => {
     try {
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/belly-chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
         body: JSON.stringify({ messages: apiMessages }),
         signal: abortController.signal,
       });
@@ -134,7 +130,6 @@ const AskDoula = () => {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-
         let newlineIdx: number;
         while ((newlineIdx = buffer.indexOf("\n")) !== -1) {
           let line = buffer.slice(0, newlineIdx);
@@ -181,18 +176,24 @@ const AskDoula = () => {
     return content.find(c => c.type === "text")?.text || "";
   };
 
+  const getGreeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
   return (
-    <div className="flex flex-col h-screen page-enter" style={{ background: "#FFF8F5" }}>
-      {/* Hidden file inputs */}
+    <div className="flex flex-col h-screen page-enter" style={{ background: "transparent" }}>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
       {/* Header */}
-      <div className="px-5 pt-5 pb-3 bg-white" style={{ borderBottom: "1px solid #FFE4D4" }}>
+      <div className="px-5 pt-5 pb-3 belly-glass-nav shrink-0" style={{ borderBottom: "1px solid rgba(255,228,212,0.6)" }}>
         <div className="flex items-center gap-2 mb-0.5">
           <button onClick={() => navigate("/")} className="text-[12px] font-semibold mr-1" style={{ color: "#D4906A" }}>← Home</button>
           <h1 className="font-display text-[18px] font-bold" style={{ color: "#2A1200" }}>Ask the Doula</h1>
-          <span className="text-[9px] px-2 py-0.5 rounded-full font-medium" style={{ background: "#FFF0E8", color: "#D4906A" }}>AI</span>
+          <span className="text-[9px] px-2 py-0.5 rounded-full font-medium belly-badge-glass" style={{ background: "#FFF0E8", color: "#D4906A" }}>AI</span>
         </div>
         <p className="text-[11px]" style={{ color: "#D4B0A0" }}>Your natural pregnancy guide</p>
       </div>
@@ -200,15 +201,30 @@ const AskDoula = () => {
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
         {messages.length === 0 && (
-          <div className="grid grid-cols-2 gap-3 mt-8">
-            {QUICK_PROMPTS.map((prompt, idx) => (
-              <button key={prompt} onClick={() => idx === 4 ? sendMessage("", true) : sendMessage(prompt)}
-                className="rounded-[16px] p-3 text-left active:scale-[0.975] transition-transform"
-                style={{ background: "white", border: "1px solid #FFE4D4" }}>
-                <p className="font-display text-[13px] font-bold" style={{ color: "#D4906A" }}>{prompt}</p>
-              </button>
-            ))}
-          </div>
+          <>
+            {/* Welcome card */}
+            <div className="belly-glass-card rounded-[16px] p-4 mt-4">
+              <p className="font-display text-[18px] font-bold" style={{ color: "#2A1200" }}>{getGreeting()}, {displayName} 🌸</p>
+              <p className="text-[12px] mt-1 leading-[1.6]" style={{ color: "#D4906A" }}>
+                You're in week {currentWeek}. Ask me anything — remedies, symptoms, what to expect, or just talk.
+              </p>
+            </div>
+
+            <p className="text-[10px] uppercase tracking-[0.1em] mt-4 mb-1" style={{ color: "#D4B0A0" }}>Suggested for week {currentWeek}</p>
+
+            <div className="grid grid-cols-2 gap-3">
+              {QUICK_PROMPTS.slice(0, 4).map((prompt, idx) => (
+                <button key={prompt} onClick={() => sendMessage(prompt)}
+                  className="belly-glass-card rounded-[16px] p-3 text-left belly-card-interactive">
+                  <p className="font-display text-[12px] font-semibold" style={{ color: "#D4906A" }}>{prompt}</p>
+                </button>
+              ))}
+            </div>
+            <button onClick={() => sendMessage("", true)}
+              className="w-full belly-glass-card rounded-[16px] p-3 text-left belly-card-interactive">
+              <p className="font-display text-[12px] font-semibold" style={{ color: "#D4906A" }}>📷 Is this product safe to use?</p>
+            </button>
+          </>
         )}
 
         {messages.map((msg, i) => (
@@ -218,7 +234,7 @@ const AskDoula = () => {
                 msg.role === "user" ? "rounded-[18px_18px_4px_18px]" : "rounded-[18px_18px_18px_4px]"
               }`} style={msg.role === "user"
                 ? { background: "#FFB899", color: "#2A1200" }
-                : { background: "white", border: "1px solid #FFE4D4", color: "#2A1200" }
+                : { background: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: "1px solid rgba(255,228,212,0.8)", color: "#2A1200" }
               }>
                 {msg.imageUrl && (
                   <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
@@ -238,42 +254,47 @@ const AskDoula = () => {
           </div>
         ))}
 
+        {/* Concentric rings thinking state */}
         {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
-          <div className="flex items-center gap-2 text-xs" style={{ color: "#D4906A" }}>
-            <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 rounded-full belly-dot-1" style={{ background: "#D4906A" }} />
-              <div className="w-1.5 h-1.5 rounded-full belly-dot-2" style={{ background: "#D4906A" }} />
-              <div className="w-1.5 h-1.5 rounded-full belly-dot-3" style={{ background: "#D4906A" }} />
+          <div className="flex flex-col items-center py-4">
+            <div className="relative flex items-center justify-center" style={{ width: 160, height: 160, margin: "24px auto" }}>
+              {[60, 90, 120, 150].map((size, i) => (
+                <div key={i} className="absolute rounded-full" style={{
+                  width: size, height: size,
+                  border: "1.5px dashed #FFCDB4",
+                  animation: `ringPulse 2.4s ease-in-out infinite ${i * 0.3}s`,
+                }} />
+              ))}
+              <p className="font-display text-[13px] italic text-center z-10" style={{ color: "#D4906A" }}>
+                Belly is thinking...
+              </p>
             </div>
-            Belly is thinking...
           </div>
         )}
       </div>
 
       {/* Message limit */}
       {!profile?.is_premium && messageCount > 0 && (
-        <div className="px-5 py-2" style={{ background: "#FFF4EE", borderTop: "1px solid #FFCDB4" }}>
+        <div className="px-5 py-2" style={{ background: "rgba(255,244,238,0.9)", borderTop: "1px solid #FFCDB4" }}>
           <p className="text-[11px] text-center" style={{ color: "#D4906A" }}>{messageCount}/10 free messages today</p>
         </div>
       )}
 
-      {/* Photo menu */}
       {showPhotoMenu && (
-        <div className="px-4 py-2 bg-white flex gap-2" style={{ borderTop: "1px solid #FFE4D4" }}>
+        <div className="px-4 py-2 belly-glass-nav flex gap-2" style={{ borderTop: "1px solid rgba(255,228,212,0.6)" }}>
           <button onClick={() => { cameraInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FFF0E8", color: "#D4906A" }}>
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold belly-btn-primary" style={{ background: "#FFF0E8", color: "#D4906A" }}>
             📸 Take a photo
           </button>
           <button onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FFF0E8", color: "#D4906A" }}>
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold belly-btn-primary" style={{ background: "#FFF0E8", color: "#D4906A" }}>
             🖼️ Choose from library
           </button>
         </div>
       )}
 
-      {/* Attached image preview */}
       {attachedImage && (
-        <div className="px-4 py-2 bg-white" style={{ borderTop: "1px solid #FFE4D4" }}>
+        <div className="px-4 py-2" style={{ background: "rgba(255,255,255,0.9)", borderTop: "1px solid rgba(255,228,212,0.6)" }}>
           <div className="relative inline-block">
             <img src={attachedImage.url} alt="Preview" className="w-[60px] h-[60px] rounded-[10px] object-cover" style={{ border: "1px solid #FFE4D4" }} />
             <button onClick={() => setAttachedImage(null)}
@@ -285,11 +306,11 @@ const AskDoula = () => {
       )}
 
       {/* Input */}
-      <div className="px-4 py-3 bg-white" style={{ borderTop: "1px solid #FFE4D4" }}>
+      <div className="px-4 py-3 belly-glass-nav" style={{ borderTop: "1px solid rgba(255,228,212,0.6)" }}>
         <div className="flex items-center gap-2">
           <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
             className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: "#FFF0E8" }}>
+            style={{ background: "rgba(255,240,232,0.8)" }}>
             <Camera size={16} style={{ color: "#D4906A" }} />
           </button>
           <input
@@ -297,16 +318,16 @@ const AskDoula = () => {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
             placeholder={attachedImage ? "Ask about this product..." : "Ask anything about your pregnancy..."}
-            className="flex-1 h-10 rounded-[10px] px-4 text-sm outline-none"
-            style={{ border: "1px solid #FFE4D4", background: "#FFF8F5", color: "#2A1200" }}
+            className="flex-1 h-10 rounded-[10px] px-4 text-sm outline-none belly-input-focus"
+            style={{ border: "1px solid rgba(255,228,212,0.8)", background: "rgba(255,248,245,0.9)", color: "#2A1200" }}
           />
           {isStreaming ? (
-            <button onClick={cancelStream} className="w-10 h-10 rounded-[10px] flex items-center justify-center" style={{ background: "#FFB899" }}>
+            <button onClick={cancelStream} className="w-10 h-10 rounded-[10px] flex items-center justify-center belly-btn-primary" style={{ background: "#FFB899" }}>
               <Square size={14} style={{ color: "#2A1200" }} />
             </button>
           ) : (
             <button onClick={() => sendMessage(input)} disabled={!input.trim() && !attachedImage}
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center disabled:opacity-40" style={{ background: "#FFB899" }}>
+              className="w-10 h-10 rounded-[10px] flex items-center justify-center disabled:opacity-40 belly-btn-primary" style={{ background: "#FFB899" }}>
               <Send size={16} style={{ color: "#2A1200" }} />
             </button>
           )}
