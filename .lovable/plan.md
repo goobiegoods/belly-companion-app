@@ -1,119 +1,165 @@
 
 
-# BELLY — Premium Visual & UX Elevation Pass
+# BELLY — Design System + Can't Sleep + Interactive Quizzes
 
 ## Overview
-A visual-only elevation touching CSS, styling, and animations across all screens. No routing, Supabase logic, or feature changes.
+Three-part update: (1) warm orange design system across all screens, (2) new Can't Sleep screen with affirmations/quiz/breathing, (3) reusable QuizBlock component replacing static quizzes, plus full lesson content for all 12 courses.
 
-## Part 1 — Living Gradient World
+## Part 1 — Design System Overhaul
 
-**Global background** in `src/index.css`:
-- Set `body, #root` to a fixed peach-lavender gradient: `linear-gradient(135deg, #F8E8FF 0%, #FFE4D4 30%, #FFF0E8 60%, #FFF8F2 100%)` with `background-attachment: fixed`
-- Override `bg-belly-bg` and screen containers to `background: transparent`
+### Global CSS (`src/index.css`)
+- Change body/root background to `#FEF8F4`
+- Update font-family to `-apple-system, 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif`
+- Update `.belly-glass` card styles: `rgba(255,255,255,0.68)`, `blur(16px)`, border `0.5px solid rgba(255,170,130,0.22)`, shadow `0 2px 14px rgba(255,140,90,0.07)`, radius `17px`
+- Update `.belly-glass-nav`: `rgba(254,248,244,0.88)`, `blur(22px)`, border-top `0.5px solid rgba(255,170,130,0.18)`
+- Update `.belly-hero-gradient`: `linear-gradient(140deg, #FF7E48 0%, #FFA070 55%, #FFBE98 100%)`, shadow with orange tones
+- Add float keyframe for Can't Sleep moon
 
-**Frosted glass cards** — add utility classes:
-- `.belly-glass` = `rgba(255,255,255,0.75)` + `backdrop-filter: blur(8px)` + border `rgba(255,228,212,0.8)`
-- `.belly-glass-nav` = `rgba(255,252,248,0.88)` + `backdrop-filter: blur(16px)` for navbar
+### Apply warm orange text colors across all screens
+Replace `#2A1200` titles → `#C85828` for screen titles, `#A84E28` for card titles
+Replace `#D4906A` body → `#C4906A`
+Replace `#D4B0A0` hints → `rgba(180,100,60,0.38)`
+Section labels → `rgba(200,88,40,0.4)`
 
-**Splash screen** — wrap routes in a new `SplashScreen` component in `App.tsx`:
-- Shows gradient background → fades in BELLY logo + "Virtual Doula" tagline after 400ms → navigates after 1.6s total
-- Only shows once per session (use `sessionStorage` flag)
+Files touched: `HomePage.tsx`, `BabyTracker.tsx`, `AskDoula.tsx`, `Community.tsx`, `Courses.tsx`, `Profile.tsx`, `Journal.tsx`, `Shop.tsx`, `BottomNav.tsx`
 
-**Apply glass styling** to cards in: HomePage, BabyTracker, Community, Shop, Profile, Journal, Courses. Replace `bg-card`, `bg-white`, `bg-belly-upsell-bg` on card containers with glass styles.
+### Navbar (`BottomNav.tsx`)
+- Active color: `#FF7840`, inactive: `rgba(180,100,60,0.35)`
+- Active pip: `width: 16px, height: 2px`, gradient `#FF7840 → #FFBA90`
+- Labels: `6px` uppercase
 
-## Part 2 — Concentric Rings AI Thinking
+### This week mini cards (HomePage)
+- Baby: `rgba(255,242,234,0.82)` border `rgba(255,180,140,0.3)`
+- Body: `rgba(238,252,240,0.82)` border `rgba(140,210,160,0.28)`
+- Tip: `rgba(248,242,255,0.82)` border `rgba(190,155,240,0.28)`
 
-In `AskDoula.tsx`, replace the 3 pulsing dots (lines 241-250) with a concentric rings animation:
-- 4 dashed-border circles (`ring-1` to `ring-4`, 60px–150px) with staggered `ringPulse` animation
-- "Belly is thinking..." label centered in italic Georgia
-- Add `ringPulse` keyframes to `src/index.css`
-- Hide immediately when streaming text appears
+### Community category colors
+- Question: `rgba(255,210,185,0.35)` text `#E07040`
+- Tip: `rgba(200,240,208,0.35)` text `#40A060`
+- Story: `rgba(225,210,252,0.35)` text `#9060D0`
+- Support: `rgba(255,240,200,0.35)` text `#B08020`
 
-## Part 3 — Streak & Milestones on Home
+### Profile hero + achievements
+- Avatar double-ring with white/transparent shadows
+- Achievement badges locked: `opacity: 0.22`
+- Streak number: `font-weight: 300`, color `#FF7840`
 
-In `HomePage.tsx`, add between hero card and "This week" section:
+## Part 2 — Can't Sleep Screen
 
-**Streak banner** — glass card with 🔥 emoji, "[X]-day streak!" title, streak number. Hardcode to 3 for now.
+### New file: `src/pages/CantSleep.tsx`
+Full-screen dark-themed experience with 3 tabs:
 
-**Milestone track** — horizontal 4px bar with gradient fill, 4 markers (🌱 Day 1, 🍋 Week 1, 🥑 Week 2, 👶 Birth) positioned at 0%, 33%, 66%, 100%. Fill width calculated from streak count.
+**Affirmations tab**: Horizontal scroll of 4 dark gradient category cards → tap opens fullscreen affirmation viewer cycling through 24 hardcoded affirmations with dot nav and random ordering.
 
-## Part 4 — Home Screen Refinements
+**Baby Quiz tab**: Dark-themed quiz using QuizBlock component (Part 3) with 10 pregnancy trivia questions. Score tracking top-right. Questions cover baby size by week, sense development, myths vs facts, natural remedy trivia.
 
-In `HomePage.tsx`:
-- **Greeting**: already uses `profile?.first_name` with titleCase — verify it shows "Hi, Orel 🌸" not full name. Add glass styling to greeting pill.
-- **Logo mark**: replace clock/circle SVG with belly/womb SVG path
-- **This week cards**: apply per-card color tints with glass effect (baby=peach, body=green, tip=pink)
-- **Journey cards**: glass styling, add course progress pill on "Your Courses" card
+**Breathe tab**: Dark purple UI with concentric rings animation, breathing bubble that scales 1→1.35 on 4-7-8 pattern (4s inhale, 7s hold, 8s exhale), countdown timer, start/stop button.
 
-## Part 5 — Me Tab Journey Dashboard
+### New file: `src/data/cantSleepData.ts`
+- 24 affirmations array
+- 10 baby quiz questions with emoji options, correct answers, fun facts
+- Breathing exercise config
 
-In `Profile.tsx`:
-- **Avatar**: add double-ring glow shadow
-- **Name**: ensure proper case (first + last, not ALL CAPS)
-- **Stats row**: replace "Trimester" stat with streak 🔥 stat, glass card styling
-- **Achievement badges**: new horizontal scroll section with 6 badge cards (3 earned, 3 locked with opacity 0.3 + grayscale)
-- **Settings sections**: glass card styling on all grouped cards
-- **Add "My Orders" row** to quick links group
+### Route + entry point
+- `src/App.tsx`: Add `/cant-sleep` route (ProtectedRoute, no AppLayout — fullscreen)
+- `src/pages/HomePage.tsx`: Add purple-tinted entry card below check-in card linking to `/cant-sleep`
 
-## Part 6 — Ask Tab Warm Welcome
+### Database (migration)
+```sql
+CREATE TABLE public.affirmation_views (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  affirmation_index integer NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.affirmation_views ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert own views" ON public.affirmation_views FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can view own views" ON public.affirmation_views FOR SELECT TO authenticated USING (auth.uid() = user_id);
 
-In `AskDoula.tsx`, enhance the empty state (lines 202-212):
-- Add a welcome card above prompts: "Good morning, [name] 🌸" + week-specific subtitle
-- Add "Suggested for week [X]" label above prompt grid
-- Make the 5th prompt full-width, update text to week-dynamic versions
-- Glass styling on all prompt cards
+CREATE TABLE public.quiz_attempts (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  lesson_id text,
+  score integer,
+  total_questions integer,
+  selected_option text,
+  is_correct boolean,
+  completed_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.quiz_attempts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert own attempts" ON public.quiz_attempts FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can view own attempts" ON public.quiz_attempts FOR SELECT TO authenticated USING (auth.uid() = user_id);
+```
 
-## Part 7 — Community Content & Style
+## Part 3 — Interactive QuizBlock Component
 
-In `Community.tsx`:
-- **Delete test posts**: add a one-time SQL migration to delete posts where title in ('eee','frr','rrrr')
-- **Category colors**: expand `CATEGORY_COLORS` to include text color and avatar ring color per category
-- **Post cards**: apply glass styling
-- **Avatar rings**: apply category-specific ring color via `box-shadow`
+### New file: `src/components/QuizBlock.tsx`
+Reusable component with props:
+```ts
+interface QuizOption { text: string; emoji: string; correct: boolean; funFact: string; }
+interface QuizBlockProps {
+  question: string;
+  options: QuizOption[];
+  onAnswer?: (correct: boolean) => void;
+  darkTheme?: boolean; // for Can't Sleep
+  progressDots?: { total: number; current: number };
+}
+```
 
-## Part 8 — Shop Kit Cards
+Features:
+- Gradient header with question text and progress dots
+- 2x2 grid of emoji + text option cards
+- Correct → green bg + scale animation + checkmark
+- Wrong → red bg + shake + correct highlights green
+- Result card slides in with fun fact
+- "Continue lesson →" button after answering
+- Dark theme variant for Can't Sleep quiz
 
-In `Shop.tsx`:
-- Widen kit cards to 180px
-- Add colored header section (80px, peach gradient) with large 40px emoji
-- Glass styling on card body
-- Fix horizontal scroll padding (16px sides, 32px trailing)
+### Replace quiz in lesson reader (`Courses.tsx`)
+- Import QuizBlock, replace lines 170-197 (the static quiz block) with `<QuizBlock>` using adapted lesson quiz data
+- Map existing `LessonQuiz` format to `QuizOption[]` format
 
-## Part 9 — Global Micro-Interactions
+### Update lesson content (`src/data/lessonContent.ts`)
+- Update `LessonQuiz` interface to include `options` as `QuizOption[]` format with emoji + funFact per option
+- Write real quiz content for ALL 12 courses (not just c1):
+  - c1 (6 lessons): heart beating week, B6 for nausea, mercury fish, prenatal anxiety stats, dating scan, sleep position week
+  - c2 (5 lessons): ginger research, acupressure points, B6 dosing, small meals science, hyperemesis signs
+  - c3 (7 lessons): quickening week, anatomy scan timing, round ligament, baby hearing, glucose test, baby position, skin changes
+  - c4 (8 lessons): Braxton Hicks, engagement, hospital bag essentials, mucus plug, GBS test, perineal massage, birth positions, when to call
+  - c5 (6 lessons): herb safety categories, essential oil dilution, raspberry leaf timing, arnica uses, chamomile safety, ginger forms
+  - c6 (7 lessons): folate vs folic acid, iron absorption, caffeine limits, listeria foods, DHA sources, calcium needs, vitamin D
+  - c7 (5 lessons): left side sleeping, melatonin safety, sleep hygiene, pregnancy pillow positions, RLS remedies
+  - c8 (6 lessons): cortisol effects, box breathing, mindfulness evidence, journaling benefits, anxiety vs worry, partner support
+  - c9 (5 lessons): birth plan components, pain relief options, delayed cord clamping, skin to skin evidence, birth preferences vs plan
+  - c10 (8 lessons): breathing patterns, TENS machines, water birth evidence, hypnobirthing, counter pressure, visualization, vocalizing, transition phase
+  - c11 (6 lessons): early labor signs, active labor dilation, transition description, pushing positions, placenta delivery, golden hour
+  - c12 (7 lessons): fourth trimester, lochia stages, breastfeeding initiation, postpartum mood, pelvic floor, newborn sleep, support systems
 
-In `src/index.css`:
-- `.belly-card-interactive` — scale(0.972) on :active with spring bezier
-- `.belly-btn-primary` — scale(0.96) + opacity 0.9 on :active
-- Enhanced `heartPop` with 4-step spring curve
-- `sheetUp` keyframe for bottom sheets
+Each quiz has 4 options with emoji, correct flag, and educational fun fact.
 
-Apply across all tappable cards and primary buttons in all screen files.
+Also update all placeholder lesson content (the fallback in `getLessonContent`) with real course-specific content — specific section headings, real tips, real did-you-know facts, specific reflection prompts.
 
-## Part 10 — Navbar Elevation
+## Files Summary
 
-In `BottomNav.tsx`:
-- Glass background: `rgba(255,252,248,0.88)` + `backdrop-filter: blur(16px)`
-- Replace active dot (circle) with pill indicator: 20px × 3px, rounded, #FFB899
-- Shadow: `0 -4px 20px rgba(42,18,0,0.04)`
-- Active icon: slight 2px upward shift (already exists)
+**New files:**
+- `src/components/QuizBlock.tsx`
+- `src/pages/CantSleep.tsx`
+- `src/data/cantSleepData.ts`
 
-## Files Changed
-- `src/index.css` — gradient body, glass utilities, ring/streak/interaction keyframes
-- `src/App.tsx` — wrap in SplashScreen component
-- `src/components/BottomNav.tsx` — glass nav, pill indicator
-- `src/pages/HomePage.tsx` — glass cards, streak section, logo, greeting fix
-- `src/pages/Profile.tsx` — avatar glow, achievements, stats, glass cards, orders link
-- `src/pages/AskDoula.tsx` — concentric rings, warm welcome state
-- `src/pages/Community.tsx` — glass cards, category colors, avatar rings
-- `src/pages/Shop.tsx` — kit card redesign, glass styling
-- `src/pages/BabyTracker.tsx` — glass cards, transparent bg
-- `src/pages/Journal.tsx` — glass cards, transparent bg
-- `src/pages/Courses.tsx` — glass cards, transparent bg
-- Migration SQL — delete test posts from community_posts
+**Modified files:**
+- `src/index.css` — design tokens, keyframes
+- `src/App.tsx` — add /cant-sleep route
+- `src/pages/HomePage.tsx` — warm orange colors, Can't Sleep entry card
+- `src/pages/Courses.tsx` — warm orange colors, QuizBlock integration
+- `src/data/lessonContent.ts` — full real content for all 12 courses with interactive quizzes
+- `src/components/BottomNav.tsx` — warm orange active states
+- `src/pages/BabyTracker.tsx` — warm orange colors
+- `src/pages/AskDoula.tsx` — warm orange colors
+- `src/pages/Community.tsx` — warm orange colors, updated category colors
+- `src/pages/Profile.tsx` — warm orange colors, achievement opacity
+- `src/pages/Journal.tsx` — warm orange colors
+- `src/pages/Shop.tsx` — warm orange colors
+- Migration SQL for `affirmation_views` + `quiz_attempts` tables
 
-## What Does NOT Change
-- No routing changes
-- No Supabase table schema changes (except deleting junk posts)
-- No feature logic changes
-- No new dependencies
+**No changes to:** routing structure (except adding /cant-sleep), existing Supabase tables, auth logic
 
