@@ -66,13 +66,13 @@ const Journal = () => {
   entries.forEach(e => { const key = `Week ${e.week_number || "?"}`; if (!grouped[key]) grouped[key] = []; grouped[key].push(e); });
 
   return (
-    <div className="flex flex-col" style={{ height: "100vh", background: "#FEF8F4", overflow: "hidden" }}>
+    <div className="flex flex-col" style={{ height: "100dvh", background: "#FEF8F4", overflow: "hidden" }}>
       <div className="px-5 pt-5 pb-3 shrink-0">
         <h1 className="font-display text-[22px] font-semibold" style={{ color: "#C85828" }}>Journal</h1>
         <p className="text-[11px]" style={{ color: "#C4906A" }}>Track how you feel each day</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto" style={{ WebkitOverflowScrolling: "touch", paddingBottom: hasCheckedInToday ? 100 : 0 }}>
+      <div className="flex-1 overflow-y-auto" style={{ WebkitOverflowScrolling: "touch", padding: "0 16px 16px" }}>
         {!hasCheckedInToday && (
           <div className="px-4 mb-4">
             <div className="rounded-[17px] p-5" style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", backdropFilter: "blur(12px)" }}>
@@ -173,18 +173,21 @@ const Journal = () => {
       {/* Sticky save button */}
       {!hasCheckedInToday && (
         <div className="shrink-0" style={{
-          background: "rgba(254,248,244,0.95)", padding: "12px 16px 20px",
-          borderTop: "0.5px solid rgba(255,170,130,0.15)", backdropFilter: "blur(16px)",
+          background: "rgba(254,248,244,0.95)",
+          padding: "12px 16px",
+          paddingBottom: "calc(12px + env(safe-area-inset-bottom))",
+          borderTop: "0.5px solid rgba(255,170,130,0.15)",
+          backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         }}>
           <button onClick={saveEntry} disabled={saving}
             style={{
               width: "100%", background: "linear-gradient(145deg, #FF7840, #FFAB80)",
-              border: "none", borderRadius: 16, padding: 15,
+              border: "none", borderRadius: 16, padding: 16,
               fontSize: 15, fontWeight: 600, color: "white",
               boxShadow: "0 4px 16px rgba(255,120,64,0.28)",
               cursor: "pointer", opacity: saving ? 0.6 : 1,
             }}>
-            {saving ? "Saving..." : "Save check-in"}
+            {saving ? "Saving..." : "Save check-in 🌸"}
           </button>
         </div>
       )}
