@@ -6,51 +6,41 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 24 100% 8%;
-
+    --background: 24 60% 98%;
+    --foreground: 20 60% 20%;
     --card: 0 0% 100%;
-    --card-foreground: 24 100% 8%;
-
+    --card-foreground: 20 60% 20%;
     --popover: 0 0% 100%;
-    --popover-foreground: 24 100% 8%;
-
-    --primary: 20 100% 80%;
-    --primary-foreground: 24 100% 8%;
-
+    --popover-foreground: 20 60% 20%;
+    --primary: 20 100% 56%;
+    --primary-foreground: 24 100% 98%;
     --secondary: 20 100% 93%;
-    --secondary-foreground: 24 100% 8%;
-
+    --secondary-foreground: 20 60% 20%;
     --muted: 20 100% 95%;
-    --muted-foreground: 20 50% 62%;
-
+    --muted-foreground: 20 50% 55%;
     --accent: 20 100% 90%;
-    --accent-foreground: 24 100% 8%;
-
+    --accent-foreground: 20 60% 20%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 20 100% 92%;
     --input: 20 100% 92%;
-    --ring: 20 50% 62%;
-
+    --ring: 20 50% 55%;
     --radius: 1rem;
 
-    /* BELLY custom tokens */
-    --belly-bg: 25 100% 91%;
-    --belly-hero: 20 100% 80%;
-    --belly-card-border: 20 100% 92%;
+    /* BELLY warm-orange tokens */
+    --belly-bg: 24 60% 98%;
+    --belly-hero: 20 100% 56%;
+    --belly-card-border: 20 80% 86%;
     --belly-icon-bg: 20 100% 95%;
-    --belly-upsell-bg: 20 100% 96%;
-    --belly-upsell-border: 20 100% 85%;
-    --belly-text-primary: 24 100% 8%;
-    --belly-text-muted: 20 50% 62%;
-    --belly-text-hint: 20 30% 73%;
-    --belly-accent: 20 50% 62%;
+    --belly-text-primary: 16 68% 47%;
+    --belly-text-card: 16 62% 41%;
+    --belly-text-body: 20 40% 59%;
+    --belly-text-hint: 20 30% 47%;
+    --belly-text-section: 16 68% 47%;
+    --belly-accent: 20 100% 56%;
     --belly-divider: 20 100% 95%;
     --belly-success: 145 35% 74%;
     --belly-pink: 340 100% 91%;
-    --belly-premium: 20 100% 80%;
     --belly-sage: 110 38% 78%;
     --belly-sage-text: 110 40% 24%;
     --belly-pink-text: 340 50% 30%;
@@ -72,7 +62,7 @@
     --card-foreground: 20 100% 95%;
     --popover: 24 50% 12%;
     --popover-foreground: 20 100% 95%;
-    --primary: 20 100% 80%;
+    --primary: 20 100% 56%;
     --primary-foreground: 24 100% 8%;
     --secondary: 24 30% 18%;
     --secondary-foreground: 20 100% 95%;
@@ -84,7 +74,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 24 30% 18%;
     --input: 24 30% 18%;
-    --ring: 20 50% 62%;
+    --ring: 20 50% 55%;
   }
 }
 
@@ -94,15 +84,12 @@
   }
   body {
     @apply text-foreground;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-
-  /* Living gradient world */
   body, #root {
-    background: linear-gradient(135deg, #F8E8FF 0%, #FFE4D4 30%, #FFF0E8 60%, #FFF8F2 100%);
+    background: #FEF8F4;
     min-height: 100vh;
-    background-attachment: fixed;
   }
 }
 
@@ -111,32 +98,33 @@
     font-family: 'Playfair Display', Georgia, 'Palatino Linotype', serif;
   }
   .font-body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
   }
 }
 
 /* ===== GLASSMORPHISM ===== */
 .belly-glass {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 228, 212, 0.8);
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 0.5px solid rgba(255, 170, 130, 0.22);
 }
 
 .belly-glass-nav {
-  background: rgba(255, 252, 248, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255, 228, 212, 0.5);
-  box-shadow: 0 -4px 20px rgba(42, 18, 0, 0.04);
+  background: rgba(254, 248, 244, 0.88);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-top: 0.5px solid rgba(255, 170, 130, 0.18);
+  box-shadow: 0 -4px 20px rgba(255, 140, 90, 0.04);
 }
 
 .belly-glass-card {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 228, 212, 0.8);
-  box-shadow: 0 2px 12px rgba(42, 18, 0, 0.04);
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 0.5px solid rgba(255, 170, 130, 0.22);
+  box-shadow: 0 2px 14px rgba(255, 140, 90, 0.07);
+  border-radius: 17px;
 }
 
 /* ===== PAGE ENTER TRANSITION ===== */
@@ -163,7 +151,6 @@
   transform: scale(0.97);
 }
 
-/* Interactive cards */
 .belly-card-interactive {
   transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 140ms ease;
   cursor: pointer;
@@ -173,7 +160,6 @@
   box-shadow: 0 1px 4px rgba(42,18,0,0.08);
 }
 
-/* Primary buttons */
 .belly-btn-primary {
   transition: transform 120ms ease, opacity 120ms ease;
 }
@@ -183,8 +169,8 @@
 }
 
 .belly-input-focus:focus {
-  border-color: #FFB899 !important;
-  box-shadow: 0 0 0 3px rgba(255,184,153,0.2);
+  border-color: #FF7840 !important;
+  box-shadow: 0 0 0 3px rgba(255,120,64,0.15);
   outline: none;
   transition: all 200ms ease;
 }
@@ -256,10 +242,31 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== FLOAT (Can't Sleep moon) ===== */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* ===== BREATHE (Can't Sleep) ===== */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+}
+
+/* ===== SHAKE (wrong quiz answer) ===== */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
 /* ===== PREMIUM POLISH UTILITIES ===== */
 .belly-divider-elegant {
   height: 1px;
-  background: linear-gradient(to right, transparent, #FFE4D4, transparent);
+  background: linear-gradient(to right, transparent, rgba(255,170,130,0.3), transparent);
 }
 
 .belly-card-shadow {
@@ -267,7 +274,7 @@
 }
 
 .belly-avatar-ring {
-  box-shadow: 0 0 0 2px #FFCDB4;
+  box-shadow: 0 0 0 2px rgba(255,170,130,0.25);
 }
 
 .belly-badge-glass {
@@ -275,11 +282,10 @@
 }
 
 .belly-hero-gradient {
-  background: radial-gradient(ellipse at top right, #FFCDB4 0%, #FFB899 45%, #FFA882 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(42,18,0,0.06);
+  background: linear-gradient(140deg, #FF7E48 0%, #FFA070 55%, #FFBE98 100%);
+  box-shadow: 0 10px 36px rgba(255,110,60,0.28), 0 2px 8px rgba(255,110,60,0.12);
 }
 
-/* Scrollbar hide for horizontal scrolls */
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
