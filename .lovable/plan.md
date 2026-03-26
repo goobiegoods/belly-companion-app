@@ -1,36 +1,55 @@
 
 
-# Make All Can't Sleep Tabs Fullscreen
+# Fix CantSleep.tsx — Layout, Quiz, and Breathe
 
-## What Changes
-When a user taps on the Baby Quiz or Breathe tab, each should expand into a fullscreen overlay (just like the affirmation cards already do when tapped). The small card previews in the scroll row stay as entry points, but the actual experience is fullscreen.
+## Problem Summary
+1. **Affirmations tab**: 4th card cut off, empty void below cards
+2. **Quiz tab**: Full dark purple fullscreen overlay — should be inline on warm background
+3. **Breathe tab**: Full dark purple fullscreen overlay — should be inline on warm background
 
-## Approach
+## Changes — `src/pages/CantSleep.tsx` only
 
-### `src/pages/CantSleep.tsx`
+### 1. AffirmationsTab — Fix scroll row + add preview cards
 
-**1. QuizTab — Add fullscreen mode**
-- Add a `fullscreen` state (default `true` since selecting the tab means you want to play)
-- When active, render a `fixed inset-0 z-[100]` overlay with dark purple gradient background (matching affirmation fullscreen style)
-- Move the score display and QuizBlock into this fullscreen container
-- Add a "← Back" button (top-left, same style as affirmation viewer) that navigates back to main screen
-- The quiz content centers vertically in the overlay with proper padding
+**Scroll row** (line 118): Update styles to `gap: 10px`, `paddingRight: 16px`, add `WebkitOverflowScrolling: 'touch'`. Cards already have `shrink-0` and correct sizing — just ensure width 148px height 98px.
 
-**2. BreatheTab — Add fullscreen mode**
-- Same pattern: `fullscreen` state, defaults to `true`
-- Render a `fixed inset-0 z-[100]` overlay with the dark purple gradient background
-- Center the breathing rings, countdown, quote, and start/stop button vertically
-- Add "← Back" button top-left
-- Scale up the rings visualization (from 140px to ~200px container) to fill more space
-- Keep warm orange accents for rings/text but against the dark purple bg:
-  - Phase label: `rgba(255,220,255,0.6)` instead of orange
-  - Countdown: `#FFF0FF` instead of `#A84E28`
-  - Rings: `rgba(255,180,255,...)` dashed borders
-  - Quote: `rgba(255,200,255,0.4)`
-  - Button: `rgba(255,180,255,0.2)` bg, `#FFF0FF` text
+**Add below cards** (after line 138, inside the `<div>` return):
+- "More for tonight" label: 7px uppercase, `rgba(200,88,40,0.4)`
+- **Breathing preview card**: purple-tinted glass card with 🫧 icon, "4-7-8 Breathing" title, subtitle, chevron. On tap → call parent `setActiveTab("Breathe")`
+- **Quiz preview card**: similar card with 🧠, "Baby Brain Quiz" title, subtitle. On tap → call parent `setActiveTab("Baby Quiz 🎮")`
 
-**3. No changes to AffirmationsTab** — already has fullscreen mode
+This requires passing `onSwitchTab` callback from parent `CantSleep` into `AffirmationsTab`.
 
-### Files
-- `src/pages/CantSleep.tsx` — wrap QuizTab and BreatheTab content in fullscreen overlays
+### 2. QuizTab — Remove fullscreen, render inline
+
+**Remove** the `fixed inset-0 z-[100]` wrapper and dark purple background (lines 169-193).
+
+**Replace** with inline content on warm background:
+- Score row: "Baby Brain 🧠" label (`rgba(200,88,40,0.4)`) + score display (`#A84E28`)
+- Quiz card with dark purple gradient header (question + progress bar) and warm-bg answer options
+- Fun fact card slides in after answering
+- Next/play-again button in warm orange style
+- Footer text in warm colors
+- Remove `darkTheme` prop from QuizBlock — or better: **inline the quiz logic** directly since QuizBlock's dark theme doesn't match the new design. Actually, keep using QuizBlock but remove `darkTheme` prop so it renders in light mode.
+
+### 3. BreatheTab — Remove fullscreen, render inline
+
+**Remove** the `fixed inset-0 z-[100]` wrapper (lines 226-273).
+
+**Replace** with a normal `div` that fills the tab content area:
+- `padding: 16px`, flex column, centered, gap 16px
+- Phase label: 10px uppercase, `rgba(200,88,40,0.5)`, weight 600
+- Rings: orange tints `rgba(255,120,64,0.15/0.25/0.35)` dashed borders
+- Bubble: warm gradient `rgba(255,120,64,0.3)` with orange glow
+- Countdown: 28px, weight 300, `#A84E28`
+- Dots: active `rgba(200,88,40,0.7)`, inactive `rgba(200,88,40,0.2)`
+- Quote: `rgba(180,100,60,0.45)`
+- Button: bg `rgba(255,120,64,0.12)`, border `rgba(255,120,64,0.25)`, color `#C85828`
+
+### 4. Parent component update
+
+Pass `setActiveTab` to `AffirmationsTab` as `onSwitchTab` prop so preview cards can switch tabs.
+
+## File
+- `src/pages/CantSleep.tsx` — rewrite QuizTab, BreatheTab, and add preview cards to AffirmationsTab
 
