@@ -184,7 +184,9 @@ const Community = () => {
         <div className="flex items-center justify-between px-5 pt-5 pb-3 belly-glass-nav shrink-0" style={{ borderBottom: "1px solid rgba(255,228,212,0.6)" }}>
           <button onClick={() => setShowNotifications(false)} className="text-[12px] font-semibold" style={{ color: "#C4906A" }}>← Back</button>
           <h1 className="font-display text-[18px] font-semibold" style={{ color: "#C85828" }}>Notifications</h1>
-          <div className="w-10" />
+          {unreadCount > 0 ? (
+            <button onClick={markAllRead} className="text-[11px] font-medium" style={{ color: "#FF7840" }}>Mark all read</button>
+          ) : <div className="w-10" />}
         </div>
         <div className="flex-1 overflow-y-auto pb-20">
           {notifications.length === 0 ? (
