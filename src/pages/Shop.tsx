@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { kits, remedies, teas, homeopathyCourses, SHOP_DISCLAIMER, Product } from "@/data/shopData";
 import { getHomeopathyLessonContent } from "@/data/homeopathyLessons";
 import { LessonContent } from "@/data/lessonContent";
-import { ShoppingBag, X, Plus, Minus, Check, ChevronRight, Lock, Save } from "lucide-react";
+import { X, Plus, Minus, Check, ChevronRight, Lock, Save } from "lucide-react";
 import { toast } from "sonner";
 
 interface CartItem { product: Product; qty: number }
@@ -32,7 +32,9 @@ const Shop = () => {
       if (existing) return prev.map(i => i.product.id === product.id ? { ...i, qty: i.qty + 1 } : i);
       return [...prev, { product, qty: 1 }];
     });
-    toast.success(`Added ${product.name} to cart`);
+    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(6);
+    toast.success(`${product.name} added 🛍️`);
+    setTimeout(() => setShowCart(true), 800);
   };
 
   const updateQty = (id: string, delta: number) => {
@@ -216,9 +218,25 @@ const Shop = () => {
   // --- MAIN SHOP ---
   return (
     <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
-      <div className="px-5 pt-5 pb-1">
-        <h1 className="font-display text-[26px] font-semibold tracking-[-0.5px]" style={{ color: "#C85828" }}>Belly Shop</h1>
-        <p className="text-[12px]" style={{ color: "#D4906A", fontWeight: 400 }}>Natural remedies, delivered to you</p>
+      <div className="px-5 pt-5 pb-1 flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-[26px] font-semibold tracking-[-0.5px]" style={{ color: "#C85828" }}>Belly Shop</h1>
+          <p className="text-[12px]" style={{ color: "#D4906A", fontWeight: 400 }}>Natural remedies, delivered to you</p>
+        </div>
+        <button onClick={() => setShowCart(true)} className="relative shrink-0 mt-1"
+          style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,170,130,0.25)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 8px rgba(255,140,90,0.1)" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C85828" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 01-8 0" />
+          </svg>
+          {cartCount > 0 && (
+            <div className="absolute -top-1 -right-1 flex items-center justify-center"
+              style={{ width: 18, height: 18, borderRadius: "50%", background: "linear-gradient(145deg, #FF7840, #FFAB80)", color: "white", fontSize: 9, fontWeight: 700, boxShadow: "0 2px 6px rgba(255,120,64,0.35)", animation: "badgePop 200ms cubic-bezier(0.34,1.56,0.64,1)" }}>
+              {cartCount}
+            </div>
+          )}
+        </button>
       </div>
       <div className="flex gap-2 px-5 my-3">
         {(["remedies", "learn"] as const).map(t => (
@@ -241,10 +259,11 @@ const Shop = () => {
             <p className="text-[9.5px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.6)" }}>CURATED FOR PREGNANCY</p>
             <h2 className="font-display text-[20px] font-semibold mb-1" style={{ color: "#FFF9F6" }}>Natural support for every trimester</h2>
             <p className="text-[12px] mb-3" style={{ color: "rgba(255,255,255,0.7)", fontWeight: 400 }}>Homeopathic remedies + herbal teas, carefully selected for pregnancy safety</p>
-            <span className="inline-block text-[11px] px-3 py-1.5 rounded-full font-semibold" style={{ background: "rgba(255,255,255,0.25)", color: "#FFF9F6" }}>Shop all →</span>
+            <button onClick={() => document.getElementById('remedy-kits')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-block text-[11px] px-3 py-1.5 rounded-full font-semibold" style={{ background: "rgba(255,255,255,0.25)", color: "#FFF9F6", border: "none", cursor: "pointer" }}>Shop all →</button>
           </div>
 
-          <p className="px-5 text-[10px] uppercase tracking-[0.11em] mb-2 font-semibold" style={{ color: "rgba(200,88,40,0.4)" }}>Remedy kits</p>
+          <p id="remedy-kits" className="px-5 text-[10px] uppercase tracking-[0.11em] mb-2 font-semibold" style={{ color: "rgba(200,88,40,0.4)" }}>Remedy kits</p>
           <div className="flex gap-3 px-4 overflow-x-auto hide-scrollbar mb-5" style={{ paddingRight: 32 }}>
             {kits.map(kit => (
               <div key={kit.id} className="min-w-[180px] shrink-0 belly-card-interactive overflow-hidden"
@@ -364,54 +383,93 @@ const Shop = () => {
         </>
       )}
 
-      {cartCount > 0 && tab === "remedies" && (
-        <button onClick={() => setShowCart(true)}
-          className="fixed bottom-20 right-4 w-[52px] h-[52px] rounded-full flex items-center justify-center belly-btn-primary z-40"
-          style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", boxShadow: "0 4px 16px rgba(255,110,60,0.28)" }}>
-          <ShoppingBag size={20} style={{ color: "white" }} />
-          <div className="absolute -top-1 -right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-semibold text-white" style={{ background: "#FF6B6B" }}>
-            {cartCount}
-          </div>
-        </button>
-      )}
-
+      {/* Cart overlay — slides from top-right */}
       {showCart && (
-        <div className="fixed inset-0 bg-black/40 z-[200] flex items-end" onClick={() => setShowCart(false)}>
-          <div className="w-full rounded-t-[24px] max-h-[70vh] flex flex-col sheet-enter"
-            style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 pt-4 pb-3 shrink-0" style={{ borderBottom: "0.5px solid rgba(255,170,130,0.14)" }}>
-              <h2 className="font-display text-[20px] font-semibold" style={{ color: "#C85828" }}>Your cart</h2>
-              <button onClick={() => setShowCart(false)}><X size={20} style={{ color: "#C4906A" }} /></button>
+        <div className="fixed inset-0 z-[200]" style={{ background: "rgba(42,18,0,0.25)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }} onClick={() => setShowCart(false)}>
+          <div className="fixed" onClick={e => e.stopPropagation()}
+            style={{
+              top: 60, right: 16, width: "min(320px, calc(100vw - 32px))", maxHeight: "70vh",
+              borderRadius: 20, background: "rgba(254,248,244,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+              border: "0.5px solid rgba(255,170,130,0.25)", boxShadow: "0 16px 48px rgba(42,18,0,0.15)",
+              overflow: "hidden", animation: "slideDown 220ms cubic-bezier(0.22,1,0.36,1)",
+              display: "flex", flexDirection: "column",
+            }}>
+            {/* Header */}
+            <div className="flex items-center justify-between shrink-0" style={{ padding: "14px 16px 10px", borderBottom: "0.5px solid rgba(255,170,130,0.15)" }}>
+              <span style={{ color: "#C85828", fontSize: 14, fontWeight: 600 }}>Your cart</span>
+              <button onClick={() => setShowCart(false)} style={{ color: "#D4906A", fontSize: 18, cursor: "pointer", background: "none", border: "none" }}>×</button>
             </div>
-            <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
-              {cart.map(item => (
-                <div key={item.product.id} className="flex items-center gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{item.product.name}</p>
-                    <p className="text-[11px]" style={{ color: "#C4906A" }}>${(item.product.price * item.qty).toFixed(2)}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => updateQty(item.product.id, -1)} className="w-7 h-7 rounded-full flex items-center justify-center belly-btn-press" style={{ background: "rgba(255,210,185,0.6)" }}><Minus size={12} style={{ color: "#E07040" }} /></button>
-                    <span className="text-[13px] font-semibold w-5 text-center" style={{ color: "#A84E28" }}>{item.qty}</span>
-                    <button onClick={() => updateQty(item.product.id, 1)} className="w-7 h-7 rounded-full flex items-center justify-center belly-btn-press" style={{ background: "rgba(255,210,185,0.6)" }}><Plus size={12} style={{ color: "#E07040" }} /></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="shrink-0 px-5 pb-6 pt-3" style={{ borderTop: "0.5px solid rgba(255,170,130,0.14)" }}>
-              <div className="flex justify-between mb-3">
-                <span className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>Subtotal</span>
-                <span className="font-display text-[16px] font-semibold" style={{ color: "#A84E28" }}>${cartTotal.toFixed(2)}</span>
+
+            {cart.length === 0 ? (
+              <div style={{ padding: "32px 16px", textAlign: "center" }}>
+                <span style={{ fontSize: 36, display: "block", marginBottom: 8 }}>🛍️</span>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#A84E28" }}>Your cart is empty</p>
+                <p style={{ fontSize: 11, color: "#D4906A", fontStyle: "italic" }}>Add a remedy to get started</p>
               </div>
-              <button onClick={placeOrder} disabled={ordering}
-                className="w-full h-12 rounded-[14px] text-[14px] font-semibold belly-btn-primary disabled:opacity-50" style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>
-                {ordering ? "Placing order..." : "Place order →"}
-              </button>
-            </div>
+            ) : (
+              <>
+                {/* Items */}
+                <div style={{ maxHeight: 240, overflowY: "auto", padding: "8px 16px" }}>
+                  {cart.map(item => (
+                    <div key={item.product.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "0.5px solid rgba(255,170,130,0.1)" }}>
+                      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,200,170,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
+                        {item.product.emoji}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: "#A84E28" }}>{item.product.name}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                          <button onClick={() => updateQty(item.product.id, -1)} style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,210,185,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <Minus size={10} style={{ color: "#E07040" }} />
+                          </button>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "#A84E28", width: 16, textAlign: "center" }}>{item.qty}</span>
+                          <button onClick={() => updateQty(item.product.id, 1)} style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,210,185,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <Plus size={10} style={{ color: "#E07040" }} />
+                          </button>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: "#A84E28" }}>${(item.product.price * item.qty).toFixed(2)}</p>
+                        <button onClick={() => updateQty(item.product.id, -item.qty)} style={{ fontSize: 14, color: "rgba(180,100,60,0.4)", background: "none", border: "none", cursor: "pointer" }}>×</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Summary */}
+                <div style={{ padding: "10px 16px", borderTop: "0.5px solid rgba(255,170,130,0.15)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 11, color: "#D4906A" }}>Subtotal</span>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: "#A84E28" }}>${cartTotal.toFixed(2)}</span>
+                  </div>
+                  <p style={{ fontSize: 9, fontStyle: "italic", color: "rgba(180,100,60,0.4)", textAlign: "center", marginTop: 4 }}>
+                    {cartTotal >= 40 ? "✓ Free shipping included" : "Free shipping on orders over $40"}
+                  </p>
+                </div>
+
+                {/* Checkout buttons */}
+                <div style={{ padding: "10px 16px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+                  <button onClick={placeOrder} disabled={ordering}
+                    style={{ width: "100%", background: "linear-gradient(145deg, #FF7840, #FFAB80)", borderRadius: 14, padding: 14, border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, color: "white", boxShadow: "0 4px 14px rgba(255,120,64,0.28)", opacity: ordering ? 0.6 : 1 }}>
+                    {ordering ? "Placing order..." : "Place order →"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes badgePop {
+          0% { transform: scale(0); }
+          70% { transform: scale(1.2); }
+          100% { transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 };
