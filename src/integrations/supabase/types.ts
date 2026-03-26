@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      affirmation_views: {
+        Row: {
+          affirmation_index: number
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          affirmation_index: number
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          affirmation_index?: number
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
@@ -311,6 +332,39 @@ export type Database = {
           premium_expires_at?: string | null
           premium_since?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quiz_attempts: {
+        Row: {
+          completed_at: string
+          id: string
+          is_correct: boolean | null
+          lesson_id: string | null
+          score: number | null
+          selected_option: string | null
+          total_questions: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          is_correct?: boolean | null
+          lesson_id?: string | null
+          score?: number | null
+          selected_option?: string | null
+          total_questions?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          is_correct?: boolean | null
+          lesson_id?: string | null
+          score?: number | null
+          selected_option?: string | null
+          total_questions?: number | null
           user_id?: string
         }
         Relationships: []
