@@ -293,10 +293,7 @@ const Community = () => {
           <p className="text-[11px]" style={{ color: "#D4906A", fontWeight: 400 }}>You're not alone in this</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowNotifications(true)} className="relative w-9 h-9 rounded-full flex items-center justify-center belly-glass" style={{ border: "none" }}>
-            <Bell size={16} style={{ color: "#C4906A" }} />
-            {unreadCount > 0 && <div className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#FF6B6B" }} />}
-          </button>
+          <NotificationBell onOpenNotifications={() => setShowNotifications(true)} unreadCount={unreadCount} />
           <button onClick={() => setShowCreate(true)} className="rounded-full px-3 py-1.5 text-[11px] font-semibold flex items-center gap-1 belly-btn-primary"
             style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>
             <Plus size={14} /> Post
