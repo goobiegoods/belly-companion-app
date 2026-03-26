@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { coursesData, Course } from "@/data/coursesData";
-import { getLessonContent, LessonContent } from "@/data/lessonContent";
+import { getLessonContent, LessonContent, getLessonDescription } from "@/data/lessonContent";
 import { supabase } from "@/integrations/supabase/client";
 import { Lock, ChevronRight, Check, ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
@@ -221,29 +221,88 @@ const Courses = () => {
       id: `${course.id}-L${i + 1}`, number: i + 1,
       title: getLessonContent(course.id, i).title,
       duration: getLessonContent(course.id, i).duration,
+      description: getLessonDescription(course.id, i),
     }));
+    const courseCompletions = completions.filter(id => id.startsWith(course.id)).length;
+    const courseProgress = courseCompletions / course.lessonCount;
 
     return (
       <div className="min-h-screen pb-20" style={{ background: "transparent" }}>
-        <div className="flex items-center gap-3 px-5 pt-5 pb-3 belly-glass-nav" style={{ borderBottom: "1px solid rgba(255,228,212,0.6)" }}>
+        <div className="flex items-center gap-3 px-5 pt-5 pb-3" style={{ borderBottom: "1px solid rgba(255,228,212,0.6)" }}>
           <button onClick={() => setSelectedCourse(null)} className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
-          <h1 className="font-display text-[16px] font-bold" style={{ color: "#2A1200" }}>{course.title}</h1>
         </div>
-        <div className="px-5 py-4 space-y-2">
+
+        {/* Course Hero Card */}
+        <div style={{
+          margin: "8px 16px 0", borderRadius: 18, padding: 16,
+          background: "linear-gradient(135deg, #FF7E48, #FFA070, #FFBE98)",
+          boxShadow: "0 8px 24px rgba(255,110,60,0.2)",
+          position: "relative", overflow: "hidden",
+        }}>
+          <div style={{ position: "absolute", right: -12, top: -12, width: 70, height: 70, borderRadius: "50%", background: "rgba(255,255,255,0.1)" }} />
+          <span style={{ fontSize: 28, marginBottom: 6, display: "block" }}>{course.emoji}</span>
+          <p style={{ fontSize: 14, fontWeight: 600, color: "white" }}>{course.title}</p>
+          <p style={{ fontSize: 7.5, color: "rgba(255,255,255,0.72)", lineHeight: 1.5, marginBottom: 8, maxWidth: "75%" }}>{course.description}</p>
+          <div className="flex gap-1.5">
+            {[`${course.lessonCount} lessons`, `${course.duration} min total`, course.isPremium ? "Premium" : "Free"].map(label => (
+              <span key={label} style={{
+                background: "rgba(255,255,255,0.2)", border: "0.5px solid rgba(255,255,255,0.3)",
+                borderRadius: 8, padding: "2px 8px", fontSize: 6.5, color: "white",
+              }}>{label}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ padding: "8px 16px 4px" }}>
+          <div className="flex items-center justify-between mb-1">
+            <p style={{ fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.11em", color: "rgba(200,88,40,0.45)", fontWeight: 600 }}>Your progress</p>
+            <p style={{ fontSize: 7, color: "#D4906A", fontWeight: 600 }}>{courseCompletions} of {course.lessonCount}</p>
+          </div>
+          <div style={{ height: 3, borderRadius: 2, background: "rgba(255,170,130,0.2)" }}>
+            <div style={{ height: "100%", borderRadius: 2, width: `${courseProgress * 100}%`, background: "linear-gradient(90deg, #FF7840, #FFBA90)", transition: "width 300ms ease" }} />
+          </div>
+        </div>
+
+        {/* Lesson rows */}
+        <div className="px-4 py-3 space-y-[6px]">
           {lessons.map((lesson, i) => {
             const completed = completions.includes(lesson.id);
+            const isNext = !completed && i === courseCompletions;
+            const cardBg = completed
+              ? "rgba(235,252,240,0.8)" : isNext
+              ? "rgba(255,242,234,0.9)" : "rgba(255,255,255,0.72)";
+            const cardBorder = completed
+              ? "rgba(140,210,160,0.25)" : isNext
+              ? "rgba(255,140,90,0.3)" : "rgba(255,170,130,0.2)";
+            const cardShadow = isNext ? "0 2px 12px rgba(255,120,64,0.1)" : "none";
+
             return (
-              <button key={lesson.id} onClick={() => { setSelectedLesson(i); setReflectionText(""); setQuizAnswer(null); setQuizSubmitted(false); }}
-                className="w-full belly-glass-card rounded-[18px] p-4 flex items-center gap-3 text-left belly-card-interactive">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                  style={{ background: completed ? "#A8D4B8" : "rgba(255,240,232,0.8)", color: completed ? "white" : "#D4906A" }}>
-                  {completed ? <Check size={14} /> : lesson.number}
+              <button key={lesson.id}
+                onClick={() => { setSelectedLesson(i); setReflectionText(""); setQuizAnswer(null); setQuizSubmitted(false); }}
+                className="w-full text-left"
+                style={{ borderRadius: 14, padding: "10px 12px", display: "flex", alignItems: "flex-start", gap: 10, background: cardBg, border: `0.5px solid ${cardBorder}`, boxShadow: cardShadow }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 11, fontWeight: 700, flexShrink: 0,
+                  background: completed ? "linear-gradient(135deg, #60C080, #40A060)" : isNext ? "linear-gradient(135deg, #FF7840, #FFA070)" : "rgba(255,200,170,0.3)",
+                  color: completed || isNext ? "white" : "#D4906A",
+                  boxShadow: completed ? "0 2px 8px rgba(60,160,80,0.3)" : isNext ? "0 2px 8px rgba(255,120,64,0.3)" : "none",
+                }}>
+                  {completed ? <Check size={13} /> : lesson.number}
                 </div>
-                <div className="flex-1">
-                  <p className="text-[13px] font-semibold" style={{ color: "#2A1200" }}>{lesson.title}</p>
-                  <p className="text-[10px]" style={{ color: "#D4B0A0" }}>{lesson.duration} min</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 9.5, fontWeight: 600, color: "#A84E28", lineHeight: 1.3 }}>{lesson.title}</p>
+                  <p style={{ fontSize: 7.5, color: "#C4906A", lineHeight: 1.45, fontWeight: 400, marginTop: 2 }} className="line-clamp-2">{lesson.description}</p>
+                  <div className="flex gap-1.5 mt-1.5">
+                    <span style={{ fontSize: 6, textTransform: "uppercase", color: "#D4906A", fontWeight: 500 }}>{lesson.duration} min</span>
+                    <span style={{
+                      fontSize: 6, textTransform: "uppercase", fontWeight: 600,
+                      color: completed ? "#40A060" : isNext ? "#FF7840" : "rgba(180,100,60,0.38)",
+                    }}>{completed ? "✓ Complete" : isNext ? "Up next" : ""}</span>
+                  </div>
                 </div>
-                <ChevronRight size={16} style={{ color: "#D4B0A0" }} />
+                <ChevronRight size={14} style={{ color: "#D4B0A0", flexShrink: 0, marginTop: 4 }} />
               </button>
             );
           })}
