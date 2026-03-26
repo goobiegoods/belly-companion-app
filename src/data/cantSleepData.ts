@@ -131,8 +131,8 @@ export const BABY_QUIZ_QUESTIONS: QuizQuestion[] = [
 ];
 
 export const AFFIRMATION_CATEGORIES = [
-  { emoji: "🌸", label: "Self-love", gradient: ["#2A1A40", "#4A2060"] },
-  { emoji: "⭐", label: "Strength", gradient: ["#1A2840", "#204060"] },
-  { emoji: "🔥", label: "Courage", gradient: ["#402018", "#603028"] },
-  { emoji: "🌿", label: "Peace", gradient: ["#183028", "#204838"] },
+  { emoji: "🌸", label: "Self-love", preview: "My body knows exactly what it's doing.", gradient: ["#2A1A40", "#4A2060"], border: "rgba(255,180,255,0.15)" },
+  { emoji: "⭐", label: "Strength", preview: "Every sleepless hour is love in action.", gradient: ["#1A2840", "#204060"], border: "rgba(180,220,255,0.15)" },
+  { emoji: "🔥", label: "Courage", preview: "I am stronger than I know tonight.", gradient: ["#402018", "#603028"], border: "rgba(255,200,150,0.15)" },
+  { emoji: "🌿", label: "Peace", preview: "This baby chose me for a reason.", gradient: ["#183028", "#204838"], border: "rgba(150,230,180,0.15)" },
 ];
