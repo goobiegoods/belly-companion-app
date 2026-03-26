@@ -34,19 +34,19 @@ const BabyTracker = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-belly-bg pb-20 page-enter">
+    <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
       {/* Hero */}
-      <div className="belly-hero-gradient rounded-b-hero px-5 pt-6 pb-5">
+      <div className="belly-hero-gradient rounded-b-[24px] px-5 pt-6 pb-5">
         <div className="flex items-center justify-center gap-4 mb-4">
           <div className="text-center">
-            <p className="font-display text-[48px] font-bold text-primary-foreground">{selectedWeek}</p>
-            <p className="text-[11px] text-primary-foreground/60 uppercase tracking-wider">Weeks pregnant</p>
+            <p className="font-display text-[48px] font-bold" style={{ color: "#2A1200" }}>{selectedWeek}</p>
+            <p className="text-[11px] uppercase tracking-wider" style={{ color: "rgba(42,18,0,0.6)" }}>Weeks pregnant</p>
           </div>
           <div className="opacity-85" style={{ background: "rgba(255,212,224,0.2)", borderRadius: "50%", padding: "8px" }}>
             <BabySizeIllustration week={selectedWeek} size={80} />
           </div>
         </div>
-        <p className="text-center text-primary-foreground/80 text-sm">{weekData.babySize}</p>
+        <p className="text-center text-sm" style={{ color: "rgba(42,18,0,0.8)" }}>{weekData.babySize}</p>
       </div>
 
       {/* Week strip */}
@@ -55,13 +55,18 @@ const BabyTracker = () => {
           <button
             key={w.week}
             onClick={() => setSelectedWeek(w.week)}
-            className={`min-w-[36px] h-9 rounded-pill text-xs font-medium belly-btn-press ${
+            className={`min-w-[36px] h-9 rounded-full text-xs font-medium belly-btn-press ${
               w.week === selectedWeek
-                ? "bg-primary text-primary-foreground"
+                ? "text-white"
                 : w.week < currentWeek
-                ? "bg-belly-icon-bg text-belly-text-muted"
-                : "bg-card border border-belly-card-border text-belly-text-hint"
+                ? "text-belly-text-muted"
+                : ""
             }`}
+            style={{
+              background: w.week === selectedWeek ? "#FFB899" : w.week < currentWeek ? "rgba(255,240,232,0.8)" : "rgba(255,255,255,0.75)",
+              border: w.week === selectedWeek ? "none" : "1px solid rgba(255,228,212,0.6)",
+              color: w.week === selectedWeek ? "#2A1200" : "#D4B0A0",
+            }}
           >
             {w.week}
           </button>
@@ -70,38 +75,38 @@ const BabyTracker = () => {
 
       {/* Week detail */}
       <div className="px-5 mb-5">
-        <div className="bg-card border border-belly-card-border rounded-card overflow-hidden">
+        <div className="belly-glass-card rounded-[16px] overflow-hidden">
           <div className="p-4">
-            <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-1">Baby development</p>
-            <p className="text-[13px] text-foreground leading-relaxed">{weekData.developmentHighlight}</p>
+            <p className="text-[10px] uppercase tracking-[0.1em] mb-1" style={{ color: "#D4B0A0" }}>Baby development</p>
+            <p className="text-[13px] leading-relaxed" style={{ color: "#2A1200" }}>{weekData.developmentHighlight}</p>
           </div>
-          <div className="p-4 border-t border-belly-divider flex items-center gap-3">
+          <div className="p-4 flex items-center gap-3" style={{ borderTop: "1px solid rgba(255,228,212,0.4)" }}>
             <BabySizeIllustration week={selectedWeek} size={60} />
             <div>
-              <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-1">Baby size</p>
-              <p className="text-[13px] text-foreground leading-relaxed">{weekData.babySize} · {weekData.babyLength} · {weekData.babyWeight}</p>
+              <p className="text-[10px] uppercase tracking-[0.1em] mb-1" style={{ color: "#D4B0A0" }}>Baby size</p>
+              <p className="text-[13px] leading-relaxed" style={{ color: "#2A1200" }}>{weekData.babySize} · {weekData.babyLength} · {weekData.babyWeight}</p>
             </div>
           </div>
-          <div className="p-4 border-t border-belly-divider">
-            <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-1">What you might feel</p>
-            <p className="text-[13px] text-foreground leading-relaxed">{weekData.momSymptoms.join(" · ")}</p>
+          <div className="p-4" style={{ borderTop: "1px solid rgba(255,228,212,0.4)" }}>
+            <p className="text-[10px] uppercase tracking-[0.1em] mb-1" style={{ color: "#D4B0A0" }}>What you might feel</p>
+            <p className="text-[13px] leading-relaxed" style={{ color: "#2A1200" }}>{weekData.momSymptoms.join(" · ")}</p>
           </div>
-          <div className="p-4 border-t border-belly-divider">
-            <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-1">Natural tip</p>
-            <p className="text-[13px] text-foreground leading-relaxed">{weekData.naturalTip}</p>
+          <div className="p-4" style={{ borderTop: "1px solid rgba(255,228,212,0.4)" }}>
+            <p className="text-[10px] uppercase tracking-[0.1em] mb-1" style={{ color: "#D4B0A0" }}>Natural tip</p>
+            <p className="text-[13px] leading-relaxed" style={{ color: "#2A1200" }}>{weekData.naturalTip}</p>
           </div>
         </div>
       </div>
 
       {/* Trimester overview */}
       <div className="px-5 mb-5">
-        <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-2">TRIMESTER OVERVIEW</p>
+        <p className="text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: "#D4B0A0" }}>TRIMESTER OVERVIEW</p>
         <div className="flex gap-2">
           {trimesterInfo.map((t, i) => (
-            <div key={i} className={`flex-1 rounded-card p-3 border ${weekData.trimester === i + 1 ? "bg-belly-upsell-bg border-belly-upsell-border" : "bg-card border-belly-card-border opacity-60"}`}>
-              <p className="font-display text-[12px] font-bold text-foreground">{t.name}</p>
-              <p className="text-[10px] text-belly-text-muted">{t.range}</p>
-              <p className="text-[10px] text-belly-text-hint mt-1">{t.desc}</p>
+            <div key={i} className={`flex-1 belly-glass-card rounded-[14px] p-3 ${weekData.trimester !== i + 1 ? "opacity-60" : ""}`}>
+              <p className="font-display text-[12px] font-bold" style={{ color: "#2A1200" }}>{t.name}</p>
+              <p className="text-[10px]" style={{ color: "#D4906A" }}>{t.range}</p>
+              <p className="text-[10px] mt-1" style={{ color: "#D4B0A0" }}>{t.desc}</p>
             </div>
           ))}
         </div>
@@ -109,16 +114,16 @@ const BabyTracker = () => {
 
       {/* Kick counter */}
       <div className="px-5 mb-5">
-        <div className="bg-card border border-belly-card-border rounded-card p-5 text-center">
-          <p className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint mb-2">KICK COUNTER</p>
-          <p className="font-display text-[48px] font-bold text-foreground mb-3">{kickCount}</p>
+        <div className="belly-glass-card rounded-[16px] p-5 text-center">
+          <p className="text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: "#D4B0A0" }}>KICK COUNTER</p>
+          <p className="font-display text-[48px] font-bold mb-3" style={{ color: "#2A1200" }}>{kickCount}</p>
           <div className="flex gap-3 justify-center">
             <button onClick={addKick}
-              className="rounded-pill px-6 py-2.5 font-semibold text-sm belly-btn-press active:scale-95"
+              className="rounded-full px-6 py-2.5 font-semibold text-sm belly-btn-primary active:scale-95"
               style={{ background: "#FFD4E0", color: "#8B2252" }}>
               + Kick
             </button>
-            <button onClick={() => setKickCount(0)} className="bg-belly-icon-bg text-belly-text-muted rounded-pill px-5 py-2.5 text-sm belly-btn-press">
+            <button onClick={() => setKickCount(0)} className="rounded-full px-5 py-2.5 text-sm belly-btn-press" style={{ background: "rgba(255,240,232,0.8)", color: "#D4906A" }}>
               Reset
             </button>
           </div>
