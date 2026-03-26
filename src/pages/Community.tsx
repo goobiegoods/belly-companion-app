@@ -60,8 +60,8 @@ const Community = () => {
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
 
-  const handleNotifTap = async (notif: Notification) => {
-    await markAsRead(notif);
+  const handleNotifTap = async (notif: { id: string; post_id: string | null; is_read: boolean; title: string; body: string | null; created_at: string }) => {
+    await markAsRead(notif.id);
     setShowNotifications(false);
     if (notif.post_id) {
       const { data } = await supabase.from("posts").select("*").eq("id", notif.post_id).single();
@@ -112,7 +112,7 @@ const Community = () => {
   };
 
   useEffect(() => { fetchPosts(); }, [activeCategory]);
-  useEffect(() => { fetchNotifications(); }, [user]);
+  
 
   const createPost = async () => {
     if (!newTitle.trim() || !user) return;
