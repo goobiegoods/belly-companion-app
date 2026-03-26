@@ -1,55 +1,43 @@
 
 
-# Fix CantSleep.tsx — Layout, Quiz, and Breathe
-
-## Problem Summary
-1. **Affirmations tab**: 4th card cut off, empty void below cards
-2. **Quiz tab**: Full dark purple fullscreen overlay — should be inline on warm background
-3. **Breathe tab**: Full dark purple fullscreen overlay — should be inline on warm background
+# Fix CantSleep.tsx — Pixel-Perfect Design Match
 
 ## Changes — `src/pages/CantSleep.tsx` only
 
-### 1. AffirmationsTab — Fix scroll row + add preview cards
+### 1. Affirmation Cards — Bigger dimensions
+- Cards: `width: 160px`, `height: 110px`, `borderRadius: 18px`, `padding: "14px 14px"`
+- Emoji in 32×32 circle with `rgba(255,255,255,0.15)` bg, 16px font
+- Preview text: 9px, `lineHeight: 1.55`, `WebkitLineClamp: 3`, `marginTop: 8px`
+- "TAP TO READ": 6px, `letterSpacing: 0.1em`, weight 600, `marginTop: 6px`
+- Scroll container: `paddingRight: 32px` (extra space so last card isn't cut off)
 
-**Scroll row** (line 118): Update styles to `gap: 10px`, `paddingRight: 16px`, add `WebkitOverflowScrolling: 'touch'`. Cards already have `shrink-0` and correct sizing — just ensure width 148px height 98px.
+### 2. Fullscreen Affirmation Viewer — Complete redesign
+Replace current overlay with spec-matching layout:
+- Container: `fixed inset-0 z-[100]`, flex column, `justifyContent: space-between`, `padding: "0 24px 48px"`
+- **Top bar**: `paddingTop: 52px`, flex row with "← Back" left, "Tonight's affirmations" center (15px, weight 600), 🌙 right
+- **Center card**: `flex: 1`, `justifyContent: center`, `borderRadius: 28px`, `padding: "40px 28px"`, gradient `#3D2060→#5A2880`, shadow `0 20px 60px rgba(60,0,100,0.45)`
+  - Emoji: 52px with float animation
+  - Affirmation text: **22px** (the big upgrade), italic, `lineHeight: 1.65`
+  - "TAP FOR NEXT CARD": 10px, `letterSpacing: 0.14em`
+- **Bottom**: dots (active 24×8px pill, inactive 8×8px circle), footer 13px italic
+- Fade transition via opacity animation on key change
 
-**Add below cards** (after line 138, inside the `<div>` return):
-- "More for tonight" label: 7px uppercase, `rgba(200,88,40,0.4)`
-- **Breathing preview card**: purple-tinted glass card with 🫧 icon, "4-7-8 Breathing" title, subtitle, chevron. On tap → call parent `setActiveTab("Breathe")`
-- **Quiz preview card**: similar card with 🧠, "Baby Brain Quiz" title, subtitle. On tap → call parent `setActiveTab("Baby Quiz 🎮")`
+### 3. Quiz Tab — Match mockup exactly
+- Score row: "Baby Brain 🧠" 11px uppercase, score `fontSize: 20px` color `#FF7840`
+- Quiz card: `borderRadius: 22px`, glass bg `rgba(255,255,255,0.75)`, `backdropFilter: blur(16px)`, orange shadow
+- Header: gradient `#2A1A40→#4A2060`, `padding: "18px 18px 16px"`, counter 8px weight 600, progress bar 3px with `rgba(255,180,255,0.7)` fill, question 17px weight 600
+- **Options grid**: `display: grid`, `gridTemplateColumns: "1fr 1fr"`, `gap: 10px`, `padding: 16px`
+  - Each: `borderRadius: 16px`, `padding: "14px 10px"`, bg `rgba(255,242,234,0.85)`, border `rgba(255,170,130,0.28)`
+  - Emoji: 28px, text: 9px weight 500 color `#C4784A`
+  - Correct: green bg/border, scale animation
+  - Wrong: red bg/border, shake animation
+- Fun fact: colored bg based on correct/wrong, `slideUp 250ms`
+- Next button: gradient `#FF7840→#FFAB80`, white text, shadow
+- Footer: 12px italic `rgba(180,100,60,0.38)`
 
-This requires passing `onSwitchTab` callback from parent `CantSleep` into `AffirmationsTab`.
-
-### 2. QuizTab — Remove fullscreen, render inline
-
-**Remove** the `fixed inset-0 z-[100]` wrapper and dark purple background (lines 169-193).
-
-**Replace** with inline content on warm background:
-- Score row: "Baby Brain 🧠" label (`rgba(200,88,40,0.4)`) + score display (`#A84E28`)
-- Quiz card with dark purple gradient header (question + progress bar) and warm-bg answer options
-- Fun fact card slides in after answering
-- Next/play-again button in warm orange style
-- Footer text in warm colors
-- Remove `darkTheme` prop from QuizBlock — or better: **inline the quiz logic** directly since QuizBlock's dark theme doesn't match the new design. Actually, keep using QuizBlock but remove `darkTheme` prop so it renders in light mode.
-
-### 3. BreatheTab — Remove fullscreen, render inline
-
-**Remove** the `fixed inset-0 z-[100]` wrapper (lines 226-273).
-
-**Replace** with a normal `div` that fills the tab content area:
-- `padding: 16px`, flex column, centered, gap 16px
-- Phase label: 10px uppercase, `rgba(200,88,40,0.5)`, weight 600
-- Rings: orange tints `rgba(255,120,64,0.15/0.25/0.35)` dashed borders
-- Bubble: warm gradient `rgba(255,120,64,0.3)` with orange glow
-- Countdown: 28px, weight 300, `#A84E28`
-- Dots: active `rgba(200,88,40,0.7)`, inactive `rgba(200,88,40,0.2)`
-- Quote: `rgba(180,100,60,0.45)`
-- Button: bg `rgba(255,120,64,0.12)`, border `rgba(255,120,64,0.25)`, color `#C85828`
-
-### 4. Parent component update
-
-Pass `setActiveTab` to `AffirmationsTab` as `onSwitchTab` prop so preview cards can switch tabs.
+### 4. Breathe Tab — No changes needed
+Already matches spec with warm orange palette inline.
 
 ## File
-- `src/pages/CantSleep.tsx` — rewrite QuizTab, BreatheTab, and add preview cards to AffirmationsTab
+- `src/pages/CantSleep.tsx` — update card sizes, fullscreen viewer, and quiz tab styling
 
