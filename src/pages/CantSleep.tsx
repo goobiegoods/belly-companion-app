@@ -87,19 +87,38 @@ const AffirmationsTab = ({ userId, onSwitchTab }: { userId?: string; onSwitchTab
     const affirmation = AFFIRMATIONS[shuffled[currentIdx]];
     const dotPos = currentIdx % 6;
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ zIndex: 100, background: "linear-gradient(160deg, #2A1A40 0%, #3D2055 50%, #2A1A40 100%)", padding: "32px 24px", gap: 24 }} onClick={next}>
-        <button onClick={(e) => { e.stopPropagation(); setFullscreen(false); }} className="absolute" style={{ top: 52, left: 20, fontSize: 13, fontWeight: 500, color: "rgba(255,200,255,0.6)" }}>← Back</button>
-        <div key={fadeKey} className="w-full flex flex-col items-center" style={{ maxWidth: 340, borderRadius: 24, padding: "32px 26px", background: "linear-gradient(145deg, #3D2060, #5A2880)", border: "0.5px solid rgba(255,180,255,0.2)", boxShadow: "0 16px 48px rgba(60,0,100,0.4)", gap: 20, animation: "fadeSwap 400ms ease" }}>
-          <div style={{ fontSize: 44, animation: "float 3s ease-in-out infinite" }}>🌸</div>
-          <p className="text-center" style={{ fontSize: 16, fontStyle: "italic", fontWeight: 400, color: "rgba(255,240,255,0.92)", lineHeight: 1.7 }}>"{affirmation}"</p>
-          <p style={{ fontSize: 10, color: "rgba(255,200,255,0.35)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Tap anywhere for next</p>
+      <div className="fixed inset-0 z-[100] flex flex-col items-center" style={{ background: "linear-gradient(160deg, #2A1A40 0%, #3D2055 50%, #2A1A40 100%)", padding: "0 24px 48px", justifyContent: "space-between" }} onClick={next}>
+        {/* Top bar */}
+        <div className="w-full flex items-center justify-between" style={{ paddingTop: 52, paddingBottom: 24 }}>
+          <button onClick={(e) => { e.stopPropagation(); setFullscreen(false); }} style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,200,255,0.6)", background: "none", border: "none" }}>← Back</button>
+          <p style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,240,255,0.85)" }}>Tonight's affirmations</p>
+          <span style={{ fontSize: 20 }}>🌙</span>
         </div>
-        <div className="flex items-center" style={{ gap: 8 }}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} style={{ width: i === dotPos ? 20 : 7, height: 7, borderRadius: i === dotPos ? 4 : "50%", background: i === dotPos ? "rgba(255,180,255,0.7)" : "rgba(255,255,255,0.18)", transition: "width 200ms ease" }} />
-          ))}
+
+        {/* Center card */}
+        <div key={fadeKey} className="w-full flex flex-col items-center" style={{
+          flex: 1, justifyContent: "center", display: "flex",
+          borderRadius: 28, padding: "40px 28px",
+          background: "linear-gradient(145deg, #3D2060, #5A2880)",
+          border: "0.5px solid rgba(255,180,255,0.2)",
+          boxShadow: "0 20px 60px rgba(60,0,100,0.45)",
+          animation: "fadeSwap 300ms ease",
+          maxHeight: "55vh",
+        }}>
+          <div style={{ fontSize: 52, animation: "float 3s ease-in-out infinite" }}>🌸</div>
+          <p className="text-center" style={{ fontSize: 22, fontStyle: "italic", fontWeight: 400, color: "rgba(255,240,255,0.92)", lineHeight: 1.65, letterSpacing: "0.01em", marginTop: 24 }}>"{affirmation}"</p>
+          <p style={{ fontSize: 10, color: "rgba(255,200,255,0.3)", textTransform: "uppercase", letterSpacing: "0.14em", marginTop: 8 }}>Tap for next card</p>
         </div>
-        <p className="text-center" style={{ fontSize: 11, fontStyle: "italic", color: "rgba(255,200,255,0.35)" }}>You are doing beautifully, mama 🌸</p>
+
+        {/* Bottom */}
+        <div className="flex flex-col items-center" style={{ gap: 16, paddingTop: 20 }}>
+          <div className="flex items-center" style={{ gap: 8 }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} style={{ width: i === dotPos ? 24 : 8, height: 8, borderRadius: i === dotPos ? 4 : "50%", background: i === dotPos ? "rgba(255,180,255,0.75)" : "rgba(255,255,255,0.2)", transition: "width 200ms ease" }} />
+            ))}
+          </div>
+          <p className="text-center" style={{ fontSize: 13, fontStyle: "italic", color: "rgba(255,200,255,0.35)" }}>You are doing beautifully, mama 🌸</p>
+        </div>
       </div>
     );
   }
@@ -108,21 +127,22 @@ const AffirmationsTab = ({ userId, onSwitchTab }: { userId?: string; onSwitchTab
     <div>
       <p style={{ fontSize: 7, textTransform: "uppercase", letterSpacing: "0.11em", color: "rgba(200,88,40,0.4)", padding: "8px 16px 5px", fontWeight: 600 }}>Tap a card to read</p>
       {/* Horizontal scroll row */}
-      <div className="flex hide-scrollbar" style={{ gap: 10, paddingLeft: 16, paddingRight: 16, paddingBottom: 8, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" as any, scrollbarWidth: "none" as any, msOverflowStyle: "none" as any }}>
+      <div className="flex hide-scrollbar" style={{ gap: 10, paddingLeft: 16, paddingRight: 32, paddingBottom: 6, overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" as any, scrollbarWidth: "none" as any, msOverflowStyle: "none" as any }}>
         {AFFIRMATION_CATEGORIES.map((cat, i) => (
           <button key={cat.label} onClick={() => { setCurrentIdx(i * 6); setFullscreen(true); }}
-            className="flex flex-col justify-between text-left"
+            className="flex flex-col text-left"
             style={{
-              flexShrink: 0, width: 148, height: 98, borderRadius: 16, padding: "12px 13px",
+              flexShrink: 0, width: 160, height: 110, borderRadius: 18, padding: "14px 14px",
               background: `linear-gradient(145deg, ${cat.gradient[0]}, ${cat.gradient[1]})`,
               border: `0.5px solid ${cat.border}`, cursor: "pointer", transition: "transform 140ms",
+              justifyContent: "space-between",
             }}
             onPointerDown={e => (e.currentTarget.style.transform = "scale(0.95)")}
             onPointerUp={e => (e.currentTarget.style.transform = "scale(1)")}
             onPointerLeave={e => (e.currentTarget.style.transform = "scale(1)")}>
-            <span style={{ fontSize: 20 }}>{cat.emoji}</span>
-            <p style={{ fontSize: 8, fontStyle: "italic", fontWeight: 400, color: "rgba(255,255,255,0.82)", lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{cat.preview}</p>
-            <p style={{ fontSize: 6, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Tap to read</p>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>{cat.emoji}</div>
+            <p style={{ fontSize: 9, fontStyle: "italic", fontWeight: 400, color: "rgba(255,255,255,0.88)", lineHeight: 1.55, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", marginTop: 8, flex: 1 }}>{cat.preview}</p>
+            <p style={{ fontSize: 6, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600, marginTop: 6 }}>Tap to read</p>
           </button>
         ))}
       </div>
@@ -159,6 +179,7 @@ const QuizTab = ({ userId }: { userId?: string }) => {
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
+  const [showFact, setShowFact] = useState(false);
 
   const q = BABY_QUIZ_QUESTIONS[qIdx];
   const correctIdx = q.options.findIndex(o => o.correct);
@@ -170,6 +191,7 @@ const QuizTab = ({ userId }: { userId?: string }) => {
     setAnswered(true);
     const correct = q.options[idx].correct;
     if (correct) setScore(s => s + 1);
+    setTimeout(() => setShowFact(true), 250);
     if (userId) {
       supabase.from("quiz_attempts").insert({
         user_id: userId, lesson_id: "cant-sleep-quiz", selected_option: q.options[idx].text, is_correct: correct, score: correct ? 1 : 0, total_questions: 1,
@@ -186,79 +208,88 @@ const QuizTab = ({ userId }: { userId?: string }) => {
     }
     setSelected(null);
     setAnswered(false);
+    setShowFact(false);
   };
 
-  const getOptionBg = (idx: number) => {
-    if (!answered) return "rgba(255,255,255,0.72)";
-    if (idx === correctIdx) return "rgba(180,230,180,0.5)";
-    if (idx === selected) return "rgba(255,180,170,0.4)";
-    return "rgba(255,255,255,0.5)";
+  const getOptionStyle = (idx: number) => {
+    if (!answered) return { background: "rgba(255,242,234,0.85)", border: "0.5px solid rgba(255,170,130,0.28)", color: "#C4784A", animation: "none" };
+    if (idx === correctIdx) return { background: "rgba(200,240,210,0.9)", border: "1px solid rgba(80,180,110,0.5)", color: "#30A050", animation: "scaleCorrect 300ms ease" };
+    if (idx === selected) return { background: "rgba(255,210,210,0.85)", border: "0.5px solid rgba(240,130,130,0.4)", color: "#C05050", animation: "shake 200ms ease" };
+    return { background: "rgba(255,242,234,0.5)", border: "0.5px solid rgba(255,170,130,0.15)", color: "#C4784A", animation: "none" };
   };
-  const getOptionBorder = (idx: number) => {
-    if (!answered) return "rgba(255,170,130,0.2)";
-    if (idx === correctIdx) return "rgba(80,180,80,0.4)";
-    if (idx === selected) return "rgba(220,80,80,0.3)";
-    return "rgba(255,170,130,0.12)";
-  };
+
+  const isCorrect = selected !== null && selected === correctIdx;
 
   return (
-    <div style={{ padding: "0 16px" }}>
+    <div style={{ padding: "0 0 24px" }}>
       {/* Score row */}
-      <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
-        <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(200,88,40,0.4)", fontWeight: 600 }}>Baby Brain 🧠</p>
-        <p style={{ fontSize: 18, fontWeight: 300, color: "#A84E28" }}>{score}/{qIdx + 1}</p>
+      <div className="flex items-center justify-between" style={{ padding: "12px 16px 8px" }}>
+        <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(200,88,40,0.5)", fontWeight: 600 }}>Baby Brain 🧠</p>
+        <p style={{ fontSize: 20, fontWeight: 300, color: "#FF7840" }}>{score}/{qIdx + 1}</p>
       </div>
 
       {/* Quiz card */}
-      <div style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 6px 24px rgba(60,20,100,0.12)" }}>
+      <div style={{ margin: "0 16px", borderRadius: 22, overflow: "hidden", background: "rgba(255,255,255,0.75)", border: "0.5px solid rgba(255,170,130,0.22)", backdropFilter: "blur(16px)", boxShadow: "0 4px 20px rgba(255,140,90,0.08)" }}>
         {/* Dark header */}
-        <div style={{ background: "linear-gradient(140deg, #2A1A40, #3D2055, #5A2A70)", padding: "16px 18px 14px" }}>
-          <p style={{ fontSize: 8, color: "rgba(255,220,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>Question {qIdx + 1} of {BABY_QUIZ_QUESTIONS.length}</p>
-          <div style={{ height: 3, borderRadius: 2, background: "rgba(255,255,255,0.1)", marginBottom: 12 }}>
-            <div style={{ height: "100%", borderRadius: 2, background: "rgba(255,180,255,0.5)", width: `${progress}%`, transition: "width 300ms ease" }} />
+        <div style={{ background: "linear-gradient(135deg, #2A1A40, #4A2060)", padding: "18px 18px 16px" }}>
+          <p style={{ fontSize: 8, color: "rgba(255,200,255,0.55)", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600, marginBottom: 8 }}>Question {qIdx + 1} of {BABY_QUIZ_QUESTIONS.length}</p>
+          <div style={{ height: 3, borderRadius: 3, background: "rgba(255,255,255,0.1)", marginBottom: 14 }}>
+            <div style={{ height: "100%", borderRadius: 3, background: "rgba(255,180,255,0.7)", width: `${progress}%`, transition: "width 300ms ease" }} />
           </div>
-          <p style={{ fontSize: 13, fontWeight: 500, color: "#FFF0FF", lineHeight: 1.5 }}>{q.question}</p>
+          <p style={{ fontSize: 17, fontWeight: 600, color: "#FFF0FF", lineHeight: 1.4 }}>{q.question}</p>
         </div>
 
-        {/* Options */}
-        <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8, background: "rgba(254,248,244,0.95)" }}>
-          {q.options.map((opt, idx) => (
-            <button key={idx} onClick={() => handleSelect(idx)} disabled={answered}
-              style={{
-                borderRadius: 14, padding: "12px 10px", textAlign: "center",
-                background: getOptionBg(idx), border: `0.5px solid ${getOptionBorder(idx)}`,
-                cursor: answered ? "default" : "pointer", transition: "all 180ms ease",
-              }}>
-              {opt.emoji && <span style={{ fontSize: 16, marginBottom: 2, display: "block" }}>{opt.emoji}</span>}
-              <span style={{ fontSize: 11, fontWeight: 500, color: "#A84E28" }}>{opt.text}</span>
-            </button>
-          ))}
+        {/* Options grid */}
+        <div style={{ padding: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {q.options.map((opt, idx) => {
+            const s = getOptionStyle(idx);
+            return (
+              <button key={idx} onClick={() => handleSelect(idx)} disabled={answered}
+                style={{
+                  borderRadius: 16, padding: "14px 10px", textAlign: "center",
+                  background: s.background, border: s.border,
+                  cursor: answered ? "default" : "pointer", transition: "all 180ms ease",
+                  animation: s.animation,
+                }}>
+                {opt.emoji && <span style={{ fontSize: 28, marginBottom: 6, display: "block" }}>{opt.emoji}</span>}
+                <span style={{ fontSize: 9, fontWeight: 500, color: s.color, lineHeight: 1.3 }}>
+                  {answered && idx === correctIdx && "✓ "}{opt.text}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Fun fact */}
-      {answered && selected !== null && q.options[selected]?.funFact && (
-        <div style={{ marginTop: 10, borderRadius: 14, padding: "12px 14px", background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", backdropFilter: "blur(8px)", animation: "fadeSwap 300ms ease" }}>
-          <p style={{ fontSize: 9, fontWeight: 600, color: selected === correctIdx ? "#5A9E5A" : "#C85828", marginBottom: 4 }}>
-            {selected === correctIdx ? "✓ Correct! 🌸" : "Almost! Here's why 💡"}
+      {showFact && selected !== null && q.options[selected]?.funFact && (
+        <div style={{
+          margin: "10px 16px 0", borderRadius: 14, padding: "12px 14px",
+          background: isCorrect ? "rgba(200,240,210,0.5)" : "rgba(255,225,215,0.5)",
+          border: `0.5px solid ${isCorrect ? "rgba(100,200,130,0.35)" : "rgba(255,160,130,0.35)"}`,
+          animation: "slideUp 250ms ease",
+        }}>
+          <p style={{ fontSize: 9, fontWeight: 600, color: isCorrect ? "#40A060" : "#E07040", marginBottom: 4 }}>
+            {isCorrect ? "✓ Correct! 🌸" : "Almost! Here's why 💡"}
           </p>
-          <p style={{ fontSize: 10, color: "rgba(180,100,60,0.7)", lineHeight: 1.5 }}>{q.options[selected].funFact}</p>
+          <p style={{ fontSize: 9, color: isCorrect ? "#60B080" : "#C07050", lineHeight: 1.6 }}>{q.options[selected].funFact}</p>
         </div>
       )}
 
       {/* Next button */}
       {answered && (
         <button onClick={handleNext} style={{
-          width: "100%", marginTop: 10, borderRadius: 14, padding: "12px 0",
-          background: "rgba(255,120,64,0.12)", border: "0.5px solid rgba(255,120,64,0.25)",
-          color: "#C85828", fontSize: 12, fontWeight: 600, cursor: "pointer",
+          margin: "10px 16px 0", width: "calc(100% - 32px)", borderRadius: 14, padding: "13px 0",
+          background: "linear-gradient(145deg, #FF7840, #FFAB80)", border: "none",
+          color: "white", fontSize: 10, fontWeight: 600, cursor: "pointer",
+          boxShadow: "0 4px 14px rgba(255,120,64,0.3)",
         }}>
           {qIdx < BABY_QUIZ_QUESTIONS.length - 1 ? "Next question →" : "Play again 🔄"}
         </button>
       )}
 
       {/* Footer */}
-      <p className="text-center" style={{ fontSize: 11, fontStyle: "italic", color: "rgba(180,100,60,0.35)", marginTop: 16 }}>Learning about your little one 💕</p>
+      <p className="text-center" style={{ fontSize: 12, fontStyle: "italic", color: "rgba(180,100,60,0.38)", padding: "12px 0 24px" }}>Learning about your little one 💕</p>
     </div>
   );
 };
