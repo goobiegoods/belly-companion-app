@@ -1,118 +1,119 @@
 
 
-# BELLY App — Global UI Polish + Shop & Homeopathy Tab
+# BELLY — Premium Visual & UX Elevation Pass
 
 ## Overview
-Two additions in one pass: (1) CSS-only visual polish across all screens, and (2) a new Shop tab with remedies marketplace and homeopathy courses.
+A visual-only elevation touching CSS, styling, and animations across all screens. No routing, Supabase logic, or feature changes.
 
-## Part 1 — Global UI Polish (CSS + minor component tweaks, no layout changes)
+## Part 1 — Living Gradient World
 
-### A. Page Transitions
-- Add `pageEnter` keyframes and `.page-enter` class to `src/index.css`
-- Add `className="page-enter"` to root div of: HomePage, BabyTracker, AskDoula, Community, Courses, Profile, Journal, Shop (new)
+**Global background** in `src/index.css`:
+- Set `body, #root` to a fixed peach-lavender gradient: `linear-gradient(135deg, #F8E8FF 0%, #FFE4D4 30%, #FFF0E8 60%, #FFF8F2 100%)` with `background-attachment: fixed`
+- Override `bg-belly-bg` and screen containers to `background: transparent`
 
-### B. Typography Hierarchy
-- Add utility classes to `src/index.css`: `.belly-title`, `.belly-section-label`, `.belly-card-title`, `.belly-body`, `.belly-hint`, `.belly-badge-text`, `.belly-cta-text`
-- Apply these classes across existing screens where appropriate (page titles, section labels, card titles)
+**Frosted glass cards** — add utility classes:
+- `.belly-glass` = `rgba(255,255,255,0.75)` + `backdrop-filter: blur(8px)` + border `rgba(255,228,212,0.8)`
+- `.belly-glass-nav` = `rgba(255,252,248,0.88)` + `backdrop-filter: blur(16px)` for navbar
 
-### C. Hero Card Gradient
-- Replace flat `bg-primary` on hero cards with inline `background: radial-gradient(ellipse at top right, #FFCDB4 0%, #FFB899 45%, #FFA882 100%)` plus `box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(42,18,0,0.06)` on: HomePage hero, BabyTracker hero, Profile hero, Courses progress hero
+**Splash screen** — wrap routes in a new `SplashScreen` component in `App.tsx`:
+- Shows gradient background → fades in BELLY logo + "Virtual Doula" tagline after 400ms → navigates after 1.6s total
+- Only shows once per session (use `sessionStorage` flag)
 
-### D. Skeleton Loading
-- Add shimmer keyframes to `src/index.css`
-- Create `src/components/BellySkeleton.tsx` — reusable peach shimmer skeleton
-- Add skeleton states to Community feed, Course list, Baby tab loading
+**Apply glass styling** to cards in: HomePage, BabyTracker, Community, Shop, Profile, Journal, Courses. Replace `bg-card`, `bg-white`, `bg-belly-upsell-bg` on card containers with glass styles.
 
-### E. Micro-Animations
-- Heart like: add `heartPop` and `floatUp` keyframes; add pop animation state to Community like button
-- Lesson completion: add `burst` keyframes; celebration particles on "Complete" button
-- Card press states: enhance `.belly-press` and `.belly-btn-press` with box-shadow
-- Tab bar active indicator: add spring scale to active dot, slight upward shift on active icon in BottomNav
-- Bottom sheet slide-up: add `slideUp` keyframe; apply to create-post and premium modals
+## Part 2 — Concentric Rings AI Thinking
 
-### F. Premium Touches
-- Dividers: add `.belly-divider-elegant` class with gradient fade
-- Card depth: add `.belly-card-shadow` class with subtle layered shadow
-- Avatar ring: add `box-shadow: 0 0 0 2px #FFCDB4` via `.belly-avatar-ring` class
-- Input focus: enhance `.belly-input-focus` with updated border-color + glow
-- Badge pills: add inner shadow via `.belly-badge-glass` class
+In `AskDoula.tsx`, replace the 3 pulsing dots (lines 241-250) with a concentric rings animation:
+- 4 dashed-border circles (`ring-1` to `ring-4`, 60px–150px) with staggered `ringPulse` animation
+- "Belly is thinking..." label centered in italic Georgia
+- Add `ringPulse` keyframes to `src/index.css`
+- Hide immediately when streaming text appears
 
-## Part 2 — Shop + Homeopathy Tab
+## Part 3 — Streak & Milestones on Home
 
-### Database Migration
-Create `orders` table:
-```sql
-CREATE TABLE public.orders (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL,
-  items jsonb NOT NULL DEFAULT '[]',
-  total numeric(10,2) NOT NULL DEFAULT 0,
-  status text NOT NULL DEFAULT 'pending',
-  shipping_address text,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
--- RLS: users can insert/view their own orders
-```
+In `HomePage.tsx`, add between hero card and "This week" section:
 
-### Navigation Update
-- In `src/components/BottomNav.tsx`: add Shop tab (ShoppingBag icon from lucide-react) between Community and Me, path `/shop`
-- In `src/App.tsx`: add route `/shop` pointing to new Shop page, wrapped in ProtectedRoute + AppLayout
+**Streak banner** — glass card with 🔥 emoji, "[X]-day streak!" title, streak number. Hardcode to 3 for now.
 
-### New Files
-- **`src/pages/Shop.tsx`** — Full shop screen with two pill tabs (Remedies / Learn)
-  - Remedies tab: hero banner, horizontal scroll kit cards (4 kits), individual remedy cards (8 remedies), herbal tea cards (4 teas), floating cart button, cart bottom sheet with qty controls and order placement
-  - Learn tab: hero card, 5 homeopathy course cards reusing existing course card styling
-  - Disclaimer at bottom of both tabs
-  - Cart state managed with React useState; order insertion to `orders` table on checkout
+**Milestone track** — horizontal 4px bar with gradient fill, 4 markers (🌱 Day 1, 🍋 Week 1, 🥑 Week 2, 👶 Birth) positioned at 0%, 33%, 66%, 100%. Fill width calculated from streak count.
 
-- **`src/data/shopData.ts`** — Static product data (kits, remedies, teas) and homeopathy course definitions
+## Part 4 — Home Screen Refinements
 
-- **`src/data/homeopathyLessons.ts`** — Full lesson content for 5 homeopathy courses (~25 lessons total) with real homeopathy education content in warm doula voice, including quizzes and reflections. Reuses `LessonContent` interface from `lessonContent.ts`
+In `HomePage.tsx`:
+- **Greeting**: already uses `profile?.first_name` with titleCase — verify it shows "Hi, Orel 🌸" not full name. Add glass styling to greeting pill.
+- **Logo mark**: replace clock/circle SVG with belly/womb SVG path
+- **This week cards**: apply per-card color tints with glass effect (baby=peach, body=green, tip=pink)
+- **Journey cards**: glass styling, add course progress pill on "Your Courses" card
 
-### Shop Screen Structure
-```text
-[Header: "Belly Shop" + subtitle]
-[Pill tabs: Remedies | Learn]
+## Part 5 — Me Tab Journey Dashboard
 
-REMEDIES TAB:
-  [Peach gradient hero banner]
-  [Section: "Remedy kits" — horizontal scroll of 4 bundle cards]
-  [Section: "Individual remedies" — vertical list of 8 cards]
-  [Section: "Herbal teas" — vertical list of 4 cards]
-  [Disclaimer card]
-  [Floating cart FAB → opens cart bottom sheet]
+In `Profile.tsx`:
+- **Avatar**: add double-ring glow shadow
+- **Name**: ensure proper case (first + last, not ALL CAPS)
+- **Stats row**: replace "Trimester" stat with streak 🔥 stat, glass card styling
+- **Achievement badges**: new horizontal scroll section with 6 badge cards (3 earned, 3 locked with opacity 0.3 + grayscale)
+- **Settings sections**: glass card styling on all grouped cards
+- **Add "My Orders" row** to quick links group
 
-LEARN TAB:
-  [Peach gradient hero card]
-  [5 homeopathy course cards]
-  [Disclaimer card]
-  [Tapping a course → opens lesson list → lesson reader (reuses Courses.tsx reader pattern)]
-```
+## Part 6 — Ask Tab Warm Welcome
 
-### Homeopathy Course Integration
-The Learn tab will use the same lesson reader pattern as `Courses.tsx`. The 5 homeopathy courses and their lessons will be defined in `shopData.ts` and `homeopathyLessons.ts`, using the same `LessonContent` interface. The Shop page will include its own inline lesson reader (same JSX pattern) to avoid coupling with the main Courses page.
+In `AskDoula.tsx`, enhance the empty state (lines 202-212):
+- Add a welcome card above prompts: "Good morning, [name] 🌸" + week-specific subtitle
+- Add "Suggested for week [X]" label above prompt grid
+- Make the 5th prompt full-width, update text to week-dynamic versions
+- Glass styling on all prompt cards
 
-### Cart Flow
-1. User taps "Add to cart" on any product
-2. Floating cart button shows item count badge
-3. Tapping cart opens bottom sheet with item list, qty controls, subtotal
-4. "Place order" inserts to `orders` table and shows confirmation toast
+## Part 7 — Community Content & Style
+
+In `Community.tsx`:
+- **Delete test posts**: add a one-time SQL migration to delete posts where title in ('eee','frr','rrrr')
+- **Category colors**: expand `CATEGORY_COLORS` to include text color and avatar ring color per category
+- **Post cards**: apply glass styling
+- **Avatar rings**: apply category-specific ring color via `box-shadow`
+
+## Part 8 — Shop Kit Cards
+
+In `Shop.tsx`:
+- Widen kit cards to 180px
+- Add colored header section (80px, peach gradient) with large 40px emoji
+- Glass styling on card body
+- Fix horizontal scroll padding (16px sides, 32px trailing)
+
+## Part 9 — Global Micro-Interactions
+
+In `src/index.css`:
+- `.belly-card-interactive` — scale(0.972) on :active with spring bezier
+- `.belly-btn-primary` — scale(0.96) + opacity 0.9 on :active
+- Enhanced `heartPop` with 4-step spring curve
+- `sheetUp` keyframe for bottom sheets
+
+Apply across all tappable cards and primary buttons in all screen files.
+
+## Part 10 — Navbar Elevation
+
+In `BottomNav.tsx`:
+- Glass background: `rgba(255,252,248,0.88)` + `backdrop-filter: blur(16px)`
+- Replace active dot (circle) with pill indicator: 20px × 3px, rounded, #FFB899
+- Shadow: `0 -4px 20px rgba(42,18,0,0.04)`
+- Active icon: slight 2px upward shift (already exists)
 
 ## Files Changed
-- `src/index.css` — new keyframes, utility classes
-- `src/components/BottomNav.tsx` — add Shop tab
-- `src/App.tsx` — add /shop route
-- `src/pages/HomePage.tsx` — page-enter class, hero gradient
-- `src/pages/BabyTracker.tsx` — page-enter class, hero gradient, skeleton
-- `src/pages/AskDoula.tsx` — page-enter class
-- `src/pages/Community.tsx` — page-enter class, heart animation, skeleton, divider polish
-- `src/pages/Courses.tsx` — page-enter class, hero gradient, skeleton
-- `src/pages/Profile.tsx` — page-enter class, hero gradient
-- `src/pages/Journal.tsx` — page-enter class
-- `src/components/BellySkeleton.tsx` — new reusable skeleton component
-- `src/pages/Shop.tsx` — new full shop screen
-- `src/data/shopData.ts` — new static product + course data
-- `src/data/homeopathyLessons.ts` — new homeopathy lesson content
-- Migration SQL for `orders` table
+- `src/index.css` — gradient body, glass utilities, ring/streak/interaction keyframes
+- `src/App.tsx` — wrap in SplashScreen component
+- `src/components/BottomNav.tsx` — glass nav, pill indicator
+- `src/pages/HomePage.tsx` — glass cards, streak section, logo, greeting fix
+- `src/pages/Profile.tsx` — avatar glow, achievements, stats, glass cards, orders link
+- `src/pages/AskDoula.tsx` — concentric rings, warm welcome state
+- `src/pages/Community.tsx` — glass cards, category colors, avatar rings
+- `src/pages/Shop.tsx` — kit card redesign, glass styling
+- `src/pages/BabyTracker.tsx` — glass cards, transparent bg
+- `src/pages/Journal.tsx` — glass cards, transparent bg
+- `src/pages/Courses.tsx` — glass cards, transparent bg
+- Migration SQL — delete test posts from community_posts
+
+## What Does NOT Change
+- No routing changes
+- No Supabase table schema changes (except deleting junk posts)
+- No feature logic changes
+- No new dependencies
 
