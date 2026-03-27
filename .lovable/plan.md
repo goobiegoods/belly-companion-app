@@ -1,91 +1,44 @@
 
 
-# Belly App — Journal, Shop, Community Seeds, Ask Doula Polish
+# Move Recipes to Baby Tab + Add Contraction Counter
 
-## Part 1 — Journal: Sticky Submit Button
+## Change 1 — Move "Nourish this week" from Home to Baby
 
-**File:** `src/pages/Journal.tsx`
+### HomePage.tsx
+- Delete lines 111–161 (the entire `{(() => { ... })()}` block for "Nourish this week")
+- Remove the unused imports on line 5: `getRecipesForWeek`, `getUniqueVitaminsForWeek`, `CATEGORY_GRADIENTS` from recipesData
 
-The current layout already has the correct flex-column structure with `overflow: hidden` and the button outside the scroll area. The fix is minor:
-- Change the scroll area's bottom padding: remove the conditional `paddingBottom` and always use `padding: "0 16px 16px"` (no extra bottom padding needed since button is outside scroll)
-- Update button container padding to use `calc(12px + env(safe-area-inset-bottom))` for safe area
-- Change button text to "Save check-in 🌸"
-- Ensure `!hasCheckedInToday` gate works correctly — the button should show even when entries exist, as long as today's entry hasn't been made
+### BabyTracker.tsx
+- Add imports: `useNavigate` from react-router-dom, `getRecipesForWeek`, `getUniqueVitaminsForWeek`, `CATEGORY_GRADIENTS` from recipesData
+- Insert the golden amber "Nourish this week" card between the Natural Tip card (ends line 122) and the Trimester Overview section (line 124). Uses `selectedWeek` for filtering recipes, identical card structure to what was on Home.
 
-## Part 2 — Shop: Cart Header Icon, Emoji Fix, Shop All Scroll
+## Change 2 — Replace Kick Counter with Dual Counter Layout
 
-**Files:** `src/pages/Shop.tsx`, `src/data/shopData.ts`
+### BabyTracker.tsx (lines 142–158)
+Replace the single kick counter card with a flex row containing two equal-width cards:
 
-### 2a. Replace 💊 with 🫧 in shopData.ts
-Change all `emoji: "💊"` to `emoji: "🫧"` in the remedies array (8 items). Also update homeopathyCourses h1 emoji from "💊" to "🫧".
+**Left card — Kick Counter** (preserves existing `kickCount`/`addKick`/reset logic):
+- 👶 emoji, "Kick Counter" label, count in 36px `#FF7840`, "Goal: 10 kicks" hint
+- Stacked buttons: "+ Kick" (orange gradient) and "Reset" (subtle)
+- Haptic on kick: `navigator.vibrate?.(8)`
 
-### 2b. Cart icon in Shop header
-Add a cart button (38px circle, shopping bag SVG, badge with count) to the top-right of the header row. On tap opens the existing cart overlay. Remove the floating FAB at the bottom since the header cart replaces it.
+**Right card — Contraction Counter** (new local state, purple-tinted):
+- New state: `contractions` array, `isTimingContraction`, `contractionStart`, `elapsedSeconds`
+- `useEffect` with `setInterval` for live timer during STATE 2
+- ⏱️ emoji, "Contractions" label in purple tones
 
-### 2c. "Shop all →" scroll fix
-Make the "Shop all →" span a button that calls `document.getElementById('remedy-kits')?.scrollIntoView({ behavior: 'smooth' })`. Add `id="remedy-kits"` to the kits section heading.
+- **STATE 1 (idle)**: Shows count of today's contractions, average interval from last 3, "Start timing" button (purple gradient)
+- **STATE 2 (timing)**: Live elapsed timer `0:XX` with pulsing purple ring animation (`contractionPulse` keyframes), "Stop timing" button
+- **STATE 3 (result)**: Shows duration for 2s via `setTimeout`, then returns to STATE 1
 
-### 2d. Cart overlay polish
-The existing bottom-sheet cart already works. Enhance it to match the spec:
-- Slide from top-right instead of bottom (position fixed, top 60px right 16px, width min(320px, calc(100vw-32px)), slideDown animation)
-- Add emoji circles for each item, shipping note, and Apple Pay / card / PayPal buttons
-- Apple Pay: use Payment Request API with graceful fallback (hide if unavailable)
-- Credit card: placeholder for now (toast "Coming soon")
-- PayPal: placeholder (toast "Coming soon")
-- Empty cart state with 🛍️
+**Alert card** below both counters: If contractions are ≤5min apart AND ≥60s duration for the last 3+, show a warm warning card suggesting contacting midwife.
 
-### 2e. Add-to-cart toast + auto-open
-Update `addToCart` to show styled toast, call `navigator.vibrate?.(6)`, and auto-open cart after 800ms.
+### CSS addition (inline `@keyframes` via style tag or inline animation):
+- `contractionPulse`: box-shadow oscillates between 3px and 8px purple glow
 
-## Part 3 — Community: Seed 16 Posts
+## Files touched
+- `src/pages/HomePage.tsx` — remove recipe section + unused imports
+- `src/pages/BabyTracker.tsx` — add recipe card + dual counter layout
 
-**Migration SQL only.** Insert 16 posts using a fixed seed UUID `00000000-0000-0000-0000-000000000001` as user_id. Spread `created_at` over the past 2 weeks. Categories: question (4), tip (4), story (4), support (4). Include the exact titles, bodies, week_posted, and likes from the spec.
-
-Note: The posts table RLS allows anyone to SELECT. The INSERT policy checks `auth.uid() = user_id`, but since this is a migration running as superuser, it bypasses RLS.
-
-Community.tsx will need to handle displaying author names for seed posts. Since there's no profile for the seed user, we'll need to store author names. Looking at the posts table — it doesn't have an author name column. Options:
-- Add a `display_name` column to posts (requires migration)
-- Or embed author name in the title/body
-
-I'll add a `display_name` nullable text column to posts so seed posts show the correct author name. For real users, the app can fall back to the profiles table.
-
-## Part 4 — Ask Doula: Visual Welcome + Chat Polish
-
-**File:** `src/pages/AskDoula.tsx`
-
-### Welcome state (messages.length === 0):
-- Replace the plain glass card with a gradient hero card (linear-gradient #FF7E48→#FFBE98) with orb decoration, 🌸 avatar circle, greeting, and week context
-- Add 3 mini context strip cards below (week/fruit, body/symptom, top remedy) using pregnancyWeeks data
-- Keep the 2x2 prompt grid but style with Georgia serif, 9px
-- Add camera prompt card below grid with lavender tint
-- Add "Suggested for week X" section label
-
-### Chat bubbles:
-- User: gradient bg, `borderRadius: "18px 18px 4px 18px"`, max-width 80% — already mostly there
-- Belly: glass bg, `borderRadius: "18px 18px 18px 4px"`, max-width 88%, add 🌸 avatar above first message
-
-### Input bar:
-- Outer container: `borderRadius: 28px`, glass bg, shadow
-- Send button: round 36px gradient circle with pulse animation when input non-empty
-- Camera button: 🌸 warm circle
-- Placeholder: "Ask anything..." italic
-- Message counter below input: "X/10 free messages today" — already exists, just restyle
-
-### Thinking state:
-- Add "Belly is thinking..." label with Georgia serif italic — already exists, enhance styling
-
-## Files Changed
-
-| File | Change |
-|---|---|
-| `src/pages/Journal.tsx` | Safe-area padding, button text |
-| `src/pages/Shop.tsx` | Header cart icon, cart overlay redesign, shop-all scroll, add-to-cart toast |
-| `src/data/shopData.ts` | Replace 💊 with 🫧 |
-| `src/pages/AskDoula.tsx` | Welcome hero card, context strip, chat bubble polish, input bar redesign |
-| Migration SQL | Add `display_name` column to posts, insert 16 seed posts |
-
-## What Does NOT Change
-- No routing changes
-- No system prompt changes
-- No changes to CantSleep, BabyTracker, Courses, Profile, or other files
+No other files changed.
 
