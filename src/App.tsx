@@ -16,8 +16,11 @@ import Courses from "./pages/Courses";
 import Shop from "./pages/Shop";
 import CantSleep from "./pages/CantSleep";
 import Orders from "./pages/Orders";
+import Recipes from "./pages/Recipes";
+import RecipeDetail from "./pages/RecipeDetail";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
+import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
 
 const queryClient = new QueryClient();
 
