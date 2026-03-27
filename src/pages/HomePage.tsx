@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek, getWeekData, getDaysToGo } from "@/data/pregnancyWeeks";
 import { useNavigate } from "react-router-dom";
 import BabySizeIllustration from "@/components/BabySizeIllustration";
+import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from "@/data/recipesData";
 
 const HomePage = () => {
   const { profile } = useAuth();
