@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek, getWeekData, getDaysToGo } from "@/data/pregnancyWeeks";
 import { useNavigate } from "react-router-dom";
 import BabySizeIllustration from "@/components/BabySizeIllustration";
-import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from "@/data/recipesData";
+
 
 const HomePage = () => {
   const { profile } = useAuth();
@@ -107,58 +107,6 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-
-      {/* Nourish this week */}
-      {(() => {
-        const weekRecipes = getRecipesForWeek(currentWeek);
-        const weekVitamins = getUniqueVitaminsForWeek(currentWeek);
-        if (weekRecipes.length === 0) return null;
-        return (
-          <div className="px-[11px] mb-5">
-            <div style={{ borderRadius: 17, overflow: "hidden", background: "rgba(255,255,255,0.68)", border: "0.5px solid rgba(255,200,100,0.3)", backdropFilter: "blur(16px)", boxShadow: "0 2px 14px rgba(220,160,20,0.08)" }}>
-              {/* Golden header */}
-              <div style={{ background: "linear-gradient(135deg, #E89020, #F4A830, #FFCC60)", padding: "12px 14px", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", right: -8, top: -8, width: 60, height: 60, borderRadius: "50%", background: "rgba(255,255,255,0.12)" }} />
-                <span style={{ position: "absolute", right: 14, bottom: -4, fontSize: 28, opacity: 0.8 }}>{weekData.babySize.split(" ")[0] === "Poppy" ? "🌱" : "🥑"}</span>
-                <p style={{ fontSize: 7, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Week {currentWeek} nutrition</p>
-                <p style={{ fontFamily: "Georgia, serif", fontSize: 13, fontWeight: 600, color: "white", lineHeight: 1.2, marginBottom: 4 }}>What your baby needs from your plate</p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-                  {weekVitamins.slice(0, 4).map(v => (
-                    <span key={v.name} style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 7, padding: "2px 7px", fontSize: 6.5, color: "white", fontWeight: 600 }}>{v.emoji} {v.name}</span>
-                  ))}
-                </div>
-              </div>
-              {/* Recipe preview scroll */}
-              <div style={{ padding: "8px 0 4px" }}>
-                <div style={{ display: "flex", gap: 7, padding: "0 10px", overflowX: "auto" }} className="hide-scrollbar">
-                  {weekRecipes.slice(0, 3).map((r, i) => (
-                    <div key={r.id} onClick={() => navigate(`/recipes/${r.id}`)} style={{ width: 86, flexShrink: 0, borderRadius: 12, overflow: "hidden", background: "rgba(255,248,230,0.9)", border: "0.5px solid rgba(255,200,100,0.3)", cursor: "pointer" }}>
-                      <div style={{ background: CATEGORY_GRADIENTS[r.category], height: 48, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <span style={{ fontSize: 22 }}>{r.emoji}</span>
-                      </div>
-                      <div style={{ padding: "5px 7px" }}>
-                        <p style={{ fontSize: 7.5, fontWeight: 600, color: "#A84E28", lineHeight: 1.2, marginBottom: 1, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" } as any}>{r.title}</p>
-                        <p style={{ fontSize: 6, color: "#D4906A", marginBottom: 3 }}>{r.prepTime} min</p>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                          {r.vitamins.slice(0, 2).map(v => (
-                            <span key={v.name} style={{ background: "rgba(220,160,20,0.15)", borderRadius: 3, padding: "0 4px", fontSize: 5.5, color: "#907020" }}>{v.emoji} {v.name}</span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {/* CTA */}
-              <div style={{ textAlign: "center", paddingBottom: 8, paddingTop: 6 }}>
-                <button onClick={() => navigate("/recipes")} style={{ background: "linear-gradient(145deg, #FF7840, #FFAB80)", border: "none", borderRadius: 10, padding: "5px 14px", fontSize: 7.5, fontWeight: 600, color: "white", cursor: "pointer" }}>
-                  See all {weekRecipes.length} recipes for week {currentWeek} →
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
       {/* This week */}
       <div className="mb-5">
