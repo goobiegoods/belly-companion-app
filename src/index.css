@@ -88,7 +88,7 @@
     -webkit-font-smoothing: antialiased;
   }
   body, #root {
-    background: #FEF8F4;
+    background: linear-gradient(160deg, #FF6520 0%, #FF8C40 35%, #FFA055 65%, #FF7830 100%) fixed;
     min-height: 100vh;
   }
 }
