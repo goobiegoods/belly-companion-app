@@ -278,7 +278,7 @@ const AskDoula = () => {
               <div className="px-4 py-3 text-[13px] leading-[1.65]"
                 style={msg.role === "user"
                   ? { background: "rgba(255,255,255,0.95)", color: "#3A1A00", borderRadius: "18px 18px 4px 18px", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", fontFamily: "'Outfit', system-ui", fontWeight: 500 }
-                  : { background: "var(--c1)", border: "1px solid var(--c1-border)", color: "rgba(255,255,255,0.88)", borderRadius: "18px 18px 18px 4px", fontFamily: "'Outfit', system-ui" }
+                  : { background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", color: "rgba(255,255,255,0.90)", borderRadius: "18px 18px 18px 4px", fontFamily: "'Outfit', system-ui" }
                 }>
                 {msg.imageUrl && (
                   <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
