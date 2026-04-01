@@ -367,14 +367,14 @@ const Shop = () => {
                   </div>
                   {courseCompletions > 0 && !isLocked && (
                     <div className="px-4 pb-2">
-                      <div className="h-1 rounded-full" style={{ background: "rgba(255,240,232,0.8)" }}>
-                        <div className="h-full rounded-full transition-all" style={{ width: `${progress * 100}%`, background: "linear-gradient(135deg, #FF7840, #FFA070)" }} />
+                      <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }}>
+                        <div className="h-full rounded-full transition-all" style={{ width: `${progress * 100}%`, background: "rgba(255,255,255,0.60)" }} />
                       </div>
                     </div>
                   )}
                   <div className="flex flex-wrap gap-1.5 px-4 pb-3">
                     {course.tags.map(tag => (
-                      <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,200,170,0.25)", border: "0.5px solid rgba(255,170,130,0.3)", color: "#D4906A" }}>{tag}</span>
+                      <span key={tag} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", color: "rgba(255,255,255,0.70)", fontFamily: "'Outfit', sans-serif" }}>{tag}</span>
                     ))}
                   </div>
                 </button>
