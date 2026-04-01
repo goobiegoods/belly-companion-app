@@ -246,13 +246,13 @@ const AskDoula = () => {
             </div>
 
             {/* Prompts */}
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 16, marginBottom: 4, color: "var(--w40)", fontWeight: 600 }}>Suggested for week {currentWeek}</p>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 16, marginBottom: 4, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>Suggested for week {currentWeek}</p>
             <div className="grid grid-cols-2 gap-2">
               {QUICK_PROMPTS.map((prompt) => (
                 <button key={prompt} onClick={() => sendMessage(prompt)}
-                  className="rounded-[13px] p-[9px_11px] text-left belly-card-interactive"
-                  style={{ background: "var(--c1)", border: "1px solid var(--c1-border)" }}>
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 600, color: "white", lineHeight: 1.4 }}>{prompt}</p>
+                  className="rounded-[14px] p-[11px_13px] text-left belly-card-interactive"
+                  style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)" }}>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "white", lineHeight: 1.4 }}>{prompt}</p>
                 </button>
               ))}
             </div>
