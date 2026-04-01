@@ -241,12 +241,16 @@ const Shop = () => {
       <div className="flex gap-2 px-5 my-3">
         {(["remedies", "learn"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className="rounded-full px-4 py-1.5 text-[12px] capitalize transition-all belly-btn-press"
+            className="capitalize transition-all belly-btn-press"
             style={{
-              background: tab === t ? "linear-gradient(135deg, #FF7840, #FFA070)" : "rgba(255,255,255,0.7)",
-              color: tab === t ? "white" : "#C4784A",
-              fontWeight: tab === t ? 600 : 500,
-              border: tab === t ? "none" : "0.5px solid rgba(255,170,130,0.3)"
+              background: tab === t ? "white" : "rgba(255,255,255,0.18)",
+              color: tab === t ? "#FF6520" : "rgba(255,255,255,0.78)",
+              fontWeight: tab === t ? 700 : 500,
+              fontSize: 13,
+              borderRadius: 20,
+              padding: "6px 18px",
+              border: tab === t ? "none" : "1px solid rgba(255,255,255,0.26)",
+              fontFamily: "'Outfit', sans-serif",
             }}>{t}</button>
         ))}
       </div>
