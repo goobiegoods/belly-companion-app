@@ -212,16 +212,16 @@ const AskDoula = () => {
         {messages.length === 0 && (
           <>
             {/* Welcome hero */}
-            <div className="rounded-[20px] p-[18px_16px] mt-2 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.22)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.35)" }}>
-              <div className="absolute rounded-full" style={{ right: -16, top: -16, width: 80, height: 80, background: "rgba(255,255,255,0.1)" }} />
+            <div className="rounded-[22px] p-[18px_16px] mt-2 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.20)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.32)" }}>
+              <div className="absolute rounded-full" style={{ right: -10, top: -10, width: 80, height: 80, background: "rgba(255,255,255,0.08)" }} />
               <div className="flex items-center gap-2 mb-2">
-                <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.2)", fontSize: 18 }}>🌸</div>
+                <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.22)", fontSize: 18 }}>🌸</div>
                 <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>Ask the Doula</span>
                 <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 8, background: "rgba(255,255,255,0.2)", border: "0.5px solid rgba(255,255,255,0.3)", color: "white" }}>AI</span>
               </div>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 24, fontWeight: 600, color: "white" }}>Your</p>
-              <p style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4 }}>doula chat</p>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "rgba(255,255,255,0.65)", lineHeight: 1.55, fontStyle: "italic" }}>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 22, fontWeight: 600, color: "white" }}>Your</p>
+              <p style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4, letterSpacing: "-0.5px" }}>doula chat</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "rgba(255,255,255,0.58)", lineHeight: 1.55, fontStyle: "italic" }}>
                 You're in week {currentWeek}. Ask me anything — remedies, symptoms, what to expect, or just talk.
               </p>
             </div>
