@@ -353,13 +353,13 @@ const AskDoula = () => {
 
       {/* Input bar */}
       <style>{`@keyframes sendGlow { 0%,100% { box-shadow: 0 2px 8px rgba(255,255,255,0.3); } 50% { box-shadow: 0 4px 20px rgba(255,255,255,0.6); } }`}</style>
-      <div style={{ margin: "8px 16px 6px", background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)" }}>
+      <div style={{ background: "rgba(255,255,255,0.15)", borderTop: "1px solid rgba(255,255,255,0.18)", padding: "10px 16px 14px", backdropFilter: "blur(16px)" }}>
         <div className="flex items-center gap-2"
-          style={{ background: "rgba(255,255,255,0.95)", borderRadius: 28, padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}>
+          style={{ background: "rgba(255,255,255,0.95)", borderRadius: 28, padding: "11px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.10)" }}>
           <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
             className="shrink-0 flex items-center justify-center"
-            style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,120,64,0.15)" }}>
-            <Camera size={14} style={{ color: "#FF6520" }} />
+            style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.20)" }}>
+            <Camera size={14} style={{ color: "white" }} />
           </button>
           <input
             value={input}
