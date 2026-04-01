@@ -377,7 +377,7 @@ const AskDoula = () => {
           ) : (
             <button onClick={() => sendMessage(input)} disabled={!input.trim() && !attachedImage}
               className="shrink-0 flex items-center justify-center disabled:opacity-40"
-              style={{ width: 36, height: 36, borderRadius: "50%", background: "#FF6520", ...(input.trim() && !isStreaming ? { animation: "sendGlow 2s ease-in-out infinite" } : {}) }}>
+              style={{ width: 32, height: 32, borderRadius: "50%", background: "#FF6520", boxShadow: "0 2px 10px rgba(255,80,20,0.35)", ...(input.trim() && !isStreaming ? { animation: "sendGlow 2s ease-in-out infinite" } : {}) }}>
               <Send size={14} style={{ color: "white" }} />
             </button>
           )}
