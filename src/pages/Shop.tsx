@@ -291,19 +291,19 @@ const Shop = () => {
           <div className="px-5 space-y-2 mb-5">
             {remedies.map(rem => (
               <div key={rem.id} className="flex items-center gap-3 belly-card-interactive"
-                style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", borderRadius: 16, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", padding: "13px 15px" }}>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[18px] shrink-0" style={{ background: "rgba(255,210,185,0.6)" }}>{rem.emoji}</div>
+                style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 16, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", padding: "13px 15px" }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[18px] shrink-0" style={{ background: "rgba(255,255,255,0.20)" }}>{rem.emoji}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{rem.name}</p>
-                  {rem.brand && <p className="text-[10px]" style={{ color: "rgba(180,100,60,0.38)" }}>{rem.brand}</p>}
-                  <p className="text-[11px]" style={{ color: "#C4906A", fontWeight: 400 }}>{rem.use}</p>
-                  {rem.safe && <p className="text-[10px] mt-0.5" style={{ color: "#40A060" }}>✓ Pregnancy safe</p>}
-                  {rem.tag && <span className="text-[10px] px-2 py-0.5 rounded-full inline-block mt-0.5" style={{ background: "rgba(255,184,153,0.25)", color: "#C4622A" }}>{rem.tag}</span>}
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "white", fontFamily: "'Outfit', sans-serif" }}>{rem.name}</p>
+                  {rem.brand && <p style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontFamily: "'Outfit', sans-serif" }}>{rem.brand}</p>}
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{rem.use}</p>
+                  {rem.safe && <p style={{ fontSize: 10, marginTop: 2, color: "rgba(200,255,220,0.70)", fontWeight: 600, fontFamily: "'Outfit', sans-serif" }}>✓ Pregnancy safe</p>}
+                  {rem.tag && <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, display: "inline-block", marginTop: 2, background: "rgba(255,255,255,0.18)", color: "white", fontFamily: "'Outfit', sans-serif" }}>{rem.tag}</span>}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-display text-[14px] font-semibold" style={{ color: "#A84E28" }}>${rem.price}</p>
-                  {rem.unit && <p className="text-[9px]" style={{ color: "rgba(180,100,60,0.38)" }}>{rem.unit}</p>}
-                  <button onClick={() => addToCart(rem)} className="mt-1 rounded-[16px] px-3 py-1 text-[10px] font-semibold belly-btn-primary" style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>Add</button>
+                  <p style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16, color: "white" }}>${rem.price}</p>
+                  {rem.unit && <p style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{rem.unit}</p>}
+                  <button onClick={() => addToCart(rem)} className="belly-btn-press" style={{ marginTop: 4, borderRadius: 16, padding: "4px 12px", fontSize: 10, fontWeight: 700, background: "white", color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Add</button>
                 </div>
               </div>
             ))}
