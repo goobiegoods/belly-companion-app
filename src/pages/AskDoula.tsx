@@ -246,18 +246,26 @@ const AskDoula = () => {
             <div className="grid grid-cols-2 gap-2">
               {QUICK_PROMPTS.map((prompt) => (
                 <button key={prompt} onClick={() => sendMessage(prompt)}
-                  className="rounded-[14px] p-[11px_13px] text-left belly-card-interactive"
-                  style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)" }}>
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "white", lineHeight: 1.4 }}>{prompt}</p>
+                  className="text-left belly-card-interactive"
+                  style={{ background: "rgba(255,255,255,0.24)", border: "1.5px solid rgba(255,255,255,0.38)", borderRadius: 16, padding: "13px 14px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white", lineHeight: 1.4 }}>{prompt}</p>
                 </button>
               ))}
             </div>
 
             <button onClick={() => sendMessage("", true)}
-              className="w-full rounded-[13px] p-[9px_11px] text-left belly-card-interactive"
-              style={{ background: "var(--c2)", border: "1px solid var(--c2-border)" }}>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 600, color: "white" }}>📷 Is this product safe to use?</p>
+              className="w-full text-left belly-card-interactive"
+              style={{ background: "rgba(255,255,255,0.20)", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16, padding: "13px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 16 }}>📷</span>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>Is this product safe to use?</p>
             </button>
+
+            {/* Ambient card */}
+            <div style={{ margin: "12px 0 0", background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.16)", borderRadius: 16, padding: "14px 16px", textAlign: "center" as const }}>
+              <p style={{ fontSize: 22, marginBottom: 6 }}>🌸</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 400, fontStyle: "italic", color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>I'm here whenever you need me, mama.</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 400, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>Available 24/7 · Natural guidance only</p>
+            </div>
           </>
         )}
 
