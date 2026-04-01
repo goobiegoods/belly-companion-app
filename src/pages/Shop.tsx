@@ -271,17 +271,17 @@ const Shop = () => {
           <div className="flex gap-3 px-4 overflow-x-auto hide-scrollbar mb-5" style={{ paddingRight: 32 }}>
             {kits.map(kit => (
               <div key={kit.id} className="min-w-[180px] shrink-0 belly-card-interactive overflow-hidden"
-                style={{ background: "rgba(255,255,255,0.75)", border: "0.5px solid rgba(255,170,130,0.2)", borderRadius: 18, backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", boxShadow: "0 4px 16px rgba(255,140,90,0.08)" }}>
-                <div className="flex items-center justify-center" style={{ height: 72, background: "linear-gradient(135deg, #FF9F6B, #FFCDB4)" }}>
-                  <span className="text-[32px]">{kit.emoji}</span>
+                style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", borderRadius: 20, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
+                <div className="flex items-center justify-center" style={{ height: 80, background: "rgba(255,255,255,0.14)" }}>
+                  <span style={{ fontSize: 36 }}>{kit.emoji}</span>
                 </div>
                 <div className="p-3">
-                  {kit.tag && <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold mb-1 inline-block" style={{ background: "rgba(255,184,153,0.25)", color: "#C4622A" }}>{kit.tag}</span>}
-                  <p className="font-display text-[13px] font-semibold" style={{ color: "#A84E28" }}>{kit.name}</p>
-                  <p className="text-[11px] my-1" style={{ color: "#C4906A", fontWeight: 400 }}>{kit.description}</p>
-                  {kit.contents?.map((c, i) => <p key={i} className="text-[10px]" style={{ color: "#D4B098" }}>{c}</p>)}
-                  <p className="font-display text-[16px] font-semibold mt-2" style={{ color: "#A84E28" }}>${kit.price}</p>
-                  <button onClick={() => addToCart(kit)} className="w-full mt-2 rounded-[10px] py-2 text-[11px] font-semibold belly-btn-primary" style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>Add to cart →</button>
+                  {kit.tag && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 8, background: "rgba(255,255,255,0.22)", color: "white", display: "inline-block", marginBottom: 4, fontFamily: "'Outfit', sans-serif" }}>{kit.tag}</span>}
+                  <p style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 15, color: "white" }}>{kit.name}</p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.68)", fontWeight: 400, margin: "4px 0", fontFamily: "'Outfit', sans-serif" }}>{kit.description}</p>
+                  {kit.contents?.map((c, i) => <p key={i} style={{ fontSize: 10, color: "rgba(255,255,255,0.52)", fontFamily: "'Outfit', sans-serif" }}>{c}</p>)}
+                  <p style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 20, color: "white", marginTop: 8 }}>${kit.price}</p>
+                  <button onClick={() => addToCart(kit)} className="w-full belly-btn-press" style={{ marginTop: 8, borderRadius: 14, padding: "8px 0", fontSize: 13, fontWeight: 700, background: "white", color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Add to cart →</button>
                 </div>
               </div>
             ))}
