@@ -204,7 +204,7 @@ const AskDoula = () => {
             AI · LIVE
           </span>
         </div>
-        <p className="text-[11px]" style={{ color: "var(--w40)" }}>Your natural pregnancy guide</p>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.55)" }}>Your natural pregnancy guide</p>
       </div>
 
       {/* Messages */}
