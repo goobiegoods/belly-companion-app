@@ -219,35 +219,35 @@ const BabyTracker = () => {
 
       {/* Nourish this week */}
       {weekRecipes.length > 0 && (
-        <div style={{ margin: "8px 16px 0" }}>
+        <div style={{ margin: "20px 16px 0" }}>
           <div style={{ borderRadius: 17, overflow: "hidden", background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.24)", backdropFilter: "blur(16px)" }}>
             <div style={{ background: "linear-gradient(135deg, #E89020, #F4A830, #FFCC60)", padding: "12px 14px", position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", right: -8, top: -8, width: 60, height: 60, borderRadius: "50%", background: "rgba(255,255,255,0.12)" }} />
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Week {selectedWeek} nutrition</p>
-              <p style={{ fontFamily: "'Fraunces', serif", fontSize: 13, fontWeight: 700, color: "white", lineHeight: 1.2, marginBottom: 4 }}>What your baby needs from your plate</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.65)", fontWeight: 600 }}>Week {selectedWeek} nutrition</p>
+              <p style={{ fontFamily: "'Fraunces', serif", fontSize: 16, fontWeight: 700, color: "white", lineHeight: 1.2, marginBottom: 4 }}>What your baby needs from your plate</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
                 {weekVitamins.slice(0, 4).map(v => (
-                  <span key={v.name} style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 7, padding: "2px 7px", fontSize: 6.5, color: "white", fontWeight: 600 }}>{v.emoji} {v.name}</span>
+                  <span key={v.name} style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.32)", borderRadius: 7, padding: "2px 7px", fontSize: 9, color: "white", fontWeight: 600 }}>{v.emoji} {v.name}</span>
                 ))}
               </div>
             </div>
             <div style={{ padding: "8px 0 4px" }}>
               <div style={{ display: "flex", gap: 7, padding: "0 11px", overflowX: "auto" }} className="hide-scrollbar">
                 {weekRecipes.slice(0, 3).map(r => (
-                  <div key={r.id} onClick={() => navigate(`/recipes/${r.id}`)} style={{ width: 86, flexShrink: 0, borderRadius: 12, overflow: "hidden", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)", cursor: "pointer" }}>
-                    <div style={{ background: CATEGORY_GRADIENTS[r.category], height: 48, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ fontSize: 22 }}>{r.emoji}</span>
+                  <div key={r.id} onClick={() => navigate(`/recipes/${r.id}`)} style={{ width: 120, flexShrink: 0, borderRadius: 16, overflow: "hidden", background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.28)", cursor: "pointer" }}>
+                    <div style={{ background: CATEGORY_GRADIENTS[r.category], height: 62, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 28 }}>{r.emoji}</span>
                     </div>
-                    <div style={{ padding: "5px 7px" }}>
-                      <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, color: "white", lineHeight: 1.2, marginBottom: 1, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" } as any}>{r.title}</p>
-                      <p style={{ fontSize: 7, color: "rgba(255,255,255,0.50)" }}>{r.prepTime} min</p>
+                    <div style={{ padding: "9px 10px" }}>
+                      <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white", lineHeight: 1.3, marginBottom: 2 }}>{r.title}</p>
+                      <p style={{ fontSize: 8, color: "rgba(255,255,255,0.55)", fontFamily: "'Outfit', system-ui" }}>{r.prepTime} min</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div style={{ textAlign: "center", paddingBottom: 8, paddingTop: 6 }}>
-              <button onClick={() => navigate("/recipes")} style={{ background: "white", border: "none", borderRadius: 10, padding: "5px 14px", fontSize: 9, fontWeight: 700, color: "#FF6520", cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>
+            <div style={{ textAlign: "center", paddingBottom: 10, paddingTop: 6 }}>
+              <button onClick={() => navigate("/recipes")} style={{ background: "white", border: "none", borderRadius: 22, padding: "9px 20px", fontSize: 13, fontWeight: 700, color: "#FF6520", cursor: "pointer", fontFamily: "'Outfit', system-ui", boxShadow: "0 3px 10px rgba(0,0,0,0.08)", display: "inline-block" }}>
                 See all {weekRecipes.length} recipes for week {selectedWeek} →
               </button>
             </div>
@@ -256,70 +256,77 @@ const BabyTracker = () => {
       )}
 
       {/* Trimester Overview */}
-      <div className="px-5 mb-5" style={{ marginTop: 12 }}>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>TRIMESTER OVERVIEW</p>
-        <div className="flex gap-[6px]">
-          {trimesterInfo.map((t, i) => (
-            <div key={i} style={{
-              flex: 1, background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.24)",
-              borderRadius: 12, padding: "8px 10px",
-              opacity: weekData.trimester !== i + 1 ? 0.5 : 1,
-            }}>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>{t.name}</p>
-              <p style={{ fontSize: 8, color: "rgba(255,255,255,0.50)" }}>{t.range}</p>
-              <p style={{ fontSize: 8, color: "rgba(255,255,255,0.50)", lineHeight: 1.4, marginTop: 2 }}>{t.desc}</p>
-            </div>
-          ))}
+      <div className="px-5 mb-5" style={{ marginTop: 24 }}>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>TRIMESTER OVERVIEW</p>
+        <div style={{ display: "flex", gap: 8 }}>
+          {trimesterInfo.map((t, i) => {
+            const isActive = weekData.trimester === i + 1;
+            return (
+              <div key={i} style={{
+                flex: 1,
+                background: isActive ? "rgba(255,255,255,0.26)" : "rgba(255,255,255,0.12)",
+                border: isActive ? "2px solid rgba(255,255,255,0.50)" : "1px solid rgba(255,255,255,0.18)",
+                borderRadius: 16, padding: "12px 12px",
+                position: "relative",
+                boxShadow: isActive ? "0 4px 16px rgba(0,0,0,0.08)" : "none",
+              }}>
+                {isActive && <div style={{ position: "absolute", top: 10, right: 10, width: 7, height: 7, borderRadius: "50%", background: "white", opacity: 0.7 }} />}
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: isActive ? 13 : 12, fontWeight: isActive ? 700 : 600, color: isActive ? "white" : "rgba(255,255,255,0.65)" }}>{t.name}</p>
+                <p style={{ fontSize: 9, color: isActive ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.40)", fontWeight: isActive ? 500 : 400, fontFamily: "'Outfit', system-ui" }}>{t.range}</p>
+                <p style={{ fontSize: isActive ? 9 : 8, color: isActive ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.35)", lineHeight: 1.4, marginTop: 2, fontFamily: "'Outfit', system-ui" }}>{t.desc}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Counters */}
-      <div className="px-5 mb-5">
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>COUNTERS</p>
+      <div className="px-5" style={{ marginTop: 24, paddingBottom: 32 }}>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>COUNTERS</p>
         <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
           {/* Kick Counter */}
-          <div style={{ flex: 1, borderRadius: 16, padding: "14px 12px", background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.24)", backdropFilter: "blur(14px)", textAlign: "center" }}>
-            <p style={{ fontSize: 20, marginBottom: 4 }}>👶</p>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.45)", fontWeight: 600, marginBottom: 4 }}>Kick Counter</p>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 36, fontWeight: 900, color: "white", letterSpacing: -2, lineHeight: 1 }}>{kickCount}</p>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "rgba(255,255,255,0.50)", fontStyle: "italic", marginBottom: 8 }}>Goal: 10 kicks</p>
-            <button onClick={addKick} style={{ background: "rgba(255,255,255,0.25)", borderRadius: 12, padding: 9, width: "100%", fontSize: 11, fontWeight: 600, color: "white", border: "none", cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>
+          <div style={{ flex: 1, borderRadius: 22, padding: "18px 14px", background: "rgba(255,255,255,0.22)", border: "1.5px solid rgba(255,255,255,0.34)", backdropFilter: "blur(14px)", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+            <p style={{ fontSize: 24, marginBottom: 6 }}>👶</p>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.50)", fontWeight: 600, marginBottom: 4 }}>Kick Counter</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 52, fontWeight: 900, color: "white", letterSpacing: -3, lineHeight: 1, margin: "6px 0 2px" }}>{kickCount}</p>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "rgba(255,255,255,0.45)", fontStyle: "italic", marginBottom: 12 }}>Goal: 10 kicks</p>
+            <button onClick={addKick} style={{ background: "white", borderRadius: 16, padding: 12, width: "100%", fontSize: 14, fontWeight: 700, color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', system-ui", boxShadow: "0 3px 12px rgba(0,0,0,0.10)" }}>
               + Kick
             </button>
-            <button onClick={() => setKickCount(0)} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, padding: 7, width: "100%", fontSize: 10, color: "rgba(255,255,255,0.50)", marginTop: 5, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>
+            <button onClick={() => setKickCount(0)} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12, padding: 8, width: "100%", fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.65)", marginTop: 6, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>
               Reset
             </button>
           </div>
 
           {/* Contraction Counter */}
-          <div style={{ flex: 1, borderRadius: 16, padding: "14px 12px", background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.24)", backdropFilter: "blur(14px)", textAlign: "center" }}>
-            <p style={{ fontSize: 20, marginBottom: 4 }}>⏱️</p>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.45)", fontWeight: 600, marginBottom: 4 }}>Contractions</p>
+          <div style={{ flex: 1, borderRadius: 22, padding: "18px 14px", background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.28)", backdropFilter: "blur(14px)", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+            <p style={{ fontSize: 24, marginBottom: 6 }}>⏱️</p>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.50)", fontWeight: 600, marginBottom: 4 }}>Contractions</p>
             {showResult !== null ? (
               <>
-                <p style={{ fontFamily: "'Fraunces', serif", fontSize: 36, fontWeight: 900, color: "white", letterSpacing: -2, lineHeight: 1 }}>{showResult}s</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "rgba(255,255,255,0.50)", fontStyle: "italic", marginBottom: 8 }}>Contraction lasted</p>
+                <p style={{ fontFamily: "'Fraunces', serif", fontSize: 52, fontWeight: 900, color: "white", letterSpacing: -3, lineHeight: 1, margin: "6px 0 2px" }}>{showResult}s</p>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "rgba(255,255,255,0.45)", fontStyle: "italic", marginBottom: 12 }}>Contraction lasted</p>
               </>
             ) : isTimingContraction ? (
               <>
                 <div style={{ display: "inline-block", borderRadius: "50%", padding: 4, animation: "contractionPulse 1.5s ease-in-out infinite" }}>
-                  <p style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 900, color: "white", letterSpacing: -1, lineHeight: 1 }}>{formatTimer(elapsedSeconds)}</p>
+                  <p style={{ fontFamily: "'Fraunces', serif", fontSize: 52, fontWeight: 900, color: "white", letterSpacing: -3, lineHeight: 1 }}>{formatTimer(elapsedSeconds)}</p>
                 </div>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "rgba(255,255,255,0.50)", fontStyle: "italic", marginBottom: 6 }}>Contracting...</p>
-                <button onClick={stopContraction} style={{ background: "rgba(255,255,255,0.18)", borderRadius: 12, padding: 9, width: "100%", fontSize: 11, fontWeight: 600, color: "white", border: "none", cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "rgba(255,255,255,0.45)", fontStyle: "italic", marginBottom: 12 }}>Contracting...</p>
+                <button onClick={stopContraction} style={{ background: "rgba(255,255,255,0.90)", borderRadius: 16, padding: 12, width: "100%", fontSize: 14, fontWeight: 700, color: "#E05040", border: "none", cursor: "pointer", fontFamily: "'Outfit', system-ui", boxShadow: "0 3px 12px rgba(0,0,0,0.08)" }}>
                   Stop timing
                 </button>
               </>
             ) : (
               <>
-                <p style={{ fontFamily: "'Fraunces', serif", fontSize: 36, fontWeight: 900, color: "white", letterSpacing: -2, lineHeight: 1 }}>{contractions.length}</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontStyle: "italic", marginBottom: 8, color: "rgba(255,255,255,0.50)" }}>
+                <p style={{ fontFamily: "'Fraunces', serif", fontSize: 52, fontWeight: 900, color: "white", letterSpacing: -3, lineHeight: 1, margin: "6px 0 2px" }}>{contractions.length}</p>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontStyle: "italic", marginBottom: 12, color: "rgba(255,255,255,0.45)" }}>
                   {contractions.length >= 2 && avgInterval > 0 ? `Every ${Math.round(avgInterval / 60)} min` : "Tap to start timing"}
                 </p>
-                <button onClick={startContraction} style={{ background: "rgba(255,255,255,0.18)", borderRadius: 12, padding: 9, width: "100%", fontSize: 11, fontWeight: 600, color: "white", border: "none", cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>
+                <button onClick={startContraction} style={{ background: "rgba(255,255,255,0.90)", borderRadius: 16, padding: 12, width: "100%", fontSize: 14, fontWeight: 700, color: "#9060D0", border: "none", cursor: "pointer", fontFamily: "'Outfit', system-ui", boxShadow: "0 3px 12px rgba(0,0,0,0.08)" }}>
                   Start timing
                 </button>
-                <button onClick={() => setContractions([])} style={{ background: "transparent", border: "none", fontSize: 10, color: "rgba(255,255,255,0.40)", textAlign: "center", marginTop: 5, cursor: "pointer", width: "100%", fontFamily: "'Outfit', system-ui" }}>
+                <button onClick={() => setContractions([])} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12, padding: 8, width: "100%", fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.65)", marginTop: 6, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>
                   Reset
                 </button>
               </>
