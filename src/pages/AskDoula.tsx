@@ -228,32 +228,20 @@ const AskDoula = () => {
 
             {/* Week context strip */}
             <div className="flex gap-2 mt-3">
-              <div className="flex-1 rounded-[12px] p-[8px_10px]" style={{ background: "var(--c2)", border: "1px solid var(--c2-border)" }}>
-                <div className="flex items-center gap-1.5">
-                  <span style={{ fontSize: 14 }}>🥑</span>
-                  <div>
-                    <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 600, color: "white" }}>Week {currentWeek}</p>
-                    <p style={{ fontSize: 7, color: "var(--w50)" }}>{fruitName}</p>
-                  </div>
-                </div>
+              <div className="flex-1 rounded-[14px] p-[10px_11px]" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)" }}>
+                <span style={{ fontSize: 20, display: "block", marginBottom: 4 }}>🥑</span>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>Week {currentWeek}</p>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.60)" }}>{fruitName}</p>
               </div>
-              <div className="flex-1 rounded-[12px] p-[8px_10px]" style={{ background: "var(--c2)", border: "1px solid var(--c2-border)" }}>
-                <div className="flex items-center gap-1.5">
-                  <span style={{ fontSize: 14 }}>🧘</span>
-                  <div>
-                    <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 600, color: "white" }}>Your body</p>
-                    <p style={{ fontSize: 7, color: "var(--w50)" }}>{topSymptom}</p>
-                  </div>
-                </div>
+              <div className="flex-1 rounded-[14px] p-[10px_11px]" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)" }}>
+                <span style={{ fontSize: 20, display: "block", marginBottom: 4 }}>🧘</span>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>Your body</p>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.60)" }}>{topSymptom}</p>
               </div>
-              <div className="flex-1 rounded-[12px] p-[8px_10px]" style={{ background: "var(--c2)", border: "1px solid var(--c2-border)" }}>
-                <div className="flex items-center gap-1.5">
-                  <span style={{ fontSize: 14 }}>🫧</span>
-                  <div>
-                    <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 600, color: "white" }}>Top remedy</p>
-                    <p style={{ fontSize: 7, color: "var(--w50)" }}>{topRemedy}</p>
-                  </div>
-                </div>
+              <div className="flex-1 rounded-[14px] p-[10px_11px]" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)" }}>
+                <span style={{ fontSize: 20, display: "block", marginBottom: 4 }}>💊</span>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>Top remedy</p>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.60)" }}>{topRemedy}</p>
               </div>
             </div>
 
