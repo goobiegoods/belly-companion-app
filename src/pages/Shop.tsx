@@ -267,7 +267,7 @@ const Shop = () => {
               style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.35)", color: "white", fontSize: 12, fontWeight: 600, borderRadius: 20, padding: "5px 14px", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Shop all →</button>
           </div>
 
-          <p id="remedy-kits" className="px-5 text-[10px] uppercase tracking-[0.11em] mb-2 font-semibold" style={{ color: "rgba(200,88,40,0.4)" }}>Remedy kits</p>
+          <p id="remedy-kits" style={{ padding: "0 20px", fontSize: 10, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontFamily: "'Outfit', sans-serif" }}>Remedy kits</p>
           <div className="flex gap-3 px-4 overflow-x-auto hide-scrollbar mb-5" style={{ paddingRight: 32 }}>
             {kits.map(kit => (
               <div key={kit.id} className="min-w-[180px] shrink-0 belly-card-interactive overflow-hidden"
