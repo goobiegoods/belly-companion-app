@@ -287,7 +287,7 @@ const Shop = () => {
             ))}
           </div>
 
-          <p className="px-5 text-[10px] uppercase tracking-[0.11em] mb-2 font-semibold" style={{ color: "rgba(200,88,40,0.4)" }}>Individual remedies</p>
+          <p style={{ padding: "0 20px", fontSize: 10, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontFamily: "'Outfit', sans-serif" }}>Individual remedies</p>
           <div className="px-5 space-y-2 mb-5">
             {remedies.map(rem => (
               <div key={rem.id} className="flex items-center gap-3 belly-card-interactive"
