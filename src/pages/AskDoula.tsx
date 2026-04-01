@@ -352,7 +352,7 @@ const AskDoula = () => {
       )}
 
       {/* Input bar */}
-      <style>{`@keyframes sendGlow { 0%,100% { box-shadow: 0 2px 8px rgba(255,255,255,0.3); } 50% { box-shadow: 0 4px 20px rgba(255,255,255,0.6); } }`}</style>
+      <style>{`@keyframes sendGlow { 0%,100% { box-shadow: 0 2px 8px rgba(255,255,255,0.3); } 50% { box-shadow: 0 4px 20px rgba(255,255,255,0.6); } } .doula-input::placeholder { color: rgba(160,80,20,0.45) !important; }`}</style>
       <div style={{ background: "rgba(255,255,255,0.15)", borderTop: "1px solid rgba(255,255,255,0.18)", padding: "10px 16px 14px", backdropFilter: "blur(16px)" }}>
         <div className="flex items-center gap-2"
           style={{ background: "rgba(255,255,255,0.95)", borderRadius: 28, padding: "11px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.10)" }}>
