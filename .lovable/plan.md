@@ -1,46 +1,48 @@
 
 
-# Fix BabyTracker.tsx — 8 Visual Updates
+# Fix AskDoula.tsx — 6 Visual Enhancements
 
-## Changes — `src/pages/BabyTracker.tsx` only
+## Changes — `src/pages/AskDoula.tsx` only
 
-### 1. Hero Headline
-Update font sizes: "Your" → Outfit 600 **26px**, "baby's world" → Fraunces 800 italic **34px**. Padding `16px 16px 10px`. Remove the week number/fruit illustration/babySize text from inside hero — that moves to the new fruit card.
+### 1. Welcome Hero Card (lines 215-227)
+- Background: `rgba(255,255,255,0.20)`, border: `rgba(255,255,255,0.32)`, borderRadius: `22px`
+- Orb: absolute `right: -10px`, `top: -10px`, 80px circle `rgba(255,255,255,0.08)`
+- Headline "Your": Outfit 600 **22px** (was 24px)
+- "doula chat": Fraunces 800 italic **30px** + `letterSpacing: "-0.5px"`
+- Sub: italic Outfit 400 11px `rgba(255,255,255,0.58)` (was 0.65)
+- Doula icon circle: `rgba(255,255,255,0.22)` bg, 36px — already correct, keep 🌸
 
-### 2. Large Fruit Card (NEW)
-Insert between hero and week strip. A centered card with:
-- `background: rgba(255,255,255,0.18)`, `border: 1px solid rgba(255,255,255,0.28)`, `borderRadius: 22px`, `padding: "24px 16px"`, `textAlign: "center"`
-- Fruit emoji at 90px with `drop-shadow(0 8px 20px rgba(0,0,0,0.15))` — derived from `weekData.babySize` keyword (same `FRUIT_EMOJI_MAP` pattern used in HomePage)
-- "About the size of a [fruit]" — Fraunces italic 18px 700 white
-- Stats row: 3 secondary cards (flex, gap 8) showing weight/length/week — each `rgba(255,255,255,0.12)` bg, `rgba(255,255,255,0.18)` border, 12px radius
-  - Number: Fraunces 700 18px white
-  - Label: Outfit 500 7px `rgba(255,255,255,0.45)` uppercase
+### 2. Context Strip (lines 230-258)
+- Each card: `rgba(255,255,255,0.18)` bg (was `var(--c2)`), `rgba(255,255,255,0.28)` border, `borderRadius: 14px`, `padding: "10px 11px"`
+- Emoji: fontSize **20px** (was 14), `marginBottom: 4`
+- Title: Outfit **700** 10px white (was 8px, 600)
+- Sub: Outfit 400 **8px** `rgba(255,255,255,0.60)` (was 7px, `var(--w50)`)
+- Card 1: show fruit emoji dynamically + "Week {X}"
+- Card 2: 🧘 "Your body" + top symptom
+- Card 3: 💊 "Top remedy" + remedy name (keep 🫧 if preferred, but spec says 💊)
 
-### 3. Milestone Cards (Development, Size, Symptoms, Natural Tip)
-Each card updated to: `rgba(255,255,255,0.16)` bg, `rgba(255,255,255,0.24)` border, `borderRadius: 16px`, `padding: "11px 13px"`. Add 38px emoji circles on left where applicable.
-- Title: Outfit 600 12px white
-- Sub/body: Outfit 400 9px `rgba(255,255,255,0.60)` (or 13px for development body)
+### 3. Suggested Prompts (lines 261-270)
+- Section label: `rgba(255,255,255,0.50)` (was `var(--w40)`), fontSize 9px, uppercase, Outfit 600
+- Each prompt card: `rgba(255,255,255,0.20)` bg (was `var(--c1)`), `rgba(255,255,255,0.30)` border, borderRadius **14px** (was 13), padding `11px 13px` (was 9 11)
+- Text: Outfit 600 **12px** white (was 11px)
 
-### 4. Browse Weeks Strip
-Add "Browse weeks" label (Outfit 600 14px white) above the existing week pills. Update pill styling:
-- Active: white bg, `#FF6520` text, Outfit 700 10px, `borderRadius: 20px`, `padding: "4px 12px"`
-- Inactive: `rgba(255,255,255,0.16)` bg, `rgba(255,255,255,0.22)` border, `rgba(255,255,255,0.75)` text, Outfit 500
+### 4. Send Button Glow (lines 385-389)
+- Add inline `@keyframes sendGlow` via a `<style>` tag in the component (or use conditional className)
+- When `input.trim()` is non-empty and not streaming: apply `animation: "sendGlow 2s ease-in-out infinite"` to the send button
+- Keyframes: box-shadow oscillates between `0 2px 8px rgba(255,255,255,0.3)` and `0 4px 20px rgba(255,255,255,0.6)`
 
-### 5. Baby Development Card
-Update to `rgba(255,255,255,0.16)` bg, `rgba(255,255,255,0.24)` border. Label color `rgba(255,255,255,0.45)`. Body text `rgba(255,255,255,0.88)` Outfit 400 13px.
+### 5. Input Bar (lines 363-391)
+- Inner container: `rgba(255,255,255,0.95)` bg (already correct via `var(--input-bg)`)
+- borderRadius: **28px** (already correct)
+- padding: `10px 14px` (was `4px 6px 4px 12px`)
+- boxShadow: `0 4px 20px rgba(0,0,0,0.12)`
+- Outer wrapper margin: `8px 16px 6px` (was `px-4 py-3`)
 
-### 6. Baby Size Card — warm yellow tint
-`background: rgba(255,240,180,0.15)`, `border: 1px solid rgba(255,220,120,0.25)`. Size text: Fraunces 700 18px white.
-
-### 7. Symptom Chips
-`rgba(255,255,255,0.18)` bg, `rgba(255,255,255,0.28)` border, `borderRadius: 20px`, white text Outfit 600 11px.
-
-### 8. Natural Tip Card — lavender hint
-`background: rgba(220,200,255,0.12)`, `border: 1px solid rgba(200,170,255,0.20)`.
-
-## Fruit Emoji Map
-Add a `FRUIT_EMOJI_MAP` constant mapping babySize keywords → emojis (Poppy→·, Blueberry→🫐, Raspberry→🍇, Cherry→🍒, Fig→🫐, Lemon→🍋, Lime→🍈, Avocado→🥑, Apple→🍎, Mango→🥭, Banana→🍌, Papaya→🍈, Coconut→🥥, Melon→🍈, Pumpkin→🎃, Watermelon→🍉, etc.)
+### 6. Chat Bubbles (lines 288-303)
+- Doula: `rgba(255,255,255,0.20)` bg (was `var(--c1)`), `rgba(255,255,255,0.30)` border, color `rgba(255,255,255,0.90)` (was 0.88)
+- User: `rgba(255,255,255,0.95)` bg — already correct
+- Border radii already correct
 
 ## File
-- `src/pages/BabyTracker.tsx` — all 8 changes inline, no other files
+- `src/pages/AskDoula.tsx` — all 6 fixes inline, no other files
 
