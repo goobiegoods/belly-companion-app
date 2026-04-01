@@ -1,75 +1,75 @@
 
 
-# Fix Lesson Reader + QuizBlock — White-on-Orange Readability
+# Fix BabyTracker.tsx — Bottom Half Visual Redesign
 
 ## Overview
-All lesson reader text is dark brown on orange — completely unreadable. Convert everything to white/rgba-white. Two files touched.
+Update Recipe section, Trimester Overview, and Counters below line 220. No changes above the Natural Tip card. No logic changes.
 
-## Files Changed
+## File: `src/pages/BabyTracker.tsx`
 
-| File | Scope |
-|---|---|
-| `src/pages/Courses.tsx` | Lines 105-214 (lesson reader section only) + course completion screen (lines 70-88) |
-| `src/components/QuizBlock.tsx` | Full file — light theme colors |
+### Fix 1 — Recipe Section (lines 220-256)
 
-## Courses.tsx — Lesson Reader (lines 105-214)
+**Header text** (lines 226-231):
+- Eyebrow: fontSize `9` (was 7), color `rgba(255,255,255,0.65)`
+- Headline: fontSize `16` (was 13)
+- Nutrient pills: fontSize `9` (was 6.5), border `rgba(255,255,255,0.32)` (was 0.3)
 
-### Topbar (line 107-113)
-- Container: `background: "rgba(255,140,66,0.65)"`, `backdropFilter: "blur(16px)"`, `borderBottom: "1px solid rgba(255,255,255,0.14)"`
-- "← Back": `color: "white"`, Outfit 600 13px
-- Title: `color: "white"`, `fontFamily: "'Fraunces', serif"`, `fontWeight: 700`, `fontSize: 16`
-- Lesson badge: `background: "rgba(255,255,255,0.20)"`, `border: "1px solid rgba(255,255,255,0.30)"`, `color: "white"`, Outfit 600 11px
+**Recipe mini cards** (lines 237-245):
+- Card: width `120` (was 86), borderRadius `16` (was 12), bg `rgba(255,255,255,0.20)` (was 0.12), border `rgba(255,255,255,0.28)` (was 0.18)
+- Emoji area: height `62` (was 48), emoji fontSize `28` (was 22)
+- Body: padding `9px 10px` (was 5px 7px)
+- Title: fontSize `10` (was 9), fontWeight `700` (was 600), marginBottom `2`, remove `-webkit-line-clamp` truncation (let wrap to 2 lines naturally)
+- Time: fontSize `8` (was 7), color `rgba(255,255,255,0.55)` (was 0.50)
+- Add vitamin badges below time for each recipe's top vitamins
 
-### Hero area (lines 115-127)
-- "LESSON X" eyebrow: `color: "rgba(255,255,255,0.55)"` (was `rgba(42,18,0,0.5)`)
-- Title: `color: "white"`, `fontFamily: "'Fraunces', serif"`, `fontWeight: 800`, `fontSize: 26`
-- Duration badge: `background: "rgba(255,255,255,0.20)"`, `border: "1px solid rgba(255,255,255,0.30)"`, `color: "white"`
-- Progress dots: completed → `rgba(255,255,255,0.70)` (was `rgba(42,18,0,0.4)`)
+**"See all" button** (lines 249-253):
+- borderRadius `22` (was 10), padding `9px 20px` (was 5px 14px), fontSize `13` (was 9)
+- boxShadow `0 3px 10px rgba(0,0,0,0.08)`, display `block`, width `fit-content`, margin `10px auto`
 
-### Content area (lines 128-201)
-- **Intro paragraph** (line 129): `color: "rgba(255,255,255,0.88)"`, fontSize 15, lineHeight 1.75
-- **"What you'll learn" card** (lines 130-140): `background: "rgba(255,255,255,0.20)"`, `border: "1.5px solid rgba(255,255,255,0.32)"`, `borderRadius: 18`, `backdropFilter: "blur(12px)"`, remove borderLeft. Label: `rgba(255,255,255,0.55)`. Dots: `rgba(255,255,255,0.60)`. Text: `rgba(255,255,255,0.88)`
-- **Section headings** (line 143): `color: "white"`, `fontFamily: "'Fraunces', serif"`, fontSize 20, fontWeight 700
-- **Section body** (line 144): `color: "rgba(255,255,255,0.80)"`, fontSize 14, lineHeight 1.7
-- **Tip cards** (lines 146-149): `background: "rgba(255,240,180,0.15)"`, `border: "1px solid rgba(255,220,120,0.25)"`, `borderRadius: 16`. Label: white. Text: `rgba(255,255,255,0.85)`
-- **"Did you know" card** (lines 153-156): `background: "rgba(255,255,255,0.18)"`, `border: "1px solid rgba(255,255,255,0.26)"`, `borderRadius: 16`. All text: white/rgba-white
-- **Reflection card** (lines 157-169): `background: "rgba(220,200,255,0.12)"`, `border: "1px solid rgba(200,170,255,0.20)"`, `borderRadius: 16`. All text: white. Textarea: `background: "rgba(255,255,255,0.15)"`, `border: "1px solid rgba(255,255,255,0.25)"`, `color: "white"`, placeholder white. Save button: `background: "white"`, `color: "#FF6520"`
-- **Quiz section** (lines 170-197): Question text: white. Option buttons unanswered: `background: "rgba(255,255,255,0.18)"`, `border: "1px solid rgba(255,255,255,0.26)"`, `color: "white"`. Correct: `background: "rgba(100,220,130,0.25)"`, `border: "1px solid rgba(100,220,130,0.45)"`, `color: "rgba(200,255,220,0.95)"`. Wrong: `background: "rgba(255,100,100,0.20)"`, `border: "1px solid rgba(255,130,130,0.35)"`. Explanation card: `background: "rgba(255,255,255,0.15)"`, text white
-- **Key takeaway card** (lines 198-201): Keep dark bg `#2A1200` — this is intentional dark card. Text stays light (already correct)
+### Fix 2 — Trimester Overview (lines 258-274)
 
-### Bottom bar (lines 203-212)
-- Container: `background: "rgba(255,140,66,0.65)"`, `backdropFilter: "blur(16px)"`, `borderTop: "1px solid rgba(255,255,255,0.14)"`
-- "← Previous" button: `background: "rgba(255,255,255,0.20)"`, `color: "white"`
-- Complete button: `background: "white"`, `color: "#FF6520"`, Outfit 700
+- Section label: color `rgba(255,255,255,0.50)` (was 0.45), marginBottom `10` (was 8)
+- Gap: `8px` (was 6px)
+- Cards: borderRadius `16` (was 12), padding `12px 12px` (was 8px 10px)
+- Remove `opacity: 0.5` for inactive — instead use distinct styles:
+  - **Inactive**: bg `rgba(255,255,255,0.12)`, border `1px solid rgba(255,255,255,0.18)`, title color `rgba(255,255,255,0.65)` fontSize 12, weeks/desc color `rgba(255,255,255,0.40)`/`rgba(255,255,255,0.35)` fontSize 9/8
+  - **Active**: bg `rgba(255,255,255,0.26)`, border `2px solid rgba(255,255,255,0.50)`, boxShadow `0 4px 16px rgba(0,0,0,0.08)`, position relative. Title: white fontWeight 700 fontSize 13. Weeks: `rgba(255,255,255,0.65)` fontWeight 500 fontSize 9. Desc: `rgba(255,255,255,0.65)` fontSize 9. Add white dot: 7px circle, position absolute top 10 right 10, bg white, opacity 0.7
 
-### Course completion screen (lines 70-88)
-- Check circle: keep white bg
-- Title: `color: "white"` (was `#2A1200`)
-- All text: white/rgba-white
-- Button: `background: "white"`, `color: "#FF6520"`
+### Fix 3 — Counters Redesign (lines 276-336)
 
-## QuizBlock.tsx — Light Theme Update
+- Section label: color `rgba(255,255,255,0.50)`, marginBottom `10`
+- marginTop on section: `24px` (from Fix 4 spacing)
 
-Only change the non-dark-theme (light) values:
+**Kick Counter tile** (lines 281-291):
+- Container: bg `rgba(255,255,255,0.22)`, border `1.5px solid rgba(255,255,255,0.34)`, borderRadius `22` (was 16), padding `18px 14px` (was 14px 12px), boxShadow `0 4px 20px rgba(0,0,0,0.06)`
+- Emoji: fontSize `24` (was 20), marginBottom `6` (was 4)
+- Count: fontSize `52` (was 36), letterSpacing `-3px`, margin `6px 0 2px`
+- Goal text: color `rgba(255,255,255,0.45)` (was 0.50), marginBottom `12` (was 8)
+- "+ Kick" button: bg `white`, color `#FF6520`, fontWeight `700`, fontSize `14` (was 11), borderRadius `16` (was 12), padding `12px`, boxShadow `0 3px 12px rgba(0,0,0,0.10)`
+- "Reset" button: bg `rgba(255,255,255,0.15)`, border `1px solid rgba(255,255,255,0.22)`, color `rgba(255,255,255,0.65)`, fontWeight `500`, fontSize `12` (was 10), borderRadius `12`, padding `8px`, marginTop `6` (was 5)
 
-- **Outer container** (line 44, 48, 51): `cardBg` → `"rgba(255,255,255,0.20)"`, `cardBorder` → `"1.5px solid rgba(255,255,255,0.32)"`, remove boxShadow for light
-- **Header** (line 40): keep gradient but make `"linear-gradient(135deg, rgba(255,100,30,0.60), rgba(255,140,60,0.40))"`, add `borderBottom: "1px solid rgba(255,255,255,0.20)"`
-- **"QUICK CHECK" label** (line 55): fontSize 9 (was 8), `color: "rgba(255,255,255,0.65)"`
-- **Question text** (line 64): `color: "white"`, `fontFamily: "'Fraunces', serif"`, fontWeight 700, fontSize 15
-- **Option cards unanswered** (line 72-74): bg → `"rgba(255,255,255,0.18)"`, border → `"1px solid rgba(255,255,255,0.26)"`, textColor → `"white"`
-- **Correct** (lines 76-79): bg → `"rgba(100,220,130,0.25)"`, border → `"1px solid rgba(100,220,130,0.45)"`, textColor → `"rgba(200,255,220,0.95)"`
-- **Wrong** (lines 80-83): bg → `"rgba(255,100,100,0.20)"`, border → `"1px solid rgba(255,130,130,0.35)"`, textColor → `"rgba(255,200,200,0.95)"`
-- **Correct highlight** (lines 84-88): same as correct
-- **Emoji** (line 104): fontSize 24 (was 20)
-- **Option text** (line 105): fontSize 11 (was 7.5), fontWeight 600
-- **Fun fact card** (lines 116-127): bg → `"rgba(255,255,255,0.15)"`, border → `"rgba(255,255,255,0.25)"`. Correct label: `"rgba(200,255,220,0.95)"`. Wrong label: `"rgba(255,200,200,0.95)"`. Body text: `"rgba(255,255,255,0.80)"`
-- **Continue button** (lines 131-139): `background: "white"`, `color: "#FF6520"`, Outfit 700 13px, borderRadius 14, remove gradient and boxShadow
+**Contraction Counter tile** (lines 294-327):
+- Container: bg `rgba(255,255,255,0.18)`, border `1.5px solid rgba(255,255,255,0.28)`, borderRadius `22`, padding `18px 14px`, boxShadow `0 4px 20px rgba(0,0,0,0.06)`
+- Emoji/label: same sizing as kick
+- Count/timer: fontSize `52` (was 36/28), letterSpacing `-3px`
+- Hint text: marginBottom `12`
+- "Start timing" button: bg `rgba(255,255,255,0.90)`, color `#9060D0`, fontWeight `700`, fontSize `14`, borderRadius `16`, padding `12px`, boxShadow `0 3px 12px rgba(0,0,0,0.08)`
+- "Stop timing" button (timing state): bg `rgba(255,255,255,0.90)`, color `#E05040`
+- Pulse animation on timer wrapper: keep existing `contractionPulse` but update keyframes to `0 0 0 0 rgba(255,255,255,0.3)` → `0 0 0 8px rgba(255,255,255,0.0)`
+- "Reset" buttons: same style as kick reset (bg `rgba(255,255,255,0.15)`, border, etc.)
+
+**Alert card** (lines 330-335): no changes needed (already correct)
+
+### Fix 4 — Spacing (throughout)
+
+- Between Natural Tip and Recipe section: `marginTop: 20` (was 8 on line 222)
+- Between Recipe and Trimester: `marginTop: 24` (was 12 on line 259)
+- Between Trimester and Counters: `marginTop: 24`
+- Bottom padding after counters: `paddingBottom: 32` (add to counters wrapper)
+- All section labels: marginBottom `10`
 
 ## What Does NOT Change
-- Course list screen styling
-- Lesson list screen styling
-- Lesson content data
-- Supabase queries, routing, auth
-- Dark theme (CantSleep) QuizBlock values
-- Key takeaway dark card (already correct)
+- Lines 1-218 (everything above Natural Tip)
+- All counter logic (addKick, start/stopContraction, shouldAlert)
+- Supabase calls, routing, imports
 
