@@ -37,22 +37,22 @@ const QuizBlock = ({ question, options, onAnswer, onContinue, darkTheme, progres
 
   const headerBg = darkTheme
     ? "linear-gradient(135deg, #2A1A40, #4A2060)"
-    : "linear-gradient(135deg, #FF7E48, #FFA070)";
+    : "linear-gradient(135deg, rgba(255,100,30,0.60), rgba(255,140,60,0.40))";
 
   const cardBg = darkTheme
     ? "rgba(255,255,255,0.08)"
-    : "rgba(255,255,255,0.68)";
+    : "rgba(255,255,255,0.20)";
 
   const cardBorder = darkTheme
     ? "0.5px solid rgba(255,180,255,0.15)"
-    : "0.5px solid rgba(255,170,130,0.22)";
+    : "1.5px solid rgba(255,255,255,0.32)";
 
   return (
-    <div style={{ borderRadius: 18, overflow: "hidden", background: cardBg, border: cardBorder, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: darkTheme ? "none" : "0 2px 14px rgba(255,140,90,0.07)" }}>
+    <div style={{ borderRadius: 20, overflow: "hidden", background: cardBg, border: cardBorder, backdropFilter: darkTheme ? "blur(16px)" : undefined, WebkitBackdropFilter: darkTheme ? "blur(16px)" : undefined }}>
       {/* Header */}
-      <div style={{ background: headerBg, padding: "14px 16px" }}>
+      <div style={{ background: headerBg, padding: "14px 16px", borderBottom: darkTheme ? undefined : "1px solid rgba(255,255,255,0.20)" }}>
         <div className="flex items-center justify-between mb-2">
-          <span style={{ fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Quick check ✓</span>
+          <span style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", color: darkTheme ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.65)", fontWeight: 600 }}>Quick check ✓</span>
           {progressDots && (
             <div className="flex gap-1">
               {Array.from({ length: progressDots.total }, (_, i) => (
@@ -61,7 +61,7 @@ const QuizBlock = ({ question, options, onAnswer, onContinue, darkTheme, progres
             </div>
           )}
         </div>
-        <p style={{ fontSize: 13, fontWeight: 600, color: darkTheme ? "#FFF0FF" : "#FFF9F6", lineHeight: 1.4 }}>{question}</p>
+        <p style={{ fontSize: 15, fontFamily: darkTheme ? undefined : "'Fraunces', serif", fontWeight: 700, color: darkTheme ? "#FFF0FF" : "white", lineHeight: 1.4 }}>{question}</p>
       </div>
 
       {/* Options 2x2 */}
@@ -69,22 +69,22 @@ const QuizBlock = ({ question, options, onAnswer, onContinue, darkTheme, progres
         {options.map((opt, i) => {
           const isThis = selected === i;
           const isCorrectOpt = i === correctIdx;
-          let bg = darkTheme ? "rgba(255,242,255,0.08)" : "rgba(255,242,234,0.8)";
-          let border = darkTheme ? "0.5px solid rgba(255,180,255,0.15)" : "0.5px solid rgba(255,170,130,0.25)";
-          let textColor = darkTheme ? "#E0C0E0" : "#C4784A";
+          let bg = darkTheme ? "rgba(255,242,255,0.08)" : "rgba(255,255,255,0.18)";
+          let border = darkTheme ? "0.5px solid rgba(255,180,255,0.15)" : "1px solid rgba(255,255,255,0.26)";
+          let textColor = darkTheme ? "#E0C0E0" : "white";
 
           if (answered && isThis && opt.correct) {
-            bg = "rgba(200,240,210,0.85)";
-            border = "0.5px solid rgba(100,200,130,0.5)";
-            textColor = "#40A060";
+            bg = darkTheme ? "rgba(200,240,210,0.85)" : "rgba(100,220,130,0.25)";
+            border = darkTheme ? "0.5px solid rgba(100,200,130,0.5)" : "1px solid rgba(100,220,130,0.45)";
+            textColor = darkTheme ? "#40A060" : "rgba(200,255,220,0.95)";
           } else if (answered && isThis && !opt.correct) {
-            bg = "rgba(255,220,220,0.8)";
-            border = "0.5px solid rgba(255,140,140,0.4)";
-            textColor = "#D04040";
+            bg = darkTheme ? "rgba(255,220,220,0.8)" : "rgba(255,100,100,0.20)";
+            border = darkTheme ? "0.5px solid rgba(255,140,140,0.4)" : "1px solid rgba(255,130,130,0.35)";
+            textColor = darkTheme ? "#D04040" : "rgba(255,200,200,0.95)";
           } else if (answered && isCorrectOpt) {
-            bg = "rgba(200,240,210,0.85)";
-            border = "0.5px solid rgba(100,200,130,0.5)";
-            textColor = "#40A060";
+            bg = darkTheme ? "rgba(200,240,210,0.85)" : "rgba(100,220,130,0.25)";
+            border = darkTheme ? "0.5px solid rgba(100,200,130,0.5)" : "1px solid rgba(100,220,130,0.45)";
+            textColor = darkTheme ? "#40A060" : "rgba(200,255,220,0.95)";
           }
 
           return (
@@ -92,17 +92,15 @@ const QuizBlock = ({ question, options, onAnswer, onContinue, darkTheme, progres
               key={i}
               onClick={() => handleSelect(i)}
               disabled={answered}
-              className="belly-card-interactive"
               style={{
-                borderRadius: 13, padding: "10px 8px", textAlign: "center", background: bg, border,
+                borderRadius: 14, padding: "10px 8px", textAlign: "center", background: bg, border,
                 cursor: answered ? "default" : "pointer",
                 transition: "transform 140ms, background 180ms",
                 animation: answered && isThis && !opt.correct && shaking ? "shake 200ms ease" : undefined,
-                transform: answered && isThis && opt.correct ? "scale(1)" : undefined,
               }}
             >
-              <div style={{ fontSize: 20, marginBottom: 4 }}>{opt.emoji}</div>
-              <div style={{ fontSize: 7.5, fontWeight: 500, color: textColor, lineHeight: 1.3 }}>
+              <div style={{ fontSize: 24, marginBottom: 4 }}>{opt.emoji}</div>
+              <div style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, color: textColor, lineHeight: 1.3 }}>
                 {opt.text}{answered && isCorrectOpt && " ✓"}
               </div>
             </button>
@@ -114,27 +112,31 @@ const QuizBlock = ({ question, options, onAnswer, onContinue, darkTheme, progres
       {answered && (
         <div style={{ padding: "0 13px 12px" }}>
           <div style={{
-            background: isCorrect ? "rgba(200,240,210,0.5)" : "rgba(255,230,220,0.5)",
-            border: isCorrect ? "0.5px solid rgba(100,200,130,0.3)" : "0.5px solid rgba(255,170,130,0.3)",
+            background: darkTheme
+              ? (isCorrect ? "rgba(200,240,210,0.5)" : "rgba(255,230,220,0.5)")
+              : "rgba(255,255,255,0.15)",
+            border: darkTheme
+              ? (isCorrect ? "0.5px solid rgba(100,200,130,0.3)" : "0.5px solid rgba(255,170,130,0.3)")
+              : "1px solid rgba(255,255,255,0.25)",
             borderRadius: 12, padding: "10px 12px", marginBottom: 8,
             animation: "pageEnter 260ms ease forwards",
           }}>
-            <p style={{ fontSize: 8, fontWeight: 600, color: isCorrect ? "#40A060" : "#E07040", marginBottom: 4 }}>
+            <p style={{ fontSize: 9, fontWeight: 600, color: darkTheme ? (isCorrect ? "#40A060" : "#E07040") : (isCorrect ? "rgba(200,255,220,0.95)" : "rgba(255,200,200,0.95)"), marginBottom: 4 }}>
               {isCorrect ? "✓ Correct! 🌸" : "Almost! Here's why 💡"}
             </p>
-            <p style={{ fontSize: 7.5, color: isCorrect ? "#60B080" : "#C4784A", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", color: darkTheme ? (isCorrect ? "#60B080" : "#C4784A") : "rgba(255,255,255,0.80)", lineHeight: 1.5 }}>
               {options[selected].funFact}
             </p>
           </div>
 
           {onContinue && (
             <button onClick={onContinue}
-              className="belly-btn-primary"
               style={{
-                width: "100%", borderRadius: 12, padding: 9,
-                background: darkTheme ? "linear-gradient(145deg, #FF7840, #FFAB80)" : "linear-gradient(145deg, #FF7840, #FFAB80)",
-                color: "white", fontSize: 8.5, fontWeight: 600, border: "none",
-                boxShadow: "0 3px 10px rgba(255,120,64,0.28)",
+                width: "100%", borderRadius: 14, padding: 9,
+                background: darkTheme ? "linear-gradient(145deg, #FF7840, #FFAB80)" : "white",
+                color: darkTheme ? "white" : "#FF6520",
+                fontFamily: "'Outfit', sans-serif",
+                fontSize: 13, fontWeight: 700, border: "none",
               }}>
               {continueLabel}
             </button>

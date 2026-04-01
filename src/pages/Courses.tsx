@@ -104,109 +104,109 @@ const Courses = () => {
 
     return (
       <div className="min-h-screen flex flex-col" style={{ background: "transparent" }}>
-        <div className="flex items-center justify-between px-4 py-3 belly-glass-nav" style={{ borderBottom: "1px solid rgba(255,228,212,0.6)" }}>
+        <div className="flex items-center justify-between px-4 py-3" style={{ background: "rgba(255,140,66,0.65)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
           <button onClick={() => { setSelectedLesson(null); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
-            className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
-          <p className="text-[13px] font-semibold truncate max-w-[180px]" style={{ color: "#2A1200" }}>{course.title}</p>
-          <span className="text-[10px] px-2 py-1 rounded-full belly-badge-glass" style={{ background: "rgba(255,240,232,0.8)", color: "#D4906A" }}>
+            style={{ color: "white", fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: 13 }}>← Back</button>
+          <p className="truncate max-w-[180px]" style={{ color: "white", fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16 }}>{course.title}</p>
+          <span style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", borderRadius: 20, padding: "4px 10px", color: "white", fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: 11 }}>
             Lesson {selectedLesson + 1} of {course.lessonCount}
           </span>
         </div>
-        <div className="px-5 pt-5 pb-6 belly-hero-gradient relative">
-          <p className="text-[9.5px] uppercase tracking-widest mb-1" style={{ color: "rgba(42,18,0,0.5)" }}>LESSON {selectedLesson + 1}</p>
-          <h1 className="font-display text-[22px] font-bold mb-3" style={{ color: "#2A1200" }}>{lesson.title}</h1>
-          <span className="inline-block text-[11px] px-3 py-1 rounded-full mb-3" style={{ background: "rgba(255,255,255,0.35)", color: "#2A1200" }}>{lesson.duration} min read</span>
+        <div className="px-5 pt-5 pb-6 relative">
+          <p style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>LESSON {selectedLesson + 1}</p>
+          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 26, fontWeight: 800, color: "white", marginBottom: 12 }}>{lesson.title}</h1>
+          <span style={{ display: "inline-block", fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, padding: "5px 14px", borderRadius: 20, background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", color: "white", marginBottom: 12 }}>{lesson.duration} min read</span>
           <div className="flex gap-1.5">
             {Array.from({ length: course.lessonCount }, (_, i) => (
               <div key={i} className="w-2 h-2 rounded-full" style={{
-                background: i < selectedLesson ? "rgba(42,18,0,0.4)" : i === selectedLesson ? "white" : "transparent",
+                background: i < selectedLesson ? "rgba(255,255,255,0.70)" : i === selectedLesson ? "white" : "transparent",
                 border: i > selectedLesson ? "1.5px solid rgba(255,255,255,0.6)" : "none"
               }} />
             ))}
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-5 pb-28 space-y-5">
-          <p className="font-display text-[15px] leading-[1.75]" style={{ color: "#2A1200" }}>{lesson.intro}</p>
-          <div className="rounded-r-[12px] p-4" style={{ background: "rgba(255,244,238,0.9)", borderLeft: "3px solid #FFB899" }}>
-            <p className="text-[11px] uppercase tracking-wider mb-2" style={{ color: "#D4906A" }}>What you'll learn</p>
+          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, lineHeight: 1.75, fontWeight: 400, color: "rgba(255,255,255,0.88)" }}>{lesson.intro}</p>
+          <div style={{ background: "rgba(255,255,255,0.20)", border: "1.5px solid rgba(255,255,255,0.32)", borderRadius: 18, padding: "16px 18px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+            <p style={{ fontSize: 10, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>What you'll learn</p>
             <div className="space-y-2">
               {lesson.whatYoullLearn.map((item, i) => (
                 <div key={i} className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#FFB899" }} />
-                  <p className="text-[13px]" style={{ color: "#2A1200" }}>{item}</p>
+                  <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "rgba(255,255,255,0.60)" }} />
+                  <p style={{ fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 400, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>{item}</p>
                 </div>
               ))}
             </div>
           </div>
           {lesson.sections.map((section, i) => (
             <div key={i}>
-              <h2 className="font-display text-[16px] font-bold mb-2" style={{ color: "#2A1200" }}>{section.heading}</h2>
-              <p className="text-[13px] leading-[1.75] mb-3" style={{ color: "#2A1200" }}>{section.body}</p>
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "white", margin: "20px 0 8px" }}>{section.heading}</h2>
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.80)", marginBottom: 12 }}>{section.body}</p>
               {section.tip && (
-                <div className="belly-glass-card rounded-[12px] p-3">
-                  <p className="text-[11px] font-bold mb-1" style={{ color: "#D4906A" }}>💡 Tip:</p>
-                  <p className="text-[12px]" style={{ color: "#2A1200" }}>{section.tip}</p>
+                <div style={{ background: "rgba(255,240,180,0.15)", border: "1px solid rgba(255,220,120,0.25)", borderRadius: 16, padding: "14px 16px" }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "white", marginBottom: 4 }}>💡 Tip:</p>
+                  <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "rgba(255,255,255,0.85)" }}>{section.tip}</p>
                 </div>
               )}
             </div>
           ))}
-          <div className="belly-glass-card rounded-[14px] p-4">
-            <p className="font-display text-[13px] font-bold mb-1" style={{ color: "#2A1200" }}>Did you know? 🌸</p>
-            <p className="text-[12px]" style={{ color: "rgba(42,18,0,0.75)" }}>{lesson.didYouKnow}</p>
+          <div style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", borderRadius: 16, padding: "14px 16px" }}>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 13, fontWeight: 700, color: "white", marginBottom: 4 }}>Did you know? 🌸</p>
+            <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "rgba(255,255,255,0.80)" }}>{lesson.didYouKnow}</p>
           </div>
-          <div className="belly-glass-card rounded-[14px] p-4">
-            <p className="text-[11px] uppercase tracking-wider mb-2" style={{ color: "#D4906A" }}>Reflect 💭</p>
-            <p className="font-display text-[14px] italic mb-3" style={{ color: "#2A1200" }}>{lesson.reflection}</p>
+          <div style={{ background: "rgba(220,200,255,0.12)", border: "1px solid rgba(200,170,255,0.20)", borderRadius: 16, padding: "14px 16px" }}>
+            <p style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.55)", marginBottom: 8 }}>Reflect 💭</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, fontStyle: "italic", color: "white", marginBottom: 12 }}>{lesson.reflection}</p>
             <textarea value={reflectionText} onChange={e => { setReflectionText(e.target.value); setReflectionSaved(false); }}
-              placeholder="Write your thoughts..." className="w-full rounded-[10px] p-3 text-[13px] resize-none min-h-[80px] font-display italic belly-input-focus"
-              style={{ background: "rgba(255,248,245,0.9)", border: "1px solid rgba(255,228,212,0.8)", color: "#2A1200" }} />
+              placeholder="Write your thoughts..." className="w-full resize-none min-h-[80px]"
+              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 10, padding: 12, fontSize: 13, fontFamily: "'Outfit', sans-serif", fontStyle: "italic", color: "white" }} />
             <button disabled={!reflectionText.trim() || reflectionSaved}
               onClick={async () => { await saveReflection(lessonId, reflectionText); setReflectionSaved(true); }}
-              className="mt-2 rounded-[12px] px-5 py-2.5 text-[13px] font-semibold disabled:opacity-50 belly-btn-primary" style={{ background: "#FFB899", color: "#2A1200" }}>
+              className="mt-2 disabled:opacity-50" style={{ borderRadius: 12, padding: "10px 20px", fontSize: 13, fontWeight: 700, background: "white", color: "#FF6520", border: "none" }}>
               Save my reflection 💭
             </button>
-            {reflectionSaved && <p className="text-[12px] mt-1.5" style={{ color: "#A8D4B8" }}>Saved 🌸</p>}
+            {reflectionSaved && <p style={{ fontSize: 12, color: "rgba(200,255,220,0.95)", marginTop: 6 }}>Saved 🌸</p>}
           </div>
           <div>
-            <p className="font-display text-[15px] font-bold mb-3" style={{ color: "#2A1200" }}>Quick check ✓</p>
-            <p className="text-[13px] mb-3" style={{ color: "#2A1200" }}>{lesson.quiz.question}</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 15, fontWeight: 700, color: "white", marginBottom: 12 }}>Quick check ✓</p>
+            <p style={{ fontSize: 13, fontFamily: "'Outfit', sans-serif", color: "white", marginBottom: 12 }}>{lesson.quiz.question}</p>
             <div className="space-y-2">
               {lesson.quiz.options.map((opt, i) => {
                 const isSelected = quizAnswer === i;
                 const isCorrect = i === lesson.quiz.correctIndex;
-                let borderColor = "rgba(255,228,212,0.8)", bg = "rgba(255,255,255,0.75)";
-                if (quizSubmitted && isSelected && isCorrect) { borderColor = "#A8D4B8"; bg = "rgba(240,250,244,0.9)"; }
-                if (quizSubmitted && isSelected && !isCorrect) { borderColor = "#FFB899"; bg = "rgba(255,244,238,0.9)"; }
-                if (quizSubmitted && !isSelected && isCorrect) { borderColor = "#A8D4B8"; bg = "rgba(240,250,244,0.9)"; }
+                let borderColor = "rgba(255,255,255,0.26)", bg = "rgba(255,255,255,0.18)", textColor = "white";
+                if (quizSubmitted && isSelected && isCorrect) { borderColor = "rgba(100,220,130,0.45)"; bg = "rgba(100,220,130,0.25)"; textColor = "rgba(200,255,220,0.95)"; }
+                if (quizSubmitted && isSelected && !isCorrect) { borderColor = "rgba(255,130,130,0.35)"; bg = "rgba(255,100,100,0.20)"; textColor = "rgba(255,200,200,0.95)"; }
+                if (quizSubmitted && !isSelected && isCorrect) { borderColor = "rgba(100,220,130,0.45)"; bg = "rgba(100,220,130,0.25)"; textColor = "rgba(200,255,220,0.95)"; }
                 return (
                   <button key={i} disabled={quizSubmitted}
                     onClick={() => { setQuizAnswer(i); setQuizSubmitted(true); saveQuizAttempt(lessonId, opt, isCorrect); }}
-                    className="w-full text-left rounded-[12px] p-3 text-[13px] transition-all belly-card-interactive"
-                    style={{ background: bg, border: `1.5px solid ${borderColor}`, color: "#2A1200" }}>
+                    className="w-full text-left transition-all"
+                    style={{ background: bg, border: `1.5px solid ${borderColor}`, borderRadius: 12, padding: 12, fontSize: 13, fontFamily: "'Outfit', sans-serif", color: textColor }}>
                     {opt}{quizSubmitted && isCorrect && " ✓"}
                   </button>
                 );
               })}
             </div>
             {quizSubmitted && (
-              <div className="mt-3 belly-glass-card rounded-[12px] p-3">
-                <p className="text-[13px] font-bold mb-1" style={{ color: "#2A1200" }}>{quizAnswer === lesson.quiz.correctIndex ? "Well done! 🌸" : "Almost! Here's why..."}</p>
-                <p className="text-[12px]" style={{ color: "rgba(42,18,0,0.75)" }}>{lesson.quiz.explanation}</p>
+              <div style={{ marginTop: 12, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 12, padding: 12 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 4 }}>{quizAnswer === lesson.quiz.correctIndex ? "Well done! 🌸" : "Almost! Here's why..."}</p>
+                <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "rgba(255,255,255,0.80)" }}>{lesson.quiz.explanation}</p>
               </div>
             )}
           </div>
           <div className="rounded-[14px] p-4" style={{ background: "#2A1200" }}>
             <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "#D4B0A0" }}>Key takeaway</p>
-            <p className="font-display text-[14px] leading-[1.6]" style={{ color: "#FFF4EE" }}>{lesson.keyTakeaway}</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, lineHeight: 1.6, color: "#FFF4EE" }}>{lesson.keyTakeaway}</p>
           </div>
         </div>
-        <div className="fixed bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3 belly-glass-nav" style={{ borderTop: "1px solid rgba(255,228,212,0.6)" }}>
+        <div className="fixed bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3" style={{ background: "rgba(255,140,66,0.65)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.14)" }}>
           {selectedLesson > 0 && (
             <button onClick={() => { setSelectedLesson(selectedLesson - 1); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
-              className="h-11 px-4 rounded-[12px] text-[13px] font-semibold belly-btn-press" style={{ background: "rgba(255,240,232,0.8)", color: "#D4906A" }}>← Previous</button>
+              className="h-11 px-4 rounded-[12px] text-[13px] font-semibold" style={{ background: "rgba(255,255,255,0.20)", color: "white" }}>← Previous</button>
           )}
           <button onClick={handleComplete} disabled={isCompleted}
-            className="flex-1 h-11 rounded-[12px] text-[14px] font-bold disabled:opacity-50 belly-btn-primary" style={{ background: "#FFB899", color: "#2A1200" }}>
+            className="flex-1 h-11 rounded-[12px] text-[14px] font-bold disabled:opacity-50" style={{ background: "white", color: "#FF6520" }}>
             {isCompleted ? "✓ Completed" : isLast ? "Complete course 🌸" : "Complete & continue →"}
           </button>
         </div>
