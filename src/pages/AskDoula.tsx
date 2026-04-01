@@ -212,7 +212,7 @@ const AskDoula = () => {
         {messages.length === 0 && (
           <>
             {/* Welcome hero */}
-            <div className="rounded-[22px] p-[18px_16px] mt-2 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.20)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.32)" }}>
+            <div className="rounded-[22px] p-[18px_16px] mt-2 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.25)", backdropFilter: "blur(16px)", border: "1.5px solid rgba(255,255,255,0.40)", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
               <div className="absolute rounded-full" style={{ right: -10, top: -10, width: 80, height: 80, background: "rgba(255,255,255,0.08)" }} />
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.22)", fontSize: 18 }}>🌸</div>
