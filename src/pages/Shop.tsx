@@ -224,15 +224,15 @@ const Shop = () => {
           <p style={{ color: "rgba(255,255,255,0.60)", fontWeight: 400, fontSize: 12, fontStyle: "italic", fontFamily: "'Outfit', sans-serif" }}>Natural remedies, delivered to you</p>
         </div>
         <button onClick={() => setShowCart(true)} className="relative shrink-0 mt-1"
-          style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,170,130,0.25)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 8px rgba(255,140,90,0.1)" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C85828" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.30)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
             <line x1="3" y1="6" x2="21" y2="6" />
             <path d="M16 10a4 4 0 01-8 0" />
           </svg>
           {cartCount > 0 && (
             <div className="absolute -top-1 -right-1 flex items-center justify-center"
-              style={{ width: 18, height: 18, borderRadius: "50%", background: "linear-gradient(145deg, #FF7840, #FFAB80)", color: "white", fontSize: 9, fontWeight: 700, boxShadow: "0 2px 6px rgba(255,120,64,0.35)", animation: "badgePop 200ms cubic-bezier(0.34,1.56,0.64,1)" }}>
+              style={{ width: 18, height: 18, borderRadius: "50%", background: "white", color: "#FF6520", fontSize: 9, fontWeight: 700, animation: "badgePop 200ms cubic-bezier(0.34,1.56,0.64,1)" }}>
               {cartCount}
             </div>
           )}
