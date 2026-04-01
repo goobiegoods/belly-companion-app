@@ -228,21 +228,17 @@ const AskDoula = () => {
 
             {/* Week context strip */}
             <div className="flex gap-2 mt-3">
-              <div className="flex-1 rounded-[14px] p-[10px_11px]" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)" }}>
-                <span style={{ fontSize: 20, display: "block", marginBottom: 4 }}>🥑</span>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>Week {currentWeek}</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.60)" }}>{fruitName}</p>
-              </div>
-              <div className="flex-1 rounded-[14px] p-[10px_11px]" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)" }}>
-                <span style={{ fontSize: 20, display: "block", marginBottom: 4 }}>🧘</span>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>Your body</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.60)" }}>{topSymptom}</p>
-              </div>
-              <div className="flex-1 rounded-[14px] p-[10px_11px]" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)" }}>
-                <span style={{ fontSize: 20, display: "block", marginBottom: 4 }}>💊</span>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>Top remedy</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.60)" }}>{topRemedy}</p>
-              </div>
+              {[
+                { emoji: "🥑", title: `Week ${currentWeek}`, sub: fruitName },
+                { emoji: "🧘", title: "Your body", sub: topSymptom },
+                { emoji: "🫧", title: "Top remedy", sub: topRemedy },
+              ].map((card) => (
+                <div key={card.title} className="flex-1 rounded-[14px]" style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.32)", padding: "10px 10px 9px", display: "flex", flexDirection: "column" as const, alignItems: "flex-start", gap: 4 }}>
+                  <span style={{ fontSize: 18, marginBottom: 2 }}>{card.emoji}</span>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{card.title}</p>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.62)", lineHeight: 1.3 }}>{card.sub}</p>
+                </div>
+              ))}
             </div>
 
             {/* Prompts */}
