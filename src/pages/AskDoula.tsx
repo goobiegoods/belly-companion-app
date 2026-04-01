@@ -358,8 +358,8 @@ const AskDoula = () => {
           style={{ background: "rgba(255,255,255,0.95)", borderRadius: 28, padding: "11px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.10)" }}>
           <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
             className="shrink-0 flex items-center justify-center"
-            style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.20)" }}>
-            <Camera size={14} style={{ color: "white" }} />
+            style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,120,64,0.12)" }}>
+            <Camera size={14} style={{ color: "#FF6520" }} />
           </button>
           <input
             value={input}
