@@ -220,8 +220,8 @@ const Shop = () => {
     <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
       <div className="px-5 pt-5 pb-1 flex items-start justify-between">
         <div>
-          <h1 className="font-display text-[26px] font-semibold tracking-[-0.5px]" style={{ color: "#C85828" }}>Belly Shop</h1>
-          <p className="text-[12px]" style={{ color: "#D4906A", fontWeight: 400 }}>Natural remedies, delivered to you</p>
+         <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 28, color: "white" }}>Belly Shop</h1>
+          <p style={{ color: "rgba(255,255,255,0.60)", fontWeight: 400, fontSize: 12, fontStyle: "italic", fontFamily: "'Outfit', sans-serif" }}>Natural remedies, delivered to you</p>
         </div>
         <button onClick={() => setShowCart(true)} className="relative shrink-0 mt-1"
           style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,170,130,0.25)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 8px rgba(255,140,90,0.1)" }}>
