@@ -3,6 +3,28 @@ import { getCurrentWeek, getWeekData, getDaysToGo } from "@/data/pregnancyWeeks"
 import { useNavigate } from "react-router-dom";
 import BabySizeIllustration from "@/components/BabySizeIllustration";
 
+const FRUIT_EMOJI_MAP: Record<string, string> = {
+  poppy: "🌺", blueberry: "🫐", raspberry: "🫐", grape: "🍇", olive: "🫒",
+  lime: "🍈", plum: "🍑", lemon: "🍋", orange: "🍊", apple: "🍎",
+  avocado: "🥑", pear: "🍐", mango: "🥭", banana: "🍌", pomegranate: "🍎",
+  papaya: "🍈", cantaloupe: "🍈", coconut: "🥥", cauliflower: "🥦",
+  lettuce: "🥬", cabbage: "🥬", pineapple: "🍍", melon: "🍈",
+  watermelon: "🍉", pumpkin: "🎃", squash: "🎃", cucumber: "🥒",
+  corn: "🌽", eggplant: "🍆", turnip: "🫒", peach: "🍑",
+};
+
+const getFruitEmoji = (babySize: string): string => {
+  const lower = babySize.toLowerCase();
+  for (const [key, emoji] of Object.entries(FRUIT_EMOJI_MAP)) {
+    if (lower.includes(key)) return emoji;
+  }
+  return "🍒";
+};
+
+const C1 = "rgba(255,255,255,0.20)";
+const C1B = "rgba(255,255,255,0.30)";
+const BLUR = "blur(14px)";
+
 const HomePage = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
@@ -13,7 +35,7 @@ const HomePage = () => {
   const progressPercent = (currentWeek / 40) * 100;
 
   const titleCase = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
-  const displayName = titleCase(profile?.first_name || "") || "mama";
+  const displayName = titleCase((profile?.first_name || "").split(" ")[0]) || "mama";
 
   const firstSentence = weekData.developmentHighlight.split(/(?<=\.)\s/)[0] || weekData.developmentHighlight;
 
@@ -29,6 +51,7 @@ const HomePage = () => {
 
   const SUGGESTION_CHIPS = ["Round ligament pain?", "Foods to avoid", "Better sleep", "First kicks", "Anxiety tips"];
   const MOOD_LABELS = ["TIRED", "GOOD", "GLOW", "HANGOVER", "UNWELL"];
+  const fruitEmoji = getFruitEmoji(weekData.babySize);
 
   return (
     <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
@@ -36,7 +59,7 @@ const HomePage = () => {
       <div style={{ position: "absolute", top: 16, left: "50%", transform: "translateX(-46%)", fontFamily: "'Fraunces', serif", fontSize: 90, fontWeight: 900, color: "rgba(255,255,255,0.055)", letterSpacing: -4, pointerEvents: "none", zIndex: 0, userSelect: "none" }}>doula</div>
 
       {/* Header */}
-      <div className="px-5 pt-5 pb-3 flex items-center justify-between relative" style={{ zIndex: 1 }}>
+      <div className="px-5 pt-5 pb-3 flex items-center justify-between relative" style={{ zIndex: 1, borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
         <div className="flex items-center gap-2.5">
           <div className="flex items-center justify-center" style={{ width: 29, height: 29, borderRadius: 9, background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.35)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -49,16 +72,16 @@ const HomePage = () => {
             <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.55)" }}>Virtual Doula</p>
           </div>
         </div>
-        <div className="rounded-full px-3 py-1.5" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+        <div className="rounded-full px-3 py-1.5" style={{ background: C1, border: `1px solid ${C1B}`, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
           <span className="text-xs" style={{ color: "var(--w70)" }}>Hi, {displayName} 🌸</span>
         </div>
       </div>
 
       {/* Hero card */}
-      <div className="px-5 mb-5 relative" style={{ zIndex: 1 }}>
+      <div className="px-5 mb-5 mt-4 relative" style={{ zIndex: 1 }}>
         {/* AI Pill */}
         <div style={{ marginBottom: 8 }}>
-          <span style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", borderRadius: 20, padding: "3px 10px", fontSize: 8, color: "white", fontWeight: 600, display: "inline-block" }}>· AI · ALWAYS HERE FOR YOU ·</span>
+          <span style={{ background: C1, border: `1px solid ${C1B}`, borderRadius: 20, padding: "3px 10px", fontSize: 8, color: "white", fontWeight: 600, display: "inline-block" }}>· AI · ALWAYS HERE FOR YOU ·</span>
         </div>
         <div className="rounded-[22px] p-5 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.22)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.35)" }}>
           <div className="absolute rounded-full" style={{ width: 112, height: 112, top: -32, right: -32, background: "rgba(255,255,255,0.10)" }} />
@@ -73,10 +96,17 @@ const HomePage = () => {
           <div className="h-1.5 rounded" style={{ background: "rgba(255,255,255,0.25)" }}>
             <div className="h-full rounded transition-all" style={{ width: `${progressPercent}%`, background: "rgba(255,255,255,0.6)" }} />
           </div>
+          {/* Input bar */}
+          <div onClick={() => navigate("/ask")} style={{ background: "rgba(255,255,255,0.92)", borderRadius: 14, padding: "11px 14px", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.10)", marginTop: 10, cursor: "pointer" }}>
+            <span style={{ flex: 1, fontFamily: "'Outfit', system-ui", fontSize: 13, fontStyle: "italic", color: "rgba(160,80,20,0.50)" }}>Cramps, sleep, nutrition...</span>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#FF6520", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+          </div>
           {/* Suggestion chips */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
             {SUGGESTION_CHIPS.map(chip => (
-              <button key={chip} onClick={() => navigate("/ask")} style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", borderRadius: 20, padding: "4px 10px", fontSize: 11, color: "white", fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>{chip}</button>
+              <button key={chip} onClick={() => navigate("/ask")} style={{ background: C1, border: `1px solid ${C1B}`, borderRadius: 20, padding: "4px 10px", fontSize: 11, color: "white", fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>{chip}</button>
             ))}
           </div>
         </div>
@@ -84,10 +114,11 @@ const HomePage = () => {
 
       {/* Week card */}
       <div className="px-5 mb-5">
-        <div className="rounded-[16px] p-[14px_16px]" style={{ background: "var(--c1)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid var(--c1-border)" }}>
+        <div className="rounded-[16px] p-[14px_16px] relative" style={{ background: C1, backdropFilter: BLUR, WebkitBackdropFilter: BLUR, border: `1px solid ${C1B}` }}>
+          <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 44, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))" }}>{fruitEmoji}</div>
           <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 18, fontWeight: 600, color: "white" }}>You're in</p>
           <p style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 900, fontStyle: "italic", color: "white", letterSpacing: -1 }}>week {currentWeek}</p>
-          <p className="text-[11px] mt-1" style={{ color: "var(--w70)" }}>{weekData.babySize} — {firstSentence}</p>
+          <p className="text-[11px] mt-1 pr-14" style={{ color: "var(--w70)" }}>{weekData.babySize} — {firstSentence}</p>
           <div className="flex gap-2 mt-3">
             <div className="rounded-full px-3 py-1.5" style={{ background: "rgba(255,255,255,0.25)", border: "1px solid rgba(255,255,255,0.35)" }}>
               <span className="text-[11px] font-medium" style={{ color: "white" }}>{40 - currentWeek} weeks to go</span>
@@ -101,7 +132,7 @@ const HomePage = () => {
 
       {/* Streak banner + milestones */}
       <div className="px-5 mb-5">
-        <div className="rounded-[16px] p-[14px_16px]" style={{ background: "var(--c1)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid var(--c1-border)" }}>
+        <div className="rounded-[16px] p-[14px_16px]" style={{ background: C1, backdropFilter: BLUR, WebkitBackdropFilter: BLUR, border: `1px solid ${C1B}` }}>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full flex items-center justify-center text-[18px]" style={{ background: "rgba(255,255,255,0.2)" }}>
               🔥
@@ -110,7 +141,7 @@ const HomePage = () => {
               <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white" }}>{streakDays}-day streak!</p>
               <p className="text-[11px]" style={{ color: "var(--w70)" }}>Keep checking in daily</p>
             </div>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 52, fontWeight: 900, color: "white", letterSpacing: -3 }}>{streakDays}</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 52, fontWeight: 900, color: "rgba(255,255,240,0.95)", letterSpacing: -3 }}>{streakDays}</p>
           </div>
 
           <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 12, marginBottom: 8, color: "var(--w40)", fontWeight: 600 }}>Journey milestones</p>
@@ -138,7 +169,7 @@ const HomePage = () => {
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "var(--w40)", fontWeight: 600 }}>HOW ARE YOU TODAY</p>
         <div className="flex gap-2 justify-between">
           {MOOD_LABELS.map(mood => (
-            <button key={mood} onClick={() => navigate("/journal")} className="belly-btn-press" style={{ flex: 1, background: "var(--c1)", border: "1px solid var(--c1-border)", borderRadius: 14, padding: "10px 4px", textAlign: "center" }}>
+            <button key={mood} onClick={() => navigate("/journal")} className="belly-btn-press" style={{ flex: 1, background: C1, border: `1px solid ${C1B}`, borderRadius: 14, padding: "10px 4px", textAlign: "center" }}>
               <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, color: "white", textTransform: "uppercase", letterSpacing: "0.05em" }}>{mood}</span>
             </button>
           ))}
@@ -149,17 +180,17 @@ const HomePage = () => {
       <div className="mb-5">
         <p className="px-5" style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "var(--w40)", fontWeight: 600 }}>THIS WEEK</p>
         <div className="flex gap-3 px-5 overflow-x-auto hide-scrollbar">
-          <div className="min-w-[130px] rounded-[14px] p-3 belly-card-interactive" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+          <div className="min-w-[130px] rounded-[14px] p-3 belly-card-interactive" style={{ background: C1, border: `1px solid ${C1B}`, backdropFilter: BLUR, WebkitBackdropFilter: BLUR }}>
             <p className="text-lg mb-1">👶</p>
             <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>Baby size</p>
             <p className="text-[11px]" style={{ color: "var(--w70)" }}>{weekData.babySize}</p>
           </div>
-          <div className="min-w-[130px] rounded-[14px] p-3 belly-card-interactive" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+          <div className="min-w-[130px] rounded-[14px] p-3 belly-card-interactive" style={{ background: C1, border: `1px solid ${C1B}`, backdropFilter: BLUR, WebkitBackdropFilter: BLUR }}>
             <p className="text-lg mb-1">🤰</p>
             <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>Your body</p>
             <p className="text-[11px]" style={{ color: "var(--w70)" }}>{weekData.momSymptoms[0]}</p>
           </div>
-          <div className="min-w-[130px] rounded-[14px] p-3 belly-card-interactive" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+          <div className="min-w-[130px] rounded-[14px] p-3 belly-card-interactive" style={{ background: C1, border: `1px solid ${C1B}`, backdropFilter: BLUR, WebkitBackdropFilter: BLUR }}>
             <p className="text-lg mb-1">💡</p>
             <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>Tip of the day</p>
             <p className="text-[11px] line-clamp-2" style={{ color: "var(--w70)" }}>{weekData.naturalTip.split(/(?<=\.)\s/)[0]}</p>
@@ -172,7 +203,7 @@ const HomePage = () => {
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "var(--w40)", fontWeight: 600 }}>YOUR JOURNEY</p>
         <div className="space-y-3">
           <button onClick={() => navigate("/ask")} className="w-full rounded-[17px] p-4 flex items-center gap-3 belly-card-interactive text-left"
-            style={{ background: "var(--c1)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid var(--c1-border)" }}>
+            style={{ background: C1, backdropFilter: BLUR, WebkitBackdropFilter: BLUR, border: `1px solid ${C1B}` }}>
             <div className="w-10 h-10 rounded-[9px] flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.18)", border: "0.5px solid rgba(255,255,255,0.28)" }}>
               <span className="text-lg">💬</span>
             </div>
@@ -184,7 +215,7 @@ const HomePage = () => {
           </button>
 
           <button onClick={() => navigate("/courses")} className="w-full rounded-[17px] p-4 flex items-center gap-3 belly-card-interactive text-left"
-            style={{ background: "var(--c1)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid var(--c1-border)" }}>
+            style={{ background: C1, backdropFilter: BLUR, WebkitBackdropFilter: BLUR, border: `1px solid ${C1B}` }}>
             <div className="w-10 h-10 rounded-[9px] flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.18)", border: "0.5px solid rgba(255,255,255,0.28)" }}>
               <span className="text-lg">📚</span>
             </div>
@@ -199,7 +230,7 @@ const HomePage = () => {
       {/* Daily check-in */}
       <div className="px-5 mb-5">
         <button onClick={() => navigate("/journal")} className="w-full rounded-[17px] p-4 belly-card-interactive text-left"
-          style={{ background: "var(--c1)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid var(--c1-border)" }}>
+          style={{ background: C1, backdropFilter: BLUR, WebkitBackdropFilter: BLUR, border: `1px solid ${C1B}` }}>
           <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "white", marginBottom: 2 }}>How are you feeling today?</p>
           <p className="text-[11px]" style={{ color: "var(--w70)" }}>Tap to log your daily check-in</p>
         </button>
@@ -208,7 +239,7 @@ const HomePage = () => {
       {/* Can't Sleep entry */}
       <div className="px-5 mb-5">
         <button onClick={() => navigate("/cant-sleep")} className="w-full rounded-[16px] p-[12px_14px] flex items-center gap-3 belly-card-interactive text-left"
-          style={{ background: "var(--c2)", border: "1px solid var(--c2-border)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+          style={{ background: "var(--c2)", border: "1px solid var(--c2-border)", backdropFilter: BLUR, WebkitBackdropFilter: BLUR }}>
           <div className="w-[30px] h-[30px] rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.18)" }}>
             <span>🌙</span>
           </div>
