@@ -70,18 +70,18 @@ const Courses = () => {
   if (showCompletion && selectedCourse) {
     const course = coursesData.find(c => c.id === selectedCourse)!;
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 belly-hero-gradient">
-        <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6" style={{ boxShadow: "0 4px 20px rgba(42,18,0,0.1)" }}>
-          <Check size={36} style={{ color: "#D4906A" }} />
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "transparent" }}>
+        <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6" style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
+          <Check size={36} style={{ color: "#FF6520" }} />
         </div>
-        <h1 className="font-display text-[28px] font-bold mb-2" style={{ color: "#2A1200" }}>Course complete! 🌸</h1>
-        <p className="font-display text-[15px] mb-1" style={{ color: "#2A1200" }}>{course.title}</p>
-        <p className="text-[13px] mb-2" style={{ color: "rgba(42,18,0,0.6)" }}>{course.lessonCount} lessons · {course.duration} min</p>
-        <p className="font-display text-[15px] italic text-center mb-8" style={{ color: "rgba(42,18,0,0.7)" }}>
+        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 800, color: "white", marginBottom: 8 }}>Course complete! 🌸</h1>
+        <p style={{ fontFamily: "'Fraunces', serif", fontSize: 15, color: "white", marginBottom: 4 }}>{course.title}</p>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.60)", marginBottom: 8 }}>{course.lessonCount} lessons · {course.duration} min</p>
+        <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, fontStyle: "italic", color: "rgba(255,255,255,0.70)", textAlign: "center", marginBottom: 32 }}>
           You've taken a beautiful step on your pregnancy journey. Be proud of yourself, mama. 🌸
         </p>
         <button onClick={() => { setShowCompletion(false); setSelectedCourse(null); setSelectedLesson(null); }}
-          className="w-full max-w-xs h-12 rounded-[14px] bg-white text-[14px] font-bold mb-3 belly-btn-primary" style={{ color: "#2A1200" }}>
+          className="w-full max-w-xs h-12 rounded-[14px] text-[14px] font-bold mb-3 belly-btn-primary" style={{ background: "white", color: "#FF6520" }}>
           Back to courses
         </button>
       </div>
