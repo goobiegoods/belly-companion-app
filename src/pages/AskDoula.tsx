@@ -348,9 +348,10 @@ const AskDoula = () => {
       )}
 
       {/* Input bar */}
-      <div className="px-4 py-3" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+      <style>{`@keyframes sendGlow { 0%,100% { box-shadow: 0 2px 8px rgba(255,255,255,0.3); } 50% { box-shadow: 0 4px 20px rgba(255,255,255,0.6); } }`}</style>
+      <div style={{ margin: "8px 16px 6px", background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)" }}>
         <div className="flex items-center gap-2"
-          style={{ background: "var(--input-bg)", borderRadius: 28, padding: "4px 6px 4px 12px" }}>
+          style={{ background: "rgba(255,255,255,0.95)", borderRadius: 28, padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}>
           <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
             className="shrink-0 flex items-center justify-center"
             style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,120,64,0.15)" }}>
