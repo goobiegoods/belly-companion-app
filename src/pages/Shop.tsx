@@ -220,19 +220,19 @@ const Shop = () => {
     <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
       <div className="px-5 pt-5 pb-1 flex items-start justify-between">
         <div>
-          <h1 className="font-display text-[26px] font-semibold tracking-[-0.5px]" style={{ color: "#C85828" }}>Belly Shop</h1>
-          <p className="text-[12px]" style={{ color: "#D4906A", fontWeight: 400 }}>Natural remedies, delivered to you</p>
+         <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 28, color: "white" }}>Belly Shop</h1>
+          <p style={{ color: "rgba(255,255,255,0.60)", fontWeight: 400, fontSize: 12, fontStyle: "italic", fontFamily: "'Outfit', sans-serif" }}>Natural remedies, delivered to you</p>
         </div>
         <button onClick={() => setShowCart(true)} className="relative shrink-0 mt-1"
-          style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.8)", border: "0.5px solid rgba(255,170,130,0.25)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 8px rgba(255,140,90,0.1)" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C85828" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.30)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
             <line x1="3" y1="6" x2="21" y2="6" />
             <path d="M16 10a4 4 0 01-8 0" />
           </svg>
           {cartCount > 0 && (
             <div className="absolute -top-1 -right-1 flex items-center justify-center"
-              style={{ width: 18, height: 18, borderRadius: "50%", background: "linear-gradient(145deg, #FF7840, #FFAB80)", color: "white", fontSize: 9, fontWeight: 700, boxShadow: "0 2px 6px rgba(255,120,64,0.35)", animation: "badgePop 200ms cubic-bezier(0.34,1.56,0.64,1)" }}>
+              style={{ width: 18, height: 18, borderRadius: "50%", background: "white", color: "#FF6520", fontSize: 9, fontWeight: 700, animation: "badgePop 200ms cubic-bezier(0.34,1.56,0.64,1)" }}>
               {cartCount}
             </div>
           )}
@@ -241,12 +241,16 @@ const Shop = () => {
       <div className="flex gap-2 px-5 my-3">
         {(["remedies", "learn"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className="rounded-full px-4 py-1.5 text-[12px] capitalize transition-all belly-btn-press"
+            className="capitalize transition-all belly-btn-press"
             style={{
-              background: tab === t ? "linear-gradient(135deg, #FF7840, #FFA070)" : "rgba(255,255,255,0.7)",
-              color: tab === t ? "white" : "#C4784A",
-              fontWeight: tab === t ? 600 : 500,
-              border: tab === t ? "none" : "0.5px solid rgba(255,170,130,0.3)"
+              background: tab === t ? "white" : "rgba(255,255,255,0.18)",
+              color: tab === t ? "#FF6520" : "rgba(255,255,255,0.78)",
+              fontWeight: tab === t ? 700 : 500,
+              fontSize: 13,
+              borderRadius: 20,
+              padding: "6px 18px",
+              border: tab === t ? "none" : "1px solid rgba(255,255,255,0.26)",
+              fontFamily: "'Outfit', sans-serif",
             }}>{t}</button>
         ))}
       </div>
@@ -256,77 +260,77 @@ const Shop = () => {
           <div className="mx-4 mb-4 p-5 rounded-[20px] belly-hero-gradient relative overflow-hidden">
             <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: "rgba(255,255,255,0.10)" }} />
             <div className="absolute left-8 bottom-[-15px] w-16 h-16 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
-            <p className="text-[9.5px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.6)" }}>CURATED FOR PREGNANCY</p>
-            <h2 className="font-display text-[20px] font-semibold mb-1" style={{ color: "#FFF9F6" }}>Natural support for every trimester</h2>
-            <p className="text-[12px] mb-3" style={{ color: "rgba(255,255,255,0.7)", fontWeight: 400 }}>Homeopathic remedies + herbal teas, carefully selected for pregnancy safety</p>
+            <p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.11em", marginBottom: 4, color: "rgba(255,255,255,0.60)", fontFamily: "'Outfit', sans-serif" }}>CURATED FOR PREGNANCY</p>
+            <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 22, color: "white", marginBottom: 4 }}>Natural support for every trimester</h2>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", fontWeight: 400, marginBottom: 12, fontFamily: "'Outfit', sans-serif" }}>Homeopathic remedies + herbal teas, carefully selected for pregnancy safety</p>
             <button onClick={() => document.getElementById('remedy-kits')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-block text-[11px] px-3 py-1.5 rounded-full font-semibold" style={{ background: "rgba(255,255,255,0.25)", color: "#FFF9F6", border: "none", cursor: "pointer" }}>Shop all →</button>
+              style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.35)", color: "white", fontSize: 12, fontWeight: 600, borderRadius: 20, padding: "5px 14px", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Shop all →</button>
           </div>
 
-          <p id="remedy-kits" className="px-5 text-[10px] uppercase tracking-[0.11em] mb-2 font-semibold" style={{ color: "rgba(200,88,40,0.4)" }}>Remedy kits</p>
+          <p id="remedy-kits" style={{ padding: "0 20px", fontSize: 10, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontFamily: "'Outfit', sans-serif" }}>Remedy kits</p>
           <div className="flex gap-3 px-4 overflow-x-auto hide-scrollbar mb-5" style={{ paddingRight: 32 }}>
             {kits.map(kit => (
               <div key={kit.id} className="min-w-[180px] shrink-0 belly-card-interactive overflow-hidden"
-                style={{ background: "rgba(255,255,255,0.75)", border: "0.5px solid rgba(255,170,130,0.2)", borderRadius: 18, backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", boxShadow: "0 4px 16px rgba(255,140,90,0.08)" }}>
-                <div className="flex items-center justify-center" style={{ height: 72, background: "linear-gradient(135deg, #FF9F6B, #FFCDB4)" }}>
-                  <span className="text-[32px]">{kit.emoji}</span>
+                style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", borderRadius: 20, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
+                <div className="flex items-center justify-center" style={{ height: 80, background: "rgba(255,255,255,0.14)" }}>
+                  <span style={{ fontSize: 36 }}>{kit.emoji}</span>
                 </div>
                 <div className="p-3">
-                  {kit.tag && <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold mb-1 inline-block" style={{ background: "rgba(255,184,153,0.25)", color: "#C4622A" }}>{kit.tag}</span>}
-                  <p className="font-display text-[13px] font-semibold" style={{ color: "#A84E28" }}>{kit.name}</p>
-                  <p className="text-[11px] my-1" style={{ color: "#C4906A", fontWeight: 400 }}>{kit.description}</p>
-                  {kit.contents?.map((c, i) => <p key={i} className="text-[10px]" style={{ color: "#D4B098" }}>{c}</p>)}
-                  <p className="font-display text-[16px] font-semibold mt-2" style={{ color: "#A84E28" }}>${kit.price}</p>
-                  <button onClick={() => addToCart(kit)} className="w-full mt-2 rounded-[10px] py-2 text-[11px] font-semibold belly-btn-primary" style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>Add to cart →</button>
+                  {kit.tag && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 8, background: "rgba(255,255,255,0.22)", color: "white", display: "inline-block", marginBottom: 4, fontFamily: "'Outfit', sans-serif" }}>{kit.tag}</span>}
+                  <p style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 15, color: "white" }}>{kit.name}</p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.68)", fontWeight: 400, margin: "4px 0", fontFamily: "'Outfit', sans-serif" }}>{kit.description}</p>
+                  {kit.contents?.map((c, i) => <p key={i} style={{ fontSize: 10, color: "rgba(255,255,255,0.52)", fontFamily: "'Outfit', sans-serif" }}>{c}</p>)}
+                  <p style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 20, color: "white", marginTop: 8 }}>${kit.price}</p>
+                  <button onClick={() => addToCart(kit)} className="w-full belly-btn-press" style={{ marginTop: 8, borderRadius: 14, padding: "8px 0", fontSize: 13, fontWeight: 700, background: "white", color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Add to cart →</button>
                 </div>
               </div>
             ))}
           </div>
 
-          <p className="px-5 text-[10px] uppercase tracking-[0.11em] mb-2 font-semibold" style={{ color: "rgba(200,88,40,0.4)" }}>Individual remedies</p>
+          <p style={{ padding: "0 20px", fontSize: 10, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontFamily: "'Outfit', sans-serif" }}>Individual remedies</p>
           <div className="px-5 space-y-2 mb-5">
             {remedies.map(rem => (
               <div key={rem.id} className="flex items-center gap-3 belly-card-interactive"
-                style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", borderRadius: 16, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", padding: "13px 15px" }}>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[18px] shrink-0" style={{ background: "rgba(255,210,185,0.6)" }}>{rem.emoji}</div>
+                style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 16, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", padding: "13px 15px" }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[18px] shrink-0" style={{ background: "rgba(255,255,255,0.20)" }}>{rem.emoji}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{rem.name}</p>
-                  {rem.brand && <p className="text-[10px]" style={{ color: "rgba(180,100,60,0.38)" }}>{rem.brand}</p>}
-                  <p className="text-[11px]" style={{ color: "#C4906A", fontWeight: 400 }}>{rem.use}</p>
-                  {rem.safe && <p className="text-[10px] mt-0.5" style={{ color: "#40A060" }}>✓ Pregnancy safe</p>}
-                  {rem.tag && <span className="text-[10px] px-2 py-0.5 rounded-full inline-block mt-0.5" style={{ background: "rgba(255,184,153,0.25)", color: "#C4622A" }}>{rem.tag}</span>}
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "white", fontFamily: "'Outfit', sans-serif" }}>{rem.name}</p>
+                  {rem.brand && <p style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontFamily: "'Outfit', sans-serif" }}>{rem.brand}</p>}
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{rem.use}</p>
+                  {rem.safe && <p style={{ fontSize: 10, marginTop: 2, color: "rgba(200,255,220,0.70)", fontWeight: 600, fontFamily: "'Outfit', sans-serif" }}>✓ Pregnancy safe</p>}
+                  {rem.tag && <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, display: "inline-block", marginTop: 2, background: "rgba(255,255,255,0.18)", color: "white", fontFamily: "'Outfit', sans-serif" }}>{rem.tag}</span>}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-display text-[14px] font-semibold" style={{ color: "#A84E28" }}>${rem.price}</p>
-                  {rem.unit && <p className="text-[9px]" style={{ color: "rgba(180,100,60,0.38)" }}>{rem.unit}</p>}
-                  <button onClick={() => addToCart(rem)} className="mt-1 rounded-[16px] px-3 py-1 text-[10px] font-semibold belly-btn-primary" style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>Add</button>
+                  <p style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16, color: "white" }}>${rem.price}</p>
+                  {rem.unit && <p style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{rem.unit}</p>}
+                  <button onClick={() => addToCart(rem)} className="belly-btn-press" style={{ marginTop: 4, borderRadius: 16, padding: "4px 12px", fontSize: 10, fontWeight: 700, background: "white", color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Add</button>
                 </div>
               </div>
             ))}
           </div>
 
-          <p className="px-5 text-[10px] uppercase tracking-[0.11em] mb-2 font-semibold" style={{ color: "rgba(200,88,40,0.4)" }}>Herbal teas</p>
+          <p style={{ padding: "0 20px", fontSize: 10, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontFamily: "'Outfit', sans-serif" }}>Herbal teas</p>
           <div className="px-5 space-y-2 mb-5">
             {teas.map(tea => (
               <div key={tea.id} className="flex items-center gap-3 belly-card-interactive"
-                style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", borderRadius: 16, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", padding: "13px 15px" }}>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[18px] shrink-0" style={{ background: "rgba(255,210,185,0.6)" }}>{tea.emoji}</div>
+                style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 16, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", padding: "13px 15px" }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[18px] shrink-0" style={{ background: "rgba(255,255,255,0.20)" }}>{tea.emoji}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{tea.name}</p>
-                  <p className="text-[11px]" style={{ color: "#C4906A", fontWeight: 400 }}>{tea.use}</p>
-                  {tea.tag && <span className="text-[10px] px-2 py-0.5 rounded-full inline-block mt-0.5" style={{ background: "rgba(255,184,153,0.25)", color: "#C4622A" }}>{tea.tag}</span>}
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "white", fontFamily: "'Outfit', sans-serif" }}>{tea.name}</p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{tea.use}</p>
+                  {tea.tag && <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, display: "inline-block", marginTop: 2, background: "rgba(255,255,255,0.18)", color: "white", fontFamily: "'Outfit', sans-serif" }}>{tea.tag}</span>}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-display text-[14px] font-semibold" style={{ color: "#A84E28" }}>${tea.price}</p>
-                  {tea.unit && <p className="text-[9px]" style={{ color: "rgba(180,100,60,0.38)" }}>{tea.unit}</p>}
-                  <button onClick={() => addToCart(tea)} className="mt-1 rounded-[16px] px-3 py-1 text-[10px] font-semibold belly-btn-primary" style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>Add</button>
+                  <p style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16, color: "white" }}>${tea.price}</p>
+                  {tea.unit && <p style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{tea.unit}</p>}
+                  <button onClick={() => addToCart(tea)} className="belly-btn-press" style={{ marginTop: 4, borderRadius: 16, padding: "4px 12px", fontSize: 10, fontWeight: 700, background: "white", color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Add</button>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mx-5 mb-5 rounded-[12px] p-3" style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", backdropFilter: "blur(12px)" }}>
-            <p className="text-[10px]" style={{ color: "rgba(180,100,60,0.38)" }}>{SHOP_DISCLAIMER}</p>
+          <div className="mx-5 mb-5 rounded-[12px] p-3" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)" }}>
+            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", fontFamily: "'Outfit', sans-serif" }}>{SHOP_DISCLAIMER}</p>
           </div>
         </>
       ) : (
@@ -334,9 +338,9 @@ const Shop = () => {
           <div className="mx-4 mb-4 p-5 rounded-[20px] belly-hero-gradient relative overflow-hidden">
             <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: "rgba(255,255,255,0.10)" }} />
             <div className="absolute left-8 bottom-[-15px] w-16 h-16 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
-            <p className="text-[9.5px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.6)" }}>INTRO TO HOMEOPATHY</p>
-            <h2 className="font-display text-[20px] font-semibold mb-1" style={{ color: "#FFF9F6" }}>Learn the gentle art of natural healing</h2>
-            <p className="text-[12px]" style={{ color: "rgba(255,255,255,0.7)", fontWeight: 400 }}>Evidence-informed courses on using homeopathic remedies safely during pregnancy</p>
+            <p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.11em", marginBottom: 4, color: "rgba(255,255,255,0.60)", fontFamily: "'Outfit', sans-serif" }}>INTRO TO HOMEOPATHY</p>
+            <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 22, color: "white", marginBottom: 4 }}>Learn the gentle art of natural healing</h2>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>Evidence-informed courses on using homeopathic remedies safely during pregnancy</p>
           </div>
           <div className="px-5 space-y-3 mb-5">
             {homeopathyCourses.map(course => {
@@ -346,39 +350,39 @@ const Shop = () => {
               return (
                 <button key={course.id} onClick={() => !isLocked && setSelectedCourse(course.id)}
                   className="w-full text-left belly-card-interactive"
-                  style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", borderRadius: 18, backdropFilter: "blur(12px)", opacity: isLocked ? 0.5 : 1 }}>
+                  style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 18, backdropFilter: "blur(14px)", opacity: isLocked ? 0.5 : 1 }}>
                   <div className="flex items-start gap-3 p-[14px_16px_10px]">
-                    <div className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center shrink-0 text-[22px]" style={{ background: "rgba(255,210,185,0.6)" }}>
-                      {isLocked ? <Lock size={18} style={{ color: "rgba(180,100,60,0.38)" }} /> : course.emoji}
+                    <div className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center shrink-0 text-[22px]" style={{ background: "rgba(255,255,255,0.20)" }}>
+                      {isLocked ? <Lock size={18} style={{ color: "rgba(255,255,255,0.40)" }} /> : course.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{course.title}</p>
-                      <p className="text-[10.5px]" style={{ color: "rgba(180,100,60,0.38)" }}>{course.lessonCount} lessons · {course.duration} min</p>
-                      <p className="text-[11px] mt-1 line-clamp-2" style={{ color: "#C4906A", fontWeight: 400 }}>{course.description}</p>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: "'Outfit', sans-serif" }}>{course.title}</p>
+                      <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{course.lessonCount} lessons · {course.duration} min</p>
+                      <p className="line-clamp-2" style={{ fontSize: 11, marginTop: 4, color: "rgba(255,255,255,0.65)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{course.description}</p>
                     </div>
-                    <span className="text-[12px] font-semibold shrink-0 mt-2" style={{ color: "#C4906A" }}>
-                      {isLocked ? <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: "rgba(255,200,170,0.25)", border: "0.5px solid rgba(255,170,130,0.3)", color: "#D4906A" }}>🔒 Premium</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, flexShrink: 0, marginTop: 8, color: "rgba(255,255,255,0.70)", fontFamily: "'Outfit', sans-serif" }}>
+                      {isLocked ? <span style={{ fontSize: 10, padding: "4px 8px", borderRadius: 12, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", color: "white" }}>🔒 Premium</span>
                         : courseCompletions > 0 ? "Continue →" : "Start →"}
                     </span>
                   </div>
                   {courseCompletions > 0 && !isLocked && (
                     <div className="px-4 pb-2">
-                      <div className="h-1 rounded-full" style={{ background: "rgba(255,240,232,0.8)" }}>
-                        <div className="h-full rounded-full transition-all" style={{ width: `${progress * 100}%`, background: "linear-gradient(135deg, #FF7840, #FFA070)" }} />
+                      <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }}>
+                        <div className="h-full rounded-full transition-all" style={{ width: `${progress * 100}%`, background: "rgba(255,255,255,0.60)" }} />
                       </div>
                     </div>
                   )}
                   <div className="flex flex-wrap gap-1.5 px-4 pb-3">
                     {course.tags.map(tag => (
-                      <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,200,170,0.25)", border: "0.5px solid rgba(255,170,130,0.3)", color: "#D4906A" }}>{tag}</span>
+                      <span key={tag} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", color: "rgba(255,255,255,0.70)", fontFamily: "'Outfit', sans-serif" }}>{tag}</span>
                     ))}
                   </div>
                 </button>
               );
             })}
           </div>
-          <div className="mx-5 mb-5 rounded-[12px] p-3" style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", backdropFilter: "blur(12px)" }}>
-            <p className="text-[10px]" style={{ color: "rgba(180,100,60,0.38)" }}>{SHOP_DISCLAIMER}</p>
+          <div className="mx-5 mb-5 rounded-[12px] p-3" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)" }}>
+            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", fontFamily: "'Outfit', sans-serif" }}>{SHOP_DISCLAIMER}</p>
           </div>
         </>
       )}
