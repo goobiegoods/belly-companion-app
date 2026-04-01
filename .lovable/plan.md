@@ -1,27 +1,44 @@
 
 
-# Fix AskDoula.tsx — 6 Targeted Visual Fixes
+# Fix Profile.tsx — 9 Visual Updates
 
-## Changes — `src/pages/AskDoula.tsx` only
+## Changes — `src/pages/Profile.tsx` only
 
-### Fix 1 — Hero Card: More contrast
-Line 215: Update background to `rgba(255,255,255,0.25)`, border to `1.5px solid rgba(255,255,255,0.40)`, add `backdropFilter: "blur(16px)"`, `boxShadow: "0 4px 20px rgba(0,0,0,0.06)"`.
+### 1. Name Casing
+Replace `titleCase` (line 28) with a `formatName` that splits on spaces and title-cases each word. Use it on line 56 for the hero name display.
 
-### Fix 2 — Context Strip: Layout + emoji
-Lines 230-245: Update each card to `rgba(255,255,255,0.22)` bg, `rgba(255,255,255,0.32)` border, `padding: "10px 10px 9px"`, add `display: "flex"`, `flexDirection: "column"`, `alignItems: "flex-start"`, `gap: 4`. Emoji → 18px, marginBottom 2. Title → 10px 700 white lineHeight 1.2. Sub → 8px 400 `rgba(255,255,255,0.62)` lineHeight 1.3. Replace 💊 with 🫧 on card 3.
+### 2. Topbar
+Add a topbar div above the hero card with "Settings" text link on the right side. Outfit 500 13px `rgba(255,255,255,0.60)`. On tap, call `setEditing(true)` (since there's no settings route — reuse edit mode).
 
-### Fix 3 — Suggested Prompts: More contrast
-Lines 250-264: Prompt cards → `rgba(255,255,255,0.24)` bg, `1.5px solid rgba(255,255,255,0.38)` border, `borderRadius: 16px`, `padding: "13px 14px"`, `boxShadow: "0 2px 8px rgba(0,0,0,0.06)"`. Text → 13px. Camera card → `rgba(255,255,255,0.20)` bg, `1.5px solid rgba(255,255,255,0.30)` border, `borderRadius: 16px`, `padding: "13px 14px"`, flex row with gap 8, icon 16px, text 13px.
+### 3. Avatar
+Line 52-55: Update circle to 76px, `boxShadow: "0 0 0 4px rgba(255,255,255,0.28), 0 0 0 8px rgba(255,255,255,0.10)"`. Initial letter: Fraunces 700 30px `#FF6520`.
 
-### Fix 4 — Ambient card below prompts
-Insert after the camera card button (line 264), before `</>`: a new card that shows only when `messages.length === 0`. Background `rgba(255,255,255,0.10)`, border `rgba(255,255,255,0.16)`, borderRadius 16px, padding 14px 16px, textAlign center. Content: 🌸 at 22px, "I'm here whenever you need me, mama." italic 12px `rgba(255,255,255,0.55)`, sub "Available 24/7 · Natural guidance only" 10px `rgba(255,255,255,0.35)`.
+### 4. Name + Sub
+- Name (line 56): Fraunces 700 **26px** white, `letterSpacing: "-0.3px"`
+- Sub (line 57-58): Outfit 400 **12px** `rgba(255,255,255,0.55)`
+- Pregnancy badge (line 60-63): `rgba(255,255,255,0.20)` bg, `rgba(255,255,255,0.30)` border, `borderRadius: 20px`, `padding: "4px 14px"`, Outfit **600 11px** white
 
-### Fix 5 — Topbar: White text
-Lines 198-208: Update topbar bg to `rgba(255,140,66,0.60)`. "← Home" button → color white, fontWeight 600, fontSize 13. Title → Fraunces 700 18px white. Subtitle → `rgba(255,255,255,0.55)` Outfit 400 11px. Keep border-bottom and backdrop-filter.
+### 5. Stats Row
+Line 74: bg `rgba(255,255,255,0.18)`, border `rgba(255,255,255,0.26)`, `borderRadius: 16px`
+Line 75: Fraunces 900 **28px** white `letterSpacing: -1`
+Line 76: Outfit 600 **8px** `rgba(255,255,255,0.45)` uppercase
 
-### Fix 6 — Input Bar: Polish
-Lines 351-381: Outer wrapper → `background: "rgba(255,255,255,0.15)"`, `borderTop: "1px solid rgba(255,255,255,0.18)"`, `padding: "10px 16px 14px"`, `backdropFilter: "blur(16px)"`, remove margin. Input container → `boxShadow: "0 4px 20px rgba(0,0,0,0.10)"`. Placeholder color → `rgba(160,80,20,0.45)`. Send button → 32px circle, `boxShadow: "0 2px 10px rgba(255,80,20,0.35)"`. Camera icon → make it white on orange bg (change color to white, background to `rgba(255,255,255,0.20)`).
+### 6. Achievement Badges
+- Section label (line 83): color `rgba(255,255,255,0.50)`
+- Earned cards (line 86-87): `rgba(255,255,255,0.22)` bg, `rgba(255,255,255,0.34)` border, `borderRadius: 14px`, `padding: "10px 8px"`
+- Emoji: fontSize **22px**, marginBottom 4
+- Label: Outfit **600 9px** white
+- Locked: opacity **0.25**
+
+### 7. Menu Items
+Lines 117-131: Wrap each row in individual glass cards instead of a single card with dividers. Each: `rgba(255,255,255,0.16)` bg, `rgba(255,255,255,0.22)` border, `borderRadius: 16px`, `padding: "13px 14px"`. Icon circle: **38px**, `rgba(255,255,255,0.20)` bg, `rgba(255,255,255,0.28)` border, emoji **18px**. Title: Outfit 600 14px white. Chevron: `rgba(255,255,255,0.35)` 14px.
+
+### 8. Upgrade Card
+Lines 143-156: Update to `rgba(255,255,255,0.24)` bg, `1.5px solid rgba(255,255,255,0.40)` border, `borderRadius: 20px`, `padding: "15px 14px"`. Add ⭐ circle 40px `rgba(255,255,255,0.25)` bg. Title: Fraunces 700 **18px**. Sub: `rgba(255,255,255,0.62)` Outfit 400 11px. "Go Pro" button: white bg, `#FF6520` text, Outfit 700 13px, borderRadius 20px, padding `8px 18px`, boxShadow `0 3px 12px rgba(0,0,0,0.10)`.
+
+### 9. Section Labels
+All section labels ("MY ACHIEVEMENTS", "MY JOURNEY", "PREMIUM", "ACCOUNT"): color `rgba(255,255,255,0.50)`.
 
 ## File
-- `src/pages/AskDoula.tsx` — all 6 fixes inline, no other files
+- `src/pages/Profile.tsx` — all 9 fixes inline, no other files
 
