@@ -38,11 +38,11 @@ const SEEDED_POSTS: Post[] = [
   { id: "seed-16", user_id: "", title: "Grieving my pre-pregnancy body and feeling ashamed of that", body: "I love this baby more than I can say. And I also miss feeling like myself in my body.", category: "support", week_posted: 20, likes: 88, created_at: new Date(Date.now() - 86400000 * 8).toISOString(), author_name: "Mia", comment_count: 13, is_liked: false },
 ];
 
-const CATEGORY_STYLES: Record<string, { bg: string; text: string; ring: string; avatarBg: string }> = {
-  question: { bg: "rgba(255,255,255,0.15)", text: "white", ring: "rgba(255,255,255,0.25)", avatarBg: "rgba(255,255,255,0.2)" },
-  story: { bg: "rgba(255,255,255,0.15)", text: "white", ring: "rgba(255,255,255,0.25)", avatarBg: "rgba(255,255,255,0.2)" },
-  tip: { bg: "rgba(255,255,255,0.15)", text: "white", ring: "rgba(255,255,255,0.25)", avatarBg: "rgba(255,255,255,0.2)" },
-  support: { bg: "rgba(255,255,255,0.15)", text: "white", ring: "rgba(255,255,255,0.25)", avatarBg: "rgba(255,255,255,0.2)" },
+const CATEGORY_PILL_COLORS: Record<string, string> = {
+  question: "rgba(255,255,255,0.20)",
+  tip: "rgba(200,255,220,0.20)",
+  story: "rgba(220,200,255,0.20)",
+  support: "rgba(255,255,200,0.20)",
 };
 
 const titleCase = (s: string) => s?.split(' ').map(w => w[0]?.toUpperCase() + w.slice(1).toLowerCase()).join(' ') || '';
@@ -182,7 +182,10 @@ const Community = () => {
 
   const initials = (name: string) => name?.charAt(0).toUpperCase() || "M";
   const userName = profile?.first_name || "Mama";
-  const getCatStyle = (cat: string) => CATEGORY_STYLES[cat] || CATEGORY_STYLES.question;
+
+  // Find pinned post (highest likes)
+  const pinnedPost = posts.length > 0 ? [...posts].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0] : null;
+  const remainingPosts = pinnedPost ? posts.filter(p => p.id !== pinnedPost.id) : posts;
 
   // --- NOTIFICATIONS ---
   if (showNotifications) {
@@ -223,22 +226,22 @@ const Community = () => {
       <div className="fixed inset-0 z-[100] flex flex-col page-enter" style={{ background: "#FF8C42" }}>
         <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
           <button onClick={() => { setSelectedPost(null); fetchPosts(); }} style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "var(--w70)" }}>← Back</button>
-          <span className="text-[9px] font-semibold px-[7px] py-[2px] rounded-[6px] capitalize" style={{ background: "rgba(255,255,255,0.15)", color: "white" }}>
+          <span className="text-[9px] font-semibold px-[7px] py-[2px] rounded-[6px] capitalize" style={{ background: CATEGORY_PILL_COLORS[selectedPost.category] || "rgba(255,255,255,0.20)", color: "white" }}>
             {selectedPost.category}
           </span>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-semibold shrink-0"
-              style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
+              style={{ background: "rgba(255,255,255,0.24)", color: "white" }}>
               {initials(selectedPost.author_name || "")}
             </div>
             <div>
               <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white" }}>{titleCase(selectedPost.author_name || "")}</span>
-              <span className="text-[11px] ml-2" style={{ color: "var(--w40)" }}>{timeAgo(selectedPost.created_at)}</span>
+              <span className="text-[11px] ml-2" style={{ color: "rgba(255,255,255,0.40)" }}>{timeAgo(selectedPost.created_at)}</span>
             </div>
             {selectedPost.week_posted && (
-              <span className="text-[8px] px-[6px] py-[2px] rounded-[7px] ml-auto" style={{ background: "rgba(255,255,255,0.15)", color: "white", fontWeight: 500 }}>
+              <span className="text-[8px] px-[6px] py-[2px] rounded-[7px] ml-auto" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", color: "white", fontWeight: 600, fontFamily: "'Outfit', system-ui", fontSize: 9 }}>
                 Week {selectedPost.week_posted}
               </span>
             )}
@@ -247,22 +250,22 @@ const Community = () => {
           <p className="text-[14px] leading-[1.75] mb-4" style={{ color: "var(--w70)", fontFamily: "'Outfit', system-ui" }}>{selectedPost.body}</p>
           <button onClick={() => toggleLike(selectedPost)}
             className={`flex items-center gap-1.5 text-[12px] mb-4 ${likeAnimating === selectedPost.id ? "heart-liked" : ""}`}
-            style={{ color: selectedPost.is_liked ? "white" : "var(--w40)" }}>
+            style={{ color: selectedPost.is_liked ? "white" : "rgba(255,255,255,0.45)" }}>
             <Heart size={16} className={selectedPost.is_liked ? "fill-current" : ""} />
             {selectedPost.likes} likes
           </button>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: 8, marginBottom: 8 }} />
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12, marginTop: 16, color: "var(--w40)", fontWeight: 600 }}>Replies</p>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", marginTop: 8, marginBottom: 8 }} />
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12, marginTop: 16, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>Replies</p>
           {comments.length === 0 ? (
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontStyle: "italic", textAlign: "center", padding: "20px 0", color: "var(--w40)" }}>No replies yet. Be the first to respond! 💕</p>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontStyle: "italic", textAlign: "center", padding: "20px 0", color: "rgba(255,255,255,0.45)" }}>No replies yet. Be the first to respond! 💕</p>
           ) : comments.map((c: any) => (
-            <div key={c.id} className="rounded-[14px] p-[12px_14px] mb-2" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)" }}>
+            <div key={c.id} className="rounded-[14px] p-[12px_14px] mb-2" style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.24)" }}>
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0" style={{ background: "rgba(255,255,255,0.24)", color: "white" }}>
                   {initials(c.author_name)}
                 </div>
                 <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "white" }}>{titleCase(c.author_name)}</span>
-                <span className="text-[10px]" style={{ color: "var(--w40)" }}>{timeAgo(c.created_at)}</span>
+                <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.40)" }}>{timeAgo(c.created_at)}</span>
               </div>
               <p className="text-[13px] leading-[1.55] mt-1.5" style={{ color: "var(--w70)", fontFamily: "'Outfit', system-ui" }}>{c.body}</p>
             </div>
@@ -272,7 +275,7 @@ const Community = () => {
         <div className="shrink-0 px-4 pt-[10px]" style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))", zIndex: 101, position: "relative", background: "rgba(200,80,10,0.45)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.14)" }}>
           {replyError && <p className="text-[12px] mb-2" style={{ color: "#FFB899" }}>{replyError}</p>}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0" style={{ background: "rgba(255,255,255,0.24)", color: "white" }}>
               {initials(userName)}
             </div>
             <input value={commentText} onChange={e => setCommentText(e.target.value)}
@@ -292,18 +295,94 @@ const Community = () => {
     );
   }
 
+  // --- Render a post card ---
+  const renderPostCard = (post: Post, isPinned: boolean) => (
+    <button key={post.id} onClick={() => openPost(post)}
+      className="w-full text-left belly-card-interactive"
+      style={{
+        background: isPinned ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.16)",
+        border: isPinned ? "1px solid rgba(255,255,255,0.34)" : "1px solid rgba(255,255,255,0.24)",
+        borderRadius: 18,
+        backdropFilter: "blur(14px)",
+        padding: "13px 14px",
+        position: "relative",
+      }}>
+      {isPinned && (
+        <span style={{
+          position: "absolute", top: 10, right: 10,
+          background: "rgba(255,255,255,0.25)",
+          borderRadius: 6, padding: "2px 7px",
+          fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 8,
+          color: "white", textTransform: "uppercase", letterSpacing: "0.05em",
+        }}>PINNED</span>
+      )}
+      <div className="flex items-center gap-2 mb-1.5">
+        <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: "rgba(255,255,255,0.24)", color: "white", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12 }}>
+          {initials(post.author_name || "")}
+        </div>
+        <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 700, color: "white" }}>{titleCase(post.author_name || "")}</span>
+        {post.week_posted && (
+          <span style={{
+            background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)",
+            borderRadius: 7, padding: "2px 6px",
+            fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 9, color: "white",
+          }}>
+            Week {post.week_posted}
+          </span>
+        )}
+        <span className="ml-auto" style={{ color: "rgba(255,255,255,0.40)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 10 }}>{timeAgo(post.created_at)}</span>
+      </div>
+      <span className="inline-block capitalize mb-1" style={{
+        background: CATEGORY_PILL_COLORS[post.category] || "rgba(255,255,255,0.20)",
+        borderRadius: 8, padding: "2px 8px",
+        fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "white",
+        border: "none",
+      }}>
+        {post.category}
+      </span>
+      <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 15, fontWeight: 700, color: "white", marginTop: 4, marginBottom: 4, lineHeight: "1.25" }}>{post.title}</p>
+      <p className="line-clamp-2" style={{ color: "rgba(255,255,255,0.65)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 11, lineHeight: "1.5" }}>{post.body}</p>
+      <div className="flex items-center gap-[10px]" style={{ borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: 8, marginTop: 8 }}>
+        <button onClick={(e) => { e.stopPropagation(); toggleLike(post); }}
+          className={`flex items-center gap-1 text-[11px] ${likeAnimating === post.id ? "heart-liked" : ""}`}
+          style={{ color: post.is_liked ? "white" : "rgba(255,255,255,0.45)" }}>
+          <Heart size={14} className={post.is_liked ? "fill-current" : ""} /> {post.likes}
+        </button>
+        <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>
+          <MessageCircle size={14} /> {post.comment_count}
+        </span>
+      </div>
+    </button>
+  );
+
   // --- FEED ---
   return (
     <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
       <div className="px-5 pt-5 pb-3 flex items-center justify-between">
         <div>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 28, fontWeight: 700, color: "white" }}>Mama</p>
-          <p style={{ fontFamily: "'Fraunces', serif", fontSize: 34, fontWeight: 800, fontStyle: "italic", color: "white", letterSpacing: -1, lineHeight: 0.9 }}>community</p>
+          <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 32, color: "white", display: "block", lineHeight: "1.0" }}>Mama</span>
+          <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 800, fontStyle: "italic", fontSize: 38, color: "white", letterSpacing: -1, display: "block", lineHeight: "1.0", marginBottom: 5 }}>community</span>
+          <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 11, color: "rgba(255,255,255,0.52)" }}>
+            {currentWeek ? `Week ${currentWeek} mamas` : "Mamas"} · {posts.length} members
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <NotificationBell onOpenNotifications={() => setShowNotifications(true)} unreadCount={unreadCount} />
-          <button onClick={() => setShowCreate(true)} className="rounded-full px-3 py-1.5 text-[11px] font-semibold flex items-center gap-1 belly-btn-primary"
-            style={{ background: "white", color: "#FF6520", fontFamily: "'Outfit', system-ui", fontWeight: 700 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: "50%",
+            background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <NotificationBell onOpenNotifications={() => setShowNotifications(true)} unreadCount={unreadCount} />
+          </div>
+          <button onClick={() => setShowCreate(true)}
+            className="flex items-center gap-1 belly-btn-primary"
+            style={{
+              background: "white", color: "#FF6520",
+              fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 13,
+              borderRadius: 20, padding: "7px 16px",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.08)", border: "none",
+            }}>
             <Plus size={14} /> Post
           </button>
         </div>
@@ -312,13 +391,16 @@ const Community = () => {
       <div className="flex gap-2 px-5 mb-4 overflow-x-auto hide-scrollbar">
         {CATEGORIES.map(cat => (
           <button key={cat} onClick={() => setActiveCategory(cat)}
-            className="rounded-full px-3 py-1.5 text-[11px] whitespace-nowrap transition-all belly-btn-press"
+            className="whitespace-nowrap transition-all belly-btn-press"
             style={{
-              background: activeCategory === cat ? "white" : "var(--c1)",
-              color: activeCategory === cat ? "#FF6520" : "white",
+              background: activeCategory === cat ? "white" : "rgba(255,255,255,0.16)",
+              color: activeCategory === cat ? "#FF6520" : "rgba(255,255,255,0.80)",
               fontWeight: activeCategory === cat ? 700 : 500,
+              fontSize: activeCategory === cat ? 12 : 11,
               fontFamily: "'Outfit', system-ui",
-              border: activeCategory === cat ? "none" : "1px solid var(--c1-border)"
+              border: activeCategory === cat ? "none" : "1px solid rgba(255,255,255,0.24)",
+              borderRadius: 20,
+              padding: activeCategory === cat ? "5px 14px" : "5px 12px",
             }}>
             {cat}
           </button>
@@ -327,49 +409,19 @@ const Community = () => {
 
       <div className="px-5 space-y-2">
         {loading ? (
-          [1, 2, 3].map(i => <div key={i} className="rounded-[15px] p-4 animate-pulse h-32" style={{ background: "var(--c1)" }} />)
+          [1, 2, 3].map(i => <div key={i} className="rounded-[18px] p-4 animate-pulse h-32" style={{ background: "rgba(255,255,255,0.16)" }} />)
         ) : posts.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}><span className="text-2xl">💕</span></div>
             <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "white" }}>Be the first to share your story</p>
-            <p className="text-[11px]" style={{ color: "var(--w40)" }}>Start a conversation with other mamas</p>
+            <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>Start a conversation with other mamas</p>
           </div>
-        ) : posts.map(post => {
-          return (
-            <button key={post.id} onClick={() => openPost(post)}
-              className="w-full text-left belly-card-interactive"
-              style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", borderRadius: 15, backdropFilter: "blur(14px)", padding: "11px 13px" }}>
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold"
-                  style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
-                  {initials(post.author_name || "")}
-                </div>
-                <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>{titleCase(post.author_name || "")}</span>
-                {post.week_posted && (
-                  <span className="text-[8px] px-[6px] py-[2px] rounded-[7px]" style={{ background: "rgba(255,255,255,0.15)", color: "white", fontWeight: 500 }}>
-                    Week {post.week_posted}
-                  </span>
-                )}
-                <span className="text-[10px] ml-auto" style={{ color: "var(--w40)" }}>{timeAgo(post.created_at)}</span>
-              </div>
-              <span className="inline-block text-[9px] font-semibold px-[7px] py-[2px] rounded-[6px] capitalize mb-1" style={{ background: "rgba(255,255,255,0.15)", color: "white" }}>
-                {post.category}
-              </span>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white", marginTop: 4, marginBottom: 4 }}>{post.title}</p>
-              <p className="text-[12px] line-clamp-2 leading-[1.5]" style={{ color: "rgba(255,255,255,0.65)", fontFamily: "'Outfit', system-ui", fontWeight: 400 }}>{post.body}</p>
-              <div className="flex items-center gap-[10px]" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 6, marginTop: 7 }}>
-                <button onClick={(e) => { e.stopPropagation(); toggleLike(post); }}
-                  className={`flex items-center gap-1 text-[11px] ${likeAnimating === post.id ? "heart-liked" : ""}`}
-                  style={{ color: post.is_liked ? "white" : "var(--w40)" }}>
-                  <Heart size={14} className={post.is_liked ? "fill-current" : ""} /> {post.likes}
-                </button>
-                <span className="flex items-center gap-1 text-[11px]" style={{ color: "var(--w40)" }}>
-                  <MessageCircle size={14} /> {post.comment_count}
-                </span>
-              </div>
-            </button>
-          );
-        })}
+        ) : (
+          <>
+            {pinnedPost && renderPostCard(pinnedPost, true)}
+            {remainingPosts.map(post => renderPostCard(post, false))}
+          </>
+        )}
       </div>
 
       {/* Create post sheet */}
@@ -389,17 +441,17 @@ const Community = () => {
               <textarea value={newBody} onChange={e => setNewBody(e.target.value)} placeholder="What's on your mind, mama?" rows={5}
                 className="w-full rounded-[14px] p-[12px_16px] text-[13px] outline-none resize-none mb-4"
                 style={{ background: "var(--input-bg)", color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none", minHeight: "140px" }} />
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "var(--w40)", fontWeight: 600 }}>Post type</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>Post type</p>
               <div className="flex gap-2 flex-wrap mb-2">
                 {["question", "story", "tip", "support"].map(cat => (
                   <button key={cat} onClick={() => setNewCategory(cat)}
                     className="rounded-full px-4 py-[7px] text-[12px] capitalize transition-all belly-btn-press"
                     style={{
-                      background: newCategory === cat ? "white" : "var(--c1)",
-                      color: newCategory === cat ? "#FF6520" : "white",
+                      background: newCategory === cat ? "white" : "rgba(255,255,255,0.16)",
+                      color: newCategory === cat ? "#FF6520" : "rgba(255,255,255,0.80)",
                       fontWeight: newCategory === cat ? 700 : 500,
                       fontFamily: "'Outfit', system-ui",
-                      border: newCategory === cat ? "none" : "1px solid var(--c1-border)",
+                      border: newCategory === cat ? "none" : "1px solid rgba(255,255,255,0.24)",
                     }}>
                     {cat}
                   </button>
