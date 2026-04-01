@@ -260,11 +260,11 @@ const Shop = () => {
           <div className="mx-4 mb-4 p-5 rounded-[20px] belly-hero-gradient relative overflow-hidden">
             <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: "rgba(255,255,255,0.10)" }} />
             <div className="absolute left-8 bottom-[-15px] w-16 h-16 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
-            <p className="text-[9.5px] uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.6)" }}>CURATED FOR PREGNANCY</p>
-            <h2 className="font-display text-[20px] font-semibold mb-1" style={{ color: "#FFF9F6" }}>Natural support for every trimester</h2>
-            <p className="text-[12px] mb-3" style={{ color: "rgba(255,255,255,0.7)", fontWeight: 400 }}>Homeopathic remedies + herbal teas, carefully selected for pregnancy safety</p>
+            <p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.11em", marginBottom: 4, color: "rgba(255,255,255,0.60)", fontFamily: "'Outfit', sans-serif" }}>CURATED FOR PREGNANCY</p>
+            <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 22, color: "white", marginBottom: 4 }}>Natural support for every trimester</h2>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", fontWeight: 400, marginBottom: 12, fontFamily: "'Outfit', sans-serif" }}>Homeopathic remedies + herbal teas, carefully selected for pregnancy safety</p>
             <button onClick={() => document.getElementById('remedy-kits')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-block text-[11px] px-3 py-1.5 rounded-full font-semibold" style={{ background: "rgba(255,255,255,0.25)", color: "#FFF9F6", border: "none", cursor: "pointer" }}>Shop all →</button>
+              style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.35)", color: "white", fontSize: 12, fontWeight: 600, borderRadius: 20, padding: "5px 14px", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Shop all →</button>
           </div>
 
           <p id="remedy-kits" className="px-5 text-[10px] uppercase tracking-[0.11em] mb-2 font-semibold" style={{ color: "rgba(200,88,40,0.4)" }}>Remedy kits</p>
