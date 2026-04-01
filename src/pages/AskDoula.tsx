@@ -366,8 +366,8 @@ const AskDoula = () => {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
             placeholder={attachedImage ? "Ask about this product..." : "Ask anything..."}
-            className="flex-1 text-sm outline-none bg-transparent placeholder:italic"
-            style={{ color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none", "--tw-placeholder-opacity": 1, "::placeholder": { color: "rgba(160,80,20,0.45)" } } as any}
+            className="flex-1 text-sm outline-none bg-transparent placeholder:italic doula-input"
+            style={{ color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none" }}
           />
           {isStreaming ? (
             <button onClick={cancelStream} className="shrink-0 flex items-center justify-center"
