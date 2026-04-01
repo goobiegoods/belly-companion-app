@@ -195,16 +195,16 @@ const AskDoula = () => {
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
       {/* Header */}
-      <div className="px-5 pt-5 pb-3 shrink-0" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+      <div className="px-5 pt-5 pb-3 shrink-0" style={{ background: "rgba(255,140,66,0.60)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
         <div className="flex items-center gap-2 mb-0.5">
-          <button onClick={() => navigate("/")} className="text-[12px] font-semibold mr-1" style={{ color: "var(--w70)", fontFamily: "'Outfit', system-ui" }}>← Home</button>
-          <h1 style={{ fontFamily: "'Outfit', system-ui", fontSize: 18, fontWeight: 600, color: "white" }}>Ask the Doula</h1>
+          <button onClick={() => navigate("/")} className="mr-1" style={{ color: "white", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600 }}>← Home</button>
+          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white" }}>Ask the Doula</h1>
           <span className="text-[9px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", color: "white" }}>
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ADE80", display: "inline-block" }} />
             AI · LIVE
           </span>
         </div>
-        <p className="text-[11px]" style={{ color: "var(--w40)" }}>Your natural pregnancy guide</p>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.55)" }}>Your natural pregnancy guide</p>
       </div>
 
       {/* Messages */}
@@ -212,7 +212,7 @@ const AskDoula = () => {
         {messages.length === 0 && (
           <>
             {/* Welcome hero */}
-            <div className="rounded-[22px] p-[18px_16px] mt-2 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.20)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.32)" }}>
+            <div className="rounded-[22px] p-[18px_16px] mt-2 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.25)", backdropFilter: "blur(16px)", border: "1.5px solid rgba(255,255,255,0.40)", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
               <div className="absolute rounded-full" style={{ right: -10, top: -10, width: 80, height: 80, background: "rgba(255,255,255,0.08)" }} />
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.22)", fontSize: 18 }}>🌸</div>
@@ -228,21 +228,17 @@ const AskDoula = () => {
 
             {/* Week context strip */}
             <div className="flex gap-2 mt-3">
-              <div className="flex-1 rounded-[14px] p-[10px_11px]" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)" }}>
-                <span style={{ fontSize: 20, display: "block", marginBottom: 4 }}>🥑</span>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>Week {currentWeek}</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.60)" }}>{fruitName}</p>
-              </div>
-              <div className="flex-1 rounded-[14px] p-[10px_11px]" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)" }}>
-                <span style={{ fontSize: 20, display: "block", marginBottom: 4 }}>🧘</span>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>Your body</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.60)" }}>{topSymptom}</p>
-              </div>
-              <div className="flex-1 rounded-[14px] p-[10px_11px]" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)" }}>
-                <span style={{ fontSize: 20, display: "block", marginBottom: 4 }}>💊</span>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white" }}>Top remedy</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.60)" }}>{topRemedy}</p>
-              </div>
+              {[
+                { emoji: "🥑", title: `Week ${currentWeek}`, sub: fruitName },
+                { emoji: "🧘", title: "Your body", sub: topSymptom },
+                { emoji: "🫧", title: "Top remedy", sub: topRemedy },
+              ].map((card) => (
+                <div key={card.title} className="flex-1 rounded-[14px]" style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.32)", padding: "10px 10px 9px", display: "flex", flexDirection: "column" as const, alignItems: "flex-start", gap: 4 }}>
+                  <span style={{ fontSize: 18, marginBottom: 2 }}>{card.emoji}</span>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{card.title}</p>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.62)", lineHeight: 1.3 }}>{card.sub}</p>
+                </div>
+              ))}
             </div>
 
             {/* Prompts */}
@@ -250,18 +246,26 @@ const AskDoula = () => {
             <div className="grid grid-cols-2 gap-2">
               {QUICK_PROMPTS.map((prompt) => (
                 <button key={prompt} onClick={() => sendMessage(prompt)}
-                  className="rounded-[14px] p-[11px_13px] text-left belly-card-interactive"
-                  style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)" }}>
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "white", lineHeight: 1.4 }}>{prompt}</p>
+                  className="text-left belly-card-interactive"
+                  style={{ background: "rgba(255,255,255,0.24)", border: "1.5px solid rgba(255,255,255,0.38)", borderRadius: 16, padding: "13px 14px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white", lineHeight: 1.4 }}>{prompt}</p>
                 </button>
               ))}
             </div>
 
             <button onClick={() => sendMessage("", true)}
-              className="w-full rounded-[13px] p-[9px_11px] text-left belly-card-interactive"
-              style={{ background: "var(--c2)", border: "1px solid var(--c2-border)" }}>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 600, color: "white" }}>📷 Is this product safe to use?</p>
+              className="w-full text-left belly-card-interactive"
+              style={{ background: "rgba(255,255,255,0.20)", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16, padding: "13px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 16 }}>📷</span>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>Is this product safe to use?</p>
             </button>
+
+            {/* Ambient card */}
+            <div style={{ margin: "12px 0 0", background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.16)", borderRadius: 16, padding: "14px 16px", textAlign: "center" as const }}>
+              <p style={{ fontSize: 22, marginBottom: 6 }}>🌸</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 400, fontStyle: "italic", color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>I'm here whenever you need me, mama.</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 400, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>Available 24/7 · Natural guidance only</p>
+            </div>
           </>
         )}
 
@@ -348,13 +352,13 @@ const AskDoula = () => {
       )}
 
       {/* Input bar */}
-      <style>{`@keyframes sendGlow { 0%,100% { box-shadow: 0 2px 8px rgba(255,255,255,0.3); } 50% { box-shadow: 0 4px 20px rgba(255,255,255,0.6); } }`}</style>
-      <div style={{ margin: "8px 16px 6px", background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)" }}>
+      <style>{`@keyframes sendGlow { 0%,100% { box-shadow: 0 2px 8px rgba(255,255,255,0.3); } 50% { box-shadow: 0 4px 20px rgba(255,255,255,0.6); } } .doula-input::placeholder { color: rgba(160,80,20,0.45) !important; }`}</style>
+      <div style={{ background: "rgba(255,255,255,0.15)", borderTop: "1px solid rgba(255,255,255,0.18)", padding: "10px 16px 14px", backdropFilter: "blur(16px)" }}>
         <div className="flex items-center gap-2"
-          style={{ background: "rgba(255,255,255,0.95)", borderRadius: 28, padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}>
+          style={{ background: "rgba(255,255,255,0.95)", borderRadius: 28, padding: "11px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.10)" }}>
           <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
             className="shrink-0 flex items-center justify-center"
-            style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,120,64,0.15)" }}>
+            style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,120,64,0.12)" }}>
             <Camera size={14} style={{ color: "#FF6520" }} />
           </button>
           <input
@@ -362,7 +366,7 @@ const AskDoula = () => {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
             placeholder={attachedImage ? "Ask about this product..." : "Ask anything..."}
-            className="flex-1 text-sm outline-none bg-transparent"
+            className="flex-1 text-sm outline-none bg-transparent placeholder:italic doula-input"
             style={{ color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none" }}
           />
           {isStreaming ? (
@@ -373,7 +377,7 @@ const AskDoula = () => {
           ) : (
             <button onClick={() => sendMessage(input)} disabled={!input.trim() && !attachedImage}
               className="shrink-0 flex items-center justify-center disabled:opacity-40"
-              style={{ width: 36, height: 36, borderRadius: "50%", background: "#FF6520", ...(input.trim() && !isStreaming ? { animation: "sendGlow 2s ease-in-out infinite" } : {}) }}>
+              style={{ width: 32, height: 32, borderRadius: "50%", background: "#FF6520", boxShadow: "0 2px 10px rgba(255,80,20,0.35)", ...(input.trim() && !isStreaming ? { animation: "sendGlow 2s ease-in-out infinite" } : {}) }}>
               <Send size={14} style={{ color: "white" }} />
             </button>
           )}
