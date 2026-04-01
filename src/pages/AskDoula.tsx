@@ -190,120 +190,119 @@ const AskDoula = () => {
   const firstAssistantIdx = messages.findIndex(m => m.role === "assistant");
 
   return (
-    <div className="flex flex-col h-screen page-enter" style={{ background: "#FEF8F4" }}>
+    <div className="flex flex-col h-screen page-enter" style={{ background: "transparent" }}>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
       {/* Header */}
-      <div className="px-5 pt-5 pb-3 belly-glass-nav shrink-0">
+      <div className="px-5 pt-5 pb-3 shrink-0" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
         <div className="flex items-center gap-2 mb-0.5">
-          <button onClick={() => navigate("/")} className="text-[12px] font-semibold mr-1" style={{ color: "#C4906A" }}>← Home</button>
-          <h1 className="font-display text-[18px] font-semibold" style={{ color: "#C85828" }}>Ask the Doula</h1>
-          <span className="text-[9px] px-2 py-0.5 rounded-full font-medium" style={{ background: "rgba(255,200,170,0.3)", color: "#C4906A" }}>AI</span>
+          <button onClick={() => navigate("/")} className="text-[12px] font-semibold mr-1" style={{ color: "var(--w70)", fontFamily: "'Outfit', system-ui" }}>← Home</button>
+          <h1 style={{ fontFamily: "'Outfit', system-ui", fontSize: 18, fontWeight: 600, color: "white" }}>Ask the Doula</h1>
+          <span className="text-[9px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", color: "white" }}>
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ADE80", display: "inline-block" }} />
+            AI · LIVE
+          </span>
         </div>
-        <p className="text-[11px]" style={{ color: "rgba(180,100,60,0.38)" }}>Your natural pregnancy guide</p>
+        <p className="text-[11px]" style={{ color: "var(--w40)" }}>Your natural pregnancy guide</p>
       </div>
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
         {messages.length === 0 && (
           <>
-            {/* Welcome hero card */}
-            <div className="rounded-[20px] p-[18px_16px] mt-2 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #FF7E48, #FFA070, #FFBE98)", boxShadow: "0 8px 24px rgba(255,110,60,0.2)" }}>
+            {/* Welcome hero */}
+            <div className="rounded-[20px] p-[18px_16px] mt-2 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.22)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.35)" }}>
               <div className="absolute rounded-full" style={{ right: -16, top: -16, width: 80, height: 80, background: "rgba(255,255,255,0.1)" }} />
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.2)", fontSize: 18 }}>🌸</div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "white" }}>Ask the Doula</span>
+                <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>Ask the Doula</span>
                 <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 8, background: "rgba(255,255,255,0.2)", border: "0.5px solid rgba(255,255,255,0.3)", color: "white" }}>AI</span>
               </div>
-              <p style={{ fontSize: 18, fontWeight: 600, color: "white", fontFamily: "Georgia, serif", marginTop: 10, letterSpacing: -0.2 }}>
-                {getGreeting()}, {displayName} 🌸
-              </p>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", lineHeight: 1.55, marginTop: 4, fontStyle: "italic" }}>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 24, fontWeight: 600, color: "white" }}>Your</p>
+              <p style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4 }}>doula chat</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "rgba(255,255,255,0.65)", lineHeight: 1.55, fontStyle: "italic" }}>
                 You're in week {currentWeek}. Ask me anything — remedies, symptoms, what to expect, or just talk.
               </p>
             </div>
 
-            {/* Week context strip — 3 mini cards */}
+            {/* Week context strip */}
             <div className="flex gap-2 mt-3">
-              <div className="flex-1 rounded-[12px] p-[8px_10px]" style={{ background: "rgba(255,240,230,0.85)", border: "0.5px solid rgba(255,180,140,0.3)" }}>
+              <div className="flex-1 rounded-[12px] p-[8px_10px]" style={{ background: "var(--c2)", border: "1px solid var(--c2-border)" }}>
                 <div className="flex items-center gap-1.5">
                   <span style={{ fontSize: 14 }}>🥑</span>
                   <div>
-                    <p style={{ fontSize: 8, fontWeight: 600, color: "#A84E28" }}>Week {currentWeek}</p>
-                    <p style={{ fontSize: 7, color: "#C4906A" }}>{fruitName}</p>
+                    <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 600, color: "white" }}>Week {currentWeek}</p>
+                    <p style={{ fontSize: 7, color: "var(--w50)" }}>{fruitName}</p>
                   </div>
                 </div>
               </div>
-              <div className="flex-1 rounded-[12px] p-[8px_10px]" style={{ background: "rgba(235,252,240,0.85)", border: "0.5px solid rgba(140,210,160,0.3)" }}>
+              <div className="flex-1 rounded-[12px] p-[8px_10px]" style={{ background: "var(--c2)", border: "1px solid var(--c2-border)" }}>
                 <div className="flex items-center gap-1.5">
                   <span style={{ fontSize: 14 }}>🧘</span>
                   <div>
-                    <p style={{ fontSize: 8, fontWeight: 600, color: "#40A060" }}>Your body</p>
-                    <p style={{ fontSize: 7, color: "#6AAA78" }}>{topSymptom}</p>
+                    <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 600, color: "white" }}>Your body</p>
+                    <p style={{ fontSize: 7, color: "var(--w50)" }}>{topSymptom}</p>
                   </div>
                 </div>
               </div>
-              <div className="flex-1 rounded-[12px] p-[8px_10px]" style={{ background: "rgba(240,232,255,0.85)", border: "0.5px solid rgba(180,140,240,0.3)" }}>
+              <div className="flex-1 rounded-[12px] p-[8px_10px]" style={{ background: "var(--c2)", border: "1px solid var(--c2-border)" }}>
                 <div className="flex items-center gap-1.5">
                   <span style={{ fontSize: 14 }}>🫧</span>
                   <div>
-                    <p style={{ fontSize: 8, fontWeight: 600, color: "#7040A0" }}>Top remedy</p>
-                    <p style={{ fontSize: 7, color: "#9070C0" }}>{topRemedy}</p>
+                    <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 600, color: "white" }}>Top remedy</p>
+                    <p style={{ fontSize: 7, color: "var(--w50)" }}>{topRemedy}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Suggested prompts */}
-            <p style={{ fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.11em", marginTop: 16, marginBottom: 4, color: "rgba(200,88,40,0.4)", fontWeight: 600 }}>Suggested for week {currentWeek}</p>
-
+            {/* Prompts */}
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 16, marginBottom: 4, color: "var(--w40)", fontWeight: 600 }}>Suggested for week {currentWeek}</p>
             <div className="grid grid-cols-2 gap-2">
               {QUICK_PROMPTS.map((prompt) => (
                 <button key={prompt} onClick={() => sendMessage(prompt)}
                   className="rounded-[13px] p-[9px_11px] text-left belly-card-interactive"
-                  style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.2)", backdropFilter: "blur(12px)", boxShadow: "0 1px 8px rgba(255,140,90,0.05)" }}>
-                  <p style={{ fontSize: 9, fontWeight: 500, color: "#C4784A", lineHeight: 1.4, fontFamily: "Georgia, serif" }}>{prompt}</p>
+                  style={{ background: "var(--c1)", border: "1px solid var(--c1-border)" }}>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 600, color: "white", lineHeight: 1.4 }}>{prompt}</p>
                 </button>
               ))}
             </div>
 
-            {/* Camera card */}
             <button onClick={() => sendMessage("", true)}
               className="w-full rounded-[13px] p-[9px_11px] text-left belly-card-interactive"
-              style={{ background: "rgba(245,238,255,0.6)", border: "0.5px solid rgba(200,160,255,0.25)", backdropFilter: "blur(12px)" }}>
-              <p style={{ fontSize: 9, fontWeight: 500, color: "#9060D0", fontFamily: "Georgia, serif" }}>📷 Is this product safe to use?</p>
+              style={{ background: "var(--c2)", border: "1px solid var(--c2-border)" }}>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 600, color: "white" }}>📷 Is this product safe to use?</p>
             </button>
           </>
         )}
 
         {messages.map((msg, i) => (
           <div key={i}>
-            {/* Belly avatar on first assistant message */}
             {msg.role === "assistant" && i === firstAssistantIdx && (
               <div className="flex items-center gap-1.5 mb-1">
-                <div style={{ width: 22, height: 22, borderRadius: "50%", background: "linear-gradient(135deg, #FF7E48, #FFA070)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>🌸</div>
-                <span style={{ fontSize: 9, color: "#C4906A", fontWeight: 500 }}>Belly</span>
+                <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>🌸</div>
+                <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "var(--w50)", fontWeight: 500 }}>Belly</span>
               </div>
             )}
             <div className={`${msg.role === "user" ? "ml-auto" : "mr-auto"}`}
               style={{ maxWidth: msg.role === "user" ? "80%" : "88%" }}>
               <div className="px-4 py-3 text-[13px] leading-[1.65]"
                 style={msg.role === "user"
-                  ? { background: "linear-gradient(135deg, #FF7840, #FFAB80)", color: "white", borderRadius: "18px 18px 4px 18px", boxShadow: "0 3px 12px rgba(255,120,64,0.2)" }
-                  : { background: "rgba(255,255,255,0.82)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "0.5px solid rgba(255,170,130,0.2)", color: "#A84E28", borderRadius: "18px 18px 18px 4px", boxShadow: "0 2px 10px rgba(255,140,90,0.07)" }
+                  ? { background: "rgba(255,255,255,0.95)", color: "#3A1A00", borderRadius: "18px 18px 4px 18px", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", fontFamily: "'Outfit', system-ui", fontWeight: 500 }
+                  : { background: "var(--c1)", border: "1px solid var(--c1-border)", color: "rgba(255,255,255,0.88)", borderRadius: "18px 18px 18px 4px", fontFamily: "'Outfit', system-ui" }
                 }>
                 {msg.imageUrl && (
                   <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
                 )}
                 {msg.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "#A84E28" }}>
+                  <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "rgba(255,255,255,0.88)" }}>
                     <ReactMarkdown>{typeof msg.content === "string" ? msg.content : getTextContent(msg.content)}</ReactMarkdown>
                   </div>
                 ) : getTextContent(msg.content)}
               </div>
               {msg.role === "assistant" && (
-                <p className="text-[10px] mt-1 px-1" style={{ color: "rgba(180,100,60,0.38)" }}>
+                <p className="text-[10px] mt-1 px-1" style={{ color: "var(--w40)" }}>
                   This is wellness guidance, not medical advice. Always consult your care provider.
                 </p>
               )}
@@ -317,11 +316,11 @@ const AskDoula = () => {
               {[60, 90, 120, 150].map((size, i) => (
                 <div key={i} className="absolute rounded-full" style={{
                   width: size, height: size,
-                  border: "1.5px dashed rgba(255,170,130,0.4)",
+                  border: `1.5px dashed rgba(255,255,255,${[0.40, 0.25, 0.15, 0.08][i]})`,
                   animation: `ringPulse 2.4s ease-in-out infinite ${i * 0.3}s`,
                 }} />
               ))}
-              <p style={{ fontSize: 11, fontStyle: "italic", color: "#E07040", fontFamily: "Georgia, serif", zIndex: 10, textAlign: "center" }}>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontStyle: "italic", color: "white", zIndex: 10, textAlign: "center" }}>
                 Belly is thinking...
               </p>
             </div>
@@ -330,44 +329,44 @@ const AskDoula = () => {
       </div>
 
       {!profile?.is_premium && messageCount > 0 && (
-        <p style={{ fontSize: 10, color: "rgba(180,100,60,0.4)", textAlign: "center", padding: "4px 0", fontStyle: "italic" }}>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, color: "var(--w40)", textAlign: "center", padding: "4px 0", fontStyle: "italic" }}>
           {messageCount}/10 free messages today
         </p>
       )}
 
       {showPhotoMenu && (
-        <div className="px-4 py-2 belly-glass-nav flex gap-2">
+        <div className="px-4 py-2 flex gap-2" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
           <button onClick={() => { cameraInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "rgba(255,200,170,0.3)", color: "#C4906A" }}>
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--c1)", color: "white", fontFamily: "'Outfit', system-ui" }}>
             📸 Take a photo
           </button>
           <button onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "rgba(255,200,170,0.3)", color: "#C4906A" }}>
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--c1)", color: "white", fontFamily: "'Outfit', system-ui" }}>
             🖼️ Choose from library
           </button>
         </div>
       )}
 
       {attachedImage && (
-        <div className="px-4 py-2" style={{ background: "rgba(255,255,255,0.9)", borderTop: "0.5px solid rgba(255,170,130,0.2)" }}>
+        <div className="px-4 py-2" style={{ background: "rgba(200,80,10,0.40)", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
           <div className="relative inline-block">
-            <img src={attachedImage.url} alt="Preview" className="w-[60px] h-[60px] rounded-[10px] object-cover" style={{ border: "0.5px solid rgba(255,170,130,0.22)" }} />
+            <img src={attachedImage.url} alt="Preview" className="w-[60px] h-[60px] rounded-[10px] object-cover" style={{ border: "1px solid rgba(255,255,255,0.22)" }} />
             <button onClick={() => setAttachedImage(null)}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-white flex items-center justify-center" style={{ border: "0.5px solid rgba(255,170,130,0.22)" }}>
-              <X size={10} style={{ color: "#C4906A" }} />
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.9)", border: "1px solid rgba(255,255,255,0.3)" }}>
+              <X size={10} style={{ color: "#3A1A00" }} />
             </button>
           </div>
         </div>
       )}
 
       {/* Input bar */}
-      <div className="px-4 py-3 belly-glass-nav">
+      <div className="px-4 py-3" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
         <div className="flex items-center gap-2"
-          style={{ background: "rgba(255,255,255,0.88)", border: "0.5px solid rgba(255,170,130,0.25)", borderRadius: 28, padding: "4px 6px 4px 12px", boxShadow: "0 2px 14px rgba(255,140,90,0.1)", backdropFilter: "blur(16px)" }}>
+          style={{ background: "var(--input-bg)", borderRadius: 28, padding: "4px 6px 4px 12px" }}>
           <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
             className="shrink-0 flex items-center justify-center"
-            style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,200,170,0.3)" }}>
-            <Camera size={14} style={{ color: "#C85828" }} />
+            style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,120,64,0.15)" }}>
+            <Camera size={14} style={{ color: "#FF6520" }} />
           </button>
           <input
             value={input}
@@ -375,29 +374,22 @@ const AskDoula = () => {
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
             placeholder={attachedImage ? "Ask about this product..." : "Ask anything..."}
             className="flex-1 text-sm outline-none bg-transparent"
-            style={{ color: "#A84E28", fontStyle: "italic", border: "none" }}
+            style={{ color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none" }}
           />
           {isStreaming ? (
             <button onClick={cancelStream} className="shrink-0 flex items-center justify-center"
-              style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(145deg, #FF7840, #FFAB80)" }}>
+              style={{ width: 36, height: 36, borderRadius: "50%", background: "#FF6520" }}>
               <Square size={14} style={{ color: "white" }} />
             </button>
           ) : (
             <button onClick={() => sendMessage(input)} disabled={!input.trim() && !attachedImage}
               className="shrink-0 flex items-center justify-center disabled:opacity-40"
-              style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(145deg, #FF7840, #FFAB80)", boxShadow: input.trim() ? "0 3px 10px rgba(255,120,64,0.35)" : "none", animation: input.trim() ? "sendPulse 2s ease-in-out infinite" : "none" }}>
+              style={{ width: 36, height: 36, borderRadius: "50%", background: "#FF6520" }}>
               <Send size={14} style={{ color: "white" }} />
             </button>
           )}
         </div>
       </div>
-
-      <style>{`
-        @keyframes sendPulse {
-          0%, 100% { box-shadow: 0 3px 10px rgba(255,120,64,0.35); }
-          50% { box-shadow: 0 3px 20px rgba(255,120,64,0.6); }
-        }
-      `}</style>
     </div>
   );
 };

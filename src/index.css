@@ -1,11 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    --bg: #FF8C42;
+    --c1: rgba(255,255,255,0.14);
+    --c1-border: rgba(255,255,255,0.22);
+    --c2: rgba(255,255,255,0.09);
+    --c2-border: rgba(255,255,255,0.16);
+    --input-bg: rgba(255,255,255,0.95);
+    --white: #FFFFFF;
+    --w90: rgba(255,255,255,0.90);
+    --w70: rgba(255,255,255,0.70);
+    --w50: rgba(255,255,255,0.50);
+    --w40: rgba(255,255,255,0.40);
+    --w15: rgba(255,255,255,0.15);
+    --w08: rgba(255,255,255,0.08);
+    --nav-bg: rgba(200,80,10,0.40);
+    --send: #FF6520;
+
     --background: 24 60% 98%;
     --foreground: 20 60% 20%;
     --card: 0 0% 100%;
@@ -26,24 +40,6 @@
     --input: 20 100% 92%;
     --ring: 20 50% 55%;
     --radius: 1rem;
-
-    /* BELLY warm-orange tokens */
-    --belly-bg: 24 60% 98%;
-    --belly-hero: 20 100% 56%;
-    --belly-card-border: 20 80% 86%;
-    --belly-icon-bg: 20 100% 95%;
-    --belly-text-primary: 16 68% 47%;
-    --belly-text-card: 16 62% 41%;
-    --belly-text-body: 20 40% 59%;
-    --belly-text-hint: 20 30% 47%;
-    --belly-text-section: 16 68% 47%;
-    --belly-accent: 20 100% 56%;
-    --belly-divider: 20 100% 95%;
-    --belly-success: 145 35% 74%;
-    --belly-pink: 340 100% 91%;
-    --belly-sage: 110 38% 78%;
-    --belly-sage-text: 110 40% 24%;
-    --belly-pink-text: 340 50% 30%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -84,47 +80,70 @@
   }
   body {
     @apply text-foreground;
-    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
+    font-family: 'Outfit', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
   body, #root {
-    background: linear-gradient(160deg, #FF6520 0%, #FF8C40 35%, #FFA055 65%, #FF7830 100%) fixed;
+    background: #FF8C42;
     min-height: 100vh;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
 @layer utilities {
   .font-display {
-    font-family: 'Playfair Display', Georgia, 'Palatino Linotype', serif;
+    font-family: 'Fraunces', Georgia, serif;
   }
   .font-body {
-    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
+    font-family: 'Outfit', system-ui, sans-serif;
   }
+}
+
+/* ===== PRIMARY CARD ===== */
+.card {
+  background: var(--c1);
+  border: 1px solid var(--c1-border);
+  border-radius: 18px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* ===== SECONDARY CARD ===== */
+.card-soft {
+  background: var(--c2);
+  border: 1px solid var(--c2-border);
+  border-radius: 13px;
 }
 
 /* ===== GLASSMORPHISM ===== */
 .belly-glass {
-  background: rgba(255, 255, 255, 0.68);
+  background: var(--c1);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 0.5px solid rgba(255, 170, 130, 0.22);
+  border: 1px solid var(--c1-border);
 }
 
 .belly-glass-nav {
-  background: rgba(254, 248, 244, 0.88);
+  background: var(--nav-bg);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
-  border-top: 0.5px solid rgba(255, 170, 130, 0.18);
-  box-shadow: 0 -4px 20px rgba(255, 140, 90, 0.04);
+  border-top: 1px solid rgba(255,255,255,0.15);
 }
 
 .belly-glass-card {
-  background: rgba(255, 255, 255, 0.68);
+  background: var(--c1);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 0.5px solid rgba(255, 170, 130, 0.22);
-  box-shadow: 0 2px 14px rgba(255, 140, 90, 0.07);
+  border: 1px solid var(--c1-border);
   border-radius: 17px;
+}
+
+.belly-hero-gradient {
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.35);
 }
 
 /* ===== PAGE ENTER TRANSITION ===== */
@@ -169,8 +188,8 @@
 }
 
 .belly-input-focus:focus {
-  border-color: #FF7840 !important;
-  box-shadow: 0 0 0 3px rgba(255,120,64,0.15);
+  border-color: rgba(255,255,255,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
   outline: none;
   transition: all 200ms ease;
 }
@@ -266,24 +285,19 @@
 /* ===== PREMIUM POLISH UTILITIES ===== */
 .belly-divider-elegant {
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(255,170,130,0.3), transparent);
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
 }
 
 .belly-card-shadow {
-  box-shadow: 0 1px 3px rgba(42,18,0,0.04), 0 4px 12px rgba(42,18,0,0.03);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
 }
 
 .belly-avatar-ring {
-  box-shadow: 0 0 0 2px rgba(255,170,130,0.25);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.25);
 }
 
 .belly-badge-glass {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
-}
-
-.belly-hero-gradient {
-  background: linear-gradient(140deg, #FF7E48 0%, #FFA070 55%, #FFBE98 100%);
-  box-shadow: 0 10px 36px rgba(255,110,60,0.28), 0 2px 8px rgba(255,110,60,0.12);
 }
 
 .hide-scrollbar {
