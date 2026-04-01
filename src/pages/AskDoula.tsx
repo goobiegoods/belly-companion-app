@@ -195,10 +195,10 @@ const AskDoula = () => {
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
       {/* Header */}
-      <div className="px-5 pt-5 pb-3 shrink-0" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+      <div className="px-5 pt-5 pb-3 shrink-0" style={{ background: "rgba(255,140,66,0.60)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
         <div className="flex items-center gap-2 mb-0.5">
-          <button onClick={() => navigate("/")} className="text-[12px] font-semibold mr-1" style={{ color: "var(--w70)", fontFamily: "'Outfit', system-ui" }}>← Home</button>
-          <h1 style={{ fontFamily: "'Outfit', system-ui", fontSize: 18, fontWeight: 600, color: "white" }}>Ask the Doula</h1>
+          <button onClick={() => navigate("/")} className="mr-1" style={{ color: "white", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600 }}>← Home</button>
+          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white" }}>Ask the Doula</h1>
           <span className="text-[9px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", color: "white" }}>
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ADE80", display: "inline-block" }} />
             AI · LIVE
