@@ -30,8 +30,13 @@ const BottomNav = () => {
   }, [user, location.pathname]);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 belly-glass-nav z-50">
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-50" style={{
+      background: "rgba(200,80,10,0.40)",
+      backdropFilter: "blur(22px)",
+      WebkitBackdropFilter: "blur(22px)",
+      borderTop: "1px solid rgba(255,255,255,0.15)",
+    }}>
+      <div className="flex items-center justify-around max-w-lg mx-auto" style={{ height: 56 }}>
         {tabs.map(({ path, icon: Icon, label }) => {
           const active = location.pathname === path;
           return (
@@ -41,18 +46,19 @@ const BottomNav = () => {
               className="flex flex-col items-center gap-0.5 min-w-[48px] belly-btn-press relative"
             >
               <div className="relative" style={{ transition: "transform 200ms ease", transform: active ? "translateY(-2px)" : "none" }}>
-                <Icon size={20} style={{ color: active ? "#FF7840" : "rgba(180,100,60,0.35)" }} />
+                <Icon size={20} style={{ color: active ? "white" : "rgba(255,255,255,0.38)" }} />
                 {path === "/community" && unreadNotifs > 0 && (
                   <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ background: "#FF6B6B" }} />
                 )}
               </div>
               <span
                 style={{
-                  fontSize: 6,
+                  fontSize: 7,
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
-                  color: active ? "#FF7840" : "rgba(180,100,60,0.35)",
-                  fontWeight: active ? 600 : 400,
+                  fontFamily: "'Outfit', system-ui, sans-serif",
+                  color: active ? "white" : "rgba(255,255,255,0.38)",
+                  fontWeight: active ? 600 : 500,
                 }}
               >
                 {label}
@@ -60,10 +66,11 @@ const BottomNav = () => {
               {active && (
                 <div
                   style={{
-                    width: 16,
-                    height: 2,
-                    background: "linear-gradient(to right, #FF7840, #FFBA90)",
+                    width: 18,
+                    height: 2.5,
+                    background: "white",
                     borderRadius: 2,
+                    boxShadow: "0 0 8px rgba(255,255,255,0.55)",
                     animation: "dotScale 200ms cubic-bezier(0.34, 1.56, 0.64, 1)",
                   }}
                 />
@@ -72,7 +79,7 @@ const BottomNav = () => {
           );
         })}
       </div>
-      <div className="h-[env(safe-area-inset-bottom)]" />
+      <div style={{ height: "calc(13px + env(safe-area-inset-bottom))" }} />
     </nav>
   );
 };
