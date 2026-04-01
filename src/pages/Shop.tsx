@@ -350,18 +350,18 @@ const Shop = () => {
               return (
                 <button key={course.id} onClick={() => !isLocked && setSelectedCourse(course.id)}
                   className="w-full text-left belly-card-interactive"
-                  style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", borderRadius: 18, backdropFilter: "blur(12px)", opacity: isLocked ? 0.5 : 1 }}>
+                  style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 18, backdropFilter: "blur(14px)", opacity: isLocked ? 0.5 : 1 }}>
                   <div className="flex items-start gap-3 p-[14px_16px_10px]">
-                    <div className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center shrink-0 text-[22px]" style={{ background: "rgba(255,210,185,0.6)" }}>
-                      {isLocked ? <Lock size={18} style={{ color: "rgba(180,100,60,0.38)" }} /> : course.emoji}
+                    <div className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center shrink-0 text-[22px]" style={{ background: "rgba(255,255,255,0.20)" }}>
+                      {isLocked ? <Lock size={18} style={{ color: "rgba(255,255,255,0.40)" }} /> : course.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{course.title}</p>
-                      <p className="text-[10.5px]" style={{ color: "rgba(180,100,60,0.38)" }}>{course.lessonCount} lessons · {course.duration} min</p>
-                      <p className="text-[11px] mt-1 line-clamp-2" style={{ color: "#C4906A", fontWeight: 400 }}>{course.description}</p>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: "'Outfit', sans-serif" }}>{course.title}</p>
+                      <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{course.lessonCount} lessons · {course.duration} min</p>
+                      <p className="line-clamp-2" style={{ fontSize: 11, marginTop: 4, color: "rgba(255,255,255,0.65)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{course.description}</p>
                     </div>
-                    <span className="text-[12px] font-semibold shrink-0 mt-2" style={{ color: "#C4906A" }}>
-                      {isLocked ? <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: "rgba(255,200,170,0.25)", border: "0.5px solid rgba(255,170,130,0.3)", color: "#D4906A" }}>🔒 Premium</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, flexShrink: 0, marginTop: 8, color: "rgba(255,255,255,0.70)", fontFamily: "'Outfit', sans-serif" }}>
+                      {isLocked ? <span style={{ fontSize: 10, padding: "4px 8px", borderRadius: 12, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", color: "white" }}>🔒 Premium</span>
                         : courseCompletions > 0 ? "Continue →" : "Start →"}
                     </span>
                   </div>
