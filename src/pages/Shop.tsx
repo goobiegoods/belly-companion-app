@@ -313,17 +313,17 @@ const Shop = () => {
           <div className="px-5 space-y-2 mb-5">
             {teas.map(tea => (
               <div key={tea.id} className="flex items-center gap-3 belly-card-interactive"
-                style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", borderRadius: 16, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", padding: "13px 15px" }}>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[18px] shrink-0" style={{ background: "rgba(255,210,185,0.6)" }}>{tea.emoji}</div>
+                style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 16, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", padding: "13px 15px" }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[18px] shrink-0" style={{ background: "rgba(255,255,255,0.20)" }}>{tea.emoji}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{tea.name}</p>
-                  <p className="text-[11px]" style={{ color: "#C4906A", fontWeight: 400 }}>{tea.use}</p>
-                  {tea.tag && <span className="text-[10px] px-2 py-0.5 rounded-full inline-block mt-0.5" style={{ background: "rgba(255,184,153,0.25)", color: "#C4622A" }}>{tea.tag}</span>}
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "white", fontFamily: "'Outfit', sans-serif" }}>{tea.name}</p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{tea.use}</p>
+                  {tea.tag && <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, display: "inline-block", marginTop: 2, background: "rgba(255,255,255,0.18)", color: "white", fontFamily: "'Outfit', sans-serif" }}>{tea.tag}</span>}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-display text-[14px] font-semibold" style={{ color: "#A84E28" }}>${tea.price}</p>
-                  {tea.unit && <p className="text-[9px]" style={{ color: "rgba(180,100,60,0.38)" }}>{tea.unit}</p>}
-                  <button onClick={() => addToCart(tea)} className="mt-1 rounded-[16px] px-3 py-1 text-[10px] font-semibold belly-btn-primary" style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>Add</button>
+                  <p style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16, color: "white" }}>${tea.price}</p>
+                  {tea.unit && <p style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{tea.unit}</p>}
+                  <button onClick={() => addToCart(tea)} className="belly-btn-press" style={{ marginTop: 4, borderRadius: 16, padding: "4px 12px", fontSize: 10, fontWeight: 700, background: "white", color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Add</button>
                 </div>
               </div>
             ))}
