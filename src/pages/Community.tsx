@@ -23,26 +23,26 @@ const SEEDED_POSTS: Post[] = [
   { id: "seed-1", user_id: "", title: "Anyone else terrified of the anatomy scan?", body: "I'm 19 weeks and my anatomy scan is next week. I'm so excited but also scared they'll find something wrong. Is it normal to feel both things at once? How did you all cope with the wait?", category: "question", week_posted: 19, likes: 8, created_at: new Date(Date.now() - 86400000 * 11).toISOString(), author_name: "Maya", comment_count: 3, is_liked: false },
   { id: "seed-2", user_id: "", title: "Round ligament pain or something worse?", body: "Getting these sharp stabbing pains on my right side when I move too fast or sneeze. Doctor said round ligament pain but it freaks me out every time. Anyone have a natural remedy that actually helped?", category: "question", week_posted: 22, likes: 14, created_at: new Date(Date.now() - 86400000 * 6).toISOString(), author_name: "Priya", comment_count: 5, is_liked: false },
   { id: "seed-3", user_id: "", title: "Husband doesn't understand the exhaustion", body: "I am 9 weeks and I cannot explain to my husband why I need to be in bed by 8pm. He thinks I'm being overdramatic. Am I the only one? Please tell me this gets better in the second trimester.", category: "question", week_posted: 9, likes: 31, created_at: new Date(Date.now() - 86400000 * 3).toISOString(), author_name: "Chloe", comment_count: 11, is_liked: false },
-  { id: "seed-4", user_id: "", title: "Natural ways to turn a breech baby?", body: "My baby is still breech at 34 weeks. Midwife mentioned ECV but I want to try everything natural first. Has anyone had success with spinning babies, moxibustion, or anything else? Feeling hopeful but nervous.", category: "question", week_posted: 34, likes: 19, created_at: new Date(Date.now() - 86400000 * 8).toISOString(), author_name: "Layla", comment_count: 7, is_liked: false },
-  { id: "seed-5", user_id: "", title: "Nux Vomica 30c literally saved my first trimester", body: "I was vomiting 4-5 times a day until my naturopath recommended Nux Vomica 30c from Boiron. Three pellets under my tongue before bed and when I woke up. Within 3 days the nausea was 60% better. If you're in the thick of it please try this.", category: "tip", week_posted: 10, likes: 47, created_at: new Date(Date.now() - 86400000 * 5).toISOString(), author_name: "Sofia", comment_count: 8, is_liked: false },
-  { id: "seed-6", user_id: "", title: "P6 acupressure point is no joke", body: "Two finger widths below your wrist between the two tendons. Press firmly for 60 seconds on each wrist. I do this every morning before getting out of bed and it genuinely takes the edge off the nausea. Free, instant, works anywhere.", category: "tip", week_posted: 8, likes: 62, created_at: new Date(Date.now() - 86400000 * 9).toISOString(), author_name: "Amara", comment_count: 12, is_liked: false },
-  { id: "seed-7", user_id: "", title: "CCF tea for bloating and digestion", body: "Cumin, coriander, fennel — equal parts, steep for 10 minutes. My Ayurvedic practitioner recommended this for the gas and bloating in my second trimester and I drink it every afternoon now. It's gentle, safe in pregnancy, and actually works.", category: "tip", week_posted: 18, likes: 28, created_at: new Date(Date.now() - 86400000 * 12).toISOString(), author_name: "Rania", comment_count: 4, is_liked: false },
-  { id: "seed-8", user_id: "", title: "Magnesium glycinate for sleep is everything", body: "I was waking up 3-4 times a night from leg cramps and restlessness. My midwife suggested magnesium glycinate powder in warm water before bed. I now sleep through to at least 3am before baby decides to have a dance party.", category: "tip", week_posted: 26, likes: 55, created_at: new Date(Date.now() - 86400000 * 2).toISOString(), author_name: "Jade", comment_count: 9, is_liked: false },
-  { id: "seed-9", user_id: "", title: "I felt the first kick today and I ugly cried", body: "Week 18. I was sitting at my desk eating lunch and just — this tiny flutter. Then again. I put my hand on my belly and said hello for the first time out loud and completely fell apart. Nothing prepares you for that moment. Sending love to everyone still waiting for theirs.", category: "story", week_posted: 18, likes: 89, created_at: new Date(Date.now() - 86400000 * 4).toISOString(), author_name: "Zara", comment_count: 15, is_liked: false },
-  { id: "seed-10", user_id: "", title: "My home birth was everything I hoped for", body: "I know this is not for everyone but I want to share for the mamas considering it. Week 39, my midwife arrived at 11pm. Baby was born in our bedroom at 4:17am. It was the most primal, beautiful, terrifying and empowering thing I have ever done. I roared my baby into the world and I will never be the same person.", category: "story", week_posted: 39, likes: 134, created_at: new Date(Date.now() - 86400000 * 7).toISOString(), author_name: "Isla", comment_count: 22, is_liked: false },
-  { id: "seed-11", user_id: "", title: "NICU journey — week 28 premature birth", body: "Our son arrived at 28 weeks. We spent 72 days in the NICU. I am writing this with him asleep on my chest at home, 3.4kg and perfect. If anyone is going through this right now — you are stronger than you know. The NICU nurses are angels. Hold on.", category: "story", week_posted: 28, likes: 203, created_at: new Date(Date.now() - 86400000 * 10).toISOString(), author_name: "Nina", comment_count: 31, is_liked: false },
-  { id: "seed-12", user_id: "", title: "Second pregnancy is so different and nobody told me", body: "With my first I was anxious, reading every app, tracking every symptom. This time I'm 14 weeks and just... living. I feel guilty sometimes that I'm not as obsessive. Then I realise this is just wisdom. Anyone else a second-time mama who feels this?", category: "story", week_posted: 14, likes: 41, created_at: new Date(Date.now() - 86400000 * 1).toISOString(), author_name: "Orel", comment_count: 6, is_liked: false },
-  { id: "seed-13", user_id: "", title: "Scared to tell people because of my history", body: "I've had two losses. I'm now 8 weeks and terrified to feel hopeful. I haven't told anyone except my partner. I don't know how to let myself be happy about this pregnancy. Has anyone walked this road and come out the other side okay?", category: "support", week_posted: 8, likes: 76, created_at: new Date(Date.now() - 86400000 * 6).toISOString(), author_name: "Hana", comment_count: 14, is_liked: false },
-  { id: "seed-14", user_id: "", title: "Prenatal anxiety is real and nobody talks about it", body: "I thought postpartum depression was the thing to worry about. Nobody warned me about the anxiety during pregnancy. I am 22 weeks and some days I can barely breathe from worry. I see a therapist but I just want to know I'm not alone in this.", category: "support", week_posted: 22, likes: 94, created_at: new Date(Date.now() - 86400000 * 3).toISOString(), author_name: "Leila", comment_count: 18, is_liked: false },
-  { id: "seed-15", user_id: "", title: "Doing this completely alone — partner left at 6 weeks", body: "I know there are others out here. My partner left when I told him. I'm 16 weeks now and I've built the most incredible support system of women around me. I'm terrified and I'm also so proud of myself. This space means a lot.", category: "support", week_posted: 16, likes: 167, created_at: new Date(Date.now() - 86400000 * 5).toISOString(), author_name: "Ava", comment_count: 25, is_liked: false },
-  { id: "seed-16", user_id: "", title: "Grieving my pre-pregnancy body and feeling ashamed of that", body: "I love this baby more than I can say. And I also miss feeling like myself in my body. I look in the mirror and don't recognise myself and then feel guilty for caring. Is this okay to feel? Can I love my baby and also grieve my old self?", category: "support", week_posted: 20, likes: 88, created_at: new Date(Date.now() - 86400000 * 8).toISOString(), author_name: "Mia", comment_count: 13, is_liked: false },
+  { id: "seed-4", user_id: "", title: "Natural ways to turn a breech baby?", body: "My baby is still breech at 34 weeks. Midwife mentioned ECV but I want to try everything natural first. Has anyone had success with spinning babies, moxibustion, or anything else?", category: "question", week_posted: 34, likes: 19, created_at: new Date(Date.now() - 86400000 * 8).toISOString(), author_name: "Layla", comment_count: 7, is_liked: false },
+  { id: "seed-5", user_id: "", title: "Nux Vomica 30c literally saved my first trimester", body: "I was vomiting 4-5 times a day until my naturopath recommended Nux Vomica 30c from Boiron. Three pellets under my tongue before bed and when I woke up. Within 3 days the nausea was 60% better.", category: "tip", week_posted: 10, likes: 47, created_at: new Date(Date.now() - 86400000 * 5).toISOString(), author_name: "Sofia", comment_count: 8, is_liked: false },
+  { id: "seed-6", user_id: "", title: "P6 acupressure point is no joke", body: "Two finger widths below your wrist between the two tendons. Press firmly for 60 seconds on each wrist. I do this every morning before getting out of bed and it genuinely takes the edge off the nausea.", category: "tip", week_posted: 8, likes: 62, created_at: new Date(Date.now() - 86400000 * 9).toISOString(), author_name: "Amara", comment_count: 12, is_liked: false },
+  { id: "seed-7", user_id: "", title: "CCF tea for bloating and digestion", body: "Cumin, coriander, fennel — equal parts, steep for 10 minutes. My Ayurvedic practitioner recommended this for the gas and bloating in my second trimester.", category: "tip", week_posted: 18, likes: 28, created_at: new Date(Date.now() - 86400000 * 12).toISOString(), author_name: "Rania", comment_count: 4, is_liked: false },
+  { id: "seed-8", user_id: "", title: "Magnesium glycinate for sleep is everything", body: "I was waking up 3-4 times a night from leg cramps and restlessness. My midwife suggested magnesium glycinate powder in warm water before bed.", category: "tip", week_posted: 26, likes: 55, created_at: new Date(Date.now() - 86400000 * 2).toISOString(), author_name: "Jade", comment_count: 9, is_liked: false },
+  { id: "seed-9", user_id: "", title: "I felt the first kick today and I ugly cried", body: "Week 18. I was sitting at my desk eating lunch and just — this tiny flutter. Then again. Nothing prepares you for that moment.", category: "story", week_posted: 18, likes: 89, created_at: new Date(Date.now() - 86400000 * 4).toISOString(), author_name: "Zara", comment_count: 15, is_liked: false },
+  { id: "seed-10", user_id: "", title: "My home birth was everything I hoped for", body: "Week 39, my midwife arrived at 11pm. Baby was born in our bedroom at 4:17am. It was the most primal, beautiful, terrifying and empowering thing I have ever done.", category: "story", week_posted: 39, likes: 134, created_at: new Date(Date.now() - 86400000 * 7).toISOString(), author_name: "Isla", comment_count: 22, is_liked: false },
+  { id: "seed-11", user_id: "", title: "NICU journey — week 28 premature birth", body: "Our son arrived at 28 weeks. We spent 72 days in the NICU. I am writing this with him asleep on my chest at home, 3.4kg and perfect.", category: "story", week_posted: 28, likes: 203, created_at: new Date(Date.now() - 86400000 * 10).toISOString(), author_name: "Nina", comment_count: 31, is_liked: false },
+  { id: "seed-12", user_id: "", title: "Second pregnancy is so different and nobody told me", body: "With my first I was anxious, reading every app, tracking every symptom. This time I'm 14 weeks and just... living.", category: "story", week_posted: 14, likes: 41, created_at: new Date(Date.now() - 86400000 * 1).toISOString(), author_name: "Orel", comment_count: 6, is_liked: false },
+  { id: "seed-13", user_id: "", title: "Scared to tell people because of my history", body: "I've had two losses. I'm now 8 weeks and terrified to feel hopeful. I haven't told anyone except my partner.", category: "support", week_posted: 8, likes: 76, created_at: new Date(Date.now() - 86400000 * 6).toISOString(), author_name: "Hana", comment_count: 14, is_liked: false },
+  { id: "seed-14", user_id: "", title: "Prenatal anxiety is real and nobody talks about it", body: "I thought postpartum depression was the thing to worry about. Nobody warned me about the anxiety during pregnancy.", category: "support", week_posted: 22, likes: 94, created_at: new Date(Date.now() - 86400000 * 3).toISOString(), author_name: "Leila", comment_count: 18, is_liked: false },
+  { id: "seed-15", user_id: "", title: "Doing this completely alone — partner left at 6 weeks", body: "I know there are others out here. My partner left when I told him. I'm 16 weeks now and I've built the most incredible support system.", category: "support", week_posted: 16, likes: 167, created_at: new Date(Date.now() - 86400000 * 5).toISOString(), author_name: "Ava", comment_count: 25, is_liked: false },
+  { id: "seed-16", user_id: "", title: "Grieving my pre-pregnancy body and feeling ashamed of that", body: "I love this baby more than I can say. And I also miss feeling like myself in my body.", category: "support", week_posted: 20, likes: 88, created_at: new Date(Date.now() - 86400000 * 8).toISOString(), author_name: "Mia", comment_count: 13, is_liked: false },
 ];
 
 const CATEGORY_STYLES: Record<string, { bg: string; text: string; ring: string; avatarBg: string }> = {
-  question: { bg: "rgba(255,210,185,0.4)", text: "#E07040", ring: "rgba(255,140,80,0.3)", avatarBg: "rgba(255,210,185,0.6)" },
-  story: { bg: "rgba(225,210,252,0.4)", text: "#9060D0", ring: "rgba(190,155,240,0.3)", avatarBg: "rgba(230,215,255,0.6)" },
-  tip: { bg: "rgba(200,240,208,0.4)", text: "#40A060", ring: "rgba(140,210,160,0.3)", avatarBg: "rgba(210,244,216,0.6)" },
-  support: { bg: "rgba(255,240,200,0.4)", text: "#B08020", ring: "rgba(200,170,80,0.3)", avatarBg: "rgba(255,240,200,0.6)" },
+  question: { bg: "rgba(255,255,255,0.15)", text: "white", ring: "rgba(255,255,255,0.25)", avatarBg: "rgba(255,255,255,0.2)" },
+  story: { bg: "rgba(255,255,255,0.15)", text: "white", ring: "rgba(255,255,255,0.25)", avatarBg: "rgba(255,255,255,0.2)" },
+  tip: { bg: "rgba(255,255,255,0.15)", text: "white", ring: "rgba(255,255,255,0.25)", avatarBg: "rgba(255,255,255,0.2)" },
+  support: { bg: "rgba(255,255,255,0.15)", text: "white", ring: "rgba(255,255,255,0.25)", avatarBg: "rgba(255,255,255,0.2)" },
 };
 
 const titleCase = (s: string) => s?.split(' ').map(w => w[0]?.toUpperCase() + w.slice(1).toLowerCase()).join(' ') || '';
@@ -67,7 +67,6 @@ const Community = () => {
   const [likeAnimating, setLikeAnimating] = useState<string | null>(null);
 
   const { notifications, unreadCount, markAsRead, markAllRead } = useNotifications();
-
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
 
   const handleNotifTap = async (notif: { id: string; post_id: string | null; is_read: boolean; title: string; body: string | null; created_at: string }) => {
@@ -86,7 +85,6 @@ const Community = () => {
     let query = supabase.from("posts").select("*").order("created_at", { ascending: false });
     if (activeCategory !== "All") query = query.eq("category", activeCategory.toLowerCase().slice(0, -1));
     const { data } = await query;
-
     if (data && data.length > 0) {
       const userIds = [...new Set(data.map(p => p.user_id))];
       const { data: profiles } = await supabase.from("profiles").select("user_id, first_name").in("user_id", userIds);
@@ -122,7 +120,6 @@ const Community = () => {
   };
 
   useEffect(() => { fetchPosts(); }, [activeCategory]);
-  
 
   const createPost = async () => {
     if (!newTitle.trim() || !user) return;
@@ -191,27 +188,27 @@ const Community = () => {
   if (showNotifications) {
     return (
       <div className="h-screen flex flex-col page-enter" style={{ background: "transparent" }}>
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 belly-glass-nav shrink-0" style={{ borderBottom: "1px solid rgba(255,228,212,0.6)" }}>
-          <button onClick={() => setShowNotifications(false)} className="text-[12px] font-semibold" style={{ color: "#C4906A" }}>← Back</button>
-          <h1 className="font-display text-[18px] font-semibold" style={{ color: "#C85828" }}>Notifications</h1>
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+          <button onClick={() => setShowNotifications(false)} style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "var(--w70)" }}>← Back</button>
+          <h1 style={{ fontFamily: "'Outfit', system-ui", fontSize: 18, fontWeight: 600, color: "white" }}>Notifications</h1>
           {unreadCount > 0 ? (
-            <button onClick={markAllRead} className="text-[11px] font-medium" style={{ color: "#FF7840" }}>Mark all read</button>
+            <button onClick={markAllRead} style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 500, color: "white" }}>Mark all read</button>
           ) : <div className="w-10" />}
         </div>
         <div className="flex-1 overflow-y-auto pb-20">
           {notifications.length === 0 ? (
             <div className="text-center py-16">
-              <p className="font-display text-[13px] italic" style={{ color: "rgba(180,100,60,0.38)" }}>No notifications yet 🌸</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontStyle: "italic", color: "var(--w40)" }}>No notifications yet 🌸</p>
             </div>
           ) : notifications.map(n => (
             <button key={n.id} onClick={() => handleNotifTap(n)}
-              className="w-full text-left px-4 py-3 flex gap-3 belly-card-interactive" style={{ borderBottom: "1px solid rgba(255,170,130,0.14)", opacity: n.is_read ? 0.6 : 1 }}>
-              {!n.is_read && <div className="w-[3px] rounded-full self-stretch shrink-0" style={{ background: "#FFB899" }} />}
+              className="w-full text-left px-4 py-3 flex gap-3 belly-card-interactive" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", opacity: n.is_read ? 0.6 : 1 }}>
+              {!n.is_read && <div className="w-[3px] rounded-full self-stretch shrink-0" style={{ background: "white" }} />}
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{n.title}</p>
-                {n.body && <p className="text-[12px] leading-[1.4] mt-0.5 line-clamp-2" style={{ color: "#C4906A" }}>{n.body}</p>}
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>{n.title}</p>
+                {n.body && <p className="text-[12px] leading-[1.4] mt-0.5 line-clamp-2" style={{ color: "var(--w70)" }}>{n.body}</p>}
               </div>
-              <span className="text-[10px] shrink-0" style={{ color: "rgba(180,100,60,0.38)" }}>{timeAgo(n.created_at)}</span>
+              <span className="text-[10px] shrink-0" style={{ color: "var(--w40)" }}>{timeAgo(n.created_at)}</span>
             </button>
           ))}
         </div>
@@ -222,72 +219,71 @@ const Community = () => {
   // --- POST DETAIL ---
   if (selectedPost) {
     const isSeeded = selectedPost.id.startsWith("seed-");
-    const catStyle = getCatStyle(selectedPost.category);
     return (
-      <div className="fixed inset-0 z-[100] flex flex-col page-enter" style={{ background: "#FEF8F4" }}>
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 belly-glass-nav shrink-0" style={{ borderBottom: "0.5px solid rgba(255,170,130,0.18)" }}>
-          <button onClick={() => { setSelectedPost(null); fetchPosts(); }} className="text-[12px] font-semibold" style={{ color: "#C4906A" }}>← Back</button>
-          <span className="text-[6.5px] font-semibold px-[7px] py-[2px] rounded-[6px] capitalize" style={{ background: catStyle.bg, color: catStyle.text }}>
+      <div className="fixed inset-0 z-[100] flex flex-col page-enter" style={{ background: "#FF8C42" }}>
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(22px)", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+          <button onClick={() => { setSelectedPost(null); fetchPosts(); }} style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "var(--w70)" }}>← Back</button>
+          <span className="text-[9px] font-semibold px-[7px] py-[2px] rounded-[6px] capitalize" style={{ background: "rgba(255,255,255,0.15)", color: "white" }}>
             {selectedPost.category}
           </span>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-semibold shrink-0"
-              style={{ background: catStyle.avatarBg, color: catStyle.text, boxShadow: `0 0 0 1.5px ${catStyle.ring}` }}>
+              style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
               {initials(selectedPost.author_name || "")}
             </div>
             <div>
-              <span className="text-[14px] font-semibold" style={{ color: "#B86040" }}>{titleCase(selectedPost.author_name || "")}</span>
-              <span className="text-[11px] ml-2" style={{ color: "rgba(180,100,60,0.38)" }}>{timeAgo(selectedPost.created_at)}</span>
+              <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white" }}>{titleCase(selectedPost.author_name || "")}</span>
+              <span className="text-[11px] ml-2" style={{ color: "var(--w40)" }}>{timeAgo(selectedPost.created_at)}</span>
             </div>
             {selectedPost.week_posted && (
-              <span className="text-[6px] px-[6px] py-[2px] rounded-[7px] ml-auto" style={{ background: "rgba(255,200,170,0.25)", border: "0.5px solid rgba(255,170,130,0.3)", color: "#D4906A", fontWeight: 500 }}>
-                Week {selectedPost.week_posted} mama
+              <span className="text-[8px] px-[6px] py-[2px] rounded-[7px] ml-auto" style={{ background: "rgba(255,255,255,0.15)", color: "white", fontWeight: 500 }}>
+                Week {selectedPost.week_posted}
               </span>
             )}
           </div>
-          <h2 className="font-display text-[22px] font-semibold mb-3" style={{ color: "#A84E28", textTransform: "none" }}>{selectedPost.title}</h2>
-          <p className="text-[14px] leading-[1.75] mb-4" style={{ color: "#C4906A" }}>{selectedPost.body}</p>
+          <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 700, color: "white", marginBottom: 12 }}>{selectedPost.title}</h2>
+          <p className="text-[14px] leading-[1.75] mb-4" style={{ color: "var(--w70)", fontFamily: "'Outfit', system-ui" }}>{selectedPost.body}</p>
           <button onClick={() => toggleLike(selectedPost)}
             className={`flex items-center gap-1.5 text-[12px] mb-4 ${likeAnimating === selectedPost.id ? "heart-liked" : ""}`}
-            style={{ color: selectedPost.is_liked ? "#FF7840" : "rgba(180,100,60,0.4)" }}>
+            style={{ color: selectedPost.is_liked ? "white" : "var(--w40)" }}>
             <Heart size={16} className={selectedPost.is_liked ? "fill-current" : ""} />
             {selectedPost.likes} likes
           </button>
-          <div style={{ borderTop: "0.5px solid rgba(255,170,130,0.14)", marginTop: 8, marginBottom: 8 }} />
-          <p className="text-[6.5px] uppercase tracking-[0.11em] mb-3 mt-4 font-semibold" style={{ color: "rgba(200,88,40,0.4)" }}>Replies</p>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: 8, marginBottom: 8 }} />
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12, marginTop: 16, color: "var(--w40)", fontWeight: 600 }}>Replies</p>
           {comments.length === 0 ? (
-            <p className="text-[13px] font-display italic text-center py-5" style={{ color: "rgba(180,100,60,0.38)" }}>No replies yet. Be the first to respond! 💕</p>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontStyle: "italic", textAlign: "center", padding: "20px 0", color: "var(--w40)" }}>No replies yet. Be the first to respond! 💕</p>
           ) : comments.map((c: any) => (
-            <div key={c.id} className="rounded-[14px] p-[12px_14px] mb-2" style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+            <div key={c.id} className="rounded-[14px] p-[12px_14px] mb-2" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)" }}>
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0" style={{ background: "rgba(255,210,185,0.6)", color: "#E07040" }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
                   {initials(c.author_name)}
                 </div>
-                <span className="text-[12px] font-semibold" style={{ color: "#B86040" }}>{titleCase(c.author_name)}</span>
-                <span className="text-[10px]" style={{ color: "rgba(180,100,60,0.38)" }}>{timeAgo(c.created_at)}</span>
+                <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "white" }}>{titleCase(c.author_name)}</span>
+                <span className="text-[10px]" style={{ color: "var(--w40)" }}>{timeAgo(c.created_at)}</span>
               </div>
-              <p className="text-[13px] leading-[1.55] mt-1.5" style={{ color: "#A84E28" }}>{c.body}</p>
+              <p className="text-[13px] leading-[1.55] mt-1.5" style={{ color: "var(--w70)", fontFamily: "'Outfit', system-ui" }}>{c.body}</p>
             </div>
           ))}
           <div className="h-4" />
         </div>
-        <div className="shrink-0 px-4 pt-[10px] belly-glass-nav" style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))", zIndex: 101, position: "relative", background: "#FFFFFF" }}>
-          {replyError && <p className="text-[12px] mb-2" style={{ color: "#E07040" }}>{replyError}</p>}
+        <div className="shrink-0 px-4 pt-[10px]" style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))", zIndex: 101, position: "relative", background: "rgba(200,80,10,0.45)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.14)" }}>
+          {replyError && <p className="text-[12px] mb-2" style={{ color: "#FFB899" }}>{replyError}</p>}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0" style={{ background: "rgba(255,210,185,0.6)", color: "#E07040", boxShadow: "0 0 0 1.5px rgba(255,140,80,0.3)" }}>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0" style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
               {initials(userName)}
             </div>
             <input value={commentText} onChange={e => setCommentText(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
               placeholder={isSeeded ? "Sign in to reply" : `Reply to ${titleCase(selectedPost.author_name || "")}...`}
               disabled={isSeeded || !user}
-              className="flex-1 h-10 rounded-[22px] px-4 text-[13px] font-display italic outline-none disabled:opacity-50 belly-input-focus"
-              style={{ border: "0.5px solid rgba(255,170,130,0.22)", background: "rgba(255,248,245,0.9)", color: "#A84E28" }} />
+              className="flex-1 h-10 rounded-full px-4 text-[13px] outline-none disabled:opacity-50"
+              style={{ background: "var(--input-bg)", color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none" }} />
             <button onClick={addComment} disabled={!commentText.trim() || sendingReply || isSeeded || !user}
               className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 disabled:opacity-40 belly-btn-primary"
-              style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)" }}>
+              style={{ background: "#FF6520" }}>
               <Send size={14} style={{ color: "white" }} />
             </button>
           </div>
@@ -301,13 +297,13 @@ const Community = () => {
     <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
       <div className="px-5 pt-5 pb-3 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-[22px] font-semibold" style={{ color: "#C85828" }}>Community</h1>
-          <p className="text-[11px]" style={{ color: "#D4906A", fontWeight: 400 }}>You're not alone in this</p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 28, fontWeight: 700, color: "white" }}>Mama</p>
+          <p style={{ fontFamily: "'Fraunces', serif", fontSize: 34, fontWeight: 800, fontStyle: "italic", color: "white", letterSpacing: -1, lineHeight: 0.9 }}>community</p>
         </div>
         <div className="flex items-center gap-2">
           <NotificationBell onOpenNotifications={() => setShowNotifications(true)} unreadCount={unreadCount} />
           <button onClick={() => setShowCreate(true)} className="rounded-full px-3 py-1.5 text-[11px] font-semibold flex items-center gap-1 belly-btn-primary"
-            style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white" }}>
+            style={{ background: "white", color: "#FF6520", fontFamily: "'Outfit', system-ui", fontWeight: 700 }}>
             <Plus size={14} /> Post
           </button>
         </div>
@@ -318,10 +314,11 @@ const Community = () => {
           <button key={cat} onClick={() => setActiveCategory(cat)}
             className="rounded-full px-3 py-1.5 text-[11px] whitespace-nowrap transition-all belly-btn-press"
             style={{
-              background: activeCategory === cat ? "linear-gradient(135deg, #FF7840, #FFA070)" : "rgba(255,255,255,0.7)",
-              color: activeCategory === cat ? "white" : "#C4784A",
-              fontWeight: activeCategory === cat ? 600 : 500,
-              border: activeCategory === cat ? "none" : "0.5px solid rgba(255,170,130,0.3)"
+              background: activeCategory === cat ? "white" : "var(--c1)",
+              color: activeCategory === cat ? "#FF6520" : "white",
+              fontWeight: activeCategory === cat ? 700 : 500,
+              fontFamily: "'Outfit', system-ui",
+              border: activeCategory === cat ? "none" : "1px solid var(--c1-border)"
             }}>
             {cat}
           </button>
@@ -330,44 +327,43 @@ const Community = () => {
 
       <div className="px-5 space-y-2">
         {loading ? (
-          [1, 2, 3].map(i => <div key={i} className="rounded-[15px] p-4 animate-pulse h-32" style={{ background: "rgba(255,255,255,0.72)" }} />)
+          [1, 2, 3].map(i => <div key={i} className="rounded-[15px] p-4 animate-pulse h-32" style={{ background: "var(--c1)" }} />)
         ) : posts.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(255,240,232,0.8)" }}><span className="text-2xl">💕</span></div>
-            <p className="font-display text-[16px] font-semibold mb-1" style={{ color: "#A84E28" }}>Be the first to share your story</p>
-            <p className="text-[11px]" style={{ color: "rgba(180,100,60,0.38)" }}>Start a conversation with other mamas</p>
+            <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}><span className="text-2xl">💕</span></div>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "white" }}>Be the first to share your story</p>
+            <p className="text-[11px]" style={{ color: "var(--w40)" }}>Start a conversation with other mamas</p>
           </div>
         ) : posts.map(post => {
-          const catStyle = getCatStyle(post.category);
           return (
             <button key={post.id} onClick={() => openPost(post)}
               className="w-full text-left belly-card-interactive"
-              style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", borderRadius: 15, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", boxShadow: "0 1px 8px rgba(255,140,90,0.05)", padding: "11px 13px" }}>
+              style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", borderRadius: 15, backdropFilter: "blur(14px)", padding: "11px 13px" }}>
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold"
-                  style={{ background: catStyle.avatarBg, color: catStyle.text, boxShadow: `0 0 0 1.5px ${catStyle.ring}` }}>
+                  style={{ background: "rgba(255,255,255,0.2)", color: "white" }}>
                   {initials(post.author_name || "")}
                 </div>
-                <span className="text-[13px] font-semibold" style={{ color: "#B86040" }}>{titleCase(post.author_name || "")}</span>
+                <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>{titleCase(post.author_name || "")}</span>
                 {post.week_posted && (
-                  <span className="text-[6px] px-[6px] py-[2px] rounded-[7px]" style={{ background: "rgba(255,200,170,0.25)", border: "0.5px solid rgba(255,170,130,0.3)", color: "#D4906A", fontWeight: 500 }}>
+                  <span className="text-[8px] px-[6px] py-[2px] rounded-[7px]" style={{ background: "rgba(255,255,255,0.15)", color: "white", fontWeight: 500 }}>
                     Week {post.week_posted}
                   </span>
                 )}
-                <span className="text-[10px] ml-auto" style={{ color: "rgba(180,100,60,0.38)" }}>{timeAgo(post.created_at)}</span>
+                <span className="text-[10px] ml-auto" style={{ color: "var(--w40)" }}>{timeAgo(post.created_at)}</span>
               </div>
-              <span className="inline-block text-[6.5px] font-semibold px-[7px] py-[2px] rounded-[6px] capitalize mb-1" style={{ background: catStyle.bg, color: catStyle.text }}>
+              <span className="inline-block text-[9px] font-semibold px-[7px] py-[2px] rounded-[6px] capitalize mb-1" style={{ background: "rgba(255,255,255,0.15)", color: "white" }}>
                 {post.category}
               </span>
-              <p className="font-display text-[14px] font-semibold mt-1 mb-1" style={{ color: "#A84E28", textTransform: "none" }}>{post.title}</p>
-              <p className="text-[12px] line-clamp-2 leading-[1.5]" style={{ color: "#C4906A", fontWeight: 400 }}>{post.body}</p>
-              <div className="flex items-center gap-[10px]" style={{ borderTop: "0.5px solid rgba(255,170,130,0.14)", paddingTop: 6, marginTop: 7 }}>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white", marginTop: 4, marginBottom: 4 }}>{post.title}</p>
+              <p className="text-[12px] line-clamp-2 leading-[1.5]" style={{ color: "rgba(255,255,255,0.65)", fontFamily: "'Outfit', system-ui", fontWeight: 400 }}>{post.body}</p>
+              <div className="flex items-center gap-[10px]" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 6, marginTop: 7 }}>
                 <button onClick={(e) => { e.stopPropagation(); toggleLike(post); }}
                   className={`flex items-center gap-1 text-[11px] ${likeAnimating === post.id ? "heart-liked" : ""}`}
-                  style={{ color: post.is_liked ? "#FF7840" : "rgba(180,100,60,0.4)" }}>
+                  style={{ color: post.is_liked ? "white" : "var(--w40)" }}>
                   <Heart size={14} className={post.is_liked ? "fill-current" : ""} /> {post.likes}
                 </button>
-                <span className="flex items-center gap-1 text-[11px]" style={{ color: "rgba(180,100,60,0.35)" }}>
+                <span className="flex items-center gap-1 text-[11px]" style={{ color: "var(--w40)" }}>
                   <MessageCircle size={14} /> {post.comment_count}
                 </span>
               </div>
@@ -380,45 +376,43 @@ const Community = () => {
       {showCreate && (
         <div className="fixed inset-0 bg-black/40 z-[200] flex items-end" onClick={() => { setShowCreate(false); setPostError(""); fetchPosts(); }}>
           <div className="w-full rounded-t-[24px] flex flex-col max-h-[85vh] overflow-hidden sheet-enter"
-            style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}
+            style={{ background: "rgba(200,80,10,0.95)", backdropFilter: "blur(20px)" }}
             onClick={e => e.stopPropagation()}>
             <div className="pt-3 pb-0 flex justify-center shrink-0">
-              <div className="w-10 h-[5px] rounded-full" style={{ background: "#FFCDB4" }} />
+              <div className="w-10 h-[5px] rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />
             </div>
-            <h2 className="font-display text-[20px] font-semibold px-5 pt-4 pb-4 shrink-0" style={{ color: "#C85828" }}>Create a post</h2>
+            <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "white", padding: "16px 20px 16px" }}>Create a post</h2>
             <div className="flex-1 overflow-y-auto min-h-0 px-5 pb-2">
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Give your post a title..."
-                className="w-full rounded-[12px] p-[12px_16px] text-[15px] font-display italic outline-none mb-3 belly-input-focus"
-                style={{ background: "rgba(255,248,245,0.9)", border: "0.5px solid rgba(255,170,130,0.22)", color: "#A84E28", textTransform: "none" }} />
+                className="w-full rounded-[14px] p-[12px_16px] text-[15px] outline-none mb-3"
+                style={{ background: "var(--input-bg)", color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none" }} />
               <textarea value={newBody} onChange={e => setNewBody(e.target.value)} placeholder="What's on your mind, mama?" rows={5}
-                className="w-full rounded-[12px] p-[12px_16px] text-[13px] font-display italic outline-none resize-none mb-4 belly-input-focus"
-                style={{ background: "rgba(255,248,245,0.9)", border: "0.5px solid rgba(255,170,130,0.22)", color: "#A84E28", minHeight: "140px" }} />
-              <p className="text-[6.5px] uppercase mb-2 font-semibold tracking-[0.11em]" style={{ color: "rgba(200,88,40,0.4)" }}>Post type</p>
+                className="w-full rounded-[14px] p-[12px_16px] text-[13px] outline-none resize-none mb-4"
+                style={{ background: "var(--input-bg)", color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none", minHeight: "140px" }} />
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "var(--w40)", fontWeight: 600 }}>Post type</p>
               <div className="flex gap-2 flex-wrap mb-2">
-                {["question", "story", "tip", "support"].map(cat => {
-                  const cs = getCatStyle(cat);
-                  return (
-                    <button key={cat} onClick={() => setNewCategory(cat)}
-                      className="rounded-full px-4 py-[7px] text-[12px] capitalize transition-all belly-btn-press"
-                      style={{
-                        background: newCategory === cat ? cs.bg : "rgba(255,255,255,0.7)",
-                        color: newCategory === cat ? cs.text : "#C4784A",
-                        fontWeight: newCategory === cat ? 600 : 500,
-                        border: `0.5px solid ${newCategory === cat ? cs.ring : "rgba(255,170,130,0.3)"}`,
-                      }}>
-                      {cat}
-                    </button>
-                  );
-                })}
+                {["question", "story", "tip", "support"].map(cat => (
+                  <button key={cat} onClick={() => setNewCategory(cat)}
+                    className="rounded-full px-4 py-[7px] text-[12px] capitalize transition-all belly-btn-press"
+                    style={{
+                      background: newCategory === cat ? "white" : "var(--c1)",
+                      color: newCategory === cat ? "#FF6520" : "white",
+                      fontWeight: newCategory === cat ? 700 : 500,
+                      fontFamily: "'Outfit', system-ui",
+                      border: newCategory === cat ? "none" : "1px solid var(--c1-border)",
+                    }}>
+                    {cat}
+                  </button>
+                ))}
               </div>
             </div>
-            <div className="shrink-0 px-5" style={{ borderTop: "0.5px solid rgba(255,170,130,0.14)", padding: "16px 20px calc(16px + env(safe-area-inset-bottom))" }}>
+            <div className="shrink-0 px-5" style={{ borderTop: "1px solid rgba(255,255,255,0.14)", padding: "16px 20px calc(16px + env(safe-area-inset-bottom))" }}>
               <button onClick={createPost} disabled={!newTitle.trim() || posting}
-                className="w-full rounded-[14px] py-[14px] text-[15px] font-display font-semibold transition-all belly-btn-primary disabled:opacity-45 disabled:cursor-not-allowed"
-                style={{ background: "linear-gradient(135deg, #FF7840, #FFA070)", color: "white", border: "none" }}>
+                className="w-full rounded-[20px] py-[14px] text-[15px] font-semibold transition-all belly-btn-primary disabled:opacity-45 disabled:cursor-not-allowed"
+                style={{ background: "white", color: "#FF6520", fontFamily: "'Outfit', system-ui", fontWeight: 700, border: "none" }}>
                 {posting ? "Posting..." : "Post to community 🌸"}
               </button>
-              {postError && <p className="text-[12px] text-center mt-2" style={{ color: "#E07040" }}>{postError}</p>}
+              {postError && <p className="text-[12px] text-center mt-2" style={{ color: "#FFB899" }}>{postError}</p>}
             </div>
           </div>
         </div>
