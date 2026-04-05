@@ -1,75 +1,109 @@
 
 
-# Fix BabyTracker.tsx — Bottom Half Visual Redesign
+# Fix BabyTracker.tsx — 9 Visual & Data Fixes
 
 ## Overview
-Update Recipe section, Trimester Overview, and Counters below line 220. No changes above the Natural Tip card. No logic changes.
+Fix broken fruit emoji mapping, refine hero/card styling, add symptom chip color categories, and polish milestones. Single file: `src/pages/BabyTracker.tsx`.
 
-## File: `src/pages/BabyTracker.tsx`
+## Fix 1 — Week-based Emoji Map (CRITICAL)
 
-### Fix 1 — Recipe Section (lines 220-256)
+Replace `FRUIT_EMOJI_MAP` (name-based, lines 8-18) and `getFruitEmoji` (lines 20-25) with a direct `weekEmoji: Record<number, string>` map as specified. Fallback `'🥑'` instead of `'🍼'`. Remove `FRUIT_EMOJI_MAP` and `getFruitEmoji`. Update `fruitEmoji` on line 121 to `weekEmoji[selectedWeek] || '🥑'`.
 
-**Header text** (lines 226-231):
-- Eyebrow: fontSize `9` (was 7), color `rgba(255,255,255,0.65)`
-- Headline: fontSize `16` (was 13)
-- Nutrient pills: fontSize `9` (was 6.5), border `rgba(255,255,255,0.32)` (was 0.3)
+Keep `getFruitName` but update it to extract from `weekData.babySize` (it already does this via the name keys — replace its key list with the `babySize` field values from pregnancyWeeks: "Poppy seed", "Sesame seed", "Lentil", "Blueberry", etc.).
 
-**Recipe mini cards** (lines 237-245):
-- Card: width `120` (was 86), borderRadius `16` (was 12), bg `rgba(255,255,255,0.20)` (was 0.12), border `rgba(255,255,255,0.28)` (was 0.18)
-- Emoji area: height `62` (was 48), emoji fontSize `28` (was 22)
-- Body: padding `9px 10px` (was 5px 7px)
-- Title: fontSize `10` (was 9), fontWeight `700` (was 600), marginBottom `2`, remove `-webkit-line-clamp` truncation (let wrap to 2 lines naturally)
-- Time: fontSize `8` (was 7), color `rgba(255,255,255,0.55)` (was 0.50)
-- Add vitamin badges below time for each recipe's top vitamins
+The `weekEmoji` map (all 40 weeks) as provided in the request.
 
-**"See all" button** (lines 249-253):
-- borderRadius `22` (was 10), padding `9px 20px` (was 5px 14px), fontSize `13` (was 9)
-- boxShadow `0 3px 10px rgba(0,0,0,0.08)`, display `block`, width `fit-content`, margin `10px auto`
+## Fix 2 — Hero Headline
 
-### Fix 2 — Trimester Overview (lines 258-274)
+Update lines 133-137:
+- Reduce font sizes: "Your" → 22px (was 26), "baby's world" → 30px (was 34)
+- Add week subtitle below: `Week {selectedWeek} · {fruitName} · ~{weekData.babyLength}` in Outfit 400 11px `rgba(255,255,255,0.55)`
+- Padding: `12px 16px 4px` (was `px-4 pt-4 pb-3`)
 
-- Section label: color `rgba(255,255,255,0.50)` (was 0.45), marginBottom `10` (was 8)
-- Gap: `8px` (was 6px)
-- Cards: borderRadius `16` (was 12), padding `12px 12px` (was 8px 10px)
-- Remove `opacity: 0.5` for inactive — instead use distinct styles:
-  - **Inactive**: bg `rgba(255,255,255,0.12)`, border `1px solid rgba(255,255,255,0.18)`, title color `rgba(255,255,255,0.65)` fontSize 12, weeks/desc color `rgba(255,255,255,0.40)`/`rgba(255,255,255,0.35)` fontSize 9/8
-  - **Active**: bg `rgba(255,255,255,0.26)`, border `2px solid rgba(255,255,255,0.50)`, boxShadow `0 4px 16px rgba(0,0,0,0.08)`, position relative. Title: white fontWeight 700 fontSize 13. Weeks: `rgba(255,255,255,0.65)` fontWeight 500 fontSize 9. Desc: `rgba(255,255,255,0.65)` fontSize 9. Add white dot: 7px circle, position absolute top 10 right 10, bg white, opacity 0.7
+## Fix 3 — Large Fruit Card
 
-### Fix 3 — Counters Redesign (lines 276-336)
+Update lines 139-157:
+- borderRadius: `24` (was 22), padding: `28px 16px 20px` (was `24px 16px`)
+- boxShadow: `0 4px 20px rgba(0,0,0,0.06)`
+- Emoji: fontSize `88` (was 90) — minor tweak
+- Stats row: bg `rgba(255,255,255,0.16)` (was 0.12), border `rgba(255,255,255,0.22)` (was 0.18), borderRadius `14` (was 12), padding `10px 8px` (was 8)
+- Number: fontSize `20` (was 18)
+- Label: fontSize `8` (was 7)
 
-- Section label: color `rgba(255,255,255,0.50)`, marginBottom `10`
-- marginTop on section: `24px` (from Fix 4 spacing)
+## Fix 4 — Browse Weeks Strip
 
-**Kick Counter tile** (lines 281-291):
-- Container: bg `rgba(255,255,255,0.22)`, border `1.5px solid rgba(255,255,255,0.34)`, borderRadius `22` (was 16), padding `18px 14px` (was 14px 12px), boxShadow `0 4px 20px rgba(0,0,0,0.06)`
-- Emoji: fontSize `24` (was 20), marginBottom `6` (was 4)
-- Count: fontSize `52` (was 36), letterSpacing `-3px`, margin `6px 0 2px`
-- Goal text: color `rgba(255,255,255,0.45)` (was 0.50), marginBottom `12` (was 8)
-- "+ Kick" button: bg `white`, color `#FF6520`, fontWeight `700`, fontSize `14` (was 11), borderRadius `16` (was 12), padding `12px`, boxShadow `0 3px 12px rgba(0,0,0,0.10)`
-- "Reset" button: bg `rgba(255,255,255,0.15)`, border `1px solid rgba(255,255,255,0.22)`, color `rgba(255,255,255,0.65)`, fontWeight `500`, fontSize `12` (was 10), borderRadius `12`, padding `8px`, marginTop `6` (was 5)
+Update lines 159-180:
+- Week pills: width/height `40px`, `borderRadius: "50%"` (circle), remove padding
+- Current: fontSize `13` (was 10), fontWeight `700`, boxShadow `0 3px 10px rgba(0,0,0,0.10)`
+- Other: fontSize `12` (was 10), fontWeight `600` (was 500), border `rgba(255,255,255,0.26)` (was 0.22), bg `rgba(255,255,255,0.18)` (was 0.16)
+- Gap: `8px` (was `1.5`/6px), padding `0 16px` (was `px-3`)
 
-**Contraction Counter tile** (lines 294-327):
-- Container: bg `rgba(255,255,255,0.18)`, border `1.5px solid rgba(255,255,255,0.28)`, borderRadius `22`, padding `18px 14px`, boxShadow `0 4px 20px rgba(0,0,0,0.06)`
-- Emoji/label: same sizing as kick
-- Count/timer: fontSize `52` (was 36/28), letterSpacing `-3px`
-- Hint text: marginBottom `12`
-- "Start timing" button: bg `rgba(255,255,255,0.90)`, color `#9060D0`, fontWeight `700`, fontSize `14`, borderRadius `16`, padding `12px`, boxShadow `0 3px 12px rgba(0,0,0,0.08)`
-- "Stop timing" button (timing state): bg `rgba(255,255,255,0.90)`, color `#E05040`
-- Pulse animation on timer wrapper: keep existing `contractionPulse` but update keyframes to `0 0 0 0 rgba(255,255,255,0.3)` → `0 0 0 8px rgba(255,255,255,0.0)`
-- "Reset" buttons: same style as kick reset (bg `rgba(255,255,255,0.15)`, border, etc.)
+## Fix 5 — Baby Development Card
 
-**Alert card** (lines 330-335): no changes needed (already correct)
+Update lines 184-187:
+- borderRadius: `18` (was 16), padding: `14px 15px` (was `11px 13px`)
+- Label: fontSize `9` (was 10), color `rgba(255,255,255,0.50)` (was 0.45), marginBottom `6` (was 4)
 
-### Fix 4 — Spacing (throughout)
+## Fix 6 — Baby Size Card
 
-- Between Natural Tip and Recipe section: `marginTop: 20` (was 8 on line 222)
-- Between Recipe and Trimester: `marginTop: 24` (was 12 on line 259)
-- Between Trimester and Counters: `marginTop: 24`
-- Bottom padding after counters: `paddingBottom: 32` (add to counters wrapper)
-- All section labels: marginBottom `10`
+Update lines 189-198:
+- borderRadius: `18` (was 16), padding: `13px 15px` (was `11px 13px`), gap: `12` (already 12)
+- Icon circle: `48px` (was 38), bg `rgba(255,255,255,0.20)` (was 0.18), border `rgba(255,255,255,0.30)` (was 0.26), emoji fontSize `24` (was 18)
+- "Baby Size" label: fontSize `9` (was 12), color `rgba(255,255,255,0.50)`, uppercase, add letterSpacing `0.1em`
+
+## Fix 7 — Symptom Chips with Color Categories
+
+Update lines 200-208. Add a helper function to categorize symptoms:
+
+```typescript
+function getSymptomCategory(symptom: string): 'physical' | 'emotional' | 'visible' | 'default' {
+  const physical = ['backache', 'heartburn', 'cramp', 'pain', 'nausea', 'fatigue', 'breath', 'swelling', 'swollen', 'hemorrhoid', 'constipation', 'urination', 'discharge', 'congestion', 'leg cramp', 'dizziness', 'headache', 'bloating', 'gas'];
+  const emotional = ['mood', 'dream', 'forgetfulness', 'brain', 'nesting', 'emotional', 'energy', 'sensitivity'];
+  const visible = ['stretch mark', 'glow', 'skin', 'vein', 'linea', 'waddle'];
+  const s = symptom.toLowerCase();
+  if (physical.some(k => s.includes(k))) return 'physical';
+  if (emotional.some(k => s.includes(k))) return 'emotional';
+  if (visible.some(k => s.includes(k))) return 'visible';
+  return 'default';
+}
+```
+
+Color mapping per category:
+- **physical**: bg `rgba(255,220,180,0.30)`, border `rgba(255,200,140,0.40)`
+- **emotional**: bg `rgba(220,200,255,0.25)`, border `rgba(200,170,255,0.35)`
+- **visible**: bg `rgba(200,240,220,0.20)`, border `rgba(170,220,200,0.30)`
+- **default**: bg `rgba(255,255,255,0.20)`, border `rgba(255,255,255,0.28)`
+
+Card: borderRadius `18`, padding `12px 14px`.
+
+## Fix 8 — Natural Tip Card
+
+Update lines 210-217:
+- bg: `rgba(220,200,255,0.16)` (was 0.12), border: `rgba(200,170,255,0.24)` (was 0.20)
+- borderRadius: `18` (was 16), padding: `13px 15px` (was `11px 13px`)
+- Label color: `rgba(220,200,255,0.65)` (was `rgba(255,255,255,0.45)`)
+- Icon circle: `36px` (was 38), bg `rgba(220,200,255,0.20)`, border `rgba(200,170,255,0.28)` (was white-based)
+- Tip text: color `rgba(255,255,255,0.85)` (was 0.60), fontSize `13` (was 11), lineHeight `1.6` (was 1.55)
+
+## Fix 9 — Milestones Section (NEW)
+
+Add a new "Milestones" section after the Natural Tip card and before the recipe section. Simple static milestones based on week ranges:
+
+```typescript
+const milestones = [
+  { emoji: '💓', title: 'First heartbeat', sub: 'Week 6', reached: selectedWeek >= 6 },
+  { emoji: '🤸', title: 'First movements', sub: 'Week 16', reached: selectedWeek >= 16 },
+  { emoji: '👂', title: 'Can hear your voice', sub: 'Week 23', reached: selectedWeek >= 23 },
+  { emoji: '👀', title: 'Eyes open', sub: 'Week 28', reached: selectedWeek >= 28 },
+  { emoji: '🫁', title: 'Lungs mature', sub: 'Week 36', reached: selectedWeek >= 36 },
+];
+```
+
+Section title: Fraunces 700 22px white. Each card: glass style `rgba(255,255,255,0.16)` bg, 40px icon circle, Outfit 600 12px white title, Outfit 400 9px `rgba(255,255,255,0.58)` sub. Unreached milestones get lower opacity (0.45).
 
 ## What Does NOT Change
-- Lines 1-218 (everything above Natural Tip)
-- All counter logic (addKick, start/stopContraction, shouldAlert)
-- Supabase calls, routing, imports
+- Lines 220-348 (recipe, trimester, counters — already fixed)
+- pregnancyWeeks.ts data
+- All Supabase logic, routing, counter functionality
+- Any other file
 
