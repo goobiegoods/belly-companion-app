@@ -5,32 +5,54 @@ import { getCurrentWeek, getWeekData, pregnancyWeeks } from "@/data/pregnancyWee
 import { supabase } from "@/integrations/supabase/client";
 import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from "@/data/recipesData";
 
-const FRUIT_EMOJI_MAP: Record<string, string> = {
-  "Poppy seed": "🌰", "Sesame seed": "🌰", "Blueberry": "🫐", "Raspberry": "🍇",
-  "Cherry": "🍒", "Fig": "🫐", "Lemon": "🍋", "Lime": "🍈", "Avocado": "🥑",
-  "Apple": "🍎", "Pear": "🍐", "Mango": "🥭", "Orange": "🍊", "Banana": "🍌",
-  "Papaya": "🍈", "Coconut": "🥥", "Melon": "🍈", "Cantaloupe": "🍈",
-  "Cauliflower": "🥦", "Lettuce": "🥬", "Cabbage": "🥬", "Pumpkin": "🎃",
-  "Watermelon": "🍉", "Pineapple": "🍍", "Honeydew": "🍈", "Butternut squash": "🎃",
-  "Corn": "🌽", "Cucumber": "🥒", "Eggplant": "🍆", "Turnip": "🫒",
-  "Bell pepper": "🫑", "Artichoke": "🫒", "Pomegranate": "🍎", "Grapefruit": "🍊",
-  "Peach": "🍑", "Plum": "🍑", "Strawberry": "🍓", "Grape": "🍇",
+const weekEmoji: Record<number, string> = {
+  1: '🫘', 2: '🫘', 3: '🫘', 4: '🫘',
+  5: '🫘', 6: '🍇', 7: '🫐', 8: '🫐',
+  9: '🍒', 10: '🍓', 11: '🍓', 12: '🍋',
+  13: '🍋', 14: '🍋', 15: '🍑', 16: '🥑',
+  17: '🍐', 18: '🍐', 19: '🥭', 20: '🥭',
+  21: '🥕', 22: '🥕', 23: '🌽', 24: '🌽',
+  25: '🥦', 26: '🥦', 27: '🥬', 28: '🥬',
+  29: '🎃', 30: '🎃', 31: '🥥', 32: '🥥',
+  33: '🍍', 34: '🍍', 35: '🍈', 36: '🍈',
+  37: '🥬', 38: '🍉', 39: '🍉', 40: '🍉',
 };
 
-function getFruitEmoji(babySize: string): string {
-  for (const [key, emoji] of Object.entries(FRUIT_EMOJI_MAP)) {
-    if (babySize.toLowerCase().includes(key.toLowerCase())) return emoji;
-  }
-  return "🍼";
-}
-
 function getFruitName(babySize: string): string {
-  // Extract the fruit/item name from strings like "Size of a Mango 🥭" or "A small avocado"
-  for (const key of Object.keys(FRUIT_EMOJI_MAP)) {
-    if (babySize.toLowerCase().includes(key.toLowerCase())) return key.toLowerCase();
+  // Extract just the fruit/veg name, lowercase
+  const s = babySize.toLowerCase();
+  const known = [
+    "poppy seed", "sesame seed", "lentil", "blueberry", "raspberry", "cherry",
+    "fig", "lemon", "lime", "avocado", "apple", "pear", "mango", "orange",
+    "banana", "papaya", "coconut", "melon", "cantaloupe", "cauliflower",
+    "lettuce", "cabbage", "pumpkin", "watermelon", "pineapple", "honeydew",
+    "butternut squash", "corn", "cucumber", "eggplant", "turnip", "bell pepper",
+    "artichoke", "pomegranate", "grapefruit", "peach", "plum", "strawberry",
+    "grape", "carrot", "broccoli",
+  ];
+  for (const k of known) {
+    if (s.includes(k)) return k;
   }
   return babySize;
 }
+
+function getSymptomCategory(symptom: string): 'physical' | 'emotional' | 'visible' | 'default' {
+  const s = symptom.toLowerCase();
+  const physical = ['backache', 'heartburn', 'cramp', 'pain', 'nausea', 'fatigue', 'breath', 'swelling', 'swollen', 'hemorrhoid', 'constipation', 'urination', 'discharge', 'congestion', 'leg cramp', 'dizziness', 'headache', 'bloating', 'gas'];
+  const emotional = ['mood', 'dream', 'forgetfulness', 'brain', 'nesting', 'emotional', 'energy', 'sensitivity'];
+  const visible = ['stretch mark', 'glow', 'skin', 'vein', 'linea', 'waddle'];
+  if (physical.some(k => s.includes(k))) return 'physical';
+  if (emotional.some(k => s.includes(k))) return 'emotional';
+  if (visible.some(k => s.includes(k))) return 'visible';
+  return 'default';
+}
+
+const symptomColors: Record<string, { bg: string; border: string }> = {
+  physical: { bg: "rgba(255,220,180,0.30)", border: "rgba(255,200,140,0.40)" },
+  emotional: { bg: "rgba(220,200,255,0.25)", border: "rgba(200,170,255,0.35)" },
+  visible: { bg: "rgba(200,240,220,0.20)", border: "rgba(170,220,200,0.30)" },
+  default: { bg: "rgba(255,255,255,0.20)", border: "rgba(255,255,255,0.28)" },
+};
 
 interface Contraction {
   startTime: Date;
@@ -118,38 +140,49 @@ const BabyTracker = () => {
 
   const formatTimer = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
-  const fruitEmoji = getFruitEmoji(weekData.babySize);
+  const fruitEmoji = weekEmoji[selectedWeek] || '🥑';
   const fruitName = getFruitName(weekData.babySize);
+
+  const milestones = [
+    { emoji: '💓', title: 'First heartbeat', sub: 'Week 6', reached: selectedWeek >= 6 },
+    { emoji: '🤸', title: 'First movements', sub: 'Week 16', reached: selectedWeek >= 16 },
+    { emoji: '👂', title: 'Can hear your voice', sub: 'Week 23', reached: selectedWeek >= 23 },
+    { emoji: '👀', title: 'Eyes open', sub: 'Week 28', reached: selectedWeek >= 28 },
+    { emoji: '🫁', title: 'Lungs mature', sub: 'Week 36', reached: selectedWeek >= 36 },
+  ];
 
   return (
     <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
       <style>{`
         @keyframes contractionPulse {
-          0%,100% { box-shadow: 0 0 0 3px rgba(255,255,255,0.2); }
-          50% { box-shadow: 0 0 0 8px rgba(255,255,255,0.05); }
+          0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+          50% { box-shadow: 0 0 0 8px rgba(255,255,255,0.0); }
         }
       `}</style>
 
-      {/* Hero — just headline */}
-      <div className="rounded-b-[24px] px-4 pt-4 pb-3" style={{ background: "rgba(255,255,255,0.22)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.35)", borderTop: "none" }}>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 26, fontWeight: 600, color: "white" }}>Your</p>
-        <p style={{ fontFamily: "'Fraunces', serif", fontSize: 34, fontWeight: 800, fontStyle: "italic", color: "white", letterSpacing: -0.5 }}>baby's world</p>
+      {/* Hero headline */}
+      <div style={{ padding: "12px 16px 4px" }}>
+        <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 22, fontWeight: 600, color: "white", display: "block", lineHeight: 1.1 }}>Your</span>
+        <span style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 800, fontStyle: "italic", color: "white", letterSpacing: -0.5, display: "block", lineHeight: 1.0, marginBottom: 4 }}>baby's world</span>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.55)" }}>
+          Week {selectedWeek} · {fruitName} · ~{weekData.babyLength}
+        </p>
       </div>
 
       {/* Large Fruit Card */}
-      <div className="px-5 mt-3">
-        <div style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 22, padding: "24px 16px", textAlign: "center" }}>
-          <span style={{ fontSize: 90, display: "block", margin: "0 auto 12px", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.15))" }}>{fruitEmoji}</span>
-          <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "white", marginBottom: 14 }}>About the size of a {fruitName}</p>
+      <div className="px-5 mt-2">
+        <div style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 24, padding: "28px 16px 20px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+          <span style={{ fontSize: 88, display: "block", margin: "0 auto 14px", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.15))" }}>{fruitEmoji}</span>
+          <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "white", marginBottom: 16 }}>About the size of a {fruitName}</p>
           <div style={{ display: "flex", gap: 8 }}>
             {[
               { value: weekData.babyWeight, label: "WEIGHT" },
               { value: weekData.babyLength, label: "LENGTH" },
               { value: `${selectedWeek}w`, label: "AGE" },
             ].map(stat => (
-              <div key={stat.label} style={{ flex: 1, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 12, padding: 8, textAlign: "center" }}>
-                <p style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white" }}>{stat.value}</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 7, fontWeight: 500, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{stat.label}</p>
+              <div key={stat.label} style={{ flex: 1, background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 14, padding: "10px 8px", textAlign: "center" }}>
+                <p style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "white" }}>{stat.value}</p>
+                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 500, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -158,21 +191,24 @@ const BabyTracker = () => {
 
       {/* Browse weeks */}
       <div className="px-5 mt-3 mb-1">
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white", marginBottom: 6 }}>Browse weeks</p>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white", marginBottom: 8 }}>Browse weeks</p>
       </div>
-      <div ref={scrollRef} className="flex gap-1.5 px-3 pb-3 overflow-x-auto hide-scrollbar">
+      <div ref={scrollRef} style={{ display: "flex", gap: 8, padding: "0 16px", paddingBottom: 12, overflowX: "auto" }} className="hide-scrollbar">
         {pregnancyWeeks.map(w => (
           <button key={w.week} onClick={() => setSelectedWeek(w.week)}
-            className="min-w-[36px] h-9 rounded-full text-xs belly-btn-press"
+            className="belly-btn-press"
             style={{
-              background: w.week === selectedWeek ? "white" : "rgba(255,255,255,0.16)",
-              border: w.week === selectedWeek ? "none" : "1px solid rgba(255,255,255,0.22)",
+              width: 40, height: 40, minWidth: 40,
+              borderRadius: "50%",
+              background: w.week === selectedWeek ? "white" : "rgba(255,255,255,0.18)",
+              border: w.week === selectedWeek ? "none" : "1px solid rgba(255,255,255,0.26)",
               color: w.week === selectedWeek ? "#FF6520" : "rgba(255,255,255,0.75)",
               fontFamily: "'Outfit', system-ui",
-              fontWeight: w.week === selectedWeek ? 700 : 500,
-              fontSize: 10,
-              borderRadius: 20,
-              padding: "4px 12px",
+              fontWeight: w.week === selectedWeek ? 700 : 600,
+              fontSize: w.week === selectedWeek ? 13 : 12,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: 0, cursor: "pointer", flexShrink: 0,
+              boxShadow: w.week === selectedWeek ? "0 3px 10px rgba(0,0,0,0.10)" : "none",
             }}>
             {w.week}
           </button>
@@ -181,38 +217,58 @@ const BabyTracker = () => {
 
       <div className="px-5 space-y-3 mb-5">
         {/* Baby Development */}
-        <div style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.24)", borderRadius: 16, padding: "11px 13px", backdropFilter: "blur(14px)" }}>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>Baby Development</p>
+        <div style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.24)", borderRadius: 18, padding: "14px 15px", backdropFilter: "blur(14px)" }}>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>Baby Development</p>
           <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "rgba(255,255,255,0.88)", lineHeight: 1.65, fontWeight: 400 }}>{weekData.developmentHighlight}</p>
         </div>
 
         {/* Baby Size — warm yellow tint */}
-        <div style={{ background: "rgba(255,240,180,0.15)", border: "1px solid rgba(255,220,120,0.25)", borderRadius: 16, padding: "11px 13px", display: "flex", alignItems: "center", gap: 12, backdropFilter: "blur(14px)" }}>
-          <div style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18 }}>
+        <div style={{ background: "rgba(255,240,180,0.18)", border: "1px solid rgba(255,220,120,0.28)", borderRadius: 18, padding: "13px 15px", display: "flex", alignItems: "center", gap: 12, backdropFilter: "blur(14px)" }}>
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 24 }}>
             {fruitEmoji}
           </div>
           <div>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "white", marginBottom: 2 }}>Baby Size</p>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white" }}>{weekData.babySize} · {weekData.babyLength} · {weekData.babyWeight}</p>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.50)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>Baby Size</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white" }}>{fruitName} · {weekData.babyLength} · {weekData.babyWeight}</p>
           </div>
         </div>
 
         {/* Symptoms */}
-        <div style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.24)", borderRadius: 16, padding: "11px 13px", backdropFilter: "blur(14px)" }}>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>What You Might Feel</p>
+        <div style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 18, padding: "12px 14px", backdropFilter: "blur(14px)" }}>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>What You Might Feel</p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {weekData.momSymptoms.map((s: string) => (
-              <span key={s} style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 20, padding: "3px 9px", fontSize: 11, color: "white", fontWeight: 600, fontFamily: "'Outfit', system-ui" }}>{s}</span>
-            ))}
+            {weekData.momSymptoms.map((s: string) => {
+              const cat = getSymptomCategory(s);
+              const colors = symptomColors[cat];
+              return (
+                <span key={s} style={{ background: colors.bg, border: `1px solid ${colors.border}`, borderRadius: 20, padding: "5px 12px", fontSize: 11, color: "white", fontWeight: 600, fontFamily: "'Outfit', system-ui" }}>{s}</span>
+              );
+            })}
           </div>
         </div>
 
         {/* Natural Tip — lavender hint */}
-        <div style={{ background: "rgba(220,200,255,0.12)", border: "1px solid rgba(200,170,255,0.20)", borderRadius: 16, padding: "11px 13px", backdropFilter: "blur(14px)" }}>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>Natural Tip</p>
+        <div style={{ background: "rgba(220,200,255,0.16)", border: "1px solid rgba(200,170,255,0.24)", borderRadius: 18, padding: "13px 15px", backdropFilter: "blur(14px)" }}>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(220,200,255,0.65)", fontWeight: 600 }}>Natural Tip</p>
           <div style={{ display: "flex", gap: 8 }}>
-            <div style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18 }}>🌿</div>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "rgba(255,255,255,0.60)", lineHeight: 1.55 }}>{weekData.naturalTip}</p>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(220,200,255,0.20)", border: "1px solid rgba(200,170,255,0.28)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18 }}>🌿</div>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.6 }}>{weekData.naturalTip}</p>
+          </div>
+        </div>
+
+        {/* Milestones */}
+        <div>
+          <p style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 700, color: "white", margin: "16px 0 8px" }}>Milestones</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {milestones.map(m => (
+              <div key={m.title} style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 16, padding: "11px 13px", display: "flex", alignItems: "center", gap: 10, opacity: m.reached ? 1 : 0.45 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18 }}>{m.emoji}</div>
+                <div>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "white" }}>{m.title}</p>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 400, color: "rgba(255,255,255,0.58)" }}>{m.sub}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
