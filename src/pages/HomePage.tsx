@@ -216,11 +216,29 @@ const HomePage = () => {
       <div className="px-5 mb-5">
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "var(--w40)", fontWeight: 600 }}>HOW ARE YOU TODAY</p>
         <div className="flex gap-2 justify-between">
-          {MOOD_LABELS.map(mood => (
-            <button key={mood} onClick={() => navigate("/journal")} className="belly-btn-press" style={{ flex: 1, background: C1, border: `1px solid ${C1B}`, borderRadius: 14, padding: "10px 4px", textAlign: "center" }}>
-              <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, color: "white", textTransform: "uppercase", letterSpacing: "0.05em" }}>{mood}</span>
-            </button>
-          ))}
+          {MOOD_LABELS.map(({ key, label, emoji }) => {
+            const selected = todayMood === key;
+            return (
+              <button
+                key={key}
+                onClick={() => handleMood(key)}
+                className="belly-btn-press"
+                style={{
+                  flex: 1,
+                  background: selected ? "rgba(255,255,255,0.35)" : C1,
+                  border: `1px solid ${selected ? "rgba(255,255,255,0.55)" : C1B}`,
+                  borderRadius: 14,
+                  padding: "10px 4px",
+                  textAlign: "center",
+                  transform: selected ? "scale(1.05)" : "scale(1)",
+                  transition: "all 160ms ease",
+                }}
+              >
+                <span style={{ display: "block", fontSize: 18, marginBottom: 2 }}>{emoji}</span>
+                <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, color: "white", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
