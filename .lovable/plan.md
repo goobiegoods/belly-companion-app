@@ -1,109 +1,118 @@
 
 
-# Fix BabyTracker.tsx — 9 Visual & Data Fixes
+# Belly — Add Missing Features + Spec Polish Pass
 
-## Overview
-Fix broken fruit emoji mapping, refine hero/card styling, add symptom chip color categories, and polish milestones. Single file: `src/pages/BabyTracker.tsx`.
+## Approach
+Your app is ~85% built. This plan adds the genuinely missing pieces from the spec, then does a focused polish pass on existing screens to bring copy and styling closer to the new brief. No screen gets rebuilt from scratch — everything keeps its existing logic and Lovable Cloud / Lovable AI wiring.
 
-## Fix 1 — Week-based Emoji Map (CRITICAL)
+## Part 1 — New backend pieces
 
-Replace `FRUIT_EMOJI_MAP` (name-based, lines 8-18) and `getFruitEmoji` (lines 20-25) with a direct `weekEmoji: Record<number, string>` map as specified. Fallback `'🥑'` instead of `'🍼'`. Remove `FRUIT_EMOJI_MAP` and `getFruitEmoji`. Update `fruitEmoji` on line 121 to `weekEmoji[selectedWeek] || '🥑'`.
+### 1.1 Database migrations
+Two new tables, RLS enforced (users only see their own rows):
 
-Keep `getFruitName` but update it to extract from `weekData.babySize` (it already does this via the name keys — replace its key list with the `babySize` field values from pregnancyWeeks: "Poppy seed", "Sesame seed", "Lentil", "Blueberry", etc.).
+| Table | Columns | Purpose |
+|---|---|---|
+| `mood_logs` | id, user_id, mood (tired/good/glowing/anxious/unwell), logged_at | Persist mood check-ins |
+| `streak_state` | user_id (PK), current_streak, last_checkin_date, longest_streak | Track daily streak |
 
-The `weekEmoji` map (all 40 weeks) as provided in the request.
+Add a `streak_count` and `last_checkin_date` view via `streak_state` so the home screen can read it directly.
 
-## Fix 2 — Hero Headline
+### 1.2 Streak logic (client-side helper)
+`src/lib/streak.ts` — on mood check-in or app open:
+- same day → no change
+- yesterday → increment `current_streak`
+- ≥ 2 days gap → reset to 1
+- Toast at 3 / 7 / 30 day milestones
+- Updates `streak_state` row (upsert)
 
-Update lines 133-137:
-- Reduce font sizes: "Your" → 22px (was 26), "baby's world" → 30px (was 34)
-- Add week subtitle below: `Week {selectedWeek} · {fruitName} · ~{weekData.babyLength}` in Outfit 400 11px `rgba(255,255,255,0.55)`
-- Padding: `12px 16px 4px` (was `px-4 pt-4 pb-3`)
+## Part 2 — New user-facing features
 
-## Fix 3 — Large Fruit Card
+### 2.1 Mood check-in persistence
+`HomePage.tsx` already has the 5-emoji mood row. Wire it to:
+- Insert into `mood_logs` on tap
+- Trigger streak update
+- Keep existing toast copy ("rest up, mama 💤" etc.) — already matches spec
+- Show selected state for current day's mood
 
-Update lines 139-157:
-- borderRadius: `24` (was 22), padding: `28px 16px 20px` (was `24px 16px`)
-- boxShadow: `0 4px 20px rgba(0,0,0,0.06)`
-- Emoji: fontSize `88` (was 90) — minor tweak
-- Stats row: bg `rgba(255,255,255,0.16)` (was 0.12), border `rgba(255,255,255,0.22)` (was 0.18), borderRadius `14` (was 12), padding `10px 8px` (was 8)
-- Number: fontSize `20` (was 18)
-- Label: fontSize `8` (was 7)
+### 2.2 Shareable Week Card (Baby screen)
+New component `src/components/ShareableWeekCard.tsx`:
+- Orange (#FF8C42) card, white text, belly logo, week's fruit emoji centered, "Week N · Fruit · weight · length"
+- "Share this week 📤" button
+- Uses `html-to-image` (smaller than html2canvas) to generate PNG
+- On mobile: `navigator.share()` with the file; on desktop: download
+- Lives below milestones on `/baby`
 
-## Fix 4 — Browse Weeks Strip
+### 2.3 Admin dashboard `/admin`
+Separate route tree with **dark theme** (#111 bg, #FF8C42 accents, sidebar nav). Protected by `user_roles` table check (NOT a column on profiles — security best practice).
 
-Update lines 159-180:
-- Week pills: width/height `40px`, `borderRadius: "50%"` (circle), remove padding
-- Current: fontSize `13` (was 10), fontWeight `700`, boxShadow `0 3px 10px rgba(0,0,0,0.10)`
-- Other: fontSize `12` (was 10), fontWeight `600` (was 500), border `rgba(255,255,255,0.26)` (was 0.22), bg `rgba(255,255,255,0.18)` (was 0.16)
-- Gap: `8px` (was `1.5`/6px), padding `0 16px` (was `px-3`)
+New migration:
+- `app_role` enum (`admin`, `user`)
+- `user_roles` table (user_id, role, unique pair)
+- `has_role(user_id, role)` security definer function
+- RLS so users see only their own roles
 
-## Fix 5 — Baby Development Card
+Admin pages:
+1. **Overview** — metric cards (total users, orders today, pending orders, DAU from mood_logs), recent orders table
+2. **Orders** — full table, filter by status, click row to expand items + shipping, "Mark Shipped" action
+3. **Users** — table from `profiles` (name, due date, week, streak, joined)
+4. **Community** — all posts table, Pin/Unpin/Delete actions
+5. **Products** — read-only list (products are currently hardcoded in `shopData.ts`; full CRUD needs a `products` table — included as a follow-up note, not built now to keep scope sane)
 
-Update lines 184-187:
-- borderRadius: `18` (was 16), padding: `14px 15px` (was `11px 13px`)
-- Label: fontSize `9` (was 10), color `rgba(255,255,255,0.50)` (was 0.45), marginBottom `6` (was 4)
+Admin layout uses `shadcn/ui` sidebar component, Outfit font for UI, Fraunces for page titles.
 
-## Fix 6 — Baby Size Card
+### 2.4 Stripe checkout (Shop)
+Currently the shop inserts orders directly with `status: pending`. Replace with real checkout:
+- Run `recommend_payment_provider` first (per Lovable's payments workflow)
+- Based on result, suggest **Stripe** (digital + physical remedies) via `enable_stripe_payments` (Lovable's built-in, not BYOK)
+- After enabling, wire the cart's checkout button to create a Stripe Checkout session, redirect to Stripe-hosted page, handle success/cancel
+- Order row gets created on webhook success with `status: paid`
 
-Update lines 189-198:
-- borderRadius: `18` (was 16), padding: `13px 15px` (was `11px 13px`), gap: `12` (already 12)
-- Icon circle: `48px` (was 38), bg `rgba(255,255,255,0.20)` (was 0.18), border `rgba(255,255,255,0.30)` (was 0.26), emoji fontSize `24` (was 18)
-- "Baby Size" label: fontSize `9` (was 12), color `rgba(255,255,255,0.50)`, uppercase, add letterSpacing `0.1em`
+> Note: payments require Pro plan. If you're not on Pro, I'll skip 2.4 and keep the current "order received" flow.
 
-## Fix 7 — Symptom Chips with Color Categories
+## Part 3 — Polish pass on existing screens
 
-Update lines 200-208. Add a helper function to categorize symptoms:
+Light-touch CSS / copy adjustments only. No logic changes.
 
-```typescript
-function getSymptomCategory(symptom: string): 'physical' | 'emotional' | 'visible' | 'default' {
-  const physical = ['backache', 'heartburn', 'cramp', 'pain', 'nausea', 'fatigue', 'breath', 'swelling', 'swollen', 'hemorrhoid', 'constipation', 'urination', 'discharge', 'congestion', 'leg cramp', 'dizziness', 'headache', 'bloating', 'gas'];
-  const emotional = ['mood', 'dream', 'forgetfulness', 'brain', 'nesting', 'emotional', 'energy', 'sensitivity'];
-  const visible = ['stretch mark', 'glow', 'skin', 'vein', 'linea', 'waddle'];
-  const s = symptom.toLowerCase();
-  if (physical.some(k => s.includes(k))) return 'physical';
-  if (emotional.some(k => s.includes(k))) return 'emotional';
-  if (visible.some(k => s.includes(k))) return 'visible';
-  return 'default';
-}
-```
+| Screen | Polish |
+|---|---|
+| **Home** | Add the "doula" ghost watermark behind the hero card (Fraunces 900 120px, opacity 0.06). Verify mood toast copy matches spec exactly. Confirm streak bento right-tile uses `rgba(0,0,0,0.12)` dark bg. |
+| **Baby** | Confirm hero "Your / baby's world" stack matches spec sizes (20px / 36px italic). Add ShareableWeekCard placement. |
+| **Ask** | Add "AI · LIVE" green-dot badge in header (small). Verify typing-indicator dots use bouncing keyframes. |
+| **Community** | Verify "+ Post" button is white pill (already done in earlier pass). Confirm filter chip active state is white. |
+| **Shop** | After Stripe wiring, add "🛍️ Checkout securely" CTA copy on cart. |
+| **Profile** | Verify achievements grid uses 40% opacity + grayscale + 🔒 overlay for locked badges. |
 
-Color mapping per category:
-- **physical**: bg `rgba(255,220,180,0.30)`, border `rgba(255,200,140,0.40)`
-- **emotional**: bg `rgba(220,200,255,0.25)`, border `rgba(200,170,255,0.35)`
-- **visible**: bg `rgba(200,240,220,0.20)`, border `rgba(170,220,200,0.30)`
-- **default**: bg `rgba(255,255,255,0.20)`, border `rgba(255,255,255,0.28)`
+## Part 4 — Things explicitly NOT changing
+- AI provider stays **Lovable AI** (Gemini / GPT via gateway), not direct Anthropic — no API key needed, already working
+- Email stays unset (no Resend) — not needed for current flows
+- Hosting is Lovable, not Vercel
+- Auth keeps email/password + Google (already wired via Lovable Cloud)
+- All existing data in `pregnancyWeeks.ts`, `shopData.ts`, `coursesData.ts`, etc.
+- No PWA / service worker (Lovable preview restriction)
 
-Card: borderRadius `18`, padding `12px 14px`.
+## Files touched
 
-## Fix 8 — Natural Tip Card
+**New:**
+- `src/lib/streak.ts`
+- `src/components/ShareableWeekCard.tsx`
+- `src/pages/admin/AdminLayout.tsx`
+- `src/pages/admin/AdminOverview.tsx`
+- `src/pages/admin/AdminOrders.tsx`
+- `src/pages/admin/AdminUsers.tsx`
+- `src/pages/admin/AdminCommunity.tsx`
+- `src/pages/admin/AdminProducts.tsx`
+- `src/hooks/useIsAdmin.ts`
+- 2 migrations (mood_logs + streak_state, user_roles + has_role)
 
-Update lines 210-217:
-- bg: `rgba(220,200,255,0.16)` (was 0.12), border: `rgba(200,170,255,0.24)` (was 0.20)
-- borderRadius: `18` (was 16), padding: `13px 15px` (was `11px 13px`)
-- Label color: `rgba(220,200,255,0.65)` (was `rgba(255,255,255,0.45)`)
-- Icon circle: `36px` (was 38), bg `rgba(220,200,255,0.20)`, border `rgba(200,170,255,0.28)` (was white-based)
-- Tip text: color `rgba(255,255,255,0.85)` (was 0.60), fontSize `13` (was 11), lineHeight `1.6` (was 1.55)
+**Edited (light polish + wiring only):**
+- `src/App.tsx` (admin routes)
+- `src/pages/HomePage.tsx` (mood persistence + ghost watermark)
+- `src/pages/BabyTracker.tsx` (ShareableWeekCard insertion)
+- `src/pages/AskDoula.tsx` (LIVE badge)
+- `src/pages/Profile.tsx` (achievements lock styling)
+- `src/pages/Shop.tsx` (Stripe checkout if 2.4 enabled)
+- `package.json` (`html-to-image` dep)
 
-## Fix 9 — Milestones Section (NEW)
-
-Add a new "Milestones" section after the Natural Tip card and before the recipe section. Simple static milestones based on week ranges:
-
-```typescript
-const milestones = [
-  { emoji: '💓', title: 'First heartbeat', sub: 'Week 6', reached: selectedWeek >= 6 },
-  { emoji: '🤸', title: 'First movements', sub: 'Week 16', reached: selectedWeek >= 16 },
-  { emoji: '👂', title: 'Can hear your voice', sub: 'Week 23', reached: selectedWeek >= 23 },
-  { emoji: '👀', title: 'Eyes open', sub: 'Week 28', reached: selectedWeek >= 28 },
-  { emoji: '🫁', title: 'Lungs mature', sub: 'Week 36', reached: selectedWeek >= 36 },
-];
-```
-
-Section title: Fraunces 700 22px white. Each card: glass style `rgba(255,255,255,0.16)` bg, 40px icon circle, Outfit 600 12px white title, Outfit 400 9px `rgba(255,255,255,0.58)` sub. Unreached milestones get lower opacity (0.45).
-
-## What Does NOT Change
-- Lines 220-348 (recipe, trimester, counters — already fixed)
-- pregnancyWeeks.ts data
-- All Supabase logic, routing, counter functionality
-- Any other file
+## Open question for after approval
+Are you on the **Pro plan** so I can enable Stripe in Part 2.4? If not, I'll skip checkout and keep the existing "order received" flow.
 
