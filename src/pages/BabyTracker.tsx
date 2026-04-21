@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek, getWeekData, pregnancyWeeks } from "@/data/pregnancyWeeks";
 import { supabase } from "@/integrations/supabase/client";
 import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from "@/data/recipesData";
+import ShareableWeekCard from "@/components/ShareableWeekCard";
 
 const weekEmoji: Record<number, string> = {
   1: '🫘', 2: '🫘', 3: '🫘', 4: '🫘',
@@ -271,6 +272,15 @@ const BabyTracker = () => {
             ))}
           </div>
         </div>
+
+        {/* Shareable Week Card */}
+        <ShareableWeekCard
+          week={selectedWeek}
+          fruitEmoji={fruitEmoji}
+          fruitName={fruitName}
+          weight={weekData.babyWeight}
+          length={weekData.babyLength}
+        />
       </div>
 
       {/* Nourish this week */}
