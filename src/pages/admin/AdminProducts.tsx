@@ -1,4 +1,9 @@
-import { shopProducts } from "@/data/shopData";
+import { kits, remedies } from "@/data/shopData";
+
+const shopProducts = [
+  ...kits.map((k) => ({ ...k, category: "Kit" })),
+  ...remedies.map((r) => ({ ...r, category: "Remedy" })),
+];
 
 const AdminProducts = () => {
   return (

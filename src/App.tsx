@@ -21,6 +21,12 @@ import RecipeDetail from "./pages/RecipeDetail";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminCommunity from "./pages/admin/AdminCommunity";
+import AdminProducts from "./pages/admin/AdminProducts";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +105,13 @@ const AppContent = () => {
       <Route path="/orders" element={<ProtectedRoute><AppLayout><Orders /></AppLayout></ProtectedRoute>} />
       <Route path="/recipes" element={<ProtectedRoute><AppLayout><Recipes /></AppLayout></ProtectedRoute>} />
       <Route path="/recipes/:id" element={<ProtectedRoute><RecipeDetail /></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminOverview />} />
+        <Route path="orders" element={<AdminOrders />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="community" element={<AdminCommunity />} />
+        <Route path="products" element={<AdminProducts />} />
+      </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
