@@ -1,7 +1,22 @@
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek, getWeekData, getDaysToGo } from "@/data/pregnancyWeeks";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { updateStreak, getStreak } from "@/lib/streak";
 import BabySizeIllustration from "@/components/BabySizeIllustration";
+
+const MOOD_KEYS = ["tired", "good", "glowing", "anxious", "unwell"] as const;
+type Mood = (typeof MOOD_KEYS)[number];
+
+const MOOD_TOAST: Record<Mood, string> = {
+  tired: "rest up, mama 💤",
+  good: "you're doing great! ✨",
+  glowing: "you radiate, mama! 🌸",
+  anxious: "we're here for you 🤍",
+  unwell: "rest up, love 💛",
+};
 
 const FRUIT_EMOJI_MAP: Record<string, string> = {
   poppy: "🌺", blueberry: "🫐", raspberry: "🫐", grape: "🍇", olive: "🫒",
@@ -39,7 +54,34 @@ const HomePage = () => {
 
   const firstSentence = weekData.developmentHighlight.split(/(?<=\.)\s/)[0] || weekData.developmentHighlight;
 
-  const streakDays = 3;
+  const { user } = useAuth();
+  const [streakDays, setStreakDays] = useState(0);
+  const [todayMood, setTodayMood] = useState<Mood | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    getStreak(user.id).then((s) => s && setStreakDays(s.current));
+    const today = new Date().toISOString().slice(0, 10);
+    supabase
+      .from("mood_logs")
+      .select("mood")
+      .eq("user_id", user.id)
+      .gte("logged_at", `${today}T00:00:00Z`)
+      .order("logged_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => { if (data?.mood) setTodayMood(data.mood as Mood); });
+  }, [user]);
+
+  const handleMood = async (mood: Mood) => {
+    setTodayMood(mood);
+    toast.success(MOOD_TOAST[mood]);
+    if (!user) return;
+    await supabase.from("mood_logs").insert({ user_id: user.id, mood });
+    const s = await updateStreak(user.id);
+    if (s) setStreakDays(s.current);
+  };
+
   const streakProgress = Math.min(100, streakDays <= 6 ? (streakDays / 6) * 33 : streakDays <= 13 ? 33 + ((streakDays - 7) / 7) * 33 : 66 + Math.min(34, ((streakDays - 14) / 14) * 34));
 
   const milestones = [
@@ -50,7 +92,13 @@ const HomePage = () => {
   ];
 
   const SUGGESTION_CHIPS = ["Round ligament pain?", "Foods to avoid", "Better sleep", "First kicks", "Anxiety tips"];
-  const MOOD_LABELS = ["TIRED", "GOOD", "GLOW", "HANGOVER", "UNWELL"];
+  const MOOD_LABELS: { key: Mood; label: string; emoji: string }[] = [
+    { key: "tired", label: "TIRED", emoji: "😴" },
+    { key: "good", label: "GOOD", emoji: "😊" },
+    { key: "glowing", label: "GLOW", emoji: "🥰" },
+    { key: "anxious", label: "ANXIOUS", emoji: "😰" },
+    { key: "unwell", label: "UNWELL", emoji: "😣" },
+  ];
   const fruitEmoji = getFruitEmoji(weekData.babySize);
 
   return (
