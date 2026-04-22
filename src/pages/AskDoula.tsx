@@ -207,6 +207,10 @@ const AskDoula = () => {
 
   return (
     <div className="flex flex-col h-screen page-enter" style={{ background: "transparent" }}>
+      <style>{`
+        @keyframes livePulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
+        @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-7px); } }
+      `}</style>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
@@ -215,9 +219,9 @@ const AskDoula = () => {
         <div className="flex items-center gap-2 mb-0.5">
           <button onClick={() => navigate("/")} className="mr-1" style={{ color: "white", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600 }}>← Home</button>
           <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white" }}>Ask the Doula</h1>
-          <span className="text-[9px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", color: "white" }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ADE80", display: "inline-block" }} />
-            AI · LIVE
+          <span style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 20, padding: "4px 10px", display: "flex", alignItems: "center", gap: 5 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", animation: "livePulse 2s infinite" }} />
+            <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, letterSpacing: 1, color: "#fff" }}>AI · LIVE</span>
           </span>
         </div>
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.55)" }}>Your natural pregnancy guide</p>
