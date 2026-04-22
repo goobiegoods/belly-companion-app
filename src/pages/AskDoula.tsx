@@ -356,11 +356,26 @@ const AskDoula = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {!profile?.is_premium && messageCount > 0 && (
+      {!profile?.is_premium && messageCount >= 10 && (
+        <div style={{ margin: "8px 16px", padding: 14, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 14, textAlign: "center" }}>
+          <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 4 }}>
+            You've reached your 10 daily messages 🌸
+          </p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "rgba(255,255,255,0.8)", marginBottom: 10 }}>
+            Upgrade to Premium for unlimited access.
+          </p>
+          <button onClick={() => setShowPremium(true)}
+            style={{ background: "#fff", color: "#FF8C42", border: "none", borderRadius: 20, padding: "8px 18px", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+            Go Premium →
+          </button>
+        </div>
+      )}
+      {!profile?.is_premium && messageCount > 0 && messageCount < 10 && (
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, color: "var(--w40)", textAlign: "center", padding: "4px 0", fontStyle: "italic" }}>
           {messageCount}/10 free messages today
         </p>
       )}
+      <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
 
       {showPhotoMenu && (
         <div className="px-4 py-2 flex gap-2" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
