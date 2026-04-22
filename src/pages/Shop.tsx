@@ -365,10 +365,10 @@ const Shop = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: "'Outfit', sans-serif" }}>{course.title}</p>
-                      <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{course.lessonCount} lessons · {course.duration} min</p>
-                      <p className="line-clamp-2" style={{ fontSize: 11, marginTop: 4, color: "rgba(255,255,255,0.65)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{course.description}</p>
+                      <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.78)", fontFamily: "'Outfit', sans-serif" }}>{course.lessonCount} lessons · {course.duration} min</p>
+                      <p className="line-clamp-2" style={{ fontSize: 11, marginTop: 4, color: "rgba(255,255,255,0.85)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{course.description}</p>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 600, flexShrink: 0, marginTop: 8, color: "rgba(255,255,255,0.70)", fontFamily: "'Outfit', sans-serif" }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, flexShrink: 0, marginTop: 8, color: "rgba(255,255,255,0.95)", fontFamily: "'Outfit', sans-serif" }}>
                       {isLocked ? <span style={{ fontSize: 10, padding: "4px 8px", borderRadius: 12, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", color: "white" }}>🔒 Premium</span>
                         : courseCompletions > 0 ? "Continue →" : "Start →"}
                     </span>
