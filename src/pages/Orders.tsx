@@ -3,7 +3,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
+const STATUS_STYLES: Record<string, { bg: string; color: string; label?: string }> = {
+  pending_payment: { bg: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.7)", label: "Awaiting payment" },
+  paid: { bg: "rgba(80,200,120,0.30)", color: "white", label: "Paid" },
   pending: { bg: "rgba(255,255,255,0.15)", color: "white" },
   processing: { bg: "rgba(255,255,255,0.2)", color: "white" },
   shipped: { bg: "rgba(255,255,255,0.25)", color: "white" },
@@ -68,7 +70,7 @@ const Orders = () => {
                 <div key={order.id} className="rounded-[16px] p-4" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", backdropFilter: "blur(14px)" }}>
                   <div className="flex items-center justify-between mb-2">
                     <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 500, color: "white" }}>{formatDate(order.created_at)}</span>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize" style={{ background: ss.bg, color: ss.color }}>{order.status}</span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize" style={{ background: ss.bg, color: ss.color }}>{ss.label || order.status}</span>
                   </div>
                   {items.length > 0 && (
                     <div className="mb-2">

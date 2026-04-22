@@ -1,7 +1,18 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 
 const OrderSuccess = () => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const sessionId = params.get("session_id");
+  const { setCartCount } = useCart();
+
+  useEffect(() => {
+    // Clear cart now that the user has paid (webhook marks the order paid server-side).
+    setCartCount(0);
+  }, [setCartCount]);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 page-enter" style={{ background: "transparent" }}>
       <div style={{
@@ -13,14 +24,19 @@ const OrderSuccess = () => {
       <h1 style={{
         fontFamily: "'Fraunces', serif", fontSize: 32, fontWeight: 900, color: "#fff",
         textAlign: "center", letterSpacing: -1, marginBottom: 10,
-      }}>Order received!</h1>
+      }}>Payment received!</h1>
       <p style={{
         fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 300,
         color: "rgba(255,255,255,0.85)", textAlign: "center", lineHeight: 1.55,
-        maxWidth: 320, marginBottom: 32,
+        maxWidth: 320, marginBottom: 8,
       }}>
-        We'll process your order and reach out with shipping details within 24 hours. 🌸
+        Thanks, mama! We'll process your order and reach out with shipping details within 24 hours. 🌸
       </p>
+      {sessionId && (
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, color: "rgba(255,255,255,0.4)", marginBottom: 24 }}>
+          Ref: {sessionId.slice(-12)}
+        </p>
+      )}
       <button onClick={() => navigate("/shop")}
         style={{
           background: "#fff", color: "#FF8C42",
