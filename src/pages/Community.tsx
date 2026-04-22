@@ -143,17 +143,26 @@ const Community = () => {
   };
 
   const toggleLike = async (post: Post) => {
-    if (!user || post.id.startsWith("seed-")) return;
+    if (!user) return;
     setLikeAnimating(post.id);
     setTimeout(() => setLikeAnimating(null), 400);
+
+    // Optimistic update for instant feedback (works for both seeded + real posts)
+    const nextLiked = !post.is_liked;
+    const nextLikes = Math.max(0, post.likes + (nextLiked ? 1 : -1));
+    setPosts(prev => prev.map(p => p.id === post.id ? { ...p, is_liked: nextLiked, likes: nextLikes } : p));
+    setSelectedPost(prev => prev && prev.id === post.id ? { ...prev, is_liked: nextLiked, likes: nextLikes } : prev);
+
+    // Seeded posts are local-only — don't hit the database
+    if (post.id.startsWith("seed-")) return;
+
     if (post.is_liked) {
       await supabase.from("post_likes").delete().eq("post_id", post.id).eq("user_id", user.id);
-      await supabase.from("posts").update({ likes: Math.max(0, post.likes - 1) }).eq("id", post.id);
+      await supabase.from("posts").update({ likes: nextLikes }).eq("id", post.id);
     } else {
       await supabase.from("post_likes").insert({ post_id: post.id, user_id: user.id });
-      await supabase.from("posts").update({ likes: post.likes + 1 }).eq("id", post.id);
+      await supabase.from("posts").update({ likes: nextLikes }).eq("id", post.id);
     }
-    fetchPosts();
   };
 
   const openPost = async (post: Post) => {
