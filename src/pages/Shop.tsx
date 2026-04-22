@@ -527,6 +527,9 @@ const Shop = () => {
           70% { transform: scale(1.2); }
           100% { transform: scale(1); }
         }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
       `}</style>
     </div>
   );
