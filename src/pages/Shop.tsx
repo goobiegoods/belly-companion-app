@@ -382,7 +382,7 @@ const Shop = () => {
                   )}
                   <div className="flex flex-wrap gap-1.5 px-4 pb-3">
                     {course.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", color: "rgba(255,255,255,0.70)", fontFamily: "'Outfit', sans-serif" }}>{tag}</span>
+                      <span key={tag} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.30)", color: "rgba(255,255,255,0.92)", fontFamily: "'Outfit', sans-serif" }}>{tag}</span>
                     ))}
                   </div>
                 </button>
