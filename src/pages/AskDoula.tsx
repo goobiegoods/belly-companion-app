@@ -87,14 +87,26 @@ const AskDoula = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     setShowPhotoMenu(false);
+    const wasSafetyScan = safetyScanRef.current;
+    safetyScanRef.current = false;
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
       const base64 = result.split(",")[1];
-      setAttachedImage({ base64, url: result });
+      const img = { base64, url: result };
+      setAttachedImage(img);
+      if (wasSafetyScan) {
+        const prompt = `Is this product safe for me at week ${currentWeek}?`;
+        setTimeout(() => sendMessageWithImage(prompt, img), 50);
+      }
     };
     reader.readAsDataURL(file);
     e.target.value = "";
+  };
+
+  const handleSafetyChipClick = () => {
+    safetyScanRef.current = true;
+    safetyCameraInputRef.current?.click();
   };
 
   const sendMessage = async (text: string) => {
