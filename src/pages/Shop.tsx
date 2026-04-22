@@ -247,7 +247,7 @@ const Shop = () => {
 
   // --- MAIN SHOP ---
   return (
-    <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
+    <div className="min-h-screen pb-20 page-enter" style={{ background: "#FF8C42", minHeight: "100vh" }}>
       <div className="px-5 pt-5 pb-1 flex items-start justify-between">
         <div>
          <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 28, color: "white" }}>Belly Shop</h1>
@@ -287,7 +287,7 @@ const Shop = () => {
 
       {tab === "remedies" ? (
         <>
-          <div className="mx-4 mb-4 p-5 rounded-[20px] belly-hero-gradient relative overflow-hidden">
+          <div className="mx-4 mb-4 p-5 rounded-[20px] relative overflow-hidden" style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)" }}>
             <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: "rgba(255,255,255,0.10)" }} />
             <div className="absolute left-8 bottom-[-15px] w-16 h-16 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
             <p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.11em", marginBottom: 4, color: "rgba(255,255,255,0.60)", fontFamily: "'Outfit', sans-serif" }}>CURATED FOR PREGNANCY</p>
@@ -297,7 +297,7 @@ const Shop = () => {
               style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.35)", color: "white", fontSize: 12, fontWeight: 600, borderRadius: 20, padding: "5px 14px", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Shop all →</button>
           </div>
 
-          <p id="remedy-kits" style={{ padding: "0 20px", fontSize: 10, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontFamily: "'Outfit', sans-serif" }}>Remedy kits</p>
+          <p id="remedy-kits" style={{ padding: "0 20px", fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: 2, marginBottom: 8, color: "rgba(255,255,255,0.55)", fontFamily: "'Outfit', sans-serif" }}>Remedy kits</p>
           <div className="flex gap-3 px-4 overflow-x-auto hide-scrollbar mb-5" style={{ paddingRight: 32 }}>
             {kits.map(kit => (
               <div key={kit.id} className="min-w-[180px] shrink-0 belly-card-interactive overflow-hidden"
@@ -317,7 +317,7 @@ const Shop = () => {
             ))}
           </div>
 
-          <p style={{ padding: "0 20px", fontSize: 10, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontFamily: "'Outfit', sans-serif" }}>Individual remedies</p>
+          <p style={{ padding: "0 20px", fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: 2, marginBottom: 8, color: "rgba(255,255,255,0.55)", fontFamily: "'Outfit', sans-serif" }}>Individual remedies</p>
           <div className="px-5 space-y-2 mb-5">
             {remedies.map(rem => (
               <div key={rem.id} className="flex items-center gap-3 belly-card-interactive"
@@ -339,7 +339,7 @@ const Shop = () => {
             ))}
           </div>
 
-          <p style={{ padding: "0 20px", fontSize: 10, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontFamily: "'Outfit', sans-serif" }}>Herbal teas</p>
+          <p style={{ padding: "0 20px", fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: 2, marginBottom: 8, color: "rgba(255,255,255,0.55)", fontFamily: "'Outfit', sans-serif" }}>Herbal teas</p>
           <div className="px-5 space-y-2 mb-5">
             {teas.map(tea => (
               <div key={tea.id} className="flex items-center gap-3 belly-card-interactive"
@@ -365,7 +365,7 @@ const Shop = () => {
         </>
       ) : (
         <>
-          <div className="mx-4 mb-4 p-5 rounded-[20px] belly-hero-gradient relative overflow-hidden">
+          <div className="mx-4 mb-4 p-5 rounded-[20px] relative overflow-hidden" style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)" }}>
             <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: "rgba(255,255,255,0.10)" }} />
             <div className="absolute left-8 bottom-[-15px] w-16 h-16 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
             <p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.11em", marginBottom: 4, color: "rgba(255,255,255,0.78)", fontFamily: "'Outfit', sans-serif" }}>INTRO TO HOMEOPATHY</p>
