@@ -1,79 +1,54 @@
 
 
-# Baby Tracker — Fix emoji ↔ fruit name mismatches & lowercase fruit names
+# Baby Tracker — Full emoji audit & fix
 
-## What's actually going on
+## What's wrong
 
-Two separate bugs in `src/data/pregnancyWeeks.ts`:
+Reviewing all 40 weeks, I found multiple emoji↔fruit mismatches (the user-reported three plus several more). Unicode lacks dedicated emojis for some fruits (lentil, raspberry, cherry, fig, kumquat, papaya, jicama, butternut squash, winter melon), so I'll pick the closest visual match in each case and document it.
 
-1. **Emoji mismatches.** The data already uses inline Unicode emojis (no image assets — that part of your diagnosis was a red herring). But many entries pair the wrong emoji with the wrong fruit name, e.g.:
-   - Week 13: 🍋 + "Peach" → should be 🍑
-   - Week 14: 🍑 + "Lemon" → should be 🍋
-   - Week 22: 🌽 + "Papaya" → should be 🍐 (papaya)
-   - Week 23: 🥭 + "Grapefruit" → should be 🍊
-   - …plus several more across weeks 8, 11, 29, 30, 32, 37, 38, 40.
+## All emoji changes
 
-2. **Capitalisation drift.** The `getFruitName()` helper in `BabyTracker.tsx` lowercases names by matching against a hard-coded list, but the list misses several entries ("raspberry", "kumquat", "jicama", "winter melon", "swiss chard", "romaine lettuce", "head of lettuce", "small watermelon"). When no match is found it falls back to the original `babySize` string, which is capitalised — so you see "About the size of a Jicama" instead of "about the size of a jicama".
+| Week | Fruit | Current | Issue | New |
+|---|---|---|---|---|
+| 6  | Lentil           | 🫐 | blueberry | 🫛 (peas — closest small green legume) |
+| 8  | Raspberry        | 🍓 | strawberry | 🫐 (closest small red/purple cluster berry) |
+| 9  | Cherry           | 🍇 | grape cluster | 🍒 (cherries) |
+| 10 | Kumquat          | 🍓 | strawberry | 🍊 (small orange citrus — closest) |
+| 11 | Fig              | 🫐 | blueberry | 🍑 (no fig emoji; pear-shaped purple fruit closest is peach tone — keep visual approximation) → use 🟣 alternative? Going with 🍑 best-shape match |
+| 22 | Papaya           | 🍐 | pear | 🥭 (no papaya emoji; mango is the closest tropical orange-fleshed fruit) |
+| 32 | Jicama           | 🥔 | potato (acceptable — jicama is a root, no dedicated emoji) | keep 🥔 |
+| 38 | Winter melon     | 🍈 | melon (acceptable) | keep 🍈 |
 
-## Important: I will NOT bulk-replace the data array
+### Final decisions for tricky ones
 
-Your spec includes a replacement array that drops `momSymptoms` and `naturalTip` from every week. The current schema has those fields and they're used throughout the page (the "What you might feel" pills + "Natural tip" card). Replacing wholesale would delete weeks of pregnancy content. I'll surgically patch only the emojis.
+- **Week 11 Fig** — there's no fig emoji in standard Unicode. Best options: 🍑 (peach, similar teardrop shape & purple-pink hue) or 🍇 (grape, similar dark color). I'll go with **🍑** for shape match.
+- **Week 22 Papaya** — no papaya emoji. **🥭** (mango) is the closest in size, color, and tropical category. This reuses the same emoji as Week 19 (Mango) but they're 3 weeks apart and the labels differ.
+- **Week 8 Raspberry** — no raspberry emoji. **🫐** (blueberries — clustered small berries) is closer than 🍓 (strawberry), which is a single large smooth berry.
 
-## Fix 1 — Patch emojis in `src/data/pregnancyWeeks.ts`
+### Sanity check — entries that are already correct, no change
 
-Updated emojis week-by-week so each emoji matches the same row's `babySize`:
+W1–5 🫘 seeds ✓ · W7 🫐 blueberry ✓ · W12 🥝 lime (kiwi stands in — actually let me flag) · W13 🍑 peach ✓ · W14 🍋 lemon ✓ · W15 🍎 apple ✓ · W16 🥑 avocado ✓ · W17 🍐 pear ✓ · W18 🫑 bell pepper ✓ · W19 🥭 mango ✓ · W20 🍌 banana ✓ · W21 🥕 carrot ✓ · W23 🍊 grapefruit ✓ · W24 🌽 corn ✓ · W25 🥦 cauliflower (broccoli stands in — no cauliflower emoji, acceptable) · W26 🥒 zucchini ✓ · W27 🥬 lettuce ✓ · W28 🍆 eggplant ✓ · W29 🥥 butternut squash (no squash emoji, coconut is poor — change to 🎃 pumpkin/squash family) · W30 🥬 cabbage ✓ · W31 🥥 coconut ✓ · W33 🍍 pineapple ✓ · W34–35 🍈 melons ✓ · W36–37 🥬 lettuce/chard ✓ · W39–40 🍉 watermelon ✓
 
-| Week | Fruit | Old emoji | New emoji |
-|---|---|---|---|
-| 8  | Raspberry        | 🫑 | 🍓 |
-| 11 | Fig              | 🍋 | 🫐 |
-| 13 | Peach            | 🍋 | 🍑 |
-| 14 | Lemon            | 🍑 | 🍋 |
-| 22 | Papaya           | 🌽 | 🍐 |
-| 23 | Grapefruit       | 🥭 | 🍊 |
-| 29 | Butternut squash | 🎃 | 🥥 |
-| 30 | Cabbage          | 🥦 | 🥬 |
-| 32 | Jicama           | 🎃 | 🥔 |
-| 37 | Swiss chard      | 🥦 | 🥬 |
-| 38 | Winter melon     | 🎃 | 🍈 |
-| 40 | Watermelon       | 🎃 | 🍉 |
+### Two more I'm flagging
 
-All other weeks already match — no change.
+- **Week 12 Lime** — currently 🥝 (kiwi). There IS a lime emoji (🍋‍🟩) but support is spotty. **Change to 🟢** is wrong. Best portable option: keep **🥝** (similar small green fruit) OR use **🍋** with note. Recommend keeping 🥝 since 🍋 is already used at W14.
+- **Week 29 Butternut squash** — currently 🥥 (coconut, very wrong shape & color). Change to **🎃** (closest squash-family emoji, orange-fleshed gourd).
 
-## Fix 2 — Make all fruit names render lowercase
+## Final consolidated change list
 
-In `src/pages/BabyTracker.tsx`, simplify `getFruitName()` so it always lowercases (no hard-coded allowlist that silently fails):
+| Week | Old → New | Reason |
+|---|---|---|
+| 6  | 🫐 → 🫛 | lentil ≠ blueberry; peas closest small legume |
+| 8  | 🍓 → 🫐 | raspberry ≠ strawberry; blueberries closest cluster berry |
+| 9  | 🍇 → 🍒 | cherry ≠ grapes (literal cherry emoji exists) |
+| 10 | 🍓 → 🍊 | kumquat ≠ strawberry; small orange citrus closest |
+| 11 | 🫐 → 🍑 | fig ≠ blueberry; peach closest in shape |
+| 22 | 🍐 → 🥭 | papaya ≠ pear; mango closest tropical fruit |
+| 29 | 🥥 → 🎃 | butternut squash ≠ coconut; pumpkin same family |
 
-```ts
-function getFruitName(babySize: string): string {
-  // Strip parentheticals like "(pre-conception)" then lowercase.
-  return babySize.replace(/\s*\(.*?\)\s*/g, "").trim().toLowerCase();
-}
-```
+7 emoji edits in `src/data/pregnancyWeeks.ts`. No other files touched.
 
-Result: every "About the size of a …" line and the header subtitle will be sentence-case, e.g. "About the size of a jicama", "About the size of a winter melon".
+## Test plan
 
-## Files touched
-
-- `src/data/pregnancyWeeks.ts` — 12 single-character emoji edits.
-- `src/pages/BabyTracker.tsx` — replace `getFruitName()` body (~12 lines → 3 lines).
-
-## Test plan (preview)
-
-1. Open Baby Tracker. Use the week pills to scrub through:
-   - **W8** → 🍓 raspberry
-   - **W11** → 🫐 fig
-   - **W13** → 🍑 peach
-   - **W14** → 🍋 lemon
-   - **W20** → 🍌 banana ✓ (sanity check)
-   - **W22** → 🍐 papaya
-   - **W23** → 🍊 grapefruit
-   - **W25** → 🥦 cauliflower ✓
-   - **W26** → 🥒 zucchini ✓
-   - **W29** → 🥥 butternut squash
-   - **W32** → 🥔 jicama
-   - **W38** → 🍈 winter melon
-   - **W40** → 🍉 watermelon
-2. On every week, confirm subtitle reads "About the size of a {lowercase name}" — including jicama, swiss chard, winter melon.
-3. Confirm the small fruit chip in the "Baby Size" card shows the same emoji as the big hero card (they read from the same `weekData.emoji`).
+After deploy, scrub through weeks 6, 8, 9, 10, 11, 22, 29 and confirm the hero card emoji visually matches the fruit name. Spot-check W7 (🫐 blueberry), W13 (🍑 peach), W23 (🍊 grapefruit) to ensure nothing else regressed.
 
