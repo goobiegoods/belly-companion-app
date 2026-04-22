@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { type StripeEnv, verifyWebhook } from "../_shared/stripe.ts";
+import { type StripeEnv, createStripeClient, verifyWebhook } from "../_shared/stripe.ts";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -28,7 +28,13 @@ serve(async (req) => {
         await handleSubscriptionDeleted(event.data.object, env);
         break;
       case "checkout.session.completed":
-        await handleCheckoutCompleted(event.data.object);
+        await handleCheckoutCompleted(event.data.object, env);
+        break;
+      case "checkout.session.expired":
+        await handleCheckoutExpired(event.data.object);
+        break;
+      case "invoice.payment_failed":
+        console.log("Payment failed:", event.data.object.id);
         break;
       default:
         console.log("Unhandled event:", event.type);
@@ -43,10 +49,26 @@ serve(async (req) => {
   }
 });
 
-async function handleCheckoutCompleted(session: any) {
+async function handleCheckoutCompleted(session: any, env: StripeEnv) {
   console.log("Checkout completed:", session.id, "mode:", session.mode);
 
-  // Subscriptions are handled by customer.subscription.* events; only fulfill one-time payments here.
+  // SUBSCRIPTION fallback — if subscription.created hasn't fired yet, sync from session metadata.
+  // This protects against race conditions on the success page.
+  if (session.mode === "subscription") {
+    const userId = session.metadata?.userId;
+    if (!userId) { console.log("No userId in subscription checkout session"); return; }
+
+    try {
+      const stripe = createStripeClient(env);
+      const sub = await stripe.subscriptions.retrieve(session.subscription as string);
+      await handleSubscriptionCreated(sub, env);
+    } catch (err) {
+      console.error("Failed to sync subscription from checkout.session.completed:", err);
+    }
+    return;
+  }
+
+  // ONE-TIME payment (shop orders)
   if (session.mode !== "payment") return;
   if (session.payment_status !== "paid") {
     console.log("Skipping: payment_status =", session.payment_status);
@@ -70,6 +92,19 @@ async function handleCheckoutCompleted(session: any) {
 
   if (error) console.error("Failed to mark order paid:", error);
   else console.log("Order marked paid:", orderId);
+}
+
+async function handleCheckoutExpired(session: any) {
+  if (session.mode !== "payment") return;
+  const orderId = session.metadata?.orderId;
+  if (!orderId) return;
+
+  const { error } = await supabase.from("orders").update({
+    status: "abandoned",
+  }).eq("id", orderId).eq("status", "pending_payment");
+
+  if (error) console.error("Failed to mark order abandoned:", error);
+  else console.log("Order marked abandoned:", orderId);
 }
 
 async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
