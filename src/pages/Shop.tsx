@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -6,20 +6,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { kits, remedies, teas, homeopathyCourses, SHOP_DISCLAIMER, Product } from "@/data/shopData";
 import { getHomeopathyLessonContent } from "@/data/homeopathyLessons";
 import { LessonContent } from "@/data/lessonContent";
-import { X, Plus, Minus, Check, ChevronRight, Lock, Save } from "lucide-react";
+import { Check, ChevronRight, Lock, Save } from "lucide-react";
 import { toast } from "sonner";
-import { getStripeEnvironment } from "@/lib/stripe";
-
-interface CartItem { product: Product; qty: number }
 
 const Shop = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { setCartCount } = useCart();
+  const { cartCount, addItem } = useCart();
   const [tab, setTab] = useState<"remedies" | "learn">("remedies");
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [showCart, setShowCart] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [addedId, setAddedId] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<number | null>(null);
@@ -29,55 +23,12 @@ const Shop = () => {
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
 
-  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
-  const cartTotal = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
-
-  // Keep global badge in sync
-  useEffect(() => { setCartCount(cartCount); }, [cartCount, setCartCount]);
-
   const addToCart = (product: Product) => {
-    setCart(prev => {
-      const existing = prev.find(i => i.product.id === product.id);
-      if (existing) return prev.map(i => i.product.id === product.id ? { ...i, qty: i.qty + 1 } : i);
-      return [...prev, { product, qty: 1 }];
-    });
+    addItem(product);
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(6);
     toast.success("Added to cart 🛍️");
     setAddedId(product.id);
-    setTimeout(() => setAddedId(prev => (prev === product.id ? null : prev)), 2000);
-  };
-
-  const updateQty = (id: string, delta: number) => {
-    setCart(prev => prev.map(i => i.product.id === id ? { ...i, qty: Math.max(0, i.qty + delta) } : i).filter(i => i.qty > 0));
-  };
-
-  const shippingFee = cartTotal >= 40 ? 0 : (cart.length > 0 ? 5 : 0);
-
-  const handleCheckout = async () => {
-    if (!user || cart.length === 0 || checkoutLoading) return;
-    setCheckoutLoading(true);
-    try {
-      console.log('[checkout] requesting session…');
-      const { data, error } = await supabase.functions.invoke('create-shop-checkout', {
-        body: {
-          items: cart.map(i => ({ id: i.product.id, name: i.product.name, price: i.product.price, qty: i.qty })),
-          userId: user.id,
-          customerEmail: user.email,
-          shippingFee,
-          environment: getStripeEnvironment(),
-        },
-      });
-      if (error) throw error;
-      if (!data?.url) throw new Error('No checkout URL returned from Stripe');
-      console.log('[checkout] redirecting to', data.url);
-      setShowCart(false);
-      await new Promise(r => setTimeout(r, 50));
-      window.location.href = data.url;
-    } catch (err) {
-      console.error('[checkout] error', err);
-      toast.error('Something went wrong — please try again');
-      setCheckoutLoading(false);
-    }
+    setTimeout(() => setAddedId(prev => (prev === product.id ? null : prev)), 1500);
   };
 
   const saveReflection = useCallback(async (lessonId: string, text: string) => {
