@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, pregnancyWeeks } from "@/data/pregnancyWeeks";
-import { Send, Square, Camera, X, ChevronLeft } from "lucide-react";
+import { Send, Square, Camera, X, ChevronLeft, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { PremiumModal } from "@/components/PremiumModal";
@@ -34,6 +34,8 @@ const AskDoula = () => {
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const safetyScanRef = useRef(false);
+  const safetyCameraInputRef = useRef<HTMLInputElement>(null);
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   pregnancyWeeks.find(w => w.week === currentWeek); // keep import side-effect parity
@@ -85,29 +87,45 @@ const AskDoula = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     setShowPhotoMenu(false);
+    const wasSafetyScan = safetyScanRef.current;
+    safetyScanRef.current = false;
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
       const base64 = result.split(",")[1];
-      setAttachedImage({ base64, url: result });
+      const img = { base64, url: result };
+      setAttachedImage(img);
+      if (wasSafetyScan) {
+        const prompt = `Is this product safe for me at week ${currentWeek}?`;
+        setTimeout(() => sendMessageWithImage(prompt, img), 50);
+      }
     };
     reader.readAsDataURL(file);
     e.target.value = "";
   };
 
-  const sendMessage = async (text: string) => {
-    if ((!text.trim() && !attachedImage) || isStreaming) return;
+  const handleSafetyChipClick = () => {
+    safetyScanRef.current = true;
+    safetyCameraInputRef.current?.click();
+  };
+
+  const sendMessageWithImage = (text: string, img: { base64: string; url: string }) =>
+    sendMessage(text, img);
+
+  const sendMessage = async (text: string, imageOverride?: { base64: string; url: string }) => {
+    const activeImage = imageOverride || attachedImage;
+    if ((!text.trim() && !activeImage) || isStreaming) return;
     if (!profile?.is_premium && messageCount >= 10) {
       toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
       return;
     }
 
-    const hasImage = !!attachedImage;
-    const imageUrl = attachedImage?.url;
+    const hasImage = !!activeImage;
+    const imageUrl = activeImage?.url;
     let apiContent: any = text.trim() || (hasImage ? "Is this product safe to use during pregnancy?" : "");
     if (hasImage) {
       apiContent = [
-        { type: "image_url", image_url: { url: attachedImage!.url } },
+        { type: "image_url", image_url: { url: activeImage!.url } },
         { type: "text", text: text.trim() || "Is this product safe to use during pregnancy?" },
       ];
     }
@@ -256,6 +274,7 @@ const AskDoula = () => {
       `}</style>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
+      <input ref={safetyCameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
       {/* Minimal header */}
       <div style={{ padding: "16px 20px 12px", flexShrink: 0 }}>
@@ -360,6 +379,11 @@ const AskDoula = () => {
               {prompt}
             </button>
           ))}
+          <button
+            onClick={handleSafetyChipClick}
+            style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.45)", borderRadius: 20, padding: "8px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 12, color: "#fff", whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer", boxShadow: "0 0 0 1px rgba(255,255,255,0.08) inset" }}>
+            📸 Is this safe to use?
+          </button>
         </div>
       )}
 
@@ -391,11 +415,20 @@ const AskDoula = () => {
       {/* Sticky input bar */}
       <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "rgba(220,90,10,0.97)", backdropFilter: "blur(16px)", padding: "10px 16px 14px" }}>
         <div className="flex items-center" style={{ background: "rgba(255,255,255,0.95)", borderRadius: 24, padding: "4px 4px 4px 16px", gap: 8 }}>
-          <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
-            className="shrink-0 flex items-center justify-center"
-            style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,120,64,0.12)" }}>
-            <Camera size={14} style={{ color: "#FF6520" }} />
-          </button>
+          {(() => {
+            const lastMsg = messages[messages.length - 1];
+            const showSpinner = isStreaming && (!!lastMsg?.imageUrl || (messages[messages.length - 2]?.imageUrl && lastMsg?.role === "assistant"));
+            return (
+              <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
+                disabled={isStreaming}
+                className="shrink-0 flex items-center justify-center transition-colors hover:bg-[rgba(255,140,66,0.22)]"
+                style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,140,66,0.12)" }}>
+                {showSpinner
+                  ? <Loader2 size={14} className="animate-spin" style={{ color: "#FF8C42" }} />
+                  : <Camera size={14} style={{ color: "rgba(255,140,66,0.7)" }} />}
+              </button>
+            );
+          })()}
           <input
             value={input}
             onChange={e => setInput(e.target.value)}

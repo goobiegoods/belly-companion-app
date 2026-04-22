@@ -117,6 +117,28 @@ serve(async (req) => {
       .replaceAll("{todaysMood}", todaysMood)
       .replaceAll("{recentSymptoms}", recentSymptoms);
 
+    // Detect image in the latest user message → switch on Product Safety Mode
+    const lastMsg = Array.isArray(messages) ? messages[messages.length - 1] : null;
+    const hasImage = !!(lastMsg && Array.isArray(lastMsg.content) &&
+      lastMsg.content.some((c: any) => c?.type === "image_url"));
+
+    const safetyAddition = hasImage ? `
+
+## PRODUCT SAFETY ANALYSIS MODE
+The user has sent an image of a product label or ingredient list.
+Structure your reply EXACTLY as:
+1. "This looks like [product/type]" — one sentence.
+2. Verdict on its own line: **SAFE ✓** or **USE WITH CAUTION ⚠️** or **AVOID ✗**.
+3. 2–3 sentences of reasoning specific to pregnancy and week ${currentWeek}.
+4. If any specific ingredients are concerning, name them.
+5. If AVOID/CAUTION: suggest one natural alternative.
+6. Total ≤ 150 words. Scannable, not preachy.
+7. End with one specific follow-up question on a new line.
+Never say "it depends." Give a clear verdict.
+` : "";
+
+    const finalPrompt = filledPrompt + safetyAddition;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -126,7 +148,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: filledPrompt },
+          { role: "system", content: finalPrompt },
           ...messages,
         ],
         stream: true,
