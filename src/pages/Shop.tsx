@@ -204,7 +204,7 @@ const Shop = () => {
          <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 28, color: "white" }}>Belly Shop</h1>
           <p style={{ color: "rgba(255,255,255,0.60)", fontWeight: 400, fontSize: 12, fontStyle: "italic", fontFamily: "'Outfit', sans-serif" }}>Natural remedies, delivered to you</p>
         </div>
-        <button onClick={() => setShowCart(true)} className="relative shrink-0 mt-1"
+        <button onClick={() => navigate("/cart")} aria-label="Open cart" className="relative shrink-0 mt-1"
           style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.30)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
@@ -368,118 +368,11 @@ const Shop = () => {
         </>
       )}
 
-      {/* Cart bottom sheet */}
-      {showCart && (
-        <div className="fixed inset-0 z-[200] flex items-end" style={{ background: "rgba(0,0,0,0.5)" }} onClick={() => setShowCart(false)}>
-          <div onClick={e => e.stopPropagation()}
-            style={{
-              width: "100%", background: "#FF8C42", borderRadius: "24px 24px 0 0",
-              padding: 24, paddingBottom: "calc(24px + env(safe-area-inset-bottom))",
-              maxHeight: "85vh", display: "flex", flexDirection: "column",
-              animation: "sheetUp 240ms cubic-bezier(0.22,1,0.36,1)",
-            }}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>
-                Your cart
-              </h2>
-              <button onClick={() => setShowCart(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "none", color: "#fff", fontSize: 18, cursor: "pointer" }}>×</button>
-            </div>
-
-            {cart.length === 0 ? (
-              <div style={{ padding: "32px 16px", textAlign: "center" }}>
-                <span style={{ fontSize: 40, display: "block", marginBottom: 10 }}>🛍️</span>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', system-ui" }}>Your cart is empty</p>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", fontStyle: "italic", marginTop: 4, fontFamily: "'Outfit', system-ui" }}>Add a remedy to get started</p>
-              </div>
-            ) : (
-              <>
-                <div style={{ flex: 1, overflowY: "auto", marginBottom: 12 }}>
-                  {cart.map(item => (
-                    <div key={item.product.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: 12, marginBottom: 10, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
-                        {item.product.emoji}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: "#fff", fontFamily: "'Outfit', system-ui" }}>{item.product.name}</p>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-                          <button onClick={() => updateQty(item.product.id, -1)} style={{ width: 24, height: 24, borderRadius: "50%", background: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#FF8C42", fontWeight: 700 }}>−</button>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", width: 18, textAlign: "center", fontFamily: "'Outfit', system-ui" }}>{item.qty}</span>
-                          <button onClick={() => updateQty(item.product.id, 1)} style={{ width: 24, height: 24, borderRadius: "50%", background: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#FF8C42", fontWeight: 700 }}>+</button>
-                        </div>
-                      </div>
-                      <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <p style={{ fontFamily: "'Fraunces', serif", fontSize: 16, fontWeight: 700, color: "#fff" }}>${(item.product.price * item.qty).toFixed(2)}</p>
-                        <button onClick={() => updateQty(item.product.id, -item.qty)} style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", background: "none", border: "none", cursor: "pointer" }}>×</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Subtotal */}
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                  <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 500, color: "#fff" }}>Subtotal</span>
-                  <span style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "#fff" }}>${cartTotal.toFixed(2)}</span>
-                </div>
-
-                {/* Free shipping progress */}
-                {cartTotal < 40 ? (
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ height: 4, borderRadius: 4, background: "rgba(255,255,255,0.2)", overflow: "hidden" }}>
-                      <div style={{ height: 4, borderRadius: 4, background: "#fff", width: `${Math.min(100, (cartTotal / 40) * 100)}%`, transition: "width 0.4s ease" }} />
-                    </div>
-                    <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.85)", marginTop: 6, textAlign: "center" }}>
-                      Add ${(40 - cartTotal).toFixed(2)} more for free shipping 🚚
-                    </p>
-                  </div>
-                ) : (
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "#fff", marginBottom: 14, textAlign: "center" }}>
-                    🎉 You've unlocked free shipping! ✓
-                  </p>
-                )}
-
-                {/* Shipping line */}
-                {shippingFee > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, fontSize: 12, color: "rgba(255,255,255,0.85)" }}>
-                    <span style={{ fontFamily: "'Outfit', system-ui" }}>Shipping</span>
-                    <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 600 }}>${shippingFee.toFixed(2)}</span>
-                  </div>
-                )}
-
-                <button onClick={handleCheckout} disabled={checkoutLoading}
-                  style={{
-                    width: "100%", background: "#fff", color: "#FF8C42",
-                    fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
-                    borderRadius: 14, padding: 14, border: "none", cursor: checkoutLoading ? "not-allowed" : "pointer",
-                    opacity: checkoutLoading ? 0.7 : 1,
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                  }}>
-                  {checkoutLoading ? (
-                    <>
-                      <span style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid #FF8C42", borderTopColor: "transparent", display: "inline-block", animation: "spin 700ms linear infinite" }} />
-                      Redirecting…
-                    </>
-                  ) : (
-                    <>Checkout · ${(cartTotal + shippingFee).toFixed(2)} →</>
-                  )}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
       <style>{`
-        @keyframes sheetUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
-        }
         @keyframes badgePop {
           0% { transform: scale(0); }
           70% { transform: scale(1.2); }
           100% { transform: scale(1); }
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
