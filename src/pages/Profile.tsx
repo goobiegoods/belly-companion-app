@@ -4,6 +4,7 @@ import { getCurrentWeek, getDaysToGo, getWeekData } from "@/data/pregnancyWeeks"
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { PremiumModal } from "@/components/PremiumModal";
 
 const BADGES = [
   { emoji: "🌱", label: "First check-in", earned: true },
@@ -229,42 +230,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {showPremium && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end">
-          <div className="w-full rounded-t-[24px] overflow-hidden sheet-enter" style={{ background: "rgba(200,80,10,0.95)", backdropFilter: "blur(20px)" }}>
-            <div className="p-6 text-center" style={{ background: "rgba(255,255,255,0.22)" }}>
-              <p style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 700, color: "white" }}>Go Premium</p>
-              <p className="mt-1" style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "rgba(255,255,255,0.70)" }}>Your complete pregnancy companion</p>
-            </div>
-            <div className="p-5 space-y-4">
-              <ul className="space-y-2">
-                {["Unlimited AI doula messages", "All premium courses unlocked", "Priority human doula review", "Downloadable birth plan", "Ad-free experience"].map(b => (
-                  <li key={b} style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "white", display: "flex", alignItems: "center", gap: 8 }}>
-                    <span>✓</span> {b}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex gap-3">
-                <div className="flex-1 rounded-[14px] p-3 text-center belly-card-interactive" style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)" }}>
-                  <p style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 900, color: "white" }}>$9.99</p>
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, color: "rgba(255,255,255,0.50)" }}>/month</p>
-                </div>
-                <div className="flex-1 rounded-[14px] p-3 text-center belly-card-interactive relative" style={{ border: "2px solid white" }}>
-                  <span className="absolute -top-2 left-1/2 -translate-x-1/2" style={{ fontSize: 9, padding: "2px 8px", borderRadius: 20, fontWeight: 500, background: "white", color: "#FF6520", fontFamily: "'Outfit', system-ui" }}>SAVE 50%</span>
-                  <p style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 900, color: "white" }}>$59.99</p>
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, color: "rgba(255,255,255,0.50)" }}>/year</p>
-                </div>
-              </div>
-              <button className="w-full h-12 rounded-[20px] text-sm font-semibold belly-btn-primary" style={{ background: "white", color: "#FF6520", fontFamily: "'Outfit', system-ui", fontWeight: 700 }}>
-                Start free trial
-              </button>
-              <button onClick={() => setShowPremium(false)} className="w-full text-center py-2" style={{ fontSize: 12, color: "rgba(255,255,255,0.40)", fontFamily: "'Outfit', system-ui" }}>
-                Maybe later
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
     </div>
   );
 };
