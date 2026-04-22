@@ -5,6 +5,7 @@ import { getLessonContent, LessonContent, getLessonDescription } from "@/data/le
 import { supabase } from "@/integrations/supabase/client";
 import { Lock, ChevronRight, Check, ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
+import { PremiumModal } from "@/components/PremiumModal";
 
 const FILTER_TABS = ["All", "Trimester", "Wellness", "Birth prep"];
 const CATEGORY_MAP: Record<string, string> = {
@@ -24,6 +25,13 @@ const Courses = () => {
   const [reflectionSaved, setReflectionSaved] = useState(false);
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [showPremium, setShowPremium] = useState(false);
+
+  const handleSelectCourse = (id: string) => {
+    const c = coursesData.find(x => x.id === id);
+    if (c?.isPremium && !profile?.is_premium) { setShowPremium(true); return; }
+    setSelectedCourse(id);
+  };
 
   useEffect(() => {
     if (!user) return;
