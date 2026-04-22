@@ -379,6 +379,11 @@ const AskDoula = () => {
               {prompt}
             </button>
           ))}
+          <button
+            onClick={handleSafetyChipClick}
+            style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.45)", borderRadius: 20, padding: "8px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 12, color: "#fff", whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer", boxShadow: "0 0 0 1px rgba(255,255,255,0.08) inset" }}>
+            📸 Is this safe to use?
+          </button>
         </div>
       )}
 
