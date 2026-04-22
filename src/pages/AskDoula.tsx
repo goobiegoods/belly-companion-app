@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, pregnancyWeeks } from "@/data/pregnancyWeeks";
-import { Send, Square, Camera, X, ChevronLeft } from "lucide-react";
+import { Send, Square, Camera, X, ChevronLeft, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { PremiumModal } from "@/components/PremiumModal";
