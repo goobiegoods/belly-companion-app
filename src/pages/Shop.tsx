@@ -8,7 +8,7 @@ import { getHomeopathyLessonContent } from "@/data/homeopathyLessons";
 import { LessonContent } from "@/data/lessonContent";
 import { X, Plus, Minus, Check, ChevronRight, Lock, Save } from "lucide-react";
 import { toast } from "sonner";
-import { ShopCheckoutForm } from "@/components/ShopCheckout";
+import { getStripeEnvironment } from "@/lib/stripe";
 
 interface CartItem { product: Product; qty: number }
 
@@ -19,7 +19,7 @@ const Shop = () => {
   const [tab, setTab] = useState<"remedies" | "learn">("remedies");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [addedId, setAddedId] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<number | null>(null);
@@ -53,9 +53,31 @@ const Shop = () => {
 
   const shippingFee = cartTotal >= 40 ? 0 : (cart.length > 0 ? 5 : 0);
 
-  const startCheckout = () => {
-    if (!user || cart.length === 0) return;
-    setShowCheckout(true);
+  const handleCheckout = async () => {
+    if (!user || cart.length === 0 || checkoutLoading) return;
+    setCheckoutLoading(true);
+    try {
+      console.log('[checkout] requesting session…');
+      const { data, error } = await supabase.functions.invoke('create-shop-checkout', {
+        body: {
+          items: cart.map(i => ({ id: i.product.id, name: i.product.name, price: i.product.price, qty: i.qty })),
+          userId: user.id,
+          customerEmail: user.email,
+          shippingFee,
+          environment: getStripeEnvironment(),
+        },
+      });
+      if (error) throw error;
+      if (!data?.url) throw new Error('No checkout URL returned from Stripe');
+      console.log('[checkout] redirecting to', data.url);
+      setShowCart(false);
+      await new Promise(r => setTimeout(r, 50));
+      window.location.href = data.url;
+    } catch (err) {
+      console.error('[checkout] error', err);
+      toast.error('Something went wrong — please try again');
+      setCheckoutLoading(false);
+    }
   };
 
   const saveReflection = useCallback(async (lessonId: string, text: string) => {
