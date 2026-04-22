@@ -141,7 +141,7 @@ const BabyTracker = () => {
 
   const formatTimer = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
-  const fruitEmoji = weekEmoji[selectedWeek] || '🥑';
+  const fruitEmoji = weekData.emoji;
   const fruitName = getFruitName(weekData.babySize);
 
   const milestones = [

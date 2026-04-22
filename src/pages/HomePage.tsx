@@ -86,7 +86,7 @@ const HomePage = () => {
     { key: "anxious", label: "ANXIOUS", emoji: "😰" },
     { key: "unwell", label: "UNWELL", emoji: "😣" },
   ];
-  const fruitEmoji = weekEmoji[currentWeek] || "🌱";
+  const fruitEmoji = weekData.emoji || "🌱";
 
   const journeyMilestones = [
     { emoji: "🌱", label: "Day 1", reached: streakDays >= 1 },
