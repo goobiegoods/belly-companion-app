@@ -8,6 +8,7 @@ import { getHomeopathyLessonContent } from "@/data/homeopathyLessons";
 import { LessonContent } from "@/data/lessonContent";
 import { X, Plus, Minus, Check, ChevronRight, Lock, Save } from "lucide-react";
 import { toast } from "sonner";
+import { ShopCheckoutForm } from "@/components/ShopCheckout";
 
 interface CartItem { product: Product; qty: number }
 
@@ -18,7 +19,7 @@ const Shop = () => {
   const [tab, setTab] = useState<"remedies" | "learn">("remedies");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
-  const [ordering, setOrdering] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const [addedId, setAddedId] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<number | null>(null);
@@ -50,15 +51,11 @@ const Shop = () => {
     setCart(prev => prev.map(i => i.product.id === id ? { ...i, qty: Math.max(0, i.qty + delta) } : i).filter(i => i.qty > 0));
   };
 
-  const placeOrder = async () => {
+  const shippingFee = cartTotal >= 40 ? 0 : (cart.length > 0 ? 5 : 0);
+
+  const startCheckout = () => {
     if (!user || cart.length === 0) return;
-    setOrdering(true);
-    const items = cart.map(i => ({ id: i.product.id, name: i.product.name, qty: i.qty, price: i.product.price }));
-    const { error } = await supabase.from("orders" as any).insert({ user_id: user.id, items, total: cartTotal, status: "pending" } as any);
-    setOrdering(false);
-    if (error) { toast.error("Couldn't place order. Try again."); return; }
-    setCart([]); setShowCart(false); setCartCount(0);
-    navigate("/order-success");
+    setShowCheckout(true);
   };
 
   const saveReflection = useCallback(async (lessonId: string, text: string) => {
@@ -465,15 +462,38 @@ const Shop = () => {
                   </p>
                 )}
 
-                <button onClick={placeOrder} disabled={ordering}
-                  style={{
-                    width: "100%", background: "#fff", color: "#FF8C42",
-                    fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
-                    borderRadius: 14, padding: 14, border: "none", cursor: ordering ? "wait" : "pointer",
-                    opacity: ordering ? 0.7 : 1,
-                  }}>
-                  {ordering ? "Placing order..." : "Place order →"}
-                </button>
+                {/* Shipping line */}
+                {shippingFee > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, fontSize: 12, color: "rgba(255,255,255,0.85)" }}>
+                    <span style={{ fontFamily: "'Outfit', system-ui" }}>Shipping</span>
+                    <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 600 }}>${shippingFee.toFixed(2)}</span>
+                  </div>
+                )}
+
+                {showCheckout ? (
+                  <div style={{ background: "#fff", borderRadius: 14, padding: 12, marginTop: 4 }}>
+                    <button onClick={() => setShowCheckout(false)}
+                      style={{ background: "none", border: "none", color: "#FF8C42", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 8 }}>
+                      ← Back to cart
+                    </button>
+                    <ShopCheckoutForm
+                      items={cart.map(i => ({ id: i.product.id, name: i.product.name, price: i.product.price, qty: i.qty }))}
+                      userId={user!.id}
+                      customerEmail={user?.email}
+                      shippingFee={shippingFee}
+                      returnUrl={`${window.location.origin}/order-success?session_id={CHECKOUT_SESSION_ID}`}
+                    />
+                  </div>
+                ) : (
+                  <button onClick={startCheckout}
+                    style={{
+                      width: "100%", background: "#fff", color: "#FF8C42",
+                      fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
+                      borderRadius: 14, padding: 14, border: "none", cursor: "pointer",
+                    }}>
+                    Checkout · ${(cartTotal + shippingFee).toFixed(2)} →
+                  </button>
+                )}
               </>
             )}
           </div>
