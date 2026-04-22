@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+type Mode = "signin" | "signup" | "forgot";
 
 const Auth = () => {
   const { session, loading } = useAuth();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -17,11 +20,23 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const { error } = isSignUp ? await signUp(email, password) : await signIn(email, password);
+
+    if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      setSubmitting(false);
+      if (error) return toast.error(error.message);
+      toast.success("Check your email for a reset link 🌸");
+      setMode("signin");
+      return;
+    }
+
+    const { error } = mode === "signup" ? await signUp(email, password) : await signIn(email, password);
     setSubmitting(false);
     if (error) {
       toast.error(error.message);
-    } else if (isSignUp) {
+    } else if (mode === "signup") {
       toast.success("Account created! Check your email to confirm.");
     }
   };
@@ -39,7 +54,9 @@ const Auth = () => {
           </div>
           <h1 className="font-display text-[22px] font-bold text-foreground tracking-[-0.5px]">BELLY</h1>
           <p className="text-belly-text-muted font-display italic text-xs mt-1">
-            {isSignUp ? "Join thousands of mamas on their journey" : "Welcome back, mama"}
+            {mode === "signup" ? "Join thousands of mamas on their journey" :
+              mode === "forgot" ? "We'll email you a reset link" :
+                "Welcome back, mama"}
           </p>
         </div>
 
@@ -52,28 +69,46 @@ const Auth = () => {
             required
             className="w-full h-12 rounded-input border border-belly-card-border bg-card px-4 text-sm belly-input-focus placeholder:text-belly-text-hint"
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className="w-full h-12 rounded-input border border-belly-card-border bg-card px-4 text-sm belly-input-focus placeholder:text-belly-text-hint"
-          />
+          {mode !== "forgot" && (
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              className="w-full h-12 rounded-input border border-belly-card-border bg-card px-4 text-sm belly-input-focus placeholder:text-belly-text-hint"
+            />
+          )}
           <button
             type="submit"
             disabled={submitting}
             className="w-full h-12 rounded-input bg-primary text-primary-foreground font-semibold text-sm belly-btn-press disabled:opacity-50"
           >
-            {submitting ? "..." : isSignUp ? "Create my account" : "Sign in"}
+            {submitting ? "..." :
+              mode === "signup" ? "Create my account" :
+                mode === "forgot" ? "Send reset link" :
+                  "Sign in"}
           </button>
         </form>
 
+        {mode === "signin" && (
+          <p className="text-center text-xs text-belly-text-muted mt-4">
+            <button onClick={() => setMode("forgot")} className="text-belly-accent font-medium underline">
+              Forgot password?
+            </button>
+          </p>
+        )}
+
         <p className="text-center text-xs text-belly-text-muted mt-6">
-          {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-          <button onClick={() => setIsSignUp(!isSignUp)} className="text-belly-accent font-semibold underline">
-            {isSignUp ? "Sign in" : "Sign up"}
+          {mode === "signup" ? "Already have an account?" :
+            mode === "forgot" ? "Remembered it?" :
+              "Don't have an account?"}{" "}
+          <button
+            onClick={() => setMode(mode === "signup" ? "signin" : mode === "forgot" ? "signin" : "signup")}
+            className="text-belly-accent font-semibold underline"
+          >
+            {mode === "signup" || mode === "forgot" ? "Sign in" : "Sign up"}
           </button>
         </p>
       </div>
