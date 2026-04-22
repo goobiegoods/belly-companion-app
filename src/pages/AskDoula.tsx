@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, pregnancyWeeks } from "@/data/pregnancyWeeks";
@@ -15,6 +15,7 @@ interface Message {
 
 const AskDoula = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -23,6 +24,7 @@ const AskDoula = () => {
   const [attachedImage, setAttachedImage] = useState<{ base64: string; url: string } | null>(null);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -45,6 +47,7 @@ const AskDoula = () => {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
@@ -58,6 +61,19 @@ const AskDoula = () => {
       .gte("created_at", today + "T00:00:00Z")
       .then(({ count }) => setMessageCount(count || 0));
   }, [user]);
+
+  // Chip prefill receiver — fire once on mount if state.prefill is set
+  useEffect(() => {
+    const prefill = (location.state as any)?.prefill;
+    if (prefill && typeof prefill === "string") {
+      setInput(prefill);
+      // Clear so refresh doesn't refire
+      window.history.replaceState({}, document.title);
+      // Send after a tick so input state settles
+      setTimeout(() => { sendMessage(prefill); }, 50);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
