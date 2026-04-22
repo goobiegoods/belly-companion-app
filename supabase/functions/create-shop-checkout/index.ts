@@ -96,11 +96,15 @@ serve(async (req) => {
       });
     }
 
+    const origin = req.headers.get("origin") || "";
+    const successUrl = returnUrl || `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${origin}/shop?canceled=1`;
+
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems,
       mode: "payment",
-      ui_mode: "embedded",
-      return_url: returnUrl || `${req.headers.get("origin")}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       ...(customerEmail && { customer_email: customerEmail }),
       metadata: { userId, orderId: orderRow.id, kind: "shop_order" },
       payment_intent_data: {
@@ -111,7 +115,7 @@ serve(async (req) => {
     // Save session id on the order so webhook can match
     await supabase.from("orders").update({ stripe_session_id: session.id }).eq("id", orderRow.id);
 
-    return new Response(JSON.stringify({ clientSecret: session.client_secret, orderId: orderRow.id }), {
+    return new Response(JSON.stringify({ url: session.url, orderId: orderRow.id }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: any) {
