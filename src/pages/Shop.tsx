@@ -397,17 +397,19 @@ const Shop = () => {
 
       {/* Cart bottom sheet */}
       {showCart && (
-        <div className="fixed inset-0 z-[200] flex items-end" style={{ background: "rgba(0,0,0,0.5)" }} onClick={() => setShowCart(false)}>
+        <div className="fixed inset-0 z-[200] flex items-end" style={{ background: "rgba(0,0,0,0.5)" }} onClick={() => { setShowCart(false); setShowCheckout(false); }}>
           <div onClick={e => e.stopPropagation()}
             style={{
               width: "100%", background: "#FF8C42", borderRadius: "24px 24px 0 0",
               padding: 24, paddingBottom: "calc(24px + env(safe-area-inset-bottom))",
-              maxHeight: "85vh", display: "flex", flexDirection: "column",
+              maxHeight: showCheckout ? "92vh" : "85vh", display: "flex", flexDirection: "column",
               animation: "sheetUp 240ms cubic-bezier(0.22,1,0.36,1)",
             }}>
             <div className="flex items-center justify-between mb-4">
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>Your cart</h2>
-              <button onClick={() => setShowCart(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "none", color: "#fff", fontSize: 18, cursor: "pointer" }}>×</button>
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>
+                {showCheckout ? "Checkout" : "Your cart"}
+              </h2>
+              <button onClick={() => { setShowCart(false); setShowCheckout(false); }} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "none", color: "#fff", fontSize: 18, cursor: "pointer" }}>×</button>
             </div>
 
             {cart.length === 0 ? (
@@ -415,6 +417,35 @@ const Shop = () => {
                 <span style={{ fontSize: 40, display: "block", marginBottom: 10 }}>🛍️</span>
                 <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', system-ui" }}>Your cart is empty</p>
                 <p style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", fontStyle: "italic", marginTop: 4, fontFamily: "'Outfit', system-ui" }}>Add a remedy to get started</p>
+              </div>
+            ) : showCheckout ? (
+              <div style={{ flex: 1, overflowY: "auto", background: "#fff", borderRadius: 14, padding: 14, minHeight: 480, display: "flex", flexDirection: "column" }}>
+                <button onClick={() => setShowCheckout(false)}
+                  style={{ background: "none", border: "none", color: "#FF8C42", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 10, textAlign: "left", padding: 0 }}>
+                  ← Back to cart
+                </button>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", paddingBottom: 10, marginBottom: 12, borderBottom: "1px solid rgba(255,140,66,0.18)" }}>
+                  <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "#A84E28" }}>
+                    {cartCount} {cartCount === 1 ? "item" : "items"}
+                  </span>
+                  <span style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "#FF6520" }}>
+                    ${(cartTotal + shippingFee).toFixed(2)}
+                  </span>
+                </div>
+                <div style={{ position: "relative", flex: 1, minHeight: 380 }}>
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#C4906A", fontFamily: "'Outfit', system-ui", fontSize: 13, pointerEvents: "none", zIndex: 0 }}>
+                    Loading secure checkout…
+                  </div>
+                  <div style={{ position: "relative", zIndex: 1 }}>
+                    <ShopCheckoutForm
+                      items={cart.map(i => ({ id: i.product.id, name: i.product.name, price: i.product.price, qty: i.qty }))}
+                      userId={user!.id}
+                      customerEmail={user?.email}
+                      shippingFee={shippingFee}
+                      returnUrl={`${window.location.origin}/order-success?session_id={CHECKOUT_SESSION_ID}`}
+                    />
+                  </div>
+                </div>
               </div>
             ) : (
               <>
