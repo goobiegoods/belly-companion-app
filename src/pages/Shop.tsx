@@ -212,7 +212,7 @@ const Shop = () => {
                 </div>
                 <div className="flex-1">
                   <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{lesson.title}</p>
-                  <p className="text-[10px]" style={{ color: "rgba(180,100,60,0.38)" }}>{lesson.duration} min</p>
+                  <p style={{ fontSize: 11, color: "rgba(180,100,60,0.65)" }}>{lesson.duration} min</p>
                 </div>
                 <ChevronRight size={16} style={{ color: "rgba(180,100,60,0.38)" }} />
               </button>
