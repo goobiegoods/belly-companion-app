@@ -212,7 +212,7 @@ const Shop = () => {
                 </div>
                 <div className="flex-1">
                   <p className="text-[13px] font-semibold" style={{ color: "#A84E28" }}>{lesson.title}</p>
-                  <p className="text-[10px]" style={{ color: "rgba(180,100,60,0.38)" }}>{lesson.duration} min</p>
+                  <p style={{ fontSize: 11, color: "rgba(180,100,60,0.65)" }}>{lesson.duration} min</p>
                 </div>
                 <ChevronRight size={16} style={{ color: "rgba(180,100,60,0.38)" }} />
               </button>
@@ -346,9 +346,9 @@ const Shop = () => {
           <div className="mx-4 mb-4 p-5 rounded-[20px] belly-hero-gradient relative overflow-hidden">
             <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: "rgba(255,255,255,0.10)" }} />
             <div className="absolute left-8 bottom-[-15px] w-16 h-16 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
-            <p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.11em", marginBottom: 4, color: "rgba(255,255,255,0.60)", fontFamily: "'Outfit', sans-serif" }}>INTRO TO HOMEOPATHY</p>
+            <p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.11em", marginBottom: 4, color: "rgba(255,255,255,0.78)", fontFamily: "'Outfit', sans-serif" }}>INTRO TO HOMEOPATHY</p>
             <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 22, color: "white", marginBottom: 4 }}>Learn the gentle art of natural healing</h2>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>Evidence-informed courses on using homeopathic remedies safely during pregnancy</p>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>Evidence-informed courses on using homeopathic remedies safely during pregnancy</p>
           </div>
           <div className="px-5 space-y-3 mb-5">
             {homeopathyCourses.map(course => {
@@ -365,10 +365,10 @@ const Shop = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: "'Outfit', sans-serif" }}>{course.title}</p>
-                      <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{course.lessonCount} lessons · {course.duration} min</p>
-                      <p className="line-clamp-2" style={{ fontSize: 11, marginTop: 4, color: "rgba(255,255,255,0.65)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{course.description}</p>
+                      <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.78)", fontFamily: "'Outfit', sans-serif" }}>{course.lessonCount} lessons · {course.duration} min</p>
+                      <p className="line-clamp-2" style={{ fontSize: 11, marginTop: 4, color: "rgba(255,255,255,0.85)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>{course.description}</p>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 600, flexShrink: 0, marginTop: 8, color: "rgba(255,255,255,0.70)", fontFamily: "'Outfit', sans-serif" }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, flexShrink: 0, marginTop: 8, color: "rgba(255,255,255,0.95)", fontFamily: "'Outfit', sans-serif" }}>
                       {isLocked ? <span style={{ fontSize: 10, padding: "4px 8px", borderRadius: 12, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", color: "white" }}>🔒 Premium</span>
                         : courseCompletions > 0 ? "Continue →" : "Start →"}
                     </span>
@@ -382,32 +382,34 @@ const Shop = () => {
                   )}
                   <div className="flex flex-wrap gap-1.5 px-4 pb-3">
                     {course.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", color: "rgba(255,255,255,0.70)", fontFamily: "'Outfit', sans-serif" }}>{tag}</span>
+                      <span key={tag} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.30)", color: "rgba(255,255,255,0.92)", fontFamily: "'Outfit', sans-serif" }}>{tag}</span>
                     ))}
                   </div>
                 </button>
               );
             })}
           </div>
-          <div className="mx-5 mb-5 rounded-[12px] p-3" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)" }}>
-            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", fontFamily: "'Outfit', sans-serif" }}>{SHOP_DISCLAIMER}</p>
+          <div className="mx-5 mb-5 rounded-[12px] p-3" style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)" }}>
+            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.72)", fontFamily: "'Outfit', sans-serif" }}>{SHOP_DISCLAIMER}</p>
           </div>
         </>
       )}
 
       {/* Cart bottom sheet */}
       {showCart && (
-        <div className="fixed inset-0 z-[200] flex items-end" style={{ background: "rgba(0,0,0,0.5)" }} onClick={() => setShowCart(false)}>
+        <div className="fixed inset-0 z-[200] flex items-end" style={{ background: "rgba(0,0,0,0.5)" }} onClick={() => { setShowCart(false); setShowCheckout(false); }}>
           <div onClick={e => e.stopPropagation()}
             style={{
               width: "100%", background: "#FF8C42", borderRadius: "24px 24px 0 0",
               padding: 24, paddingBottom: "calc(24px + env(safe-area-inset-bottom))",
-              maxHeight: "85vh", display: "flex", flexDirection: "column",
+              maxHeight: showCheckout ? "92vh" : "85vh", display: "flex", flexDirection: "column",
               animation: "sheetUp 240ms cubic-bezier(0.22,1,0.36,1)",
             }}>
             <div className="flex items-center justify-between mb-4">
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>Your cart</h2>
-              <button onClick={() => setShowCart(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "none", color: "#fff", fontSize: 18, cursor: "pointer" }}>×</button>
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>
+                {showCheckout ? "Checkout" : "Your cart"}
+              </h2>
+              <button onClick={() => { setShowCart(false); setShowCheckout(false); }} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "none", color: "#fff", fontSize: 18, cursor: "pointer" }}>×</button>
             </div>
 
             {cart.length === 0 ? (
@@ -415,6 +417,35 @@ const Shop = () => {
                 <span style={{ fontSize: 40, display: "block", marginBottom: 10 }}>🛍️</span>
                 <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', system-ui" }}>Your cart is empty</p>
                 <p style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", fontStyle: "italic", marginTop: 4, fontFamily: "'Outfit', system-ui" }}>Add a remedy to get started</p>
+              </div>
+            ) : showCheckout ? (
+              <div style={{ flex: 1, overflowY: "auto", background: "#fff", borderRadius: 14, padding: 14, minHeight: 480, display: "flex", flexDirection: "column" }}>
+                <button onClick={() => setShowCheckout(false)}
+                  style={{ background: "none", border: "none", color: "#FF8C42", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 10, textAlign: "left", padding: 0 }}>
+                  ← Back to cart
+                </button>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", paddingBottom: 10, marginBottom: 12, borderBottom: "1px solid rgba(255,140,66,0.18)" }}>
+                  <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "#A84E28" }}>
+                    {cartCount} {cartCount === 1 ? "item" : "items"}
+                  </span>
+                  <span style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "#FF6520" }}>
+                    ${(cartTotal + shippingFee).toFixed(2)}
+                  </span>
+                </div>
+                <div style={{ position: "relative", flex: 1, minHeight: 380 }}>
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#C4906A", fontFamily: "'Outfit', system-ui", fontSize: 13, pointerEvents: "none", zIndex: 0 }}>
+                    Loading secure checkout…
+                  </div>
+                  <div style={{ position: "relative", zIndex: 1 }}>
+                    <ShopCheckoutForm
+                      items={cart.map(i => ({ id: i.product.id, name: i.product.name, price: i.product.price, qty: i.qty }))}
+                      userId={user!.id}
+                      customerEmail={user?.email}
+                      shippingFee={shippingFee}
+                      returnUrl={`${window.location.origin}/order-success?session_id={CHECKOUT_SESSION_ID}`}
+                    />
+                  </div>
+                </div>
               </div>
             ) : (
               <>
@@ -470,30 +501,14 @@ const Shop = () => {
                   </div>
                 )}
 
-                {showCheckout ? (
-                  <div style={{ background: "#fff", borderRadius: 14, padding: 12, marginTop: 4 }}>
-                    <button onClick={() => setShowCheckout(false)}
-                      style={{ background: "none", border: "none", color: "#FF8C42", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 8 }}>
-                      ← Back to cart
-                    </button>
-                    <ShopCheckoutForm
-                      items={cart.map(i => ({ id: i.product.id, name: i.product.name, price: i.product.price, qty: i.qty }))}
-                      userId={user!.id}
-                      customerEmail={user?.email}
-                      shippingFee={shippingFee}
-                      returnUrl={`${window.location.origin}/order-success?session_id={CHECKOUT_SESSION_ID}`}
-                    />
-                  </div>
-                ) : (
-                  <button onClick={startCheckout}
-                    style={{
-                      width: "100%", background: "#fff", color: "#FF8C42",
-                      fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
-                      borderRadius: 14, padding: 14, border: "none", cursor: "pointer",
-                    }}>
-                    Checkout · ${(cartTotal + shippingFee).toFixed(2)} →
-                  </button>
-                )}
+                <button onClick={startCheckout}
+                  style={{
+                    width: "100%", background: "#fff", color: "#FF8C42",
+                    fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
+                    borderRadius: 14, padding: 14, border: "none", cursor: "pointer",
+                  }}>
+                  Checkout · ${(cartTotal + shippingFee).toFixed(2)} →
+                </button>
               </>
             )}
           </div>
