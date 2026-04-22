@@ -87,30 +87,11 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent", position: "relative" }}>
-      {/* Ghost watermark */}
-      <div style={{
-        position: "absolute",
-        top: -10,
-        right: -8,
-        fontFamily: "'Fraunces', serif",
-        fontSize: 120,
-        fontWeight: 900,
-        color: "rgba(255,255,255,0.06)",
-        letterSpacing: -4,
-        pointerEvents: "none",
-        zIndex: 0,
-        userSelect: "none",
-        lineHeight: 1,
-      }}>doula</div>
-
       {/* Header */}
       <div className="px-5 pt-5 pb-3 flex items-center justify-between relative" style={{ zIndex: 1, borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
         <div className="flex items-center gap-2.5">
           <div className="flex items-center justify-center" style={{ width: 29, height: 29, borderRadius: 9, background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.35)" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="13" r="8" stroke="white" strokeWidth="1.3" strokeOpacity="0.9" fill="none" />
-              <ellipse cx="12" cy="17" rx="5" ry="3.5" stroke="white" strokeWidth="1.1" strokeOpacity="0.9" fill="none" />
-            </svg>
+            <span style={{ fontSize: 20, lineHeight: 1 }}>🤰</span>
           </div>
           <div>
             <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white", textTransform: "lowercase" as const, letterSpacing: -0.5, lineHeight: 1 }}>belly</h1>
@@ -118,7 +99,7 @@ const HomePage = () => {
           </div>
         </div>
         <div className="rounded-full px-3 py-1.5" style={{ background: C1, border: `1px solid ${C1B}`, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
-          <span className="text-xs" style={{ color: "var(--w70)" }}>Hi, {displayName} 🌸</span>
+          <span className="text-xs" style={{ color: "var(--w70)" }}>Hi, {displayName} <span style={{ fontSize: 16 }}>🤰</span></span>
         </div>
       </div>
 
