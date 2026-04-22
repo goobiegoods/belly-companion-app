@@ -274,6 +274,7 @@ const AskDoula = () => {
       `}</style>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
+      <input ref={safetyCameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
       {/* Minimal header */}
       <div style={{ padding: "16px 20px 12px", flexShrink: 0 }}>
