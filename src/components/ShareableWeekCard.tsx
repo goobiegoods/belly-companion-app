@@ -8,9 +8,10 @@ interface Props {
   fruitName: string;
   weight: string;
   length: string;
+  trimester?: number;
 }
 
-const ShareableWeekCard = ({ week, fruitEmoji, fruitName, weight, length }: Props) => {
+const ShareableWeekCard = ({ week, fruitEmoji, fruitName, weight, length, trimester }: Props) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -24,7 +25,7 @@ const ShareableWeekCard = ({ week, fruitEmoji, fruitName, weight, length }: Prop
 
       const navAny = navigator as any;
       if (navAny.canShare?.({ files: [file] })) {
-        await navAny.share({ files: [file], title: `Week ${week} · Belly`, text: `I'm in week ${week}! 🌸` });
+        await navAny.share({ files: [file], title: `My Week ${week} Update!`, text: `I'm in week ${week}! 🌸` });
       } else {
         const a = document.createElement("a");
         a.href = dataUrl;
@@ -45,35 +46,42 @@ const ShareableWeekCard = ({ week, fruitEmoji, fruitName, weight, length }: Prop
       <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>SHARE THIS WEEK</p>
 
       <div
+        id="shareable-card"
         ref={cardRef}
         style={{
-          background: "linear-gradient(155deg, #FF8C42 0%, #FF6520 100%)",
-          borderRadius: 24,
-          padding: "28px 22px",
+          background: "#FF8C42",
+          borderRadius: 20,
+          padding: 24,
           textAlign: "center",
           color: "white",
+          width: "100%",
           boxShadow: "0 8px 30px rgba(0,0,0,0.10)",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-          <span style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 800, letterSpacing: -0.4 }}>belly</span>
-          <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", opacity: 0.7 }}>VIRTUAL DOULA</span>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "flex-start", marginBottom: 14 }}>
+          <div style={{ textAlign: "left" }}>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1 }}>belly</p>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 400, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Virtual Doula</p>
+          </div>
         </div>
 
-        <div style={{ fontSize: 96, lineHeight: 1, marginBottom: 12, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.18))" }}>{fruitEmoji}</div>
+        <div style={{ fontSize: 64, lineHeight: 1, marginBottom: 8, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.18))" }}>{fruitEmoji}</div>
 
-        <p style={{ fontFamily: "'Fraunces', serif", fontSize: 56, fontWeight: 900, letterSpacing: -2, lineHeight: 1, marginBottom: 4 }}>Week {week}</p>
-        <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 16, fontWeight: 600, opacity: 0.9, marginBottom: 18, textTransform: "capitalize" }}>About the size of a {fruitName}</p>
+        <p style={{ fontFamily: "'Fraunces', serif", fontSize: 56, fontWeight: 900, color: "#fff", letterSpacing: -2, lineHeight: 1, marginBottom: 6 }}>Week {week}</p>
+        <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 16, textTransform: "capitalize" }}>Baby is the size of a {fruitName}!</p>
 
-        <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-          <div style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: 12, padding: "8px 14px" }}>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 16, fontWeight: 700 }}>{weight}</p>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 600, letterSpacing: "0.1em", opacity: 0.75 }}>WEIGHT</p>
+        <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{ background: "rgba(255,255,255,0.20)", borderRadius: 20, padding: "5px 12px", fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 600, color: "#fff" }}>
+            {weight}
           </div>
-          <div style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: 12, padding: "8px 14px" }}>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 16, fontWeight: 700 }}>{length}</p>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 600, letterSpacing: "0.1em", opacity: 0.75 }}>LENGTH</p>
+          <div style={{ background: "rgba(255,255,255,0.20)", borderRadius: 20, padding: "5px 12px", fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 600, color: "#fff" }}>
+            {length}
           </div>
+          {trimester && (
+            <div style={{ background: "rgba(255,255,255,0.20)", borderRadius: 20, padding: "5px 12px", fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 600, color: "#fff" }}>
+              Trimester {trimester}
+            </div>
+          )}
         </div>
       </div>
 
@@ -81,16 +89,16 @@ const ShareableWeekCard = ({ week, fruitEmoji, fruitName, weight, length }: Prop
         onClick={handleShare}
         disabled={busy}
         style={{
-          marginTop: 10,
+          marginTop: 12,
           width: "100%",
-          background: "white",
+          background: "#ffffff",
           border: "none",
-          borderRadius: 22,
-          padding: "11px 20px",
-          fontSize: 13,
+          borderRadius: 14,
+          padding: 14,
+          fontFamily: "'Fraunces', serif",
+          fontSize: 16,
           fontWeight: 700,
-          color: "#FF6520",
-          fontFamily: "'Outfit', system-ui",
+          color: "#FF8C42",
           boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
           cursor: busy ? "wait" : "pointer",
           opacity: busy ? 0.7 : 1,

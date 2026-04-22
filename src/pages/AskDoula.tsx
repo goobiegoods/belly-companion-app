@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, pregnancyWeeks } from "@/data/pregnancyWeeks";
@@ -15,6 +15,7 @@ interface Message {
 
 const AskDoula = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -23,6 +24,7 @@ const AskDoula = () => {
   const [attachedImage, setAttachedImage] = useState<{ base64: string; url: string } | null>(null);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -45,6 +47,7 @@ const AskDoula = () => {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
@@ -58,6 +61,19 @@ const AskDoula = () => {
       .gte("created_at", today + "T00:00:00Z")
       .then(({ count }) => setMessageCount(count || 0));
   }, [user]);
+
+  // Chip prefill receiver — fire once on mount if state.prefill is set
+  useEffect(() => {
+    const prefill = (location.state as any)?.prefill;
+    if (prefill && typeof prefill === "string") {
+      setInput(prefill);
+      // Clear so refresh doesn't refire
+      window.history.replaceState({}, document.title);
+      // Send after a tick so input state settles
+      setTimeout(() => { sendMessage(prefill); }, 50);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -191,6 +207,10 @@ const AskDoula = () => {
 
   return (
     <div className="flex flex-col h-screen page-enter" style={{ background: "transparent" }}>
+      <style>{`
+        @keyframes livePulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
+        @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-7px); } }
+      `}</style>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
@@ -199,16 +219,16 @@ const AskDoula = () => {
         <div className="flex items-center gap-2 mb-0.5">
           <button onClick={() => navigate("/")} className="mr-1" style={{ color: "white", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600 }}>← Home</button>
           <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white" }}>Ask the Doula</h1>
-          <span className="text-[9px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", color: "white" }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ADE80", display: "inline-block" }} />
-            AI · LIVE
+          <span style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 20, padding: "4px 10px", display: "flex", alignItems: "center", gap: 5 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", animation: "livePulse 2s infinite" }} />
+            <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, letterSpacing: 1, color: "#fff" }}>AI · LIVE</span>
           </span>
         </div>
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.55)" }}>Your natural pregnancy guide</p>
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-4" style={{ paddingBottom: 80 }}>
         {messages.length === 0 && (
           <>
             {/* Welcome hero */}
@@ -271,53 +291,67 @@ const AskDoula = () => {
 
         {messages.map((msg, i) => (
           <div key={i}>
-            {msg.role === "assistant" && i === firstAssistantIdx && (
-              <div className="flex items-center gap-1.5 mb-1">
-                <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>🌸</div>
-                <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "var(--w50)", fontWeight: 500 }}>Belly</span>
+            {msg.role === "assistant" ? (
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+                  <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
+                </div>
+                <div className="mr-auto" style={{ maxWidth: "88%" }}>
+                  <div className="px-4 py-3 text-[13px] leading-[1.65]"
+                    style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", color: "rgba(255,255,255,0.90)", borderRadius: "18px 18px 18px 4px", fontFamily: "'Outfit', system-ui" }}>
+                    {msg.imageUrl && (
+                      <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
+                    )}
+                    <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "rgba(255,255,255,0.88)" }}>
+                      <ReactMarkdown>{typeof msg.content === "string" ? msg.content : getTextContent(msg.content)}</ReactMarkdown>
+                    </div>
+                  </div>
+                  <p className="text-[10px] mt-1 px-1" style={{ color: "var(--w40)" }}>
+                    This is wellness guidance, not medical advice. Always consult your care provider.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="ml-auto" style={{ maxWidth: "80%" }}>
+                <div className="px-4 py-3 text-[13px] leading-[1.65]"
+                  style={{ background: "rgba(255,255,255,0.95)", color: "#3A1A00", borderRadius: "18px 18px 4px 18px", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
+                  {msg.imageUrl && (
+                    <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
+                  )}
+                  {getTextContent(msg.content)}
+                </div>
               </div>
             )}
-            <div className={`${msg.role === "user" ? "ml-auto" : "mr-auto"}`}
-              style={{ maxWidth: msg.role === "user" ? "80%" : "88%" }}>
-              <div className="px-4 py-3 text-[13px] leading-[1.65]"
-                style={msg.role === "user"
-                  ? { background: "rgba(255,255,255,0.95)", color: "#3A1A00", borderRadius: "18px 18px 4px 18px", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", fontFamily: "'Outfit', system-ui", fontWeight: 500 }
-                  : { background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", color: "rgba(255,255,255,0.90)", borderRadius: "18px 18px 18px 4px", fontFamily: "'Outfit', system-ui" }
-                }>
-                {msg.imageUrl && (
-                  <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
-                )}
-                {msg.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "rgba(255,255,255,0.88)" }}>
-                    <ReactMarkdown>{typeof msg.content === "string" ? msg.content : getTextContent(msg.content)}</ReactMarkdown>
-                  </div>
-                ) : getTextContent(msg.content)}
-              </div>
-              {msg.role === "assistant" && (
-                <p className="text-[10px] mt-1 px-1" style={{ color: "var(--w40)" }}>
-                  This is wellness guidance, not medical advice. Always consult your care provider.
-                </p>
-              )}
-            </div>
           </div>
         ))}
 
         {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
-          <div className="flex flex-col items-center py-4">
-            <div className="relative flex items-center justify-center" style={{ width: 160, height: 160, margin: "24px auto" }}>
-              {[60, 90, 120, 150].map((size, i) => (
-                <div key={i} className="absolute rounded-full" style={{
-                  width: size, height: size,
-                  border: `1.5px dashed rgba(255,255,255,${[0.40, 0.25, 0.15, 0.08][i]})`,
-                  animation: `ringPulse 2.4s ease-in-out infinite ${i * 0.3}s`,
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
+            </div>
+            <div style={{
+              background: "rgba(255,255,255,0.18)",
+              border: "1px solid rgba(255,255,255,0.22)",
+              borderRadius: "12px 12px 12px 3px",
+              padding: "10px 14px",
+              display: "inline-flex",
+              gap: 5,
+              alignItems: "center",
+              alignSelf: "flex-start",
+            }}>
+              {[0, 0.15, 0.3].map(d => (
+                <span key={d} style={{
+                  width: 6, height: 6, borderRadius: "50%",
+                  background: "rgba(255,255,255,0.7)",
+                  animation: `typingBounce 1.2s infinite ${d}s`,
+                  display: "inline-block",
                 }} />
               ))}
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontStyle: "italic", color: "white", zIndex: 10, textAlign: "center" }}>
-                Belly is thinking...
-              </p>
             </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {!profile?.is_premium && messageCount > 0 && (

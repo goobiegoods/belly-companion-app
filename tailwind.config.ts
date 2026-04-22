@@ -16,6 +16,8 @@ export default {
       fontFamily: {
         display: ["'Playfair Display'", "Georgia", "'Palatino Linotype'", "serif"],
         body: ["system-ui", "-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "sans-serif"],
+        fraunces: ["'Fraunces'", "Georgia", "serif"],
+        outfit: ["'Outfit'", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

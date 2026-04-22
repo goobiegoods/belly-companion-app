@@ -21,6 +21,7 @@ import RecipeDetail from "./pages/RecipeDetail";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
+import { CartProvider } from "./contexts/CartContext";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminOrders from "./pages/admin/AdminOrders";
@@ -69,7 +70,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="max-w-lg mx-auto relative">
+  <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "#FF8C42" }}>
     {children}
     <BottomNav />
   </div>
@@ -120,12 +121,31 @@ const AppContent = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Sonner position="top-center" toastOptions={{ className: "belly-glass" }} />
+      <Sonner
+        position="bottom-center"
+        toastOptions={{
+          style: {
+            background: "#ffffff",
+            color: "#1a1a1a",
+            borderRadius: 30,
+            padding: "10px 22px",
+            fontFamily: "'Outfit', system-ui, sans-serif",
+            fontSize: 13,
+            fontWeight: 500,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+            border: "none",
+            whiteSpace: "nowrap",
+          },
+        }}
+        offset={90}
+      />
       <BrowserRouter>
         <AuthProvider>
-          <SavedRecipesProvider>
-            <AppContent />
-          </SavedRecipesProvider>
+          <CartProvider>
+            <SavedRecipesProvider>
+              <AppContent />
+            </SavedRecipesProvider>
+          </CartProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

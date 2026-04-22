@@ -83,11 +83,18 @@
     font-family: 'Outfit', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  body, #root {
-    background: #FF8C42;
+  html {
+    background: #e07830;
+  }
+  body {
+    background: #e07830;
     min-height: 100vh;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
+  }
+  #root {
+    background: #FF8C42;
+    min-height: 100vh;
   }
 }
 
