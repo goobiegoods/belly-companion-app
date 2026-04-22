@@ -228,7 +228,7 @@ const AskDoula = () => {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-4" style={{ paddingBottom: 80 }}>
         {messages.length === 0 && (
           <>
             {/* Welcome hero */}
@@ -291,53 +291,67 @@ const AskDoula = () => {
 
         {messages.map((msg, i) => (
           <div key={i}>
-            {msg.role === "assistant" && i === firstAssistantIdx && (
-              <div className="flex items-center gap-1.5 mb-1">
-                <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>🌸</div>
-                <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "var(--w50)", fontWeight: 500 }}>Belly</span>
+            {msg.role === "assistant" ? (
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+                  <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
+                </div>
+                <div className="mr-auto" style={{ maxWidth: "88%" }}>
+                  <div className="px-4 py-3 text-[13px] leading-[1.65]"
+                    style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", color: "rgba(255,255,255,0.90)", borderRadius: "18px 18px 18px 4px", fontFamily: "'Outfit', system-ui" }}>
+                    {msg.imageUrl && (
+                      <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
+                    )}
+                    <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "rgba(255,255,255,0.88)" }}>
+                      <ReactMarkdown>{typeof msg.content === "string" ? msg.content : getTextContent(msg.content)}</ReactMarkdown>
+                    </div>
+                  </div>
+                  <p className="text-[10px] mt-1 px-1" style={{ color: "var(--w40)" }}>
+                    This is wellness guidance, not medical advice. Always consult your care provider.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="ml-auto" style={{ maxWidth: "80%" }}>
+                <div className="px-4 py-3 text-[13px] leading-[1.65]"
+                  style={{ background: "rgba(255,255,255,0.95)", color: "#3A1A00", borderRadius: "18px 18px 4px 18px", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
+                  {msg.imageUrl && (
+                    <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
+                  )}
+                  {getTextContent(msg.content)}
+                </div>
               </div>
             )}
-            <div className={`${msg.role === "user" ? "ml-auto" : "mr-auto"}`}
-              style={{ maxWidth: msg.role === "user" ? "80%" : "88%" }}>
-              <div className="px-4 py-3 text-[13px] leading-[1.65]"
-                style={msg.role === "user"
-                  ? { background: "rgba(255,255,255,0.95)", color: "#3A1A00", borderRadius: "18px 18px 4px 18px", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", fontFamily: "'Outfit', system-ui", fontWeight: 500 }
-                  : { background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", color: "rgba(255,255,255,0.90)", borderRadius: "18px 18px 18px 4px", fontFamily: "'Outfit', system-ui" }
-                }>
-                {msg.imageUrl && (
-                  <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
-                )}
-                {msg.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "rgba(255,255,255,0.88)" }}>
-                    <ReactMarkdown>{typeof msg.content === "string" ? msg.content : getTextContent(msg.content)}</ReactMarkdown>
-                  </div>
-                ) : getTextContent(msg.content)}
-              </div>
-              {msg.role === "assistant" && (
-                <p className="text-[10px] mt-1 px-1" style={{ color: "var(--w40)" }}>
-                  This is wellness guidance, not medical advice. Always consult your care provider.
-                </p>
-              )}
-            </div>
           </div>
         ))}
 
         {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
-          <div className="flex flex-col items-center py-4">
-            <div className="relative flex items-center justify-center" style={{ width: 160, height: 160, margin: "24px auto" }}>
-              {[60, 90, 120, 150].map((size, i) => (
-                <div key={i} className="absolute rounded-full" style={{
-                  width: size, height: size,
-                  border: `1.5px dashed rgba(255,255,255,${[0.40, 0.25, 0.15, 0.08][i]})`,
-                  animation: `ringPulse 2.4s ease-in-out infinite ${i * 0.3}s`,
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
+            </div>
+            <div style={{
+              background: "rgba(255,255,255,0.18)",
+              border: "1px solid rgba(255,255,255,0.22)",
+              borderRadius: "12px 12px 12px 3px",
+              padding: "10px 14px",
+              display: "inline-flex",
+              gap: 5,
+              alignItems: "center",
+              alignSelf: "flex-start",
+            }}>
+              {[0, 0.15, 0.3].map(d => (
+                <span key={d} style={{
+                  width: 6, height: 6, borderRadius: "50%",
+                  background: "rgba(255,255,255,0.7)",
+                  animation: `typingBounce 1.2s infinite ${d}s`,
+                  display: "inline-block",
                 }} />
               ))}
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontStyle: "italic", color: "white", zIndex: 10, textAlign: "center" }}>
-                Belly is thinking...
-              </p>
             </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {!profile?.is_premium && messageCount > 0 && (

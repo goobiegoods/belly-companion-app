@@ -53,7 +53,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
+    <div className="min-h-screen pb-20 page-enter" style={{ backgroundColor: "#FF8C42", minHeight: "100vh" }}>
       {/* Topbar */}
       <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 20px 0" }}>
         <button onClick={() => setEditing(true)} style={{
@@ -62,9 +62,8 @@ const Profile = () => {
         }}>Settings</button>
       </div>
 
-      {/* Hero */}
-      <div className="rounded-b-[24px] px-5 pt-4 pb-6 text-center" style={{ background: "rgba(255,255,255,0.22)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.35)", borderTop: "none" }}>
-        {/* Avatar */}
+      {/* Hero — no card wrapper, sits on orange */}
+      <div style={{ padding: "40px 20px 16px", textAlign: "center" }}>
         <div style={{
           width: 76, height: 76, borderRadius: "50%", background: "white",
           boxShadow: "0 0 0 4px rgba(255,255,255,0.28), 0 0 0 8px rgba(255,255,255,0.10)",
@@ -73,11 +72,9 @@ const Profile = () => {
         }}>
           <span style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 700, color: "#FF6520" }}>{initials}</span>
         </div>
-        {/* Name */}
         <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 26, fontWeight: 700, color: "white", letterSpacing: "-0.3px" }}>
           {formatName(profile?.first_name || "Mama")}
         </h1>
-        {/* Sub */}
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 4 }}>
           Week {currentWeek} · Due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
         </p>
@@ -93,18 +90,18 @@ const Profile = () => {
       </div>
 
       {/* Stats */}
-      <div className="flex gap-2 px-5 -mt-3 mb-5">
+      <div className="flex gap-2 px-5 mb-5">
         {[
-          { label: "Week", value: currentWeek },
-          { label: "Days to go", value: daysToGo },
-          { label: "Streak", value: "3🔥" },
+          { label: "WEEK", value: currentWeek, tight: false },
+          { label: "DAYS TO GO", value: daysToGo, tight: false },
+          { label: "STREAK", value: "3 🔥", tight: true },
         ].map(stat => (
           <div key={stat.label} className="flex-1 text-center" style={{
-            background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)",
-            borderRadius: 16, padding: 12, backdropFilter: "blur(14px)"
+            background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)",
+            borderRadius: 16, padding: "14px 8px", backdropFilter: "blur(14px)"
           }}>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 900, color: "white", letterSpacing: -1 }}>{stat.value}</p>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>{stat.label}</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 900, color: "white", letterSpacing: stat.tight ? -1 : -0.5 }}>{stat.value}</p>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "rgba(255,255,255,0.55)", marginTop: 4 }}>{stat.label}</p>
           </div>
         ))}
       </div>
@@ -116,12 +113,13 @@ const Profile = () => {
           {BADGES.map(badge => (
             <div key={badge.label} className="flex flex-col items-center relative" style={{
               minWidth: 64, borderRadius: 14, padding: "10px 8px",
-              background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.34)",
-              opacity: badge.earned ? 1 : 0.25, filter: badge.earned ? "none" : "grayscale(1)"
+              background: badge.earned ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.07)",
+              border: "1px solid rgba(255,255,255,0.22)",
+              opacity: badge.earned ? 1 : 0.4,
             }}>
-              <span style={{ fontSize: 22, marginBottom: 4 }}>{badge.emoji}</span>
+              <span style={{ fontSize: 22, marginBottom: 4, filter: badge.earned ? "none" : "grayscale(100%)" }}>{badge.emoji}</span>
               <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "white" }}>{badge.label}</span>
-              {!badge.earned && <span className="absolute top-1 right-1" style={{ fontSize: 8 }}>🔒</span>}
+              {!badge.earned && <span style={{ position: "absolute", bottom: 4, right: 4, fontSize: 10 }}>🔒</span>}
             </div>
           ))}
         </div>
@@ -147,26 +145,30 @@ const Profile = () => {
               </div>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 18, overflow: "hidden" }}>
               {[
                 { icon: "✏️", label: "Edit pregnancy details", action: () => setEditing(true) },
                 { icon: "📔", label: "Journal & Symptom Tracker", action: () => navigate("/journal") },
                 { icon: "📚", label: "My Courses", action: () => navigate("/courses") },
                 { icon: "🛍️", label: "My Orders", action: () => navigate("/orders") },
-              ].map(row => (
-                <button key={row.label} onClick={row.action} className="w-full flex items-center justify-between text-left" style={{
-                  background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)",
-                  borderRadius: 16, padding: "13px 14px"
+              ].map((row, idx, arr) => (
+                <button key={row.label} onClick={row.action} style={{
+                  width: "100%",
+                  display: "flex", alignItems: "center", gap: 12,
+                  padding: "14px 16px",
+                  background: "transparent",
+                  border: "none",
+                  borderBottom: idx === arr.length - 1 ? "none" : "1px solid rgba(255,255,255,0.08)",
+                  cursor: "pointer",
                 }}>
-                  <div className="flex items-center gap-3">
-                    <div style={{
-                      width: 38, height: 38, borderRadius: "50%",
-                      background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.28)",
-                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18
-                    }}>{row.icon}</div>
-                    <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white" }}>{row.label}</span>
-                  </div>
-                  <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 14 }}>→</span>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: 10,
+                    background: "rgba(255,255,255,0.18)",
+                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16,
+                    flexShrink: 0,
+                  }}>{row.icon}</div>
+                  <span style={{ flex: 1, textAlign: "left", fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 500, color: "white" }}>{row.label}</span>
+                  <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 18, color: "rgba(255,255,255,0.35)" }}>›</span>
                 </button>
               ))}
             </div>
