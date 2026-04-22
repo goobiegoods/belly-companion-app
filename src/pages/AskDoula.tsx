@@ -415,11 +415,20 @@ const AskDoula = () => {
       {/* Sticky input bar */}
       <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "rgba(220,90,10,0.97)", backdropFilter: "blur(16px)", padding: "10px 16px 14px" }}>
         <div className="flex items-center" style={{ background: "rgba(255,255,255,0.95)", borderRadius: 24, padding: "4px 4px 4px 16px", gap: 8 }}>
-          <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
-            className="shrink-0 flex items-center justify-center"
-            style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,120,64,0.12)" }}>
-            <Camera size={14} style={{ color: "#FF6520" }} />
-          </button>
+          {(() => {
+            const lastMsg = messages[messages.length - 1];
+            const showSpinner = isStreaming && (!!lastMsg?.imageUrl || (messages[messages.length - 2]?.imageUrl && lastMsg?.role === "assistant"));
+            return (
+              <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
+                disabled={isStreaming}
+                className="shrink-0 flex items-center justify-center transition-colors hover:bg-[rgba(255,140,66,0.22)]"
+                style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,140,66,0.12)" }}>
+                {showSpinner
+                  ? <Loader2 size={14} className="animate-spin" style={{ color: "#FF8C42" }} />
+                  : <Camera size={14} style={{ color: "rgba(255,140,66,0.7)" }} />}
+              </button>
+            );
+          })()}
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
