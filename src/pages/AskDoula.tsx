@@ -109,19 +109,23 @@ const AskDoula = () => {
     safetyCameraInputRef.current?.click();
   };
 
-  const sendMessage = async (text: string) => {
-    if ((!text.trim() && !attachedImage) || isStreaming) return;
+  const sendMessageWithImage = (text: string, img: { base64: string; url: string }) =>
+    sendMessage(text, img);
+
+  const sendMessage = async (text: string, imageOverride?: { base64: string; url: string }) => {
+    const activeImage = imageOverride || attachedImage;
+    if ((!text.trim() && !activeImage) || isStreaming) return;
     if (!profile?.is_premium && messageCount >= 10) {
       toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
       return;
     }
 
-    const hasImage = !!attachedImage;
-    const imageUrl = attachedImage?.url;
+    const hasImage = !!activeImage;
+    const imageUrl = activeImage?.url;
     let apiContent: any = text.trim() || (hasImage ? "Is this product safe to use during pregnancy?" : "");
     if (hasImage) {
       apiContent = [
-        { type: "image_url", image_url: { url: attachedImage!.url } },
+        { type: "image_url", image_url: { url: activeImage!.url } },
         { type: "text", text: text.trim() || "Is this product safe to use during pregnancy?" },
       ];
     }
