@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -33,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const profileChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
@@ -46,6 +47,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshProfile = async () => {
     if (user) await fetchProfile(user.id);
   };
+
+  // Subscribe to realtime profile updates so entitlement changes (is_premium)
+  // pushed by the payments webhook are reflected immediately in the UI.
+  useEffect(() => {
+    if (!user) {
+      if (profileChannelRef.current) {
+        supabase.removeChannel(profileChannelRef.current);
+        profileChannelRef.current = null;
+      }
+      return;
+    }
+    const channel = supabase
+      .channel(`profile-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles", filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.new) setProfile(payload.new as Profile);
+        }
+      )
+      .subscribe();
+    profileChannelRef.current = channel;
+    return () => {
+      supabase.removeChannel(channel);
+      profileChannelRef.current = null;
+    };
+  }, [user]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {

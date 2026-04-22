@@ -8,11 +8,44 @@ interface Props {
 }
 
 export function PremiumModal({ open, onClose }: Props) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [plan, setPlan] = useState<"premium_monthly" | "premium_annual">("premium_annual");
   const [showCheckout, setShowCheckout] = useState(false);
 
   if (!open) return null;
+
+  // Already-premium guard — prevents duplicate subscriptions
+  if (profile?.is_premium) {
+    return (
+      <div className="fixed inset-0 z-[1000] flex items-end" style={{ background: "rgba(0,0,0,0.5)" }} onClick={onClose}>
+        <div className="w-full" onClick={(e) => e.stopPropagation()}
+          style={{
+            background: "#FF8C42", borderRadius: "24px 24px 0 0",
+            padding: "32px 24px calc(32px + env(safe-area-inset-bottom))",
+            textAlign: "center",
+            animation: "sheetUp 240ms cubic-bezier(0.22,1,0.36,1)",
+          }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>🌟</div>
+          <p style={{ fontFamily: "'Fraunces', serif", fontSize: 24, fontWeight: 800, color: "#fff", marginBottom: 6 }}>
+            You're already Premium
+          </p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "rgba(255,255,255,0.85)", marginBottom: 24 }}>
+            Enjoy unlimited doula access and all premium courses 🌸
+          </p>
+          <button onClick={onClose}
+            style={{
+              width: "100%", height: 52, borderRadius: 14,
+              background: "#fff", color: "#FF8C42",
+              fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
+              border: "none", cursor: "pointer",
+            }}>
+            Got it
+          </button>
+        </div>
+        <style>{`@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-end" style={{ background: "rgba(0,0,0,0.5)" }} onClick={onClose}>

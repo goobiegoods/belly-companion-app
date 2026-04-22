@@ -13,7 +13,15 @@ export function PaymentTestModeBanner() {
       fontSize: 11,
       color: "#fff",
     }}>
-      All payments are in test mode. Use card 4242 4242 4242 4242.
+      Test mode · use card <strong>4242 4242 4242 4242</strong> · any future date · any CVC
+      <a
+        href="https://docs.stripe.com/testing#cards"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ marginLeft: 8, textDecoration: "underline", color: "#fff", opacity: 0.8 }}
+      >
+        more cards
+      </a>
     </div>
   );
 }

@@ -28,7 +28,7 @@ serve(async (req) => {
         await handleSubscriptionDeleted(event.data.object, env);
         break;
       case "checkout.session.completed":
-        console.log("Checkout completed:", event.data.object.id);
+        await handleCheckoutCompleted(event.data.object);
         break;
       default:
         console.log("Unhandled event:", event.type);
@@ -42,6 +42,35 @@ serve(async (req) => {
     return new Response("Webhook error", { status: 400 });
   }
 });
+
+async function handleCheckoutCompleted(session: any) {
+  console.log("Checkout completed:", session.id, "mode:", session.mode);
+
+  // Subscriptions are handled by customer.subscription.* events; only fulfill one-time payments here.
+  if (session.mode !== "payment") return;
+  if (session.payment_status !== "paid") {
+    console.log("Skipping: payment_status =", session.payment_status);
+    return;
+  }
+
+  const orderId = session.metadata?.orderId;
+  if (!orderId) {
+    console.log("No orderId in checkout session metadata");
+    return;
+  }
+
+  const amountPaid = typeof session.amount_total === "number" ? session.amount_total / 100 : null;
+
+  const { error } = await supabase.from("orders").update({
+    status: "paid",
+    amount_paid: amountPaid,
+    paid_at: new Date().toISOString(),
+    stripe_session_id: session.id,
+  }).eq("id", orderId);
+
+  if (error) console.error("Failed to mark order paid:", error);
+  else console.log("Order marked paid:", orderId);
+}
 
 async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
   const userId = subscription.metadata?.userId;
