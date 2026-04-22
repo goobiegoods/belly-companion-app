@@ -292,7 +292,7 @@ const Shop = () => {
                   <p style={{ fontSize: 11, color: "rgba(255,255,255,0.68)", fontWeight: 400, margin: "4px 0", fontFamily: "'Outfit', sans-serif" }}>{kit.description}</p>
                   {kit.contents?.map((c, i) => <p key={i} style={{ fontSize: 10, color: "rgba(255,255,255,0.52)", fontFamily: "'Outfit', sans-serif" }}>{c}</p>)}
                   <p style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 20, color: "white", marginTop: 8 }}>${kit.price}</p>
-                  <button onClick={() => addToCart(kit)} className="w-full belly-btn-press" style={{ marginTop: 8, borderRadius: 14, padding: "8px 0", fontSize: 13, fontWeight: 700, background: "white", color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Add to cart →</button>
+                  <button onClick={() => addToCart(kit)} className="w-full belly-btn-press" style={{ marginTop: 8, borderRadius: 14, padding: "8px 0", fontSize: 13, fontWeight: 700, background: addedId === kit.id ? "rgba(100,200,100,0.85)" : "white", color: addedId === kit.id ? "#fff" : "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif", transition: "all 200ms" }}>{addedId === kit.id ? "✓ Added" : "Add to cart →"}</button>
                 </div>
               </div>
             ))}
@@ -314,7 +314,7 @@ const Shop = () => {
                 <div className="text-right shrink-0">
                   <p style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16, color: "white" }}>${rem.price}</p>
                   {rem.unit && <p style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{rem.unit}</p>}
-                  <button onClick={() => addToCart(rem)} className="belly-btn-press" style={{ marginTop: 4, borderRadius: 16, padding: "4px 12px", fontSize: 10, fontWeight: 700, background: "white", color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Add</button>
+                  <button onClick={() => addToCart(rem)} className="belly-btn-press" style={{ marginTop: 4, borderRadius: 16, padding: "4px 12px", fontSize: 10, fontWeight: 700, background: addedId === rem.id ? "rgba(100,200,100,0.85)" : "white", color: addedId === rem.id ? "#fff" : "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif", transition: "all 200ms" }}>{addedId === rem.id ? "✓" : "Add"}</button>
                 </div>
               </div>
             ))}
@@ -334,7 +334,7 @@ const Shop = () => {
                 <div className="text-right shrink-0">
                   <p style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16, color: "white" }}>${tea.price}</p>
                   {tea.unit && <p style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", fontFamily: "'Outfit', sans-serif" }}>{tea.unit}</p>}
-                  <button onClick={() => addToCart(tea)} className="belly-btn-press" style={{ marginTop: 4, borderRadius: 16, padding: "4px 12px", fontSize: 10, fontWeight: 700, background: "white", color: "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif" }}>Add</button>
+                  <button onClick={() => addToCart(tea)} className="belly-btn-press" style={{ marginTop: 4, borderRadius: 16, padding: "4px 12px", fontSize: 10, fontWeight: 700, background: addedId === tea.id ? "rgba(100,200,100,0.85)" : "white", color: addedId === tea.id ? "#fff" : "#FF6520", border: "none", cursor: "pointer", fontFamily: "'Outfit', sans-serif", transition: "all 200ms" }}>{addedId === tea.id ? "✓" : "Add"}</button>
                 </div>
               </div>
             ))}
@@ -398,76 +398,82 @@ const Shop = () => {
         </>
       )}
 
-      {/* Cart overlay — slides from top-right */}
+      {/* Cart bottom sheet */}
       {showCart && (
-        <div className="fixed inset-0 z-[200]" style={{ background: "rgba(42,18,0,0.25)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }} onClick={() => setShowCart(false)}>
-          <div className="fixed" onClick={e => e.stopPropagation()}
+        <div className="fixed inset-0 z-[200] flex items-end" style={{ background: "rgba(0,0,0,0.5)" }} onClick={() => setShowCart(false)}>
+          <div onClick={e => e.stopPropagation()}
             style={{
-              top: 60, right: 16, width: "min(320px, calc(100vw - 32px))", maxHeight: "70vh",
-              borderRadius: 20, background: "rgba(254,248,244,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
-              border: "0.5px solid rgba(255,170,130,0.25)", boxShadow: "0 16px 48px rgba(42,18,0,0.15)",
-              overflow: "hidden", animation: "slideDown 220ms cubic-bezier(0.22,1,0.36,1)",
-              display: "flex", flexDirection: "column",
+              width: "100%", background: "#FF8C42", borderRadius: "24px 24px 0 0",
+              padding: 24, paddingBottom: "calc(24px + env(safe-area-inset-bottom))",
+              maxHeight: "85vh", display: "flex", flexDirection: "column",
+              animation: "sheetUp 240ms cubic-bezier(0.22,1,0.36,1)",
             }}>
-            {/* Header */}
-            <div className="flex items-center justify-between shrink-0" style={{ padding: "14px 16px 10px", borderBottom: "0.5px solid rgba(255,170,130,0.15)" }}>
-              <span style={{ color: "#C85828", fontSize: 14, fontWeight: 600 }}>Your cart</span>
-              <button onClick={() => setShowCart(false)} style={{ color: "#D4906A", fontSize: 18, cursor: "pointer", background: "none", border: "none" }}>×</button>
+            <div className="flex items-center justify-between mb-4">
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>Your cart</h2>
+              <button onClick={() => setShowCart(false)} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "none", color: "#fff", fontSize: 18, cursor: "pointer" }}>×</button>
             </div>
 
             {cart.length === 0 ? (
               <div style={{ padding: "32px 16px", textAlign: "center" }}>
-                <span style={{ fontSize: 36, display: "block", marginBottom: 8 }}>🛍️</span>
-                <p style={{ fontSize: 13, fontWeight: 600, color: "#A84E28" }}>Your cart is empty</p>
-                <p style={{ fontSize: 11, color: "#D4906A", fontStyle: "italic" }}>Add a remedy to get started</p>
+                <span style={{ fontSize: 40, display: "block", marginBottom: 10 }}>🛍️</span>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: "'Outfit', system-ui" }}>Your cart is empty</p>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", fontStyle: "italic", marginTop: 4, fontFamily: "'Outfit', system-ui" }}>Add a remedy to get started</p>
               </div>
             ) : (
               <>
-                {/* Items */}
-                <div style={{ maxHeight: 240, overflowY: "auto", padding: "8px 16px" }}>
+                <div style={{ flex: 1, overflowY: "auto", marginBottom: 12 }}>
                   {cart.map(item => (
-                    <div key={item.product.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "0.5px solid rgba(255,170,130,0.1)" }}>
-                      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,200,170,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
+                    <div key={item.product.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: 12, marginBottom: 10, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 12 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
                         {item.product.emoji}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 11, fontWeight: 600, color: "#A84E28" }}>{item.product.name}</p>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                          <button onClick={() => updateQty(item.product.id, -1)} style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,210,185,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Minus size={10} style={{ color: "#E07040" }} />
-                          </button>
-                          <span style={{ fontSize: 12, fontWeight: 600, color: "#A84E28", width: 16, textAlign: "center" }}>{item.qty}</span>
-                          <button onClick={() => updateQty(item.product.id, 1)} style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(255,210,185,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Plus size={10} style={{ color: "#E07040" }} />
-                          </button>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: "#fff", fontFamily: "'Outfit', system-ui" }}>{item.product.name}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                          <button onClick={() => updateQty(item.product.id, -1)} style={{ width: 24, height: 24, borderRadius: "50%", background: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#FF8C42", fontWeight: 700 }}>−</button>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", width: 18, textAlign: "center", fontFamily: "'Outfit', system-ui" }}>{item.qty}</span>
+                          <button onClick={() => updateQty(item.product.id, 1)} style={{ width: 24, height: 24, borderRadius: "50%", background: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#FF8C42", fontWeight: 700 }}>+</button>
                         </div>
                       </div>
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <p style={{ fontSize: 12, fontWeight: 600, color: "#A84E28" }}>${(item.product.price * item.qty).toFixed(2)}</p>
-                        <button onClick={() => updateQty(item.product.id, -item.qty)} style={{ fontSize: 14, color: "rgba(180,100,60,0.4)", background: "none", border: "none", cursor: "pointer" }}>×</button>
+                        <p style={{ fontFamily: "'Fraunces', serif", fontSize: 16, fontWeight: 700, color: "#fff" }}>${(item.product.price * item.qty).toFixed(2)}</p>
+                        <button onClick={() => updateQty(item.product.id, -item.qty)} style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", background: "none", border: "none", cursor: "pointer" }}>×</button>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Summary */}
-                <div style={{ padding: "10px 16px", borderTop: "0.5px solid rgba(255,170,130,0.15)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 11, color: "#D4906A" }}>Subtotal</span>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: "#A84E28" }}>${cartTotal.toFixed(2)}</span>
-                  </div>
-                  <p style={{ fontSize: 9, fontStyle: "italic", color: "rgba(180,100,60,0.4)", textAlign: "center", marginTop: 4 }}>
-                    {cartTotal >= 40 ? "✓ Free shipping included" : "Free shipping on orders over $40"}
-                  </p>
+                {/* Subtotal */}
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                  <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 500, color: "#fff" }}>Subtotal</span>
+                  <span style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "#fff" }}>${cartTotal.toFixed(2)}</span>
                 </div>
 
-                {/* Checkout buttons */}
-                <div style={{ padding: "10px 16px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
-                  <button onClick={placeOrder} disabled={ordering}
-                    style={{ width: "100%", background: "linear-gradient(145deg, #FF7840, #FFAB80)", borderRadius: 14, padding: 14, border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, color: "white", boxShadow: "0 4px 14px rgba(255,120,64,0.28)", opacity: ordering ? 0.6 : 1 }}>
-                    {ordering ? "Placing order..." : "Place order →"}
-                  </button>
-                </div>
+                {/* Free shipping progress */}
+                {cartTotal < 40 ? (
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ height: 4, borderRadius: 4, background: "rgba(255,255,255,0.2)", overflow: "hidden" }}>
+                      <div style={{ height: 4, borderRadius: 4, background: "#fff", width: `${Math.min(100, (cartTotal / 40) * 100)}%`, transition: "width 0.4s ease" }} />
+                    </div>
+                    <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.85)", marginTop: 6, textAlign: "center" }}>
+                      Add ${(40 - cartTotal).toFixed(2)} more for free shipping 🚚
+                    </p>
+                  </div>
+                ) : (
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 600, color: "#fff", marginBottom: 14, textAlign: "center" }}>
+                    🎉 You've unlocked free shipping! ✓
+                  </p>
+                )}
+
+                <button onClick={placeOrder} disabled={ordering}
+                  style={{
+                    width: "100%", background: "#fff", color: "#FF8C42",
+                    fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
+                    borderRadius: 14, padding: 14, border: "none", cursor: ordering ? "wait" : "pointer",
+                    opacity: ordering ? 0.7 : 1,
+                  }}>
+                  {ordering ? "Placing order..." : "Place order →"}
+                </button>
               </>
             )}
           </div>
@@ -475,9 +481,9 @@ const Shop = () => {
       )}
 
       <style>{`
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-12px) scale(0.97); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes sheetUp {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
         }
         @keyframes badgePop {
           0% { transform: scale(0); }
