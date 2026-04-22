@@ -1,82 +1,95 @@
 
 
-# Belly App — Comprehensive Polish Pass (8 Sections)
+# Belly App — Addendum Fix Pass (6 Sections)
 
-## Overview
-Patch existing files in place across 8 areas. No screens are rebuilt. Behavior changes: a few new toggles (Community like/save, Shop cart badge), one new table (`saves`), and a chip-prefill flow Home → Ask. Stripe integration is **explicitly out of scope** here (cart still uses existing `orders` insert flow).
+## Approach
+In-place patches across 6 areas. New Stripe subscription work is **conditional** — first, I need a decision from you about the payment provider since the spec requested raw Stripe BYOK but Lovable now provides a no-account-setup integration.
 
 ---
 
-## Section 1 — `src/pages/HomePage.tsx`
+## BABY-5 — Fruit emoji per week (data-driven)
 
-| Item | Patch |
-|---|---|
-| 1A Watermark | Replace existing `doula` div (line 107): pure `rgba(255,255,255,0.06)`, fontSize `120`, top `-10`, right `-8`, z-index 0. Wrap hero card content with `position: relative; zIndex: 1`. |
-| 1B Progress bar | In hero card track (line 144): track `rgba(255,255,255,0.2)` height 4 radius 4; fill solid `#fff` with `transition: width 0.6s ease`. |
-| 1C Week card emoji | Replace name-based `getFruitEmoji` with the same `weekEmoji` map already used in BabyTracker (single shared source). The week card ghost emoji uses `weekEmoji[currentWeek]`. Week 18 → 🫑. |
-| 1D Streak bento | Replace lines 181–213 (single streak card + milestones progress) with a 2-tile CSS grid: LEFT translucent card (🔥, big `64px` Fraunces 900 number, "{N}-day streak!", subline). RIGHT dark `rgba(0,0,0,0.12)` card with "JOURNEY" label + 4 milestone rows (🌱 Day 1 / 🌿 Week 1 / 🌸 Week 2 / 👶 Birth — last one dim). |
-| 1E Mood section | Move existing mood block to sit **immediately below** the streak bento. Remove its card wrapper (sits on orange). Heading "How are you feeling today?" Fraunces 22, sub "Tap to log your daily check-in". Update toast copy to spec exact (good→"you're glowing today ✨", glowing→"you absolutely radiate 🌸", anxious→"we're right here with you 🤍", unwell→"sending you so much love 💛"). Existing supabase insert + selected pre-load already wired. |
-| 1F Journey tiles | Below mood, add a new 2-column grid: SLEEP tile (translucent, "Can't sleep?", "TRY NOW" button → `/cant-sleep`) and COURSES tile (solid white, orange text, "Your Courses · 3 in progress" → `/courses`). Replace current "YOUR JOURNEY" rows section (lines 267–293). |
-| 1G Chip prefill | Each suggestion chip (line 156) and the input zone (line 148) navigate with `navigate('/ask', { state: { prefill: chipText } })`. |
+**Root cause**: `BabyTracker.tsx` has its own hardcoded `weekEmoji` map at the top of the file (lines 9–20) which is duplicated, partially wrong, and not used by `ShareableWeekCard` or `HomePage`. The shareable card and home week badge each reach for emoji separately.
 
-## Section 2 — `src/pages/BabyTracker.tsx`
+**Fix**:
+1. Add `emoji` column to `PregnancyWeek` interface in `src/data/pregnancyWeeks.ts` and populate every week 1–40 using the spec's exact characters (week 25 = 🥦, week 26 = 🥒, week 20 = 🍌, etc.). Weeks 1–5 use 🫘 (pre-conception bean).
+2. Delete the local `weekEmoji` map in `BabyTracker.tsx` and read `weekData.emoji` everywhere.
+3. Update `ShareableWeekCard.tsx` to accept and render `weekData.emoji`.
+4. Update `HomePage.tsx` week-card ghost emoji to use `pregnancyWeeks.find(w => w.week === currentWeek)?.emoji`.
 
-| Item | Patch |
-|---|---|
-| 2A ShareableWeekCard | Already imported and rendered (line 277). Update component to add `id="shareable-card"` attribute, switch background to flat `#FF8C42` (not gradient), and add the trimester pill alongside weight/length. Button copy already correct. |
-| 2B Browse weeks 6–40 | Slice `pregnancyWeeks` to `.filter(w => w.week >= 6)` in the strip. Auto-scroll on mount already works (line 80). Active/inactive pill styles already match spec. |
+Single source of truth — emoji visibly changes when tapping any week.
 
-## Section 3 — `src/pages/AskDoula.tsx`
+---
 
-| Item | Patch |
-|---|---|
-| 3A LIVE badge | Header pill (line 202) already exists but green dot is static. Add a `@keyframes livePulse` injected via `<style>` and apply to the dot (2s infinite, scale 1↔1.5 + opacity). Adjust pill bg to `rgba(255,255,255,0.15)` border `rgba(255,255,255,0.22)`. |
-| 3B Typing dots | Replace current "ringPulse" loader (lines 305–320) with a small 3-dot bubble (matches doula bubble style) using `@keyframes typingBounce` with delays 0/0.15/0.3. Keep the existing condition that hides dots once first delta arrives. |
-| 3C Doula avatar | Each assistant message (line 272 map) gets a left 20px circle with "D" Outfit 700 9px white. Currently a bigger 22px circle with 🌸 only on first assistant message — change to per-message 20px "D" circle in flex-row wrapper. |
-| 3D Auto-scroll & sticky input | Add `messagesEndRef` div at end of messages list and `scrollIntoView({ behavior: 'smooth' })` in useEffect. Make input bar `position: sticky; bottom: 0` with backdrop blur. Add `paddingBottom: 80px` to messages container. |
-| 3E Chip prefill receiver | On mount, read `useLocation().state?.prefill`. If present, call `setInput(prefill)` and immediately `sendMessage(prefill)`. Clear via `window.history.replaceState`. |
+## COMMUNITY-5 — Composer sheet fixes
 
-## Section 4 — `src/pages/Community.tsx`
+`src/pages/Community.tsx` (lines 427–471):
+1. **Background** → change sheet bg from `rgba(200,80,10,0.95)` to flat `#FF8C42`.
+2. **Submit button reachability** → keep current sticky footer but add `paddingBottom: calc(100px + env(safe-area-inset-bottom))` so it clears the nav.
+3. **Disabled state** → require BOTH title AND body (currently only title): `disabled={!newTitle.trim() || !newBody.trim() || posting}`.
+4. **Optimistic insert** → after successful insert, prepend the new post to local `posts` state instead of waiting for `fetchPosts()`. Roll back on error.
+5. Confirm input cards stay white, chips match feed filter style (already correct).
 
-| Item | Patch |
-|---|---|
-| 4A Bell badge | Existing `NotificationBell` shows unread notifications. Augment with localStorage `last_visited_community` set on mount; query likes + comments on user's posts since that timestamp. Render count badge on bell (red 16x16 circle, "5+" cap). |
-| 4B Like toggle | Already has `is_liked` + `toggleLike`. Refine UI: liked → filled `Heart fill="#FF8C42"` color `#FF8C42`; unliked → outline Heart `rgba(255,255,255,0.5)`. Apply optimistic update (already partially done; ensure UI updates before fetchPosts refresh). |
-| 4C Save toggle | New table `saves` (id, user_id, post_id, created_at, RLS user-only). Load `savedPostIds` Set on mount. Render bookmark icon: saved 🔖 `#FFD700` "Saved" / unsaved 🔖 `rgba(255,255,255,0.45)` "Save". Toggle inserts/deletes. |
-| 4D Composer optimistic insert | `createPost` (line 124) already inserts into Supabase + calls `fetchPosts()`. Change to optimistically prepend the new post to local `posts` state immediately on success (before re-fetch) so it shows at top with no flicker. |
+---
 
-## Section 5 — `src/pages/Shop.tsx`
+## JOURNAL-1 — Save button + mood alignment + history + doula shortcut
 
-| Item | Patch |
-|---|---|
-| 5A Cart badge on nav | Create `src/contexts/CartContext.tsx` (cartCount, setCartCount) persisted in localStorage. Wrap app in `App.tsx`. Refactor Shop to read/write context (replace local `cart` state's count source). Add badge on Shop nav icon in `BottomNav.tsx`: top -4 right -4, 16px circle bg `#FF8C42`, 2px border `rgba(210,80,10,0.92)`, white "9+"-capped count. |
-| 5B Add-to-cart state | After `addToCart`, set per-product `addedId` for 2000ms. Button shows "✓ Added" with `rgba(100,200,100,0.15)` bg during that window. Toast already shows. |
-| 5C Scroll clipping | Wrap product strips in container with `overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0 16px 8px`. Each card `min-width: 200px; scroll-snap-align: start; flex-shrink: 0`. Append 16px spacer div. Add right-side fade overlay via wrapper `position: relative` + `::after` injected through inline `<style>` rule scoped to `.shop-strip`. |
+`src/pages/Journal.tsx` (entire file refactor in place):
+1. **Mood unification** → replace MOODS array with the home-screen 5: `[{tired,😴},{good,😊},{glowing,🥰},{anxious,😰},{unwell,😣}]`. Symptoms list stays as-is.
+2. **Save button** → already exists in sticky footer but is hidden when `hasCheckedInToday`. Change to: always visible; disabled (opacity 0.4) when `!selectedMood`. Keep current `saveEntry` Supabase insert into `journal_entries`. Update toast to "Entry saved 💛".
+3. **History** → already groups by week; refactor the order to descending by `logged_at`/`date`, render ALL past entries (currently does), and add date right-aligned per spec.
+4. **Doula shortcut** → at the bottom of each past entry card add a tappable "Ask doula about this →" link that calls `navigate('/ask', { state: { prefill: 'I logged feeling ${mood} with ${symptoms.join(", ")} this week. Can you help?' } })`. The `/ask` chip-prefill receiver added in the previous polish pass already handles this.
+5. Allow re-entry the same day (remove the `hasCheckedInToday` gate that currently hides the form).
 
-## Section 6 — `src/pages/Profile.tsx`
+---
 
-| Item | Patch |
-|---|---|
-| 6A Full orange bg | Top wrapper already `background: transparent`. Confirm no white inheritance — add explicit `style={{ backgroundColor: '#FF8C42' }}` to outermost div for safety. The Premium modal stays. |
-| 6B Remove avatar wrapper card | Lines 66–93: remove the `rounded-b-[24px]` translucent card wrapping the avatar/name/sub. Avatar+name+sub+pill sit directly on orange with `padding: 40px 20px 16px; text-align: center`. |
-| 6C Stats tiles | Already mostly correct. Bump value to Fraunces 900 28px, label letter-spacing `2px` 9px `rgba(255,255,255,0.55)`. Add `letterSpacing: -1px` only on the streak value to tighten "3🔥". |
-| 6D Achievements lock | Already has `opacity` + `grayscale` + 🔒. Tighten: locked tiles `opacity: 0.4`, bg `rgba(255,255,255,0.07)`, 🔒 absolute bottom-right 4/4 fontSize 10. Unlocked: full opacity, bg `rgba(255,255,255,0.14)`, no filter. |
-| 6E Unified menu card | Wrap the 4 journey rows (currently separate buttons) in ONE container `rgba(255,255,255,0.12)` border `rgba(255,255,255,0.18)` radius 18 `overflow: hidden`. Each row has `border-bottom: 1px solid rgba(255,255,255,0.08)` except last. Row icon: 32x32 rounded-10. Arrow: › 18px `rgba(255,255,255,0.35)`. |
+## SHOP-5 — Cart modal redesign + free shipping bar + place-order success
 
-## Section 7 — `src/components/BottomNav.tsx`
+`src/pages/Shop.tsx`:
+1. **Cart visual rebuild** (lines 391–464): swap the dropdown-style cart for a bottom sheet — overlay `rgba(0,0,0,0.5)`, container `#FF8C42` with `borderRadius: '24px 24px 0 0'`, padding 24, full-width. Title "Your cart" Fraunces 800 22 white. Each item row: `rgba(255,255,255,0.14)` 12r/12p. Qty buttons: white circles with orange `−`/`+`. Remove `×`: small white. All text white.
+2. **Free shipping progress** between subtotal and CTA:
+   - <$40: track `rgba(255,255,255,0.2)` h4 r4, fill `#fff` width = `cartTotal/40*100%`. Below: "Add $X.XX more for free shipping 🚚".
+   - ≥$40: "🎉 You've unlocked free shipping!" tint white with ✓.
+3. **Place Order success** — new route `/order-success` (page component). After successful insert → close cart, clear cart state, `navigate('/order-success')`. Page: full-orange, "Order received! 🎉" Fraunces 900 white, sub copy, "Back to shop" button → `/shop`. Same screen will be reused for Stripe redirect.
+4. **Loading state**: button shows "Placing order..." (already there) with disabled style.
 
-| Item | Patch |
-|---|---|
-| 7A Active dot | Replace current 18×2.5 white pill (lines 67–77) with a 4×4 white circle (`borderRadius: 50%`, `marginBottom: 3`). Inactive items color `rgba(255,255,255,0.45)`. No blue anywhere — already none. |
-| 7B Label font | Bump label fontSize `7→9`, fontWeight `600→700`, letterSpacing `0.05em→0.8px`. Apply to all tabs incl. ME (currently labeled "Me"). |
+---
 
-## Section 8 — Global / App-wide
+## PREMIUM-1 — Subscription wiring (DECISION NEEDED before building)
 
-| Item | Patch |
-|---|---|
-| 8A Fonts | `index.html` line 12: extend href to include Outfit weights `300;400;500;600;700` and Fraunces opsz axis as specified. Add `fontFamily` definitions in `tailwind.config.ts` `extend.fontFamily`: `fraunces` and `outfit`. (Project mostly uses inline `fontFamily`, but this enables future Tailwind classes.) |
-| 8B Global toast | Keep existing `sonner` Toaster (already in App.tsx). Reposition to `bottom: 90px` via `position="bottom-center"`, customize style via `toastOptions.style` to match white pill spec (white bg, radius 30, padding 10/22, dark text, Outfit 500 13). Migration of existing `toast.success(...)` calls is unnecessary because they all already route through sonner. |
-| 8C Container | `AppLayout` in `App.tsx` (line 71) currently `max-w-lg mx-auto relative`. Change to inline-style `maxWidth: 430px; margin: 0 auto; minHeight: 100vh; position: relative; overflow: hidden`. Body bg already orange via index.css; add a body rule for `#e07830` outer color in `src/index.css`. |
+The spec asks for raw Stripe BYOK with a `create-subscription` edge function and price IDs in `.env`. Lovable now offers a built-in payments integration that is strictly preferred over BYOK and doesn't require a Stripe account or env vars.
+
+I will **ask you which path** before building (see "Open question" below). Once chosen, the implementation is one of these two options:
+
+### Path A — Lovable's built-in Stripe payments (recommended)
+1. Run `recommend_payment_provider` (project sells digital subscriptions — should clear).
+2. Call `enable_stripe_payments` to provision the integration.
+3. Use the post-enable knowledge to create two products ($9.99/mo and $59.99/yr with 7-day trial) and wire checkout. Lovable manages keys, webhooks, and the `subscriptions`/`customers` schema for us.
+4. Wire the existing Premium modal "Start free trial" CTA to the generated checkout helper.
+5. New `/premium-success` page (full orange, welcome copy, CTA to `/`).
+
+### Path B — Build the BYOK flow exactly as specified
+1. New edge function `supabase/functions/create-subscription/index.ts` (per spec).
+2. Migration: add `stripe_customer_id`, `stripe_subscription_id` columns to `profiles` (`is_premium` and `premium_expires_at` already exist).
+3. Add a `stripe-webhook` edge function to handle `customer.subscription.created/updated/deleted`.
+4. You provide `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_MONTHLY_PRICE_ID`, `STRIPE_ANNUAL_PRICE_ID` via the secrets tool.
+5. Same modal wiring + `/premium-success` page.
+
+### Common to both paths — Premium gates
+1. **Doula chat 10/day cap** in `AskDoula.tsx`: count `chat_messages` since today midnight where `role='user'`. If ≥10 and `!profile.is_premium` → disable send + show in-chat banner with "Go Premium →".
+2. **Course locks** in `Courses.tsx`: for `course.isPremium` cards when `!profile.is_premium`, apply `filter: blur(4px)` over content + centered 🔒 + Premium badge. Tapping opens the Premium modal (already exists in `Profile.tsx` — extract it to a shared `PremiumModal` component so it can be opened from anywhere).
+3. **Interim fallback**: regardless of path, if Stripe price IDs aren't yet configured, the CTA shows toast "Premium is launching very soon! We'll notify you 🌸" and inserts into a new `premium_waitlist` table (`user_id`, `created_at`, RLS user-only).
+
+---
+
+## COURSES-1 — Replace courses data + add lock UX
+
+`src/data/coursesData.ts` already has 12 courses; the spec wants a different set of 6 with `episodes_list`. **Two options here too** (see open question):
+
+- **Option X (replace)**: rewrite `coursesData.ts` to match the spec's 6-course array with episodes. Update `Courses.tsx` to render the new shape (episode count + total minutes; tap a course → list of episodes with durations). Adds a new `course_progress` table (user_id, course_id, episode_id, completed_at) with RLS.
+- **Option Y (keep & enrich)**: keep current 12 courses + `lessonContent.ts` (which has actual reading material, quizzes, reflections — much richer than the spec's titles-only list), add the lock blur overlay on Premium courses, leave content otherwise alone.
+
+**My recommendation: Option Y.** Your existing course system has lesson content, reflections, quizzes, completions, and reflection saving — replacing it with the spec's title-only stubs would be a regression. The Premium gate (lock blur + modal) is what unlocks the monetization story, not the content swap.
 
 ---
 
@@ -84,20 +97,23 @@ Patch existing files in place across 8 areas. No screens are rebuilt. Behavior c
 
 | Migration | Detail |
 |---|---|
-| `saves` table | `id uuid pk`, `user_id uuid`, `post_id uuid`, `created_at`. Unique (user_id, post_id). RLS: user can SELECT/INSERT/DELETE own rows. |
-
-No other DB changes. `mood_logs`, `streak_state`, `notifications`, `post_likes` all already exist.
+| `premium_waitlist` table | `id`, `user_id`, `created_at`. RLS: user can SELECT/INSERT own rows. |
+| (Path B only) `profiles` ALTER | `+stripe_customer_id text`, `+stripe_subscription_id text` |
+| (Course Option X only) `course_progress` table | `id, user_id, course_id, episode_id, completed_at` + RLS |
 
 ---
 
 ## Files touched
 
-**New:** `src/contexts/CartContext.tsx`, 1 migration (saves table).
+**New**: `src/pages/OrderSuccess.tsx`, `src/pages/PremiumSuccess.tsx`, `src/components/PremiumModal.tsx` (extracted from Profile), and (Path B) `supabase/functions/create-subscription/index.ts` + `supabase/functions/stripe-webhook/index.ts`.
 
-**Edited:** `src/pages/HomePage.tsx`, `src/pages/BabyTracker.tsx`, `src/pages/AskDoula.tsx`, `src/pages/Community.tsx`, `src/pages/Shop.tsx`, `src/pages/Profile.tsx`, `src/components/BottomNav.tsx`, `src/components/ShareableWeekCard.tsx`, `src/App.tsx`, `index.html`, `src/index.css`, `tailwind.config.ts`.
+**Edited**: `src/data/pregnancyWeeks.ts`, `src/pages/BabyTracker.tsx`, `src/components/ShareableWeekCard.tsx`, `src/pages/HomePage.tsx`, `src/pages/Community.tsx`, `src/pages/Journal.tsx`, `src/pages/Shop.tsx`, `src/pages/AskDoula.tsx`, `src/pages/Courses.tsx`, `src/pages/Profile.tsx`, `src/App.tsx`.
 
-## Out of scope
-- Stripe checkout (kept current "order received" mock flow)
-- PWA / service worker
-- Rebuilding any screen from scratch
+---
+
+## Open questions (I'll ask after you approve)
+
+1. **Premium path**: Lovable's built-in Stripe (no setup) or BYOK Stripe with your own keys?
+2. **Courses data**: Keep your existing 12-course system with rich lesson content (recommended), or replace with the spec's 6 title-only courses?
+3. **Pro plan**: Payments require Pro. Are you on Pro? If not, I'll skip Premium wiring and only add the waitlist + visual lock states.
 
