@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { toast } from "sonner";
 
 const MOODS = [
-  { label: "Wonderful", emoji: "🌟" },
-  { label: "Good", emoji: "😊" },
-  { label: "Okay", emoji: "😐" },
-  { label: "Tired", emoji: "😴" },
-  { label: "Struggling", emoji: "😢" },
+  { key: "tired", label: "TIRED", emoji: "😴" },
+  { key: "good", label: "GOOD", emoji: "😊" },
+  { key: "glowing", label: "GLOWING", emoji: "🥰" },
+  { key: "anxious", label: "ANXIOUS", emoji: "😰" },
+  { key: "unwell", label: "UNWELL", emoji: "😣" },
 ];
 
 const SYMPTOMS = [
@@ -17,15 +18,17 @@ const SYMPTOMS = [
   "Headache", "Insomnia", "Mood changes", "Cravings", "Other",
 ];
 
+const moodEmojiFor = (m: string | null | undefined) => MOODS.find(x => x.key === m)?.emoji || "😐";
+const moodLabelFor = (m: string | null | undefined) => MOODS.find(x => x.key === m)?.label || (m || "—");
+
 const Journal = () => {
+  const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [note, setNote] = useState("");
   const [entries, setEntries] = useState<any[]>([]);
-  const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [moodError, setMoodError] = useState(false);
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
 
@@ -33,16 +36,17 @@ const Journal = () => {
 
   const fetchEntries = async () => {
     if (!user) return;
-    const { data } = await supabase.from("journal_entries").select("*").eq("user_id", user.id).order("date", { ascending: false });
+    const { data } = await supabase
+      .from("journal_entries")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("date", { ascending: false })
+      .order("created_at", { ascending: false });
     setEntries(data || []);
-    const today = new Date().toISOString().split("T")[0];
-    setHasCheckedInToday(!!data?.find(e => e.date === today));
   };
 
   const saveEntry = async () => {
-    if (!user) return;
-    if (!selectedMood) { setMoodError(true); return; }
-    setMoodError(false);
+    if (!user || !selectedMood) return;
     setSaving(true);
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(8);
     const today = new Date().toISOString().split("T")[0];
@@ -52,141 +56,158 @@ const Journal = () => {
     });
     setSaving(false);
     if (error) { toast.error("Something went wrong. Try again."); return; }
-    toast.success("Check-in saved 🌸");
-    setTimeout(() => {
-      setSelectedMood(null); setSelectedSymptoms([]); setNote(""); setMoodError(false);
-      fetchEntries();
-    }, 500);
+    toast.success("Entry saved 💛");
+    setSelectedMood(null); setSelectedSymptoms([]); setNote("");
+    fetchEntries();
   };
 
-  const toggleSymptom = (s: string) => setSelectedSymptoms(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
-  const moodEmoji = (mood: string) => MOODS.find(m => m.label === mood)?.emoji || "😐";
+  const toggleSymptom = (s: string) =>
+    setSelectedSymptoms(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
 
+  const askDoulaAbout = (entry: any) => {
+    const moodLabel = moodLabelFor(entry.mood).toLowerCase();
+    const syms = (entry.symptoms || []).join(", ");
+    const prefill = syms
+      ? `I logged feeling ${moodLabel} with ${syms} this week. Can you help?`
+      : `I logged feeling ${moodLabel} this week. Can you help?`;
+    navigate("/ask", { state: { prefill } });
+  };
+
+  // Group entries by week (descending)
   const grouped: Record<string, any[]> = {};
-  entries.forEach(e => { const key = `Week ${e.week_number || "?"}`; if (!grouped[key]) grouped[key] = []; grouped[key].push(e); });
+  entries.forEach(e => {
+    const key = e.week_number ? `WEEK ${e.week_number}` : "EARLIER";
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(e);
+  });
+  const weekKeys = Object.keys(grouped).sort((a, b) => {
+    const na = parseInt(a.replace(/\D/g, "") || "0", 10);
+    const nb = parseInt(b.replace(/\D/g, "") || "0", 10);
+    return nb - na;
+  });
+
+  const canSave = !!selectedMood;
 
   return (
-    <div className="flex flex-col" style={{ height: "100dvh", background: "transparent", overflow: "hidden" }}>
+    <div className="flex flex-col" style={{ minHeight: "100vh", background: "transparent" }}>
       <div className="px-5 pt-5 pb-3 shrink-0">
-        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 700, color: "white" }}>Journal</h1>
-        <p className="text-[11px]" style={{ color: "var(--w50)", fontFamily: "'Outfit', system-ui" }}>Track how you feel each day</p>
+        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, fontWeight: 700, color: "white" }}>Journal</h1>
+        <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.6)", fontFamily: "'Outfit', system-ui" }}>Track how you feel each day</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto" style={{ WebkitOverflowScrolling: "touch", padding: "0 16px 16px" }}>
-        {!hasCheckedInToday && (
-          <div className="px-4 mb-4">
-            <div className="rounded-[17px] p-5" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", backdropFilter: "blur(14px)" }}>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "white", marginBottom: 16 }}>How are you feeling today?</p>
+      <div className="px-4 pb-28">
+        {/* Today's entry form */}
+        <div className="rounded-[18px] p-5 mb-5" style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", backdropFilter: "blur(14px)" }}>
+          <p style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white", marginBottom: 14 }}>How are you feeling today?</p>
 
-              <div className="flex justify-between mb-2">
-                {MOODS.map(mood => (
-                  <button key={mood.label} onClick={() => { setSelectedMood(mood.label); setMoodError(false); }}
-                    className="flex flex-col items-center gap-1" style={{ transition: "all 180ms ease" }}>
-                    <div className="flex items-center justify-center" style={{
-                      width: 44, height: 44, borderRadius: "50%",
-                      background: selectedMood === mood.label ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.15)",
-                      border: selectedMood === mood.label ? "1px solid rgba(255,255,255,0.5)" : "1px solid rgba(255,255,255,0.25)",
-                      transition: "all 180ms ease",
-                    }}>
-                      <span className="text-xl">{mood.emoji}</span>
-                    </div>
-                    <span style={{
-                      fontFamily: "'Outfit', system-ui", fontSize: 7, color: selectedMood === mood.label ? "white" : "var(--w50)",
-                      fontWeight: selectedMood === mood.label ? 600 : 400
-                    }}>{mood.label}</span>
-                  </button>
-                ))}
-              </div>
-              {moodError && <p className="text-[11px] mb-3" style={{ color: "#FFB899" }}>Please select how you're feeling today 🌸</p>}
-
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, marginTop: 12, color: "var(--w40)", fontWeight: 600 }}>SYMPTOMS</p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {SYMPTOMS.map(s => (
-                  <button key={s} onClick={() => toggleSymptom(s)}
-                    style={{
-                      borderRadius: 20, padding: "6px 14px", fontSize: 12, fontWeight: 500,
-                      fontFamily: "'Outfit', system-ui",
-                      background: selectedSymptoms.includes(s) ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.15)",
-                      color: "white",
-                      border: selectedSymptoms.includes(s) ? "1px solid rgba(255,255,255,0.5)" : "1px solid rgba(255,255,255,0.25)",
-                      transition: "all 180ms ease",
-                    }}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-
-              <textarea value={note} onChange={e => setNote(e.target.value)}
-                placeholder="Anything else on your mind today?"
-                rows={3}
-                className="w-full text-sm resize-none mb-2"
-                style={{
-                  background: "var(--input-bg)", border: "none", borderRadius: 14,
-                  color: "#3A1A00", padding: 12, outline: "none",
-                  fontFamily: "'Outfit', system-ui", fontStyle: "italic",
-                }} />
-            </div>
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            {MOODS.map(mood => {
+              const selected = selectedMood === mood.key;
+              return (
+                <button key={mood.key} onClick={() => setSelectedMood(mood.key)}
+                  style={{
+                    flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+                    padding: "10px 4px",
+                    background: selected ? "rgba(255,255,255,0.32)" : "rgba(255,255,255,0.14)",
+                    border: `1px solid ${selected ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.22)"}`,
+                    borderRadius: 14, cursor: "pointer",
+                    transform: selected ? "scale(1.05)" : "scale(1)",
+                    transition: "all 160ms ease",
+                  }}>
+                  <span style={{ fontSize: 22 }}>{mood.emoji}</span>
+                  <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.85)", textTransform: "uppercase", letterSpacing: 1, marginTop: 5 }}>{mood.label}</span>
+                </button>
+              );
+            })}
           </div>
-        )}
 
-        <div className="px-4">
-          {entries.length === 0 && !hasCheckedInToday ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
-                <span className="text-2xl">📔</span>
-              </div>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "white", marginBottom: 4 }}>Start tracking how you feel today</p>
-              <p className="text-[11px]" style={{ color: "var(--w40)" }}>Your entries will appear here</p>
-            </div>
-          ) : (
-            Object.entries(grouped).map(([weekLabel, weekEntries]) => (
-              <div key={weekLabel} className="mb-4">
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "var(--w40)", fontWeight: 600 }}>{weekLabel}</p>
-                <div className="space-y-2">
-                  {weekEntries.map((entry: any) => (
-                    <div key={entry.id} className="rounded-[14px] p-3" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", backdropFilter: "blur(14px)" }}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">{moodEmoji(entry.mood)}</span>
-                        <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>{entry.mood}</span>
-                        <span className="text-[10px] ml-auto" style={{ color: "var(--w40)" }}>{new Date(entry.date).toLocaleDateString()}</span>
-                      </div>
-                      {entry.symptoms?.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-1">
-                          {entry.symptoms.map((s: string) => (
-                            <span key={s} className="text-[9px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.15)", color: "var(--w70)" }}>{s}</span>
-                          ))}
-                        </div>
-                      )}
-                      {entry.note && <p className="text-[12px] line-clamp-2" style={{ color: "var(--w70)", fontFamily: "'Outfit', system-ui" }}>{entry.note}</p>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>SYMPTOMS</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+            {SYMPTOMS.map(s => {
+              const on = selectedSymptoms.includes(s);
+              return (
+                <button key={s} onClick={() => toggleSymptom(s)}
+                  style={{
+                    borderRadius: 20, padding: "6px 14px", fontSize: 12, fontWeight: 500,
+                    fontFamily: "'Outfit', system-ui",
+                    background: on ? "rgba(255,255,255,0.32)" : "rgba(255,255,255,0.14)",
+                    color: "white",
+                    border: `1px solid ${on ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.22)"}`,
+                  }}>
+                  {s}
+                </button>
+              );
+            })}
+          </div>
 
-      {!hasCheckedInToday && (
-        <div className="shrink-0" style={{
-          background: "rgba(200,80,10,0.40)",
-          padding: "12px 16px",
-          paddingBottom: "calc(12px + env(safe-area-inset-bottom))",
-          borderTop: "1px solid rgba(255,255,255,0.15)",
-          backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-        }}>
-          <button onClick={saveEntry} disabled={saving}
+          <textarea value={note} onChange={e => setNote(e.target.value)}
+            placeholder="Anything else on your mind today?"
+            rows={3}
+            className="w-full text-sm resize-none"
             style={{
-              width: "100%", background: "white",
-              border: "none", borderRadius: 20, padding: 16,
-              fontSize: 15, fontWeight: 700, color: "#FF6520",
-              fontFamily: "'Outfit', system-ui",
-              cursor: "pointer", opacity: saving ? 0.6 : 1,
+              background: "#fff", border: "none", borderRadius: 12,
+              color: "#3A1A00", padding: 12, outline: "none",
+              fontFamily: "'Outfit', system-ui", fontStyle: "italic",
+            }} />
+
+          <button onClick={saveEntry} disabled={!canSave || saving}
+            style={{
+              marginTop: 16, width: "100%",
+              background: "#fff", color: "#FF8C42",
+              fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
+              borderRadius: 14, padding: 14, border: "none",
+              opacity: (!canSave || saving) ? 0.4 : 1,
+              cursor: (!canSave || saving) ? "default" : "pointer",
             }}>
-            {saving ? "Saving..." : "Save check-in 🌸"}
+            {saving ? "Saving..." : "Save today's entry ✓"}
           </button>
         </div>
-      )}
+
+        {/* History */}
+        {entries.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
+              <span className="text-2xl">📔</span>
+            </div>
+            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white", marginBottom: 4 }}>Your entries will appear here</p>
+            <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>Save your first check-in above</p>
+          </div>
+        ) : (
+          weekKeys.map(weekKey => (
+            <div key={weekKey} className="mb-5">
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8, color: "rgba(255,255,255,0.55)", fontWeight: 700 }}>{weekKey}</p>
+              <div className="space-y-2">
+                {grouped[weekKey].map((entry: any) => (
+                  <div key={entry.id} className="rounded-[14px] p-3" style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)" }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">{moodEmojiFor(entry.mood)}</span>
+                      <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 700, color: "white", textTransform: "capitalize" }}>{moodLabelFor(entry.mood).toLowerCase()}</span>
+                      <span className="text-[10px] ml-auto" style={{ color: "rgba(255,255,255,0.6)" }}>{new Date(entry.date).toLocaleDateString()}</span>
+                    </div>
+                    {entry.symptoms?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {entry.symptoms.map((s: string) => (
+                          <span key={s} className="text-[9px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.18)", color: "white" }}>{s}</span>
+                        ))}
+                      </div>
+                    )}
+                    {entry.note && (
+                      <p className="text-[12px] italic mb-2" style={{ color: "rgba(255,255,255,0.75)", fontFamily: "'Outfit', system-ui" }}>{entry.note}</p>
+                    )}
+                    <button onClick={() => askDoulaAbout(entry)}
+                      style={{
+                        fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 500,
+                        color: "rgba(255,255,255,0.7)", background: "none", border: "none", padding: 0, cursor: "pointer",
+                      }}>
+                      Ask doula about this →
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };

@@ -6,19 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from "@/data/recipesData";
 import ShareableWeekCard from "@/components/ShareableWeekCard";
 
-const weekEmoji: Record<number, string> = {
-  1: '🫘', 2: '🫘', 3: '🫘', 4: '🫘',
-  5: '🫘', 6: '🍇', 7: '🫐', 8: '🫐',
-  9: '🍒', 10: '🍓', 11: '🍓', 12: '🍋',
-  13: '🍋', 14: '🍋', 15: '🍑', 16: '🥑',
-  17: '🍐', 18: '🍐', 19: '🥭', 20: '🥭',
-  21: '🥕', 22: '🥕', 23: '🌽', 24: '🌽',
-  25: '🥦', 26: '🥦', 27: '🥬', 28: '🥬',
-  29: '🎃', 30: '🎃', 31: '🥥', 32: '🥥',
-  33: '🍍', 34: '🍍', 35: '🍈', 36: '🍈',
-  37: '🥬', 38: '🍉', 39: '🍉', 40: '🍉',
-};
-
 function getFruitName(babySize: string): string {
   // Extract just the fruit/veg name, lowercase
   const s = babySize.toLowerCase();
@@ -141,7 +128,7 @@ const BabyTracker = () => {
 
   const formatTimer = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
-  const fruitEmoji = weekEmoji[selectedWeek] || '🥑';
+  const fruitEmoji = weekData.emoji;
   const fruitName = getFruitName(weekData.babySize);
 
   const milestones = [

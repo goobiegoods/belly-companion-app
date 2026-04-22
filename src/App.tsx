@@ -16,6 +16,8 @@ import Courses from "./pages/Courses";
 import Shop from "./pages/Shop";
 import CantSleep from "./pages/CantSleep";
 import Orders from "./pages/Orders";
+import OrderSuccess from "./pages/OrderSuccess";
+import PremiumSuccess from "./pages/PremiumSuccess";
 import Recipes from "./pages/Recipes";
 import RecipeDetail from "./pages/RecipeDetail";
 import BottomNav from "./components/BottomNav";
@@ -104,6 +106,8 @@ const AppContent = () => {
       <Route path="/courses" element={<ProtectedRoute><AppLayout><Courses /></AppLayout></ProtectedRoute>} />
       <Route path="/cant-sleep" element={<ProtectedRoute><CantSleep /></ProtectedRoute>} />
       <Route path="/orders" element={<ProtectedRoute><AppLayout><Orders /></AppLayout></ProtectedRoute>} />
+      <Route path="/order-success" element={<ProtectedRoute><AppLayout><OrderSuccess /></AppLayout></ProtectedRoute>} />
+      <Route path="/premium-success" element={<ProtectedRoute><AppLayout><PremiumSuccess /></AppLayout></ProtectedRoute>} />
       <Route path="/recipes" element={<ProtectedRoute><AppLayout><Recipes /></AppLayout></ProtectedRoute>} />
       <Route path="/recipes/:id" element={<ProtectedRoute><RecipeDetail /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminLayout />}>

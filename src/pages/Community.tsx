@@ -122,13 +122,24 @@ const Community = () => {
   useEffect(() => { fetchPosts(); }, [activeCategory]);
 
   const createPost = async () => {
-    if (!newTitle.trim() || !user) return;
+    if (!newTitle.trim() || !newBody.trim() || !user) return;
     setPosting(true); setPostError("");
-    const { error } = await supabase.from("posts").insert({ user_id: user.id, title: newTitle.trim(), body: newBody.trim(), category: newCategory, week_posted: currentWeek });
-    if (error) { setPostError("Something went wrong. Please try again."); setPosting(false); return; }
+    const { data: inserted, error } = await supabase
+      .from("posts")
+      .insert({ user_id: user.id, title: newTitle.trim(), body: newBody.trim(), category: newCategory, week_posted: currentWeek })
+      .select()
+      .single();
+    if (error || !inserted) { setPostError("Something went wrong. Please try again."); setPosting(false); return; }
+    // Optimistic prepend
+    const newPost: Post = {
+      ...(inserted as any),
+      author_name: profile?.first_name || "Mama",
+      comment_count: 0,
+      is_liked: false,
+    };
+    setPosts(prev => [newPost, ...prev]);
     setShowCreate(false); setNewTitle(""); setNewBody(""); setNewCategory("question"); setPosting(false);
     toast.success("Your post is live! 🌸");
-    fetchPosts();
   };
 
   const toggleLike = async (post: Post) => {
@@ -426,43 +437,49 @@ const Community = () => {
 
       {/* Create post sheet */}
       {showCreate && (
-        <div className="fixed inset-0 bg-black/40 z-[200] flex items-end" onClick={() => { setShowCreate(false); setPostError(""); fetchPosts(); }}>
-          <div className="w-full rounded-t-[24px] flex flex-col max-h-[85vh] overflow-hidden sheet-enter"
-            style={{ background: "rgba(200,80,10,0.95)", backdropFilter: "blur(20px)" }}
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-end" onClick={() => { setShowCreate(false); setPostError(""); }}>
+          <div className="w-full rounded-t-[24px] flex flex-col max-h-[90vh] overflow-hidden sheet-enter"
+            style={{ background: "#FF8C42" }}
             onClick={e => e.stopPropagation()}>
             <div className="pt-3 pb-0 flex justify-center shrink-0">
               <div className="w-10 h-[5px] rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />
             </div>
             <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "white", padding: "16px 20px 16px" }}>Create a post</h2>
-            <div className="flex-1 overflow-y-auto min-h-0 px-5 pb-2">
+            <div className="flex-1 overflow-y-auto min-h-0 px-5" style={{ paddingBottom: "calc(100px + env(safe-area-inset-bottom))" }}>
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Give your post a title..."
                 className="w-full rounded-[14px] p-[12px_16px] text-[15px] outline-none mb-3"
-                style={{ background: "var(--input-bg)", color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none" }} />
+                style={{ background: "#fff", color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none" }} />
               <textarea value={newBody} onChange={e => setNewBody(e.target.value)} placeholder="What's on your mind, mama?" rows={5}
                 className="w-full rounded-[14px] p-[12px_16px] text-[13px] outline-none resize-none mb-4"
-                style={{ background: "var(--input-bg)", color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none", minHeight: "140px" }} />
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>Post type</p>
-              <div className="flex gap-2 flex-wrap mb-2">
+                style={{ background: "#fff", color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none", minHeight: "140px" }} />
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "rgba(255,255,255,0.65)", fontWeight: 600 }}>Post type</p>
+              <div className="flex gap-2 flex-wrap mb-4">
                 {["question", "story", "tip", "support"].map(cat => (
                   <button key={cat} onClick={() => setNewCategory(cat)}
                     className="rounded-full px-4 py-[7px] text-[12px] capitalize transition-all belly-btn-press"
                     style={{
-                      background: newCategory === cat ? "white" : "rgba(255,255,255,0.16)",
-                      color: newCategory === cat ? "#FF6520" : "rgba(255,255,255,0.80)",
+                      background: newCategory === cat ? "white" : "rgba(255,255,255,0.18)",
+                      color: newCategory === cat ? "#FF6520" : "#fff",
                       fontWeight: newCategory === cat ? 700 : 500,
                       fontFamily: "'Outfit', system-ui",
-                      border: newCategory === cat ? "none" : "1px solid rgba(255,255,255,0.24)",
+                      border: newCategory === cat ? "none" : "1px solid rgba(255,255,255,0.22)",
                     }}>
                     {cat}
                   </button>
                 ))}
               </div>
-            </div>
-            <div className="shrink-0 px-5" style={{ borderTop: "1px solid rgba(255,255,255,0.14)", padding: "16px 20px calc(16px + env(safe-area-inset-bottom))" }}>
-              <button onClick={createPost} disabled={!newTitle.trim() || posting}
-                className="w-full rounded-[20px] py-[14px] text-[15px] font-semibold transition-all belly-btn-primary disabled:opacity-45 disabled:cursor-not-allowed"
-                style={{ background: "white", color: "#FF6520", fontFamily: "'Outfit', system-ui", fontWeight: 700, border: "none" }}>
-                {posting ? "Posting..." : "Post to community 🌸"}
+              <button onClick={createPost} disabled={!newTitle.trim() || !newBody.trim() || posting}
+                className="w-full rounded-[14px] py-[14px] text-[16px] font-semibold transition-all"
+                style={{
+                  background: "white",
+                  color: "#FF8C42",
+                  fontFamily: "'Fraunces', serif",
+                  fontWeight: 700,
+                  border: "none",
+                  opacity: (!newTitle.trim() || !newBody.trim() || posting) ? 0.4 : 1,
+                  pointerEvents: (!newTitle.trim() || !newBody.trim() || posting) ? "none" : "auto",
+                }}>
+                {posting ? "Posting..." : "Post it →"}
               </button>
               {postError && <p className="text-[12px] text-center mt-2" style={{ color: "#FFB899" }}>{postError}</p>}
             </div>
