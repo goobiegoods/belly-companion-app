@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, pregnancyWeeks } from "@/data/pregnancyWeeks";
@@ -15,7 +15,6 @@ interface Message {
 }
 
 const AskDoula = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const { user, profile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -25,30 +24,32 @@ const AskDoula = () => {
   const [attachedImage, setAttachedImage] = useState<{ base64: string; url: string } | null>(null);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const [showPremium, setShowPremium] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
-  const weekData = pregnancyWeeks.find(w => w.week === currentWeek) || pregnancyWeeks[19];
+  pregnancyWeeks.find(w => w.week === currentWeek); // keep import side-effect parity
   const titleCase = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
   const displayName = titleCase(profile?.first_name || "") || "mama";
 
-  const topSymptom = weekData.momSymptoms[0] || "fatigue";
-  const topRemedy = weekData.naturalTip.includes("ginger") ? "Nux Vomica 30c" : weekData.naturalTip.includes("magnesium") ? "Kali Phos 6x" : weekData.naturalTip.includes("raspberry") ? "Caulophyllum 30c" : "Arnica Montana 30c";
-  const fruitName = weekData.babySize.split(" ")[0];
+  const weekMilestone =
+    currentWeek === 20 ? "you're halfway there!"
+    : currentWeek <= 12 ? "first trimester, the early days"
+    : currentWeek <= 26 ? "you're in the second trimester"
+    : "in the home stretch now";
 
   const QUICK_PROMPTS = [
-    `What's normal in week ${currentWeek}?`,
-    `Natural remedy for ${topSymptom.toLowerCase()}`,
+    `What's normal at week ${currentWeek}?`,
     "Help me sleep tonight",
-    "What should I avoid now?",
+    "What should I avoid?",
+    "I'm feeling anxious",
   ];
 
+  const quotaExhausted = !profile?.is_premium && messageCount >= 10;
+
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -64,14 +65,11 @@ const AskDoula = () => {
       .then(({ count }) => setMessageCount(count || 0));
   }, [user]);
 
-  // Chip prefill receiver — fire once on mount if state.prefill is set
   useEffect(() => {
     const prefill = (location.state as any)?.prefill;
     if (prefill && typeof prefill === "string") {
       setInput(prefill);
-      // Clear so refresh doesn't refire
       window.history.replaceState({}, document.title);
-      // Send after a tick so input state settles
       setTimeout(() => { sendMessage(prefill); }, 50);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -91,8 +89,7 @@ const AskDoula = () => {
     e.target.value = "";
   };
 
-  const sendMessage = async (text: string, triggerPhoto = false) => {
-    if (triggerPhoto) { fileInputRef.current?.click(); return; }
+  const sendMessage = async (text: string) => {
     if ((!text.trim() && !attachedImage) || isStreaming) return;
     if (!profile?.is_premium && messageCount >= 10) {
       toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
@@ -104,15 +101,22 @@ const AskDoula = () => {
     let apiContent: any = text.trim() || (hasImage ? "Is this product safe to use during pregnancy?" : "");
     if (hasImage) {
       apiContent = [
-        { type: "image_url", image_url: { url: attachedImage.url } },
+        { type: "image_url", image_url: { url: attachedImage!.url } },
         { type: "text", text: text.trim() || "Is this product safe to use during pregnancy?" },
       ];
     }
 
-    const userMsg: Message = { role: "user", content: typeof apiContent === "string" ? apiContent : text.trim() || "Is this product safe to use during pregnancy?", imageUrl: hasImage ? imageUrl : undefined };
+    const userMsg: Message = {
+      role: "user",
+      content: typeof apiContent === "string" ? apiContent : text.trim() || "Is this product safe to use during pregnancy?",
+      imageUrl: hasImage ? imageUrl : undefined,
+    };
     const apiMsg = { role: "user" as const, content: apiContent };
     const newMessages = [...messages, userMsg];
-    const apiMessages = [...messages.map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : m.content })), apiMsg];
+    const apiMessages = [
+      ...messages.map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : m.content })),
+      apiMsg,
+    ];
 
     setMessages(newMessages);
     setInput("");
@@ -121,7 +125,10 @@ const AskDoula = () => {
     setMessageCount(c => c + 1);
 
     if (user) {
-      await supabase.from("chat_messages").insert({ user_id: user.id, role: "user", content: typeof userMsg.content === "string" ? userMsg.content : JSON.stringify(userMsg.content) });
+      await supabase.from("chat_messages").insert({
+        user_id: user.id, role: "user",
+        content: typeof userMsg.content === "string" ? userMsg.content : JSON.stringify(userMsg.content),
+      });
     }
 
     const abortController = new AbortController();
@@ -198,125 +205,69 @@ const AskDoula = () => {
     return content.find(c => c.type === "text")?.text || "";
   };
 
-  const getGreeting = () => {
-    const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 17) return "Good afternoon";
-    return "Good evening";
-  };
+  const greetingText = `Hi ${displayName}! 🌸 You're at week ${currentWeek} — ${weekMilestone}. I'm here for you 24/7. What's on your mind today?`;
 
-  const firstAssistantIdx = messages.findIndex(m => m.role === "assistant");
+  const renderAssistantBubble = (content: string, imageUrl?: string, timestamp?: string) => (
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+        <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
+      </div>
+      <div className="mr-auto" style={{ maxWidth: "85%" }}>
+        <div className="px-4 py-3 text-[14px] leading-[1.65]"
+          style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.22)", color: "#fff", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
+          {imageUrl && (
+            <img src={imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
+          )}
+          <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "#fff" }}>
+            <ReactMarkdown>{content}</ReactMarkdown>
+          </div>
+        </div>
+        {timestamp && (
+          <p style={{ fontFamily: "'Outfit', system-ui", fontWeight: 300, fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 6, paddingLeft: 4 }}>
+            {timestamp}
+          </p>
+        )}
+      </div>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col h-screen page-enter" style={{ background: "transparent" }}>
+    <div className="page-enter" style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#FF8C42" }}>
       <style>{`
         @keyframes livePulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
         @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-7px); } }
+        .doula-input::placeholder { color: #bbb !important; font-style: normal !important; }
+        .chip-row::-webkit-scrollbar { display: none; }
       `}</style>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
-      {/* Header */}
-      <div className="px-5 pt-5 pb-3 shrink-0" style={{ background: "rgba(255,140,66,0.60)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
-        <div className="flex items-center gap-2 mb-0.5">
-          <button onClick={() => navigate("/")} className="mr-1" style={{ color: "white", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600 }}>← Home</button>
-          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "white" }}>Ask the Doula</h1>
+      {/* Minimal header */}
+      <div style={{ padding: "16px 20px 12px", flexShrink: 0 }}>
+        <div className="flex items-center justify-between mb-1">
+          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 800, color: "white" }}>Ask the Doula</h1>
           <span style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 20, padding: "4px 10px", display: "flex", alignItems: "center", gap: 5 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", animation: "livePulse 2s infinite" }} />
             <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, letterSpacing: 1, color: "#fff" }}>AI · LIVE</span>
           </span>
         </div>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.55)" }}>Your natural pregnancy guide</p>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 300, color: "rgba(255,255,255,0.55)" }}>
+          Your natural pregnancy guide
+        </p>
       </div>
 
-      {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-4" style={{ paddingBottom: 80 }}>
-        {messages.length === 0 && (
-          <>
-            {/* Welcome hero */}
-            <div className="rounded-[22px] p-[18px_16px] mt-2 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.25)", backdropFilter: "blur(16px)", border: "1.5px solid rgba(255,255,255,0.40)", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
-              <div className="absolute rounded-full" style={{ right: -10, top: -10, width: 80, height: 80, background: "rgba(255,255,255,0.08)" }} />
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.22)", fontSize: 18 }}>🌸</div>
-                <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>Ask the Doula</span>
-                <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 8, background: "rgba(255,255,255,0.2)", border: "0.5px solid rgba(255,255,255,0.3)", color: "white" }}>AI</span>
-              </div>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 22, fontWeight: 600, color: "white" }}>Your</p>
-              <p style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4, letterSpacing: "-0.5px" }}>doula chat</p>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "rgba(255,255,255,0.58)", lineHeight: 1.55, fontStyle: "italic" }}>
-                You're in week {currentWeek}. Ask me anything — remedies, symptoms, what to expect, or just talk.
-              </p>
-            </div>
-
-            {/* Week context strip */}
-            <div className="flex gap-2 mt-3">
-              {[
-                { emoji: "🥑", title: `Week ${currentWeek}`, sub: fruitName },
-                { emoji: "🧘", title: "Your body", sub: topSymptom },
-                { emoji: "🫧", title: "Top remedy", sub: topRemedy },
-              ].map((card) => (
-                <div key={card.title} className="flex-1 rounded-[14px]" style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.32)", padding: "10px 10px 9px", display: "flex", flexDirection: "column" as const, alignItems: "flex-start", gap: 4 }}>
-                  <span style={{ fontSize: 18, marginBottom: 2 }}>{card.emoji}</span>
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{card.title}</p>
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 400, color: "rgba(255,255,255,0.62)", lineHeight: 1.3 }}>{card.sub}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Prompts */}
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 16, marginBottom: 4, color: "rgba(255,255,255,0.50)", fontWeight: 600 }}>Suggested for week {currentWeek}</p>
-            <div className="grid grid-cols-2 gap-2">
-              {QUICK_PROMPTS.map((prompt) => (
-                <button key={prompt} onClick={() => sendMessage(prompt)}
-                  className="text-left belly-card-interactive"
-                  style={{ background: "rgba(255,255,255,0.24)", border: "1.5px solid rgba(255,255,255,0.38)", borderRadius: 16, padding: "13px 14px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white", lineHeight: 1.4 }}>{prompt}</p>
-                </button>
-              ))}
-            </div>
-
-            <button onClick={() => sendMessage("", true)}
-              className="w-full text-left belly-card-interactive"
-              style={{ background: "rgba(255,255,255,0.20)", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16, padding: "13px 14px", display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 16 }}>📷</span>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>Is this product safe to use?</p>
-            </button>
-
-            {/* Ambient card */}
-            <div style={{ margin: "12px 0 0", background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.16)", borderRadius: 16, padding: "14px 16px", textAlign: "center" as const }}>
-              <p style={{ fontSize: 22, marginBottom: 6 }}>🌸</p>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 400, fontStyle: "italic", color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>I'm here whenever you need me, mama.</p>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, fontWeight: 400, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>Available 24/7 · Natural guidance only</p>
-            </div>
-          </>
-        )}
+      {/* Chat area */}
+      <div className="flex-1 overflow-y-auto" style={{ padding: 16, paddingBottom: 80, display: "flex", flexDirection: "column", gap: 12 }}>
+        {messages.length === 0 && renderAssistantBubble(greetingText, undefined, "Just now")}
 
         {messages.map((msg, i) => (
           <div key={i}>
             {msg.role === "assistant" ? (
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
-                  <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
-                </div>
-                <div className="mr-auto" style={{ maxWidth: "88%" }}>
-                  <div className="px-4 py-3 text-[13px] leading-[1.65]"
-                    style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", color: "rgba(255,255,255,0.90)", borderRadius: "18px 18px 18px 4px", fontFamily: "'Outfit', system-ui" }}>
-                    {msg.imageUrl && (
-                      <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
-                    )}
-                    <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "rgba(255,255,255,0.88)" }}>
-                      <ReactMarkdown>{typeof msg.content === "string" ? msg.content : getTextContent(msg.content)}</ReactMarkdown>
-                    </div>
-                  </div>
-                  <p className="text-[10px] mt-1 px-1" style={{ color: "var(--w40)" }}>
-                    This is wellness guidance, not medical advice. Always consult your care provider.
-                  </p>
-                </div>
-              </div>
+              renderAssistantBubble(getTextContent(msg.content), msg.imageUrl)
             ) : (
               <div className="ml-auto" style={{ maxWidth: "80%" }}>
-                <div className="px-4 py-3 text-[13px] leading-[1.65]"
-                  style={{ background: "rgba(255,255,255,0.95)", color: "#3A1A00", borderRadius: "18px 18px 4px 18px", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
+                <div className="px-[14px] py-3 text-[14px] leading-[1.55]"
+                  style={{ background: "#fff", color: "#333", borderRadius: "16px 16px 4px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
                   {msg.imageUrl && (
                     <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
                   )}
@@ -332,59 +283,58 @@ const AskDoula = () => {
             <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
               <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
             </div>
-            <div style={{
-              background: "rgba(255,255,255,0.18)",
-              border: "1px solid rgba(255,255,255,0.22)",
-              borderRadius: "12px 12px 12px 3px",
-              padding: "10px 14px",
-              display: "inline-flex",
-              gap: 5,
-              alignItems: "center",
-              alignSelf: "flex-start",
-            }}>
+            <div style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: "12px 12px 12px 3px", padding: "10px 14px", display: "inline-flex", gap: 5, alignItems: "center", alignSelf: "flex-start" }}>
               {[0, 0.15, 0.3].map(d => (
-                <span key={d} style={{
-                  width: 6, height: 6, borderRadius: "50%",
-                  background: "rgba(255,255,255,0.7)",
-                  animation: `typingBounce 1.2s infinite ${d}s`,
-                  display: "inline-block",
-                }} />
+                <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.7)", animation: `typingBounce 1.2s infinite ${d}s`, display: "inline-block" }} />
               ))}
             </div>
           </div>
         )}
+
+        {/* Inline upsell when quota exhausted */}
+        {quotaExhausted && (
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
+            </div>
+            <div style={{ maxWidth: "85%" }}>
+              <div className="px-4 py-3"
+                style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
+                <p style={{ fontSize: 14, color: "#fff", lineHeight: 1.65, marginBottom: 10 }}>
+                  You've used your 10 free messages for today 🌸 Upgrade to Premium for unlimited access.
+                </p>
+                <button onClick={() => setShowPremium(true)}
+                  style={{ background: "#fff", color: "#FF8C42", border: "none", borderRadius: 20, padding: "8px 18px", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+                  Go Premium →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
-      {!profile?.is_premium && messageCount >= 10 && (
-        <div style={{ margin: "8px 16px", padding: 14, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 14, textAlign: "center" }}>
-          <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 4 }}>
-            You've reached your 10 daily messages 🌸
-          </p>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "rgba(255,255,255,0.8)", marginBottom: 10 }}>
-            Upgrade to Premium for unlimited access.
-          </p>
-          <button onClick={() => setShowPremium(true)}
-            style={{ background: "#fff", color: "#FF8C42", border: "none", borderRadius: 20, padding: "8px 18px", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
-            Go Premium →
-          </button>
+      {/* Suggestion chips — only when no conversation yet */}
+      {messages.length === 0 && (
+        <div className="chip-row" style={{ display: "flex", flexDirection: "row", gap: 8, overflowX: "auto", padding: "8px 16px", flexShrink: 0, scrollbarWidth: "none" }}>
+          {QUICK_PROMPTS.map(prompt => (
+            <button key={prompt} onClick={() => sendMessage(prompt)}
+              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 20, padding: "8px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 500, fontSize: 12, color: "#fff", whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer" }}>
+              {prompt}
+            </button>
+          ))}
         </div>
       )}
-      {!profile?.is_premium && messageCount > 0 && messageCount < 10 && (
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, color: "var(--w40)", textAlign: "center", padding: "4px 0", fontStyle: "italic" }}>
-          {messageCount}/10 free messages today
-        </p>
-      )}
-      <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
 
       {showPhotoMenu && (
         <div className="px-4 py-2 flex gap-2" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
           <button onClick={() => { cameraInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--c1)", color: "white", fontFamily: "'Outfit', system-ui" }}>
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FF8C42", color: "white", fontFamily: "'Outfit', system-ui" }}>
             📸 Take a photo
           </button>
           <button onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--c1)", color: "white", fontFamily: "'Outfit', system-ui" }}>
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FF8C42", color: "white", fontFamily: "'Outfit', system-ui" }}>
             🖼️ Choose from library
           </button>
         </div>
@@ -402,38 +352,52 @@ const AskDoula = () => {
         </div>
       )}
 
-      {/* Input bar */}
-      <style>{`@keyframes sendGlow { 0%,100% { box-shadow: 0 2px 8px rgba(255,255,255,0.3); } 50% { box-shadow: 0 4px 20px rgba(255,255,255,0.6); } } .doula-input::placeholder { color: rgba(160,80,20,0.45) !important; }`}</style>
-      <div style={{ background: "rgba(255,255,255,0.15)", borderTop: "1px solid rgba(255,255,255,0.18)", padding: "10px 16px 14px", backdropFilter: "blur(16px)" }}>
-        <div className="flex items-center gap-2"
-          style={{ background: "rgba(255,255,255,0.95)", borderRadius: 28, padding: "11px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.10)" }}>
+      {/* Sticky input bar */}
+      <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "rgba(220,90,10,0.97)", backdropFilter: "blur(16px)", padding: "10px 16px 14px" }}>
+        <div className="flex items-center" style={{ background: "rgba(255,255,255,0.95)", borderRadius: 24, padding: "4px 4px 4px 16px", gap: 8 }}>
           <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
             className="shrink-0 flex items-center justify-center"
-            style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,120,64,0.12)" }}>
+            style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,120,64,0.12)" }}>
             <Camera size={14} style={{ color: "#FF6520" }} />
           </button>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
-            placeholder={attachedImage ? "Ask about this product..." : "Ask anything..."}
-            className="flex-1 text-sm outline-none bg-transparent placeholder:italic doula-input"
-            style={{ color: "#3A1A00", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none" }}
+            placeholder="Ask anything..."
+            disabled={quotaExhausted}
+            className="flex-1 outline-none bg-transparent doula-input"
+            style={{ color: "#333", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 14, border: "none" }}
           />
           {isStreaming ? (
             <button onClick={cancelStream} className="shrink-0 flex items-center justify-center"
-              style={{ width: 36, height: 36, borderRadius: "50%", background: "#FF6520" }}>
-              <Square size={14} style={{ color: "white" }} />
+              style={{ width: 38, height: 38, borderRadius: "50%", background: "#FF8C42" }}>
+              <Square size={16} style={{ color: "white" }} />
             </button>
           ) : (
-            <button onClick={() => sendMessage(input)} disabled={!input.trim() && !attachedImage}
-              className="shrink-0 flex items-center justify-center disabled:opacity-40"
-              style={{ width: 32, height: 32, borderRadius: "50%", background: "#FF6520", boxShadow: "0 2px 10px rgba(255,80,20,0.35)", ...(input.trim() && !isStreaming ? { animation: "sendGlow 2s ease-in-out infinite" } : {}) }}>
-              <Send size={14} style={{ color: "white" }} />
+            <button onClick={() => sendMessage(input)}
+              disabled={(!input.trim() && !attachedImage) || quotaExhausted}
+              className="shrink-0 flex items-center justify-center"
+              style={{
+                width: 38, height: 38, borderRadius: "50%",
+                background: quotaExhausted ? "rgba(255,255,255,0.3)" : "#FF8C42",
+                opacity: ((!input.trim() && !attachedImage) || quotaExhausted) ? 0.5 : 1,
+                cursor: ((!input.trim() && !attachedImage) || quotaExhausted) ? "not-allowed" : "pointer",
+              }}>
+              <Send size={16} style={{ color: "white" }} />
             </button>
           )}
         </div>
+        <p style={{ textAlign: "center", marginTop: 8, fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 10, color: profile?.is_premium ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.5)" }}>
+          {profile?.is_premium
+            ? "Unlimited messages ✨"
+            : quotaExhausted
+              ? "You've used your 10 free messages for today"
+              : `${messageCount}/10 free messages today`}
+        </p>
       </div>
+
+      <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
     </div>
   );
 };
