@@ -22,7 +22,6 @@ import PremiumSuccess from "./pages/PremiumSuccess";
 import Recipes from "./pages/Recipes";
 import RecipeDetail from "./pages/RecipeDetail";
 import BottomNav from "./components/BottomNav";
-import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
 import NotFound from "./pages/NotFound";
 import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -75,7 +74,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
   <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "#FF8C42" }}>
-    <PaymentTestModeBanner />
     {children}
     <BottomNav />
   </div>
