@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, pregnancyWeeks } from "@/data/pregnancyWeeks";
-import { Send, Square, Camera, X } from "lucide-react";
+import { Send, Square, Camera, X, ChevronLeft } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { PremiumModal } from "@/components/PremiumModal";
@@ -16,7 +16,13 @@ interface Message {
 
 const AskDoula = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, profile } = useAuth();
+
+  const handleBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate("/");
+  };
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -244,14 +250,35 @@ const AskDoula = () => {
 
       {/* Minimal header */}
       <div style={{ padding: "16px 20px 12px", flexShrink: 0 }}>
-        <div className="flex items-center justify-between mb-1">
-          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 800, color: "white" }}>Ask the Doula</h1>
-          <span style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 20, padding: "4px 10px", display: "flex", alignItems: "center", gap: 5 }}>
+        <div className="flex items-start justify-between mb-1">
+          <div className="flex items-center" style={{ gap: 12 }}>
+            <button
+              onClick={handleBack}
+              aria-label="Go back"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.22)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                flexShrink: 0,
+                padding: 0,
+              }}
+            >
+              <ChevronLeft size={18} color="#fff" />
+            </button>
+            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 800, color: "white" }}>Ask the Doula</h1>
+          </div>
+          <span style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 20, padding: "4px 10px", display: "flex", alignItems: "center", gap: 5, marginTop: 6 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", animation: "livePulse 2s infinite" }} />
             <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, letterSpacing: 1, color: "#fff" }}>AI · LIVE</span>
           </span>
         </div>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 300, color: "rgba(255,255,255,0.55)" }}>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 300, color: "rgba(255,255,255,0.55)", marginLeft: 44 }}>
           Your natural pregnancy guide
         </p>
       </div>
