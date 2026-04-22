@@ -6,6 +6,7 @@ import { getCurrentWeek, pregnancyWeeks } from "@/data/pregnancyWeeks";
 import { Send, Square, Camera, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
+import { PremiumModal } from "@/components/PremiumModal";
 
 interface Message {
   role: "user" | "assistant";
@@ -23,6 +24,7 @@ const AskDoula = () => {
   const [messageCount, setMessageCount] = useState(0);
   const [attachedImage, setAttachedImage] = useState<{ base64: string; url: string } | null>(null);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
+  const [showPremium, setShowPremium] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
