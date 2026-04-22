@@ -1,5 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { kits, remedies, teas, homeopathyCourses, SHOP_DISCLAIMER, Product } from "@/data/shopData";
 import { getHomeopathyLessonContent } from "@/data/homeopathyLessons";
@@ -11,10 +13,13 @@ interface CartItem { product: Product; qty: number }
 
 const Shop = () => {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
+  const { setCartCount } = useCart();
   const [tab, setTab] = useState<"remedies" | "learn">("remedies");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [ordering, setOrdering] = useState(false);
+  const [addedId, setAddedId] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<number | null>(null);
   const [completions, setCompletions] = useState<string[]>([]);
@@ -26,6 +31,9 @@ const Shop = () => {
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const cartTotal = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
 
+  // Keep global badge in sync
+  useEffect(() => { setCartCount(cartCount); }, [cartCount, setCartCount]);
+
   const addToCart = (product: Product) => {
     setCart(prev => {
       const existing = prev.find(i => i.product.id === product.id);
@@ -33,8 +41,9 @@ const Shop = () => {
       return [...prev, { product, qty: 1 }];
     });
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(6);
-    toast.success(`${product.name} added 🛍️`);
-    setTimeout(() => setShowCart(true), 800);
+    toast.success("Added to cart 🛍️");
+    setAddedId(product.id);
+    setTimeout(() => setAddedId(prev => (prev === product.id ? null : prev)), 2000);
   };
 
   const updateQty = (id: string, delta: number) => {
@@ -45,9 +54,11 @@ const Shop = () => {
     if (!user || cart.length === 0) return;
     setOrdering(true);
     const items = cart.map(i => ({ id: i.product.id, name: i.product.name, qty: i.qty, price: i.product.price }));
-    await supabase.from("orders" as any).insert({ user_id: user.id, items, total: cartTotal, status: "pending" } as any);
-    setCart([]); setShowCart(false); setOrdering(false);
-    toast.success("Order received! 🌸 We'll be in touch within 24 hours with shipping details.");
+    const { error } = await supabase.from("orders" as any).insert({ user_id: user.id, items, total: cartTotal, status: "pending" } as any);
+    setOrdering(false);
+    if (error) { toast.error("Couldn't place order. Try again."); return; }
+    setCart([]); setShowCart(false); setCartCount(0);
+    navigate("/order-success");
   };
 
   const saveReflection = useCallback(async (lessonId: string, text: string) => {
