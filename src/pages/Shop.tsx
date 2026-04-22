@@ -389,8 +389,8 @@ const Shop = () => {
               );
             })}
           </div>
-          <div className="mx-5 mb-5 rounded-[12px] p-3" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)" }}>
-            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.40)", fontFamily: "'Outfit', sans-serif" }}>{SHOP_DISCLAIMER}</p>
+          <div className="mx-5 mb-5 rounded-[12px] p-3" style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.22)" }}>
+            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.72)", fontFamily: "'Outfit', sans-serif" }}>{SHOP_DISCLAIMER}</p>
           </div>
         </>
       )}
