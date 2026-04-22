@@ -145,7 +145,16 @@ const AskDoula = () => {
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/belly-chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({
+          messages: apiMessages,
+          userContext: {
+            userName: displayName,
+            currentWeek,
+            pregnancyNumber: profile?.pregnancy_number ?? 1,
+            todaysMood: null,
+            recentSymptoms: null,
+          },
+        }),
         signal: abortController.signal,
       });
 
