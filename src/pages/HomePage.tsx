@@ -109,6 +109,20 @@ const HomePage = () => {
           <span style={{ background: C1, border: `1px solid ${C1B}`, borderRadius: 20, padding: "3px 10px", fontSize: 8, color: "white", fontWeight: 600, display: "inline-block" }}>· AI · ALWAYS HERE FOR YOU ·</span>
         </div>
         <div className="rounded-[22px] p-5 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.22)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.35)" }}>
+          {/* Ghost watermark */}
+          <div style={{
+            position: "absolute",
+            top: -10,
+            right: -8,
+            fontFamily: "'Fraunces', serif",
+            fontWeight: 900,
+            fontSize: "clamp(80px, 20vw, 140px)",
+            color: "rgba(255,255,255,0.06)",
+            pointerEvents: "none",
+            userSelect: "none",
+            zIndex: 0,
+            lineHeight: 1,
+          }}>doula</div>
           <div style={{ position: "relative", zIndex: 1 }}>
             <div className="absolute rounded-full" style={{ width: 112, height: 112, top: -32, right: -32, background: "rgba(255,255,255,0.10)" }} />
             <div className="absolute rounded-full" style={{ width: 64, height: 64, bottom: -16, left: -16, background: "rgba(255,255,255,0.07)" }} />
