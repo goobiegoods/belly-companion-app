@@ -7,21 +7,8 @@ import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from 
 import ShareableWeekCard from "@/components/ShareableWeekCard";
 
 function getFruitName(babySize: string): string {
-  // Extract just the fruit/veg name, lowercase
-  const s = babySize.toLowerCase();
-  const known = [
-    "poppy seed", "sesame seed", "lentil", "blueberry", "raspberry", "cherry",
-    "fig", "lemon", "lime", "avocado", "apple", "pear", "mango", "orange",
-    "banana", "papaya", "coconut", "melon", "cantaloupe", "cauliflower",
-    "lettuce", "cabbage", "pumpkin", "watermelon", "pineapple", "honeydew",
-    "butternut squash", "corn", "cucumber", "eggplant", "turnip", "bell pepper",
-    "artichoke", "pomegranate", "grapefruit", "peach", "plum", "strawberry",
-    "grape", "carrot", "broccoli",
-  ];
-  for (const k of known) {
-    if (s.includes(k)) return k;
-  }
-  return babySize;
+  // Strip parentheticals like "(pre-conception)" then lowercase.
+  return babySize.replace(/\s*\(.*?\)\s*/g, "").trim().toLowerCase();
 }
 
 function getSymptomCategory(symptom: string): 'physical' | 'emotional' | 'visible' | 'default' {
