@@ -21,6 +21,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import PremiumSuccess from "./pages/PremiumSuccess";
 import Recipes from "./pages/Recipes";
 import RecipeDetail from "./pages/RecipeDetail";
+import Cart from "./pages/Cart";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
@@ -103,6 +104,7 @@ const AppContent = () => {
       <Route path="/ask" element={<ProtectedRoute><AskDoula /></ProtectedRoute>} />
       <Route path="/community" element={<ProtectedRoute><AppLayout><Community /></AppLayout></ProtectedRoute>} />
       <Route path="/shop" element={<ProtectedRoute><AppLayout><Shop /></AppLayout></ProtectedRoute>} />
+      <Route path="/cart" element={<ProtectedRoute><AppLayout><Cart /></AppLayout></ProtectedRoute>} />
       <Route path="/me" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
       <Route path="/journal" element={<ProtectedRoute><AppLayout><Journal /></AppLayout></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><AppLayout><Courses /></AppLayout></ProtectedRoute>} />
