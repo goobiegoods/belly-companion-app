@@ -346,9 +346,9 @@ const Shop = () => {
           <div className="mx-4 mb-4 p-5 rounded-[20px] belly-hero-gradient relative overflow-hidden">
             <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: "rgba(255,255,255,0.10)" }} />
             <div className="absolute left-8 bottom-[-15px] w-16 h-16 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }} />
-            <p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.11em", marginBottom: 4, color: "rgba(255,255,255,0.60)", fontFamily: "'Outfit', sans-serif" }}>INTRO TO HOMEOPATHY</p>
+            <p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.11em", marginBottom: 4, color: "rgba(255,255,255,0.78)", fontFamily: "'Outfit', sans-serif" }}>INTRO TO HOMEOPATHY</p>
             <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 22, color: "white", marginBottom: 4 }}>Learn the gentle art of natural healing</h2>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>Evidence-informed courses on using homeopathic remedies safely during pregnancy</p>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", fontWeight: 400, fontFamily: "'Outfit', sans-serif" }}>Evidence-informed courses on using homeopathic remedies safely during pregnancy</p>
           </div>
           <div className="px-5 space-y-3 mb-5">
             {homeopathyCourses.map(course => {
