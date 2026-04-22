@@ -357,7 +357,7 @@ const Courses = () => {
         <div className="mb-2">
           <p className="px-5 pt-2 pb-2 text-[10px] uppercase tracking-[0.1em]" style={{ color: "#D4B0A0" }}>Continue learning</p>
           <div className="px-5 space-y-2">
-            {continueCourses.map(course => <CourseCard key={course.id} course={course} completions={completions} profile={profile} onSelect={setSelectedCourse} />)}
+            {continueCourses.map(course => <CourseCard key={course.id} course={course} completions={completions} profile={profile} onSelect={handleSelectCourse} />)}
           </div>
         </div>
       )}
@@ -366,11 +366,12 @@ const Courses = () => {
           <p className="px-5 pt-4 pb-2 text-[10px] uppercase tracking-[0.1em]" style={{ color: "#D4B0A0" }}>{category}</p>
           <div className="px-5 space-y-2">
             {filteredCourses.filter(c => c.category === category).map(course => (
-              <CourseCard key={course.id} course={course} completions={completions} profile={profile} onSelect={setSelectedCourse} />
+              <CourseCard key={course.id} course={course} completions={completions} profile={profile} onSelect={handleSelectCourse} />
             ))}
           </div>
         </div>
       ))}
+      <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
     </div>
   );
 };
@@ -381,12 +382,17 @@ function CourseCard({ course, completions, profile, onSelect }: { course: Course
   const progress = courseCompletions / course.lessonCount;
 
   return (
-    <button onClick={() => !isLocked && onSelect(course.id)}
-      className="w-full belly-glass-card rounded-[18px] text-left belly-card-interactive"
-      style={{ opacity: isLocked ? 0.5 : 1 }}>
-      <div className="flex items-start gap-3 p-[14px_16px_10px]">
+    <button onClick={() => onSelect(course.id)}
+      className="w-full belly-glass-card rounded-[18px] text-left belly-card-interactive relative">
+      {isLocked && (
+        <div style={{ position: "absolute", inset: 0, borderRadius: 18, background: "rgba(255,200,170,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 6, zIndex: 2, pointerEvents: "none" }}>
+          <span style={{ fontSize: 22 }}>🔒</span>
+          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 12, background: "#fff", color: "#FF8C42", fontWeight: 700, fontFamily: "'Outfit', system-ui" }}>Premium</span>
+        </div>
+      )}
+      <div className="flex items-start gap-3 p-[14px_16px_10px]" style={{ filter: isLocked ? "blur(2px)" : "none" }}>
         <div className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center shrink-0 text-[22px]" style={{ background: "rgba(255,240,232,0.8)" }}>
-          {isLocked ? <Lock size={18} style={{ color: "#D4B0A0" }} /> : course.emoji}
+          {course.emoji}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[9.5px] uppercase" style={{ color: "#D4906A" }}>{course.category}</p>
