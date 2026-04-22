@@ -34,6 +34,8 @@ const AskDoula = () => {
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const safetyScanRef = useRef(false);
+  const safetyCameraInputRef = useRef<HTMLInputElement>(null);
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   pregnancyWeeks.find(w => w.week === currentWeek); // keep import side-effect parity
