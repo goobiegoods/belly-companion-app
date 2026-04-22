@@ -91,6 +91,30 @@ export type Database = {
           },
         ]
       }
+      course_completions: {
+        Row: {
+          completed_at: string
+          course_id: string
+          id: string
+          lessons_count: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          course_id: string
+          id?: string
+          lessons_count?: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          course_id?: string
+          id?: string
+          lessons_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_entries: {
         Row: {
           created_at: string
@@ -162,6 +186,33 @@ export type Database = {
           completed_at?: string
           id?: string
           lesson_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lesson_reflections: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          reflection_text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          reflection_text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          reflection_text?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
