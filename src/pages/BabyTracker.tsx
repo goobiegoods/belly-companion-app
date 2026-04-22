@@ -195,7 +195,7 @@ const BabyTracker = () => {
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white", marginBottom: 8 }}>Browse weeks</p>
       </div>
       <div ref={scrollRef} style={{ display: "flex", gap: 8, padding: "0 16px", paddingBottom: 12, overflowX: "auto" }} className="hide-scrollbar">
-        {pregnancyWeeks.map(w => (
+        {pregnancyWeeks.filter(w => w.week >= 6).map(w => (
           <button key={w.week} onClick={() => setSelectedWeek(w.week)}
             className="belly-btn-press"
             style={{
@@ -204,7 +204,7 @@ const BabyTracker = () => {
               background: w.week === selectedWeek ? "white" : "rgba(255,255,255,0.18)",
               border: w.week === selectedWeek ? "none" : "1px solid rgba(255,255,255,0.26)",
               color: w.week === selectedWeek ? "#FF6520" : "rgba(255,255,255,0.75)",
-              fontFamily: "'Outfit', system-ui",
+              fontFamily: w.week === selectedWeek ? "'Fraunces', serif" : "'Outfit', system-ui",
               fontWeight: w.week === selectedWeek ? 700 : 600,
               fontSize: w.week === selectedWeek ? 13 : 12,
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -280,6 +280,7 @@ const BabyTracker = () => {
           fruitName={fruitName}
           weight={weekData.babyWeight}
           length={weekData.babyLength}
+          trimester={weekData.trimester}
         />
       </div>
 
