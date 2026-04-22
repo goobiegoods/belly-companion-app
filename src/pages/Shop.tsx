@@ -501,30 +501,14 @@ const Shop = () => {
                   </div>
                 )}
 
-                {showCheckout ? (
-                  <div style={{ background: "#fff", borderRadius: 14, padding: 12, marginTop: 4 }}>
-                    <button onClick={() => setShowCheckout(false)}
-                      style={{ background: "none", border: "none", color: "#FF8C42", fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 8 }}>
-                      ← Back to cart
-                    </button>
-                    <ShopCheckoutForm
-                      items={cart.map(i => ({ id: i.product.id, name: i.product.name, price: i.product.price, qty: i.qty }))}
-                      userId={user!.id}
-                      customerEmail={user?.email}
-                      shippingFee={shippingFee}
-                      returnUrl={`${window.location.origin}/order-success?session_id={CHECKOUT_SESSION_ID}`}
-                    />
-                  </div>
-                ) : (
-                  <button onClick={startCheckout}
-                    style={{
-                      width: "100%", background: "#fff", color: "#FF8C42",
-                      fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
-                      borderRadius: 14, padding: 14, border: "none", cursor: "pointer",
-                    }}>
-                    Checkout · ${(cartTotal + shippingFee).toFixed(2)} →
-                  </button>
-                )}
+                <button onClick={startCheckout}
+                  style={{
+                    width: "100%", background: "#fff", color: "#FF8C42",
+                    fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
+                    borderRadius: 14, padding: 14, border: "none", cursor: "pointer",
+                  }}>
+                  Checkout · ${(cartTotal + shippingFee).toFixed(2)} →
+                </button>
               </>
             )}
           </div>
