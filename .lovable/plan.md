@@ -1,65 +1,72 @@
 
 
-# Belly — Update doula system prompt
+# "Is this safe?" — Wire the camera safety feature into the chat
 
-## What's changing
+## What's already there
 
-The user provided a new SYSTEM_PROMPT that significantly evolves Belly's voice and behavior. Note: the user's comment references `doula-chat/index.ts`, but the actual edge function in this project is `belly-chat/index.ts`. I'll update that one (the only chat function wired into `AskDoula.tsx`).
+The image plumbing exists in `AskDoula.tsx` and `belly-chat/index.ts`:
+- Camera button in the input pill opens a sheet → "Take a photo" / "Choose from library"
+- Selected image becomes a 60px preview chip above the input
+- On send, the image goes to the AI as OpenAI multimodal `image_url` content
+- Both user-bubble and assistant-bubble render the image
+- Vision model: Gemini via Lovable AI Gateway (already vision-capable — no Anthropic key needed)
 
-## Key shifts in the new prompt
+What's missing is **discoverability** (nobody knows the camera does this), a **dedicated product-safety prompt** so the answer is structured and scannable, and a tiny bit of **input-bar polish**.
 
-1. **Tone** — still poetic & natural-medicine focused, but now explicitly "addictive to talk to" and "brilliant friend" rather than a strict format.
-2. **Structure** — relaxes the rigid "no lists ever" rule into "2-3 paragraphs max, each with one focus."
-3. **Mandatory follow-up question** — every response MUST end with one specific, personal follow-up question on a new line. This is the bonding mechanic.
-4. **Modalities expanded** — explicit pattern names: TCM ("Spleen qi deficiency", "SP3"), Ayurveda ("Vata aggravation", Abhyanga), homeopathy with potency + dosing, herbalism with prep instructions.
-5. **Safety rule simplified** — only refers to midwife/doctor for genuinely serious symptoms (heavy bleeding, severe pain, reduced movement after 28w, preeclampsia signs); never as a cop-out.
-6. **User context placeholders** — `{userName}`, `{currentWeek}`, `{pregnancyNumber}`, `{todaysMood}`, `{recentSymptoms}`. The frontend currently only sends raw messages, not these fields, so the placeholders will sit unfilled in the system prompt unless we also wire context injection.
+## Changes
 
-## Two-part fix
+### 1 · Add a 5th "📸 Is this safe to use?" suggestion chip (`AskDoula.tsx`)
+Append to `QUICK_PROMPTS` row, styled identically to the others **except** `border: 1px solid rgba(255,255,255,0.35)` (brighter, signals "feature"). On tap → opens the camera directly (calls `cameraInputRef.current?.click()`), bypassing the photo-source sheet. After the photo is picked, the existing `handleFileSelect` flow takes over and the input prefills with `Is this product safe for me at week {currentWeek}?` so the user can hit send (or it auto-sends — see Q below).
 
-### Part 1 — Replace the SYSTEM_PROMPT in `supabase/functions/belly-chat/index.ts`
+### 2 · Camera-button polish in the input pill
+- Idle: icon color `rgba(255,140,66,0.5)` (was `#FF6520`).
+- Active/hover/tap: `#FF8C42`.
+- While `isStreaming` AND the last user message has an `imageUrl`: swap the Camera icon for a small spinning Loader2 (Lucide), so the user gets feedback that the photo is being analyzed.
 
-Drop in the new prompt verbatim. Keep the rest of the file unchanged: streaming, CORS, error handling, model (`google/gemini-3-flash-preview`), Lovable AI gateway call.
+### 3 · Product-safety system-prompt branch (`belly-chat/index.ts`)
+Detect "image present" by scanning the last user message for an `image_url` content part. When present, **append** this block to the filled prompt before sending to the gateway:
 
-### Part 2 — Inject real user context so the placeholders work
-
-Without this, `{userName}` etc. render literally to the model and weaken the persona.
-
-**Frontend (`src/pages/AskDoula.tsx`)**: when calling `belly-chat`, send a `userContext` object alongside `messages`:
-```ts
-body: JSON.stringify({
-  messages: apiMessages,
-  userContext: {
-    userName: displayName,
-    currentWeek,
-    pregnancyNumber: profile?.pregnancy_number ?? 1,
-    todaysMood: null,        // not tracked yet — send null
-    recentSymptoms: null,    // not tracked yet — send null
-  },
-})
+```
+## PRODUCT SAFETY ANALYSIS MODE
+The user has sent an image of a product label or ingredient list.
+Structure your reply EXACTLY as:
+1. "This looks like [product/type]" — one sentence.
+2. Verdict on its own line: **SAFE ✓** or **USE WITH CAUTION ⚠️** or **AVOID ✗**.
+3. 2–3 sentences of reasoning specific to pregnancy and week {currentWeek}.
+4. If any specific ingredients are concerning, name them.
+5. If AVOID/CAUTION: one natural alternative.
+6. Total ≤ 150 words. Scannable, not preachy.
+7. End with one specific follow-up question on a new line.
+Never say "it depends." Give a clear verdict.
 ```
 
-**Edge function**: read `userContext` from the request body, then do a simple string-replace on the system prompt before sending it to the AI gateway. Missing fields fall back to neutral values (`"mama"`, `"this week"`, `"first"`, `"none logged today"`, `"none"`).
+Existing voice/identity rules still apply — this just overlays structure for image turns.
 
-This keeps the prompt template clean and lets us add real mood/symptoms data later from `daily_logs` / `journal_entries` without changing the prompt.
+### 4 · Memory update (`mem://features/ai-doula`)
+Add a "Product Safety Mode" subsection: chip entry-point, verdict format, system-prompt branch trigger.
 
 ## Files touched
 
-- `supabase/functions/belly-chat/index.ts` — replace SYSTEM_PROMPT, add `userContext` parsing + placeholder substitution.
-- `src/pages/AskDoula.tsx` — extend the fetch body with `userContext` (one small object literal in `sendMessage`).
-- `mem://features/ai-doula` — refresh persona notes: new "addictive friend" tone, mandatory follow-up question, expanded modality vocabulary, dynamic user context injection.
+- `src/pages/AskDoula.tsx` — add chip, tweak camera-icon color/spinner (~25 lines).
+- `supabase/functions/belly-chat/index.ts` — detect image, append safety prompt block (~15 lines).
+- `mem://features/ai-doula` — document the mode.
 
-## What stays untouched
+## Explicitly NOT changing
 
-- Streaming SSE flow, abort controller, model choice, CORS headers.
-- `chat_messages` persistence, daily quota count, premium gating.
-- Image-attach flow (the new prompt doesn't address images explicitly; existing image handling continues to work, and the prompt's general "natural medicine" voice still applies).
-- All UI — header, chips, sticky input, greeting bubble.
+- Vision provider stays Gemini via Lovable Gateway (no Anthropic key, no new secret).
+- Image upload/preview UI, base64 handling, and storage in `chat_messages` — already working.
+- Streaming, abort, quota gating, premium upsell.
 
 ## Test plan
 
-1. Open `/ask` cold → send "I can't sleep tonight" → reply should be 2-3 paragraphs, mention specific remedies (e.g. Passionflower tea, Coffea Cruda 30c, P6 acupressure), and end with a personalized follow-up question on its own line.
-2. Send "I'm having round ligament pain on my right side" → reply should reference the right side specifically and ask a specific follow-up like "Is it sharper when you stand up, or more of a dull ache when you lie down?"
-3. Send "I'm bleeding heavily" → reply should be the short emergency message directing to midwife/doctor today, nothing else.
-4. Verify the assistant addresses the user by their actual first name and current pregnancy week in early replies.
+1. Cold load `/ask` → see 5 chips, the 📸 one visibly brighter.
+2. Tap 📸 chip → device camera opens directly (no sheet).
+3. Snap a supplement label → preview chip appears above input, input field shows "Is this product safe for me at week N?", send button is enabled.
+4. Send → user bubble shows the image + the question; camera icon swaps to spinner; doula reply streams back in the verdict format (1-line ID, **VERDICT**, reasoning, ingredients, alternative, follow-up question).
+5. Tap the regular camera icon in the input pill → existing sheet still works (Take a photo / Choose from library).
+6. Ask a non-image question → reply uses the normal 2–3 paragraph voice (safety block does not leak in).
+
+## One open question
+
+Should tapping the 📸 chip → snapping a photo **auto-send** ("Is this product safe for me at week N?"), or just prefill the input and wait for the user to tap send? Auto-send is more viral-reel friendly (one tap → answer). Default to **auto-send** unless you say otherwise.
 
