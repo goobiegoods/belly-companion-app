@@ -35,25 +35,118 @@ export type Database = {
         }
         Relationships: []
       }
+      app_config: {
+        Row: {
+          free_message_limit: number
+          id: number
+          maintenance_mode: boolean
+          premium_monthly_price: number
+          updated_at: string
+        }
+        Insert: {
+          free_message_limit?: number
+          id?: number
+          maintenance_mode?: boolean
+          premium_monthly_price?: number
+          updated_at?: string
+        }
+        Update: {
+          free_message_limit?: number
+          id?: number
+          maintenance_mode?: boolean
+          premium_monthly_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      broadcast_reads: {
+        Row: {
+          broadcast_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          broadcast_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          broadcast_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      broadcasts: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          cta_text: string | null
+          cta_url: string | null
+          id: string
+          reach_estimate: number
+          scheduled_for: string | null
+          segment: string
+          sent_at: string | null
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          cta_text?: string | null
+          cta_url?: string | null
+          id?: string
+          reach_estimate?: number
+          scheduled_for?: string | null
+          segment?: string
+          sent_at?: string | null
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          cta_text?: string | null
+          cta_url?: string | null
+          id?: string
+          reach_estimate?: number
+          scheduled_for?: string | null
+          segment?: string
+          sent_at?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
+          conversation_id: string | null
           created_at: string
           id: string
+          is_flagged: boolean
+          reviewed_at: string | null
           role: string
           user_id: string
         }
         Insert: {
           content: string
+          conversation_id?: string | null
           created_at?: string
           id?: string
+          is_flagged?: boolean
+          reviewed_at?: string | null
           role: string
           user_id: string
         }
         Update: {
           content?: string
+          conversation_id?: string | null
           created_at?: string
           id?: string
+          is_flagged?: boolean
+          reviewed_at?: string | null
           role?: string
           user_id?: string
         }
@@ -273,39 +366,54 @@ export type Database = {
       }
       orders: {
         Row: {
+          admin_notes: string | null
           amount_paid: number | null
+          carrier: string | null
           created_at: string
           id: string
           items: Json
           paid_at: string | null
+          promo_code: string | null
+          shipped_at: string | null
           shipping_address: string | null
           status: string
           stripe_session_id: string | null
           total: number
+          tracking_number: string | null
           user_id: string
         }
         Insert: {
+          admin_notes?: string | null
           amount_paid?: number | null
+          carrier?: string | null
           created_at?: string
           id?: string
           items?: Json
           paid_at?: string | null
+          promo_code?: string | null
+          shipped_at?: string | null
           shipping_address?: string | null
           status?: string
           stripe_session_id?: string | null
           total?: number
+          tracking_number?: string | null
           user_id: string
         }
         Update: {
+          admin_notes?: string | null
           amount_paid?: number | null
+          carrier?: string | null
           created_at?: string
           id?: string
           items?: Json
           paid_at?: string | null
+          promo_code?: string | null
+          shipped_at?: string | null
           shipping_address?: string | null
           status?: string
           stripe_session_id?: string | null
           total?: number
+          tracking_number?: string | null
           user_id?: string
         }
         Relationships: []
@@ -345,7 +453,10 @@ export type Database = {
           category: string
           created_at: string
           display_name: string | null
+          flag_reason: string | null
           id: string
+          is_featured: boolean
+          is_flagged: boolean
           is_pinned: boolean
           likes: number
           title: string
@@ -357,7 +468,10 @@ export type Database = {
           category?: string
           created_at?: string
           display_name?: string | null
+          flag_reason?: string | null
           id?: string
+          is_featured?: boolean
+          is_flagged?: boolean
           is_pinned?: boolean
           likes?: number
           title: string
@@ -369,7 +483,10 @@ export type Database = {
           category?: string
           created_at?: string
           display_name?: string | null
+          flag_reason?: string | null
           id?: string
+          is_featured?: boolean
+          is_flagged?: boolean
           is_pinned?: boolean
           likes?: number
           title?: string
@@ -420,6 +537,54 @@ export type Database = {
           premium_since?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          current_uses: number
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_order_value: number
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_value?: number
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_value?: number
+          valid_from?: string
+          valid_until?: string | null
         }
         Relationships: []
       }
