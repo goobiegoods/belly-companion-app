@@ -28,10 +28,16 @@ import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
 import { CartProvider } from "./contexts/CartContext";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminOrders from "./pages/admin/AdminOrders";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminCommunity from "./pages/admin/AdminCommunity";
+import AdminPromoCodes from "./pages/admin/AdminPromoCodes";
 import AdminProducts from "./pages/admin/AdminProducts";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPremium from "./pages/admin/AdminPremium";
+import AdminChats from "./pages/admin/AdminChats";
+import AdminCommunity from "./pages/admin/AdminCommunity";
+import AdminBroadcast from "./pages/admin/AdminBroadcast";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -116,10 +122,16 @@ const AppContent = () => {
       <Route path="/recipes/:id" element={<ProtectedRoute><RecipeDetail /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminOverview />} />
+        <Route path="analytics" element={<AdminAnalytics />} />
         <Route path="orders" element={<AdminOrders />} />
-        <Route path="users" element={<AdminUsers />} />
-        <Route path="community" element={<AdminCommunity />} />
+        <Route path="promo-codes" element={<AdminPromoCodes />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="premium" element={<AdminPremium />} />
+        <Route path="chats" element={<AdminChats />} />
+        <Route path="community" element={<AdminCommunity />} />
+        <Route path="broadcast" element={<AdminBroadcast />} />
+        <Route path="settings" element={<AdminSettings />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
