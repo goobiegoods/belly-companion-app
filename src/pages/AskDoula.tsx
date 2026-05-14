@@ -335,12 +335,10 @@ const AskDoula = () => {
 
         {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-bg-card)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
-              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)" }}>D</span>
-            </div>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>🌸</div>
             <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: "12px 12px 12px 3px", padding: "10px 14px", display: "inline-flex", gap: 5, alignItems: "center", alignSelf: "flex-start" }}>
               {[0, 0.15, 0.3].map(d => (
-                <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-bg-card)", animation: `typingBounce 1.2s infinite ${d}s`, display: "inline-block" }} />
+                <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-accent-primary)", animation: `typingBounce 1.2s infinite ${d}s`, display: "inline-block" }} />
               ))}
             </div>
           </div>
@@ -349,13 +347,11 @@ const AskDoula = () => {
         {/* Inline upsell when quota exhausted */}
         {quotaExhausted && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-bg-card)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
-              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)" }}>D</span>
-            </div>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>🌸</div>
             <div style={{ maxWidth: "85%" }}>
               <div className="px-4 py-3"
                 style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
-                <p style={{ fontSize: 14, color: "var(--color-accent-dark)", lineHeight: 1.65, marginBottom: 10 }}>
+                <p style={{ fontSize: 14, color: "var(--color-text-primary)", lineHeight: 1.65, marginBottom: 10 }}>
                   You've used your 10 free messages for today 🌸 Upgrade to Premium for unlimited access.
                 </p>
                 <button onClick={() => setShowPremium(true)}
