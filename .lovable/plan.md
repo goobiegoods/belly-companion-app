@@ -1,176 +1,55 @@
 
+# Belly App — Full Design System Overhaul
 
-# Belly Admin Dashboard — Build the full /admin route tree
+A top-to-bottom visual rebuild of the user-facing app (5 core screens + chat) around a new tiered cream/white token system where orange becomes a true accent. Adds dark mode, renames the nav, fixes the "undefined" username bug, and ships three new shared components. The /admin dashboard is out of scope.
 
-A complete, dark-theme CRM for Belly. Replaces the existing 5-page admin scaffold with a 12-page dashboard reading live data from the database. Desktop-first, fixed sidebar, orange accents, professional polish.
+## 1. Foundation — design tokens + global wiring
 
-## Design system (locked in)
+**New token layer** in `src/index.css` (and mirrored where needed in `tailwind.config.ts`):
 
-- BG `#0a0a0a` · Sidebar `#080808` · Card `#111111` · Border `#1e1e1e`
-- Orange `#FF8C42` (active/CTAs/metric highlights)
-- Text: white / `#888` / `#444`
-- Status: success `#22c55e` · warning `#FF8C42` · danger `#ef4444` · info `#3b82f6` · premium `#a855f7`
-- Fraunces 800 for page titles + metric values; Outfit for everything else
-- Layout: 220px fixed sidebar + scrollable main (padding 28px 32px)
+- Light tokens: `--color-bg-base #FDF8F2`, `--color-bg-card #FFFFFF`, `--color-bg-card-subtle #FFF5EC`, `--color-accent-primary #F47B20`, `--color-accent-light #FFE8D0`, `--color-accent-dark #C45E0A`, `--color-text-primary #1A1208`, `--color-text-secondary #6B5B4E`, `--color-text-muted #A8917E`, `--color-text-on-accent #FFFFFF`, `--color-border-default #EDE0D4`, `--color-border-strong #D4B89A`, `--color-success #2D9E6B`, `--color-danger #D94F3D`, `--color-streak-flame #FF6B1A`.
+- Dark tokens (under `[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` when no explicit pref): bg `#1C1208`, card `#261A0E`, card-subtle `#2E2010`, text `#F5EDE0`/`#BFA98C`, border `#3D2B18`, accent unchanged.
+- Map these into the Tailwind HSL semantic tokens (`--background`, `--foreground`, `--card`, `--primary`, `--border`, `--muted`, `--accent`) so existing `bg-card`, `text-foreground`, `bg-primary` classes pick up the new palette automatically.
+- Replace the global `body { background: #e07830 }` and `#root { background: #FF8C42 }` with `--color-bg-base`. Kill any full-screen orange wrappers.
+- Add a `ThemeProvider` (light/dark/system) persisted in localStorage, toggling `data-theme` on `<html>`. Toggle UI lives in Settings/Journey.
 
-## Backend changes (one migration)
+**Typography & spacing rules** baked into utility classes:
+- `.text-display` (script, max 36px), `.text-section` (20px/600), body 15px / 1.65, supporting 13px / 1.6, caps label 11px / 0.08em / 500.
+- Standard paddings: screen 20px, card 18px, gap-card 14px, gap-section 28px, nav 64px, content bottom 80px.
+- Card preset: `bg-card border border-[--color-border-default] rounded-[18px] shadow-[0_2px_12px_rgba(180,100,20,0.06)]`.
+- Button presets (primary pill, secondary outlined pill, chip pill 36px) added as reusable classes / a small `<Button>` variant set so the entire app can swap to them.
 
-New tables + columns the admin needs:
+## 2. Global fixes
 
-```sql
--- promo codes
-create table public.promo_codes (
-  id uuid primary key default gen_random_uuid(),
-  code text unique not null,
-  description text,
-  discount_type text not null check (discount_type in ('percentage','fixed')),
-  discount_value numeric not null,
-  max_uses integer,
-  current_uses integer default 0,
-  min_order_value numeric default 0,
-  valid_from timestamptz default now(),
-  valid_until timestamptz,
-  is_active boolean default true,
-  created_at timestamptz default now(),
-  created_by uuid
-);
--- RLS: admins full access, public read of active codes only
+- **Bottom nav** (`src/components/BottomNav.tsx`): rename labels to Today / Baby / Ask Bella / Mamas / Shop / Journey. Light-card background, top border, active = orange icon+label, inactive = `--color-text-muted`. Keep existing Shop "1" badge logic; remove any others.
+- **Username fallback**: utility `displayName(user)` returning `"Mama"` for null/undefined/string `"undefined"`. Apply in Community feed, post detail, comments, profile references.
+- **Routes** in `src/App.tsx` unchanged; only labels/icons change.
 
--- broadcasts (in-app announcements)
-create table public.broadcasts (
-  id uuid primary key default gen_random_uuid(),
-  title text not null, body text not null,
-  cta_text text, cta_url text,
-  segment text not null default 'all',  -- all|premium|free|t1|t2|t3|inactive7
-  scheduled_for timestamptz, sent_at timestamptz,
-  reach_estimate integer default 0,
-  created_by uuid, created_at timestamptz default now()
-);
+## 3. Screen-by-screen
 
-create table public.broadcast_reads (
-  broadcast_id uuid not null,
-  user_id uuid not null,
-  read_at timestamptz default now(),
-  primary key (broadcast_id, user_id)
-);
+- **Today (HomePage)**: rebuild Hero card (white card with gradient-border glow, Bella avatar + green pulse dot + "online now…", display headline split across serif/script, new subhead copy, white search input with orange send button). Suggestion chips become a single horizontally scrollable row including new "I'm scared about…" chip. Week card redesigned (white, caps label, big script week #, new emotional fact w/ italic emphasis, 80px floating fruit emoji, outlined stat pills, "Share my week" button). Add streak callout strip just above bottom nav linking to Journey.
+- **Baby (BabyTracker)**: cream background, smaller script header, white hero card with 120px floating fruit + restyled stat tiles, **remove** the redundant bottom "Baby Size" repeat card. Week browser → label "Peek ahead →", filled current chip, lock icon on future weeks, tapping locked week opens Premium bottom sheet. Baby Development card gets a divider + new "SENSES THIS WEEK" sub-block.
+- **Ask Bella (AskDoula)**: rename header to "Ask Bella" with Bella avatar + animated green pulse dot, subtitle "Knows your history · Week 23 · 2nd pregnancy". Cream chat background. User bubble = orange/white text/asymmetric radius; Bella bubble = white card with 1px border + 20px avatar to its left. Replace typing dots with new `DoulaLoadingState` (skeleton line + "Bella is reading your Week 23 profile…" + bouncing orange dots). Remove the "1/10 free messages" inline counter; after the 8th message in a session show a dismissible accent-light banner above the input with an "Unlock Unlimited" CTA opening the Premium sheet. Restyle input bar (white pill, 52px, muted camera icon, orange send circle).
+- **Mamas (Community)**: cream header, dark script title, primary "+ Post" pill, secondary bell icon. Week cohort becomes a tappable accent-light pill. Filter tabs use new pill style. Post cards switch to white/border/18px radius with restyled avatar, week badge, outlined category tag, muted counts. Add **sensitive-content** handling: posts tagged "Story" matching keywords (premature, NICU, loss, miscarriage, complication, stillbirth, preeclampsia) replace preview with the italic muted "tap when you're ready to read" line; full content only on detail tap. Add new top-of-feed "Share your moment" prompt card (gradient white→subtle, secondary outlined CTA, dismissible, persisted in localStorage).
+- **Journey (Profile)**: cream header, avatar with orange ring, restyled name/meta, accent-light "2nd pregnancy" pill. **Promote streak** to its own dedicated card above the stat row (large flame, 32px count, copy + 3/7 progress bar + optional "🛡 You're protected today"). Stat row reduced to 2 tiles (week / days to go). Section renamed "MY MILESTONES" with locked tile treatment + progress hint line. "MY PREGNANCY" list items become white cards with emoji + chevron. New Upgrade card above Settings with subtle gradient, glowing orange border, full-width primary CTA opening the Premium sheet. Theme toggle (light/dark/system) added in Settings.
 
--- chat moderation
-alter table chat_messages
-  add column if not exists is_flagged boolean default false,
-  add column if not exists reviewed_at timestamptz,
-  add column if not exists conversation_id uuid;
+## 4. New components
 
--- order fulfilment + admin notes
-alter table orders
-  add column if not exists tracking_number text,
-  add column if not exists carrier text,
-  add column if not exists shipped_at timestamptz,
-  add column if not exists admin_notes text,
-  add column if not exists promo_code text;
+- `src/components/ShareableMilestoneCard.tsx` — 1080×1920 cream canvas, illustrated fruit, big script "week N", emotional fact, Belly wordmark, faint corner circles. Renders via `html-to-image` and triggers `navigator.share({ files })` with download fallback (mirroring existing `ShareableWeekCard` infra). Wired to a "Share my week" CTA on Home and Journey.
+- `src/components/PremiumUpgradeSheet.tsx` — bottom sheet (handle, script headline, subhead, 3 checkmark features, 9.99/mo + 59.99/yr pricing block, full-width primary "Start free 7-day trial", "Maybe later" link, safe-area padding). Single shared instance triggered from: locked future week (Baby), 8th-message banner (Ask Bella), Journey upgrade card.
+- `src/components/DoulaLoadingState.tsx` — skeleton line + italic status copy + 3-dot orange bounce. Used inside Ask Bella while awaiting AI response.
 
--- post moderation
-alter table posts
-  add column if not exists is_featured boolean default false,
-  add column if not exists is_flagged boolean default false,
-  add column if not exists flag_reason text;
+## 5. Out of scope / constraints
 
--- app config (single-row)
-create table public.app_config (
-  id integer primary key default 1 check (id = 1),
-  free_message_limit integer default 10,
-  premium_monthly_price numeric default 9.99,
-  maintenance_mode boolean default false,
-  updated_at timestamptz default now()
-);
-insert into app_config (id) values (1) on conflict do nothing;
-```
+- No data, routing, API, or backend changes except the username fallback utility and the per-session 8-message banner counter (client-side only).
+- /admin dashboard untouched.
+- All work stays in frontend / presentation code. Existing animations preserved; new ones honor `prefers-reduced-motion`.
+- Verified at 390px viewport.
 
-All new tables get RLS: admin-only via `has_role(auth.uid(), 'admin')`. Pre-seed promo codes BELLY10 / BELLY20 / MAMA / BIRTH.
+## Technical notes
 
-## Route tree (under `/admin/*`)
-
-```text
-/admin                  Dashboard         (metrics + revenue chart + activity + recent orders)
-/admin/analytics        Analytics         (growth, engagement, retention, content, revenue)
-/admin/orders           Orders            (filters + table + slide-in detail panel)
-/admin/promo-codes      Promo Codes       (table + create/edit modal)
-/admin/products         Products          (catalog from shopData.ts, edit modal — note re: Supabase migration)
-/admin/users            All Users         (search/filter + slide-in user profile)
-/admin/premium          Premium Members   (plans + churn risk + at-risk/churned tabs)
-/admin/chats            Doula Chat Logs   (conversation list + thread viewer + flagging)
-/admin/community        Community Posts   (filters + flagged section + actions)
-/admin/broadcast        Broadcast         (composer + segment + preview + history)
-/admin/settings         Settings          (admins, app config, danger zone)
-```
-
-## File map
-
-```text
-src/pages/admin/
-  AdminLayout.tsx          (rewrite — new sidebar w/ groups, LIVE dot, admin footer)
-  AdminGuard.tsx           (new — shared loading + redirect)
-  AdminOverview.tsx        (rewrite as Dashboard)
-  AdminAnalytics.tsx       (new)
-  AdminOrders.tsx          (rewrite — filters, search, side panel, ship modal, CSV export)
-  AdminPromoCodes.tsx      (new)
-  AdminProducts.tsx        (rewrite — expandable rows, edit modal)
-  AdminUsers.tsx           (rewrite — filters, side panel, role/premium actions)
-  AdminPremium.tsx         (new)
-  AdminChats.tsx           (new)
-  AdminCommunity.tsx       (rewrite — tabs incl. Flagged, Feature action)
-  AdminBroadcast.tsx       (new)
-  AdminSettings.tsx        (new)
-
-src/components/admin/
-  AdminSidebar.tsx         MetricCard.tsx       StatusPill.tsx
-  RevenueChart.tsx         LiveActivityFeed.tsx SlidePanel.tsx
-  ConfirmDialog.tsx        AdminTable.tsx       SegmentSelector.tsx
-
-src/hooks/
-  useIsAdmin.ts            (already exists — extend to return { isAdmin, loading })
-  useAdminRealtime.ts      (new — subscribes to orders/profiles/posts/chat for live feed)
-
-src/App.tsx                (wrap /admin/* in AdminGuard, register all 11 child routes)
-```
-
-## Page-by-page summary
-
-1. **Dashboard** — 5 metric cards (users, revenue all-time, revenue today, pending orders, premium members) with deltas; revenue bar chart (last 7 days, recharts); live activity feed (Supabase realtime on orders/profiles/posts/chat_messages); recent orders table with expandable rows + Mark Shipped.
-2. **Analytics** — User growth line+overlay, engagement grid (avg msgs/user, mood pie, streak histogram), retention (D1/D7/D30 from auth metadata), top content (liked posts + chat keyword clusters), revenue breakdown (SKU bar, plan donut, promo usage).
-3. **Orders** — Status tabs, search, date-range filter, full table, slide-in detail panel (customer, items, promo, shipping, Stripe link, timeline, ship modal w/ tracking + carrier, admin notes, refund stub), CSV export.
-4. **Promo Codes** — Table with usage progress bars, create/edit modal (% or $, min order, max uses, validity dates, generate-random helper), deactivate/delete.
-5. **Products** — Catalog from `shopData.ts` (kits + remedies + teas), expandable rows, edit modal updates a local override store + shows note "Connect to products table for live editing." Toggle active/inactive persisted in localStorage for now.
-6. **Users** — Search + filter chips (trimester / premium / signup date / last active), table with status pills incl. Churned, slide-in profile (pregnancy, stats, last 5 chats, last 3 orders, journal count, community activity, Grant/Revoke Premium, Make/Remove Admin via `user_roles`).
-7. **Premium Members** — Filter to `is_premium = true`, joined with `subscriptions`; tabs Active / At-risk / Churned; MRR/ARR + projection.
-8. **Doula Chat Logs** — Group `chat_messages` by user + day → conversation rows; flag column; thread viewer; keyword search; "Flag for review" / "Mark reviewed" using new columns.
-9. **Community Posts** — Tabs (All / Pinned / Flagged / categories); Pin/Unpin, Feature, Delete, Warn (sends a `notifications` row); right-rail stats.
-10. **Broadcast** — Title/body/CTA composer, segment selector w/ live reach count from profiles, push-style preview, Send now or schedule, history table.
-11. **Settings** — Admins list + add by email (via `user_roles`), App Config form (free message limit, premium price note, maintenance toggle reading/writing `app_config`), Danger Zone wipe-test-data button (only when no real orders).
-
-## Guard + access
-
-`AdminGuard` wraps the layout: shows an `AdminLoadingScreen` while the role check resolves, redirects to `/` if not admin. Uses existing `useIsAdmin` hook (extended to expose `loading`). The README/setup-only step `INSERT INTO user_roles (user_id, role) VALUES ('YOUR-UUID','admin')` is documented in a small banner inside Settings → Admin Users when zero admins exist.
-
-## Live data wiring
-
-- Realtime: `useAdminRealtime` opens one channel listening to inserts on `orders`, `profiles`, `posts`, `post_likes`, `chat_messages`, `subscriptions` and pushes shaped events into the activity feed + invalidates dashboard counts.
-- Charts: recharts (already a likely dep — verified during implementation; install if missing).
-- All counts use `head: true, count: 'exact'` queries to stay light.
-
-## Non-goals (explicit)
-
-- No real push-notification delivery (broadcasts are in-app only — documented).
-- No live Stripe refund call wired up; "Refund" button shows a placeholder modal.
-- Products edit doesn't migrate `shopData.ts` to the DB this round (shipped as a future task surfaced in the UI note).
-- AI keyword clustering for "most asked topics" uses a simple in-page keyword tally over recent `chat_messages` (no extra LLM call).
-
-## Test plan
-
-1. Sign in as a user with `user_roles.role='admin'` → `/admin` loads dashboard with live metrics. Non-admin → redirected to `/`.
-2. Place a test order → activity feed updates within 2s, Pending Orders metric +1.
-3. Create promo code BETA50 in Promo Codes → row appears, usage bar at 0/—.
-4. Open a user in Users → slide panel shows pregnancy + last 5 chats + grant premium toggles `is_premium`.
-5. Flag a chat in Chats → row gets red flag pill; mark reviewed → flag clears.
-6. Compose a Broadcast for "Premium only" → reach count matches `select count from profiles where is_premium`; Send now writes a `broadcasts` row + a `notifications` row per matching user.
-7. Toggle Maintenance Mode in Settings → `app_config.maintenance_mode = true` (UI banner on user-facing app is out-of-scope this round, just persistence).
-
+- Tokens live in `src/index.css`; Tailwind HSL semantic variables remap to them so existing components inherit the palette without per-file edits.
+- Theme toggle: `<html data-theme="light|dark">` + `localStorage("belly-theme")`; default = system. No external lib.
+- Sensitive-keyword detector: pure function in `src/lib/community.ts` taking title + body, returning boolean.
+- Session message counter for Ask Bella: `useRef`/state in chat page; banner dismissal stored in `sessionStorage`.
+- Premium sheet uses existing `Sheet`/`Drawer` shadcn primitives for accessibility.
