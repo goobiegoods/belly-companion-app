@@ -359,7 +359,7 @@ const AskDoula = () => {
                   You've used your 10 free messages for today 🌸 Upgrade to Premium for unlimited access.
                 </p>
                 <button onClick={() => setShowPremium(true)}
-                  style={{ background: "#fff", color: "var(--color-accent-primary)", border: "none", borderRadius: 20, padding: "8px 18px", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+                  style={{ background: "var(--color-accent-primary)", color: "#fff", border: "none", borderRadius: 20, padding: "8px 18px", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
                   Go Premium →
                 </button>
               </div>
