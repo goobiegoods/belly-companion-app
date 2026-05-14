@@ -88,7 +88,7 @@ const Profile = () => {
           <span style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 700, color: "var(--color-accent-primary)" }}>{initials}</span>
         </div>
         <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 26, fontWeight: 700, color: "var(--color-accent-dark)", letterSpacing: "-0.3px" }}>
-          {formatName(profile?.first_name || "Mama")}
+          {getDisplayName({ first_name: profile?.first_name })}
         </h1>
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 4 }}>
           Week {currentWeek} · Due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
@@ -104,18 +104,42 @@ const Profile = () => {
         )}
       </div>
 
-      {/* Stats */}
+      {/* Streak hero card */}
+      <div className="px-5 mb-3">
+        <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 18, padding: 18, boxShadow: "0 2px 12px rgba(180,100,20,0.06)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 56 }}>
+              <span style={{ fontSize: 36, lineHeight: 1 }}>🔥</span>
+              <span style={{ fontFamily: "'Fraunces', serif", fontSize: 32, fontWeight: 700, color: "var(--color-streak-flame)", lineHeight: 1, marginTop: 4 }}>{streak.current}</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "var(--color-text-primary)" }}>{streak.current}-day streak</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "var(--color-text-secondary)", marginTop: 2 }}>Check in tomorrow to keep it going</p>
+              <div style={{ height: 6, borderRadius: 50, background: "var(--color-border-default)", marginTop: 10, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, (streak.current / 7) * 100)}%`, background: "var(--color-accent-primary)", borderRadius: 50, transition: "width 300ms" }} />
+              </div>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "var(--color-text-muted)", marginTop: 6 }}>{Math.min(streak.current, 7)} of 7 days — unlock the Week Streak badge</p>
+            </div>
+          </div>
+          {checkedInToday && (
+            <div style={{ borderTop: "1px solid var(--color-border-default)", marginTop: 14, paddingTop: 10 }}>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "var(--color-text-secondary)" }}>🛡 Streak shield active — you're safe today</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Stats — 2 tiles */}
       <div className="flex gap-2 px-5 mb-5">
         {[
-          { label: "WEEK", value: currentWeek, tight: false },
-          { label: "DAYS TO GO", value: daysToGo, tight: false },
-          { label: "STREAK", value: "3 🔥", tight: true },
+          { label: "WEEK", value: currentWeek },
+          { label: "DAYS TO GO", value: daysToGo },
         ].map(stat => (
           <div key={stat.label} className="flex-1 text-center" style={{
             background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)",
-            borderRadius: 16, padding: "14px 8px", backdropFilter: "blur(14px)"
+            borderRadius: 16, padding: "14px 8px"
           }}>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 900, color: "var(--color-accent-dark)", letterSpacing: stat.tight ? -1 : -0.5 }}>{stat.value}</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 900, color: "var(--color-accent-dark)", letterSpacing: -0.5 }}>{stat.value}</p>
             <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "var(--color-text-secondary)", marginTop: 4 }}>{stat.label}</p>
           </div>
         ))}
