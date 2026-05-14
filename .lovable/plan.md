@@ -1,55 +1,70 @@
 
-# Belly App — Full Design System Overhaul
+# Belly App — Surgical Fix Pass
 
-A top-to-bottom visual rebuild of the user-facing app (5 core screens + chat) around a new tiered cream/white token system where orange becomes a true accent. Adds dark mode, renames the nav, fixes the "undefined" username bug, and ships three new shared components. The /admin dashboard is out of scope.
+Targeted fixes only. Design system tokens already exist in `src/index.css` — I'll reuse them. No re-theming.
 
-## 1. Foundation — design tokens + global wiring
+## 1. Shop screen rewrite (`src/pages/Shop.tsx`)
+- Replace orange page background with `--color-bg-base`.
+- Header: serif "Belly Shop" title in `--color-text-primary`, 13px secondary subtitle, cart icon in `--color-text-secondary` with orange badge.
+- Hero banner: white card with 4px left orange accent border. Headline `--color-text-primary`, body `--color-text-secondary`, "Shop all →" as outlined orange button.
+- Filter tabs: active = orange filled pill / white text; inactive = transparent + secondary text.
+- "REMEDY KITS" label: 11px caps, `--color-text-muted`.
+- Product cards (apply to ALL kits — Trimester 1, Trimester 2, etc.):
+  - White bg, `1px solid --color-border-default`, 18px radius, soft shadow.
+  - 90px circle backdrop in `--color-bg-card-subtle` holding 56px emoji.
+  - Badge in `--color-accent-light` / `--color-accent-dark`.
+  - Name 15px primary, tagline 13px secondary, ingredients 12px muted.
+  - Price 20px bold orange. Full-width orange "Add to cart →" button.
 
-**New token layer** in `src/index.css` (and mirrored where needed in `tailwind.config.ts`):
+## 2. Undefined name bug
+Add `getDisplayName(user)` helper to `src/lib/community.ts` (filters `undefined`/`null`/empty parts, returns `"Mama"` fallback) and wire it into:
+- `src/pages/Community.tsx` (post author, comments)
+- `src/pages/Profile.tsx` header
+- Anywhere else `first_name`/`last_name` concat appears (grep first).
 
-- Light tokens: `--color-bg-base #FDF8F2`, `--color-bg-card #FFFFFF`, `--color-bg-card-subtle #FFF5EC`, `--color-accent-primary #F47B20`, `--color-accent-light #FFE8D0`, `--color-accent-dark #C45E0A`, `--color-text-primary #1A1208`, `--color-text-secondary #6B5B4E`, `--color-text-muted #A8917E`, `--color-text-on-accent #FFFFFF`, `--color-border-default #EDE0D4`, `--color-border-strong #D4B89A`, `--color-success #2D9E6B`, `--color-danger #D94F3D`, `--color-streak-flame #FF6B1A`.
-- Dark tokens (under `[data-theme="dark"]` and `@media (prefers-color-scheme: dark)` when no explicit pref): bg `#1C1208`, card `#261A0E`, card-subtle `#2E2010`, text `#F5EDE0`/`#BFA98C`, border `#3D2B18`, accent unchanged.
-- Map these into the Tailwind HSL semantic tokens (`--background`, `--foreground`, `--card`, `--primary`, `--border`, `--muted`, `--accent`) so existing `bg-card`, `text-foreground`, `bg-primary` classes pick up the new palette automatically.
-- Replace the global `body { background: #e07830 }` and `#root { background: #FF8C42 }` with `--color-bg-base`. Kill any full-screen orange wrappers.
-- Add a `ThemeProvider` (light/dark/system) persisted in localStorage, toggling `data-theme` on `<html>`. Toggle UI lives in Settings/Journey.
+## 3. Baby screen (`src/pages/BabyTracker.tsx`)
+- Rebuild horizontal week chip row (1–40):
+  - 40×40 circles, 13px number, no wrap, horizontal scroll, hide scrollbar.
+  - Past: subtle bg + muted text. Current: orange bg + white + scale(1.1). Future: card bg + border + 8px lock icon.
+  - Tap on locked week → opens `PremiumUpgradeSheet`.
+  - On mount, scroll current week to center.
+- Delete the duplicate "Baby Size · grapefruit · 28.9cm · 500g" card below the stats row.
+- Add 170px `#FFF0E0` circle backdrop behind 120px fruit illustration with 3s float animation (respect `prefers-reduced-motion`).
 
-**Typography & spacing rules** baked into utility classes:
-- `.text-display` (script, max 36px), `.text-section` (20px/600), body 15px / 1.65, supporting 13px / 1.6, caps label 11px / 0.08em / 500.
-- Standard paddings: screen 20px, card 18px, gap-card 14px, gap-section 28px, nav 64px, content bottom 80px.
-- Card preset: `bg-card border border-[--color-border-default] rounded-[18px] shadow-[0_2px_12px_rgba(180,100,20,0.06)]`.
-- Button presets (primary pill, secondary outlined pill, chip pill 36px) added as reusable classes / a small `<Button>` variant set so the entire app can swap to them.
+## 4. Ask Bella (`src/pages/AskDoula.tsx`)
+- Header title: "Ask Bella". Subtitle dynamic: `"Knows your history · Week {week} · {ordinal} pregnancy"` from `profile`.
+- Doula response bubble body text → `--color-text-primary` (#1A1208). Keep orange only for "Bella" label and a single emphasis word.
+- Replace "AI · LIVE" badge with 28px circular `--color-accent-light` avatar showing 🌸 + 6px green pulse dot (CSS keyframe scale 1→1.3→1, opacity 1→0.6→1, 2s infinite).
 
-## 2. Global fixes
+## 5. Home week card (`src/pages/HomePage.tsx`)
+Restack to centered vertical:
+- "YOU'RE IN" caps centered.
+- "week 23" 44px script orange centered.
+- 100px fruit on 130px `#FFF0E0` circle, float anim.
+- Centered emotional copy with second line italic orange.
+- Centered pills row "{n} weeks to go" + "Trimester {n}".
+- Full-width outlined "Share my week 📸" button.
 
-- **Bottom nav** (`src/components/BottomNav.tsx`): rename labels to Today / Baby / Ask Bella / Mamas / Shop / Journey. Light-card background, top border, active = orange icon+label, inactive = `--color-text-muted`. Keep existing Shop "1" badge logic; remove any others.
-- **Username fallback**: utility `displayName(user)` returning `"Mama"` for null/undefined/string `"undefined"`. Apply in Community feed, post detail, comments, profile references.
-- **Routes** in `src/App.tsx` unchanged; only labels/icons change.
+## 6. Community (`src/pages/Community.tsx`)
+- Filter tabs row → flex row, `overflow-x:auto`, no wrap, hidden scrollbar, touch scrolling. Active = orange pill, inactive = card bg + border + secondary text.
+- Restore post footer: `♥ {likes} 💬 {comments}` — heart orange when liked, muted when not, 13px secondary font.
 
-## 3. Screen-by-screen
+## 7. Journey (`src/pages/Profile.tsx`)
+- New streak hero card above stat tiles: 🔥 + count on left, "{n}-day streak" + sub copy + 6px progress bar (3/7 toward Week Streak badge) + muted progress label, optional shield row at bottom when checked-in today.
+- Reduce stat tiles from 3 → 2 (Week, Days to Go).
+- New Premium upgrade card above Settings: white bg, orange border + soft glow, ✨ + headline + sub + 3 checkmark rows (success green) + full-width orange "See Premium Plans" CTA opening `PremiumUpgradeSheet`.
 
-- **Today (HomePage)**: rebuild Hero card (white card with gradient-border glow, Bella avatar + green pulse dot + "online now…", display headline split across serif/script, new subhead copy, white search input with orange send button). Suggestion chips become a single horizontally scrollable row including new "I'm scared about…" chip. Week card redesigned (white, caps label, big script week #, new emotional fact w/ italic emphasis, 80px floating fruit emoji, outlined stat pills, "Share my week" button). Add streak callout strip just above bottom nav linking to Journey.
-- **Baby (BabyTracker)**: cream background, smaller script header, white hero card with 120px floating fruit + restyled stat tiles, **remove** the redundant bottom "Baby Size" repeat card. Week browser → label "Peek ahead →", filled current chip, lock icon on future weeks, tapping locked week opens Premium bottom sheet. Baby Development card gets a divider + new "SENSES THIS WEEK" sub-block.
-- **Ask Bella (AskDoula)**: rename header to "Ask Bella" with Bella avatar + animated green pulse dot, subtitle "Knows your history · Week 23 · 2nd pregnancy". Cream chat background. User bubble = orange/white text/asymmetric radius; Bella bubble = white card with 1px border + 20px avatar to its left. Replace typing dots with new `DoulaLoadingState` (skeleton line + "Bella is reading your Week 23 profile…" + bouncing orange dots). Remove the "1/10 free messages" inline counter; after the 8th message in a session show a dismissible accent-light banner above the input with an "Unlock Unlimited" CTA opening the Premium sheet. Restyle input bar (white pill, 52px, muted camera icon, orange send circle).
-- **Mamas (Community)**: cream header, dark script title, primary "+ Post" pill, secondary bell icon. Week cohort becomes a tappable accent-light pill. Filter tabs use new pill style. Post cards switch to white/border/18px radius with restyled avatar, week badge, outlined category tag, muted counts. Add **sensitive-content** handling: posts tagged "Story" matching keywords (premature, NICU, loss, miscarriage, complication, stillbirth, preeclampsia) replace preview with the italic muted "tap when you're ready to read" line; full content only on detail tap. Add new top-of-feed "Share your moment" prompt card (gradient white→subtle, secondary outlined CTA, dismissible, persisted in localStorage).
-- **Journey (Profile)**: cream header, avatar with orange ring, restyled name/meta, accent-light "2nd pregnancy" pill. **Promote streak** to its own dedicated card above the stat row (large flame, 32px count, copy + 3/7 progress bar + optional "🛡 You're protected today"). Stat row reduced to 2 tiles (week / days to go). Section renamed "MY MILESTONES" with locked tile treatment + progress hint line. "MY PREGNANCY" list items become white cards with emoji + chevron. New Upgrade card above Settings with subtle gradient, glowing orange border, full-width primary CTA opening the Premium sheet. Theme toggle (light/dark/system) added in Settings.
+## 8. Home suggestion chips
+Force single horizontal scroll row (`flex-wrap:nowrap`, `overflow-x:auto`, hidden scrollbar, touch scrolling). Already mostly set — verify and fix `flex-wrap`.
 
-## 4. New components
-
-- `src/components/ShareableMilestoneCard.tsx` — 1080×1920 cream canvas, illustrated fruit, big script "week N", emotional fact, Belly wordmark, faint corner circles. Renders via `html-to-image` and triggers `navigator.share({ files })` with download fallback (mirroring existing `ShareableWeekCard` infra). Wired to a "Share my week" CTA on Home and Journey.
-- `src/components/PremiumUpgradeSheet.tsx` — bottom sheet (handle, script headline, subhead, 3 checkmark features, 9.99/mo + 59.99/yr pricing block, full-width primary "Start free 7-day trial", "Maybe later" link, safe-area padding). Single shared instance triggered from: locked future week (Baby), 8th-message banner (Ask Bella), Journey upgrade card.
-- `src/components/DoulaLoadingState.tsx` — skeleton line + italic status copy + 3-dot orange bounce. Used inside Ask Bella while awaiting AI response.
-
-## 5. Out of scope / constraints
-
-- No data, routing, API, or backend changes except the username fallback utility and the per-session 8-message banner counter (client-side only).
-- /admin dashboard untouched.
-- All work stays in frontend / presentation code. Existing animations preserved; new ones honor `prefers-reduced-motion`.
-- Verified at 390px viewport.
+## Final audit pass
+After edits, grep for:
+- Full-screen orange backgrounds (`background:#FF8C42`, `bg-primary` on page roots).
+- Orange body copy inside cards/bubbles → swap to `--color-text-primary`/`secondary`.
+- Confirm orange remains only on CTAs, active nav, numeric highlights, prices, selected chips.
 
 ## Technical notes
-
-- Tokens live in `src/index.css`; Tailwind HSL semantic variables remap to them so existing components inherit the palette without per-file edits.
-- Theme toggle: `<html data-theme="light|dark">` + `localStorage("belly-theme")`; default = system. No external lib.
-- Sensitive-keyword detector: pure function in `src/lib/community.ts` taking title + body, returning boolean.
-- Session message counter for Ask Bella: `useRef`/state in chat page; banner dismissal stored in `sessionStorage`.
-- Premium sheet uses existing `Sheet`/`Drawer` shadcn primitives for accessibility.
+- All new styles use existing tokens from `src/index.css` (`--color-bg-base`, `--color-bg-card`, `--color-bg-card-subtle`, `--color-accent-primary`, `--color-accent-light`, `--color-accent-dark`, `--color-text-primary/secondary/muted`, `--color-border-default`, `--color-success`, `--color-streak-flame`).
+- Reuse existing `PremiumUpgradeSheet` for locked-week + Premium CTA.
+- Reuse `safeDisplayName` infrastructure in `src/lib/community.ts`; add `getDisplayName(user)` alongside.
+- No backend, routing, or schema changes.
