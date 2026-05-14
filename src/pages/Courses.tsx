@@ -78,18 +78,18 @@ const Courses = () => {
   if (showCompletion && selectedCourse) {
     const course = coursesData.find(c => c.id === selectedCourse)!;
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "transparent" }}>
-        <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6" style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
-          <Check size={36} style={{ color: "#FF6520" }} />
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "var(--color-bg-base)" }}>
+        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: "var(--color-accent-light)", boxShadow: "0 4px 20px rgba(244,123,32,0.18)" }}>
+          <Check size={36} style={{ color: "var(--color-accent-primary)" }} />
         </div>
-        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 800, color: "white", marginBottom: 8 }}>Course complete! 🌸</h1>
-        <p style={{ fontFamily: "'Fraunces', serif", fontSize: 15, color: "white", marginBottom: 4 }}>{course.title}</p>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.60)", marginBottom: 8 }}>{course.lessonCount} lessons · {course.duration} min</p>
-        <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, fontStyle: "italic", color: "rgba(255,255,255,0.70)", textAlign: "center", marginBottom: 32 }}>
+        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 800, color: "var(--color-accent-dark)", marginBottom: 8 }}>Course complete! 🌸</h1>
+        <p style={{ fontFamily: "'Fraunces', serif", fontSize: 15, color: "var(--color-text-primary)", marginBottom: 4 }}>{course.title}</p>
+        <p style={{ fontSize: 13, color: "var(--color-text-muted)", marginBottom: 8 }}>{course.lessonCount} lessons · {course.duration} min</p>
+        <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, fontStyle: "italic", color: "var(--color-text-secondary)", textAlign: "center", marginBottom: 32 }}>
           You've taken a beautiful step on your pregnancy journey. Be proud of yourself, mama. 🌸
         </p>
         <button onClick={() => { setShowCompletion(false); setSelectedCourse(null); setSelectedLesson(null); }}
-          className="w-full max-w-xs h-12 rounded-[14px] text-[14px] font-bold mb-3 belly-btn-primary" style={{ background: "white", color: "#FF6520" }}>
+          className="w-full max-w-xs h-12 rounded-[14px] text-[14px] font-bold mb-3 belly-btn-primary" style={{ background: "var(--color-accent-primary)", color: "#fff" }}>
           Back to courses
         </button>
       </div>
@@ -111,81 +111,81 @@ const Courses = () => {
     };
 
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: "transparent" }}>
-        <div className="flex items-center justify-between px-4 py-3" style={{ background: "rgba(255,140,66,0.65)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
+      <div className="min-h-screen flex flex-col" style={{ background: "var(--color-bg-base)" }}>
+        <div className="flex items-center justify-between px-4 py-3" style={{ background: "var(--color-bg-card)", borderBottom: "1px solid var(--color-border-default)" }}>
           <button onClick={() => { setSelectedLesson(null); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
-            style={{ color: "white", fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: 13 }}>← Back</button>
-          <p className="truncate max-w-[180px]" style={{ color: "white", fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16 }}>{course.title}</p>
-          <span style={{ background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", borderRadius: 20, padding: "4px 10px", color: "white", fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: 11 }}>
+            style={{ color: "var(--color-accent-primary)", fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: 13 }}>← Back</button>
+          <p className="truncate max-w-[180px]" style={{ color: "var(--color-text-primary)", fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16 }}>{course.title}</p>
+          <span style={{ background: "var(--color-accent-light)", border: "1px solid var(--color-border-default)", borderRadius: 20, padding: "4px 10px", color: "var(--color-accent-dark)", fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: 11 }}>
             Lesson {selectedLesson + 1} of {course.lessonCount}
           </span>
         </div>
         <div className="px-5 pt-5 pb-6 relative">
-          <p style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>LESSON {selectedLesson + 1}</p>
-          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 26, fontWeight: 800, color: "white", marginBottom: 12 }}>{lesson.title}</h1>
-          <span style={{ display: "inline-block", fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, padding: "5px 14px", borderRadius: 20, background: "rgba(255,255,255,0.20)", border: "1px solid rgba(255,255,255,0.30)", color: "white", marginBottom: 12 }}>{lesson.duration} min read</span>
+          <p style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--color-text-muted)", marginBottom: 4 }}>LESSON {selectedLesson + 1}</p>
+          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 26, fontWeight: 800, color: "var(--color-accent-dark)", marginBottom: 12 }}>{lesson.title}</h1>
+          <span style={{ display: "inline-block", fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, padding: "5px 14px", borderRadius: 20, background: "var(--color-accent-light)", border: "1px solid var(--color-border-default)", color: "var(--color-accent-dark)", marginBottom: 12 }}>{lesson.duration} min read</span>
           <div className="flex gap-1.5">
             {Array.from({ length: course.lessonCount }, (_, i) => (
               <div key={i} className="w-2 h-2 rounded-full" style={{
-                background: i < selectedLesson ? "rgba(255,255,255,0.70)" : i === selectedLesson ? "white" : "transparent",
-                border: i > selectedLesson ? "1.5px solid rgba(255,255,255,0.6)" : "none"
+                background: i < selectedLesson ? "var(--color-accent-primary)" : i === selectedLesson ? "var(--color-accent-dark)" : "transparent",
+                border: i > selectedLesson ? "1.5px solid var(--color-border-strong)" : "none"
               }} />
             ))}
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-5 pb-28 space-y-5">
-          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, lineHeight: 1.75, fontWeight: 400, color: "rgba(255,255,255,0.88)" }}>{lesson.intro}</p>
-          <div style={{ background: "rgba(255,255,255,0.20)", border: "1.5px solid rgba(255,255,255,0.32)", borderRadius: 18, padding: "16px 18px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
-            <p style={{ fontSize: 10, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>What you'll learn</p>
+          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, lineHeight: 1.75, fontWeight: 400, color: "var(--color-text-primary)" }}>{lesson.intro}</p>
+          <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 18, padding: "16px 18px" }}>
+            <p style={{ fontSize: 10, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--color-text-muted)", marginBottom: 10 }}>What you'll learn</p>
             <div className="space-y-2">
               {lesson.whatYoullLearn.map((item, i) => (
                 <div key={i} className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "rgba(255,255,255,0.60)" }} />
-                  <p style={{ fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 400, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>{item}</p>
+                  <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--color-accent-primary)" }} />
+                  <p style={{ fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 400, lineHeight: 1.6, color: "var(--color-text-primary)" }}>{item}</p>
                 </div>
               ))}
             </div>
           </div>
           {lesson.sections.map((section, i) => (
             <div key={i}>
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "white", margin: "20px 0 8px" }}>{section.heading}</h2>
-              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.80)", marginBottom: 12 }}>{section.body}</p>
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "var(--color-accent-dark)", margin: "20px 0 8px" }}>{section.heading}</h2>
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, lineHeight: 1.7, color: "var(--color-text-primary)", marginBottom: 12 }}>{section.body}</p>
               {section.tip && (
-                <div style={{ background: "rgba(255,240,180,0.15)", border: "1px solid rgba(255,220,120,0.25)", borderRadius: 16, padding: "14px 16px" }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: "white", marginBottom: 4 }}>💡 Tip:</p>
-                  <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "rgba(255,255,255,0.85)" }}>{section.tip}</p>
+                <div style={{ background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 16, padding: "14px 16px" }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 4 }}>💡 Tip:</p>
+                  <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "var(--color-text-secondary)" }}>{section.tip}</p>
                 </div>
               )}
             </div>
           ))}
-          <div style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.26)", borderRadius: 16, padding: "14px 16px" }}>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 13, fontWeight: 700, color: "white", marginBottom: 4 }}>Did you know? 🌸</p>
-            <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "rgba(255,255,255,0.80)" }}>{lesson.didYouKnow}</p>
+          <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 16, padding: "14px 16px" }}>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 13, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 4 }}>Did you know? 🌸</p>
+            <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "var(--color-text-secondary)" }}>{lesson.didYouKnow}</p>
           </div>
-          <div style={{ background: "rgba(220,200,255,0.12)", border: "1px solid rgba(200,170,255,0.20)", borderRadius: 16, padding: "14px 16px" }}>
-            <p style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.55)", marginBottom: 8 }}>Reflect 💭</p>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, fontStyle: "italic", color: "white", marginBottom: 12 }}>{lesson.reflection}</p>
+          <div style={{ background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 16, padding: "14px 16px" }}>
+            <p style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--color-text-muted)", marginBottom: 8 }}>Reflect 💭</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, fontStyle: "italic", color: "var(--color-text-primary)", marginBottom: 12 }}>{lesson.reflection}</p>
             <textarea value={reflectionText} onChange={e => { setReflectionText(e.target.value); setReflectionSaved(false); }}
               placeholder="Write your thoughts..." className="w-full resize-none min-h-[80px]"
-              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 10, padding: 12, fontSize: 13, fontFamily: "'Outfit', sans-serif", fontStyle: "italic", color: "white" }} />
+              style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 10, padding: 12, fontSize: 13, fontFamily: "'Outfit', sans-serif", fontStyle: "italic", color: "var(--color-text-primary)" }} />
             <button disabled={!reflectionText.trim() || reflectionSaved}
               onClick={async () => { await saveReflection(lessonId, reflectionText); setReflectionSaved(true); }}
-              className="mt-2 disabled:opacity-50" style={{ borderRadius: 12, padding: "10px 20px", fontSize: 13, fontWeight: 700, background: "white", color: "#FF6520", border: "none" }}>
+              className="mt-2 disabled:opacity-50" style={{ borderRadius: 12, padding: "10px 20px", fontSize: 13, fontWeight: 700, background: "var(--color-accent-primary)", color: "#fff", border: "none" }}>
               Save my reflection 💭
             </button>
-            {reflectionSaved && <p style={{ fontSize: 12, color: "rgba(200,255,220,0.95)", marginTop: 6 }}>Saved 🌸</p>}
+            {reflectionSaved && <p style={{ fontSize: 12, color: "var(--color-success)", marginTop: 6 }}>Saved 🌸</p>}
           </div>
           <div>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 15, fontWeight: 700, color: "white", marginBottom: 12 }}>Quick check ✓</p>
-            <p style={{ fontSize: 13, fontFamily: "'Outfit', sans-serif", color: "white", marginBottom: 12 }}>{lesson.quiz.question}</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 15, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 12 }}>Quick check ✓</p>
+            <p style={{ fontSize: 13, fontFamily: "'Outfit', sans-serif", color: "var(--color-text-primary)", marginBottom: 12 }}>{lesson.quiz.question}</p>
             <div className="space-y-2">
               {lesson.quiz.options.map((opt, i) => {
                 const isSelected = quizAnswer === i;
                 const isCorrect = i === lesson.quiz.correctIndex;
-                let borderColor = "rgba(255,255,255,0.26)", bg = "rgba(255,255,255,0.18)", textColor = "white";
-                if (quizSubmitted && isSelected && isCorrect) { borderColor = "rgba(100,220,130,0.45)"; bg = "rgba(100,220,130,0.25)"; textColor = "rgba(200,255,220,0.95)"; }
-                if (quizSubmitted && isSelected && !isCorrect) { borderColor = "rgba(255,130,130,0.35)"; bg = "rgba(255,100,100,0.20)"; textColor = "rgba(255,200,200,0.95)"; }
-                if (quizSubmitted && !isSelected && isCorrect) { borderColor = "rgba(100,220,130,0.45)"; bg = "rgba(100,220,130,0.25)"; textColor = "rgba(200,255,220,0.95)"; }
+                let borderColor = "var(--color-border-default)", bg = "var(--color-bg-card)", textColor = "var(--color-text-primary)";
+                if (quizSubmitted && isSelected && isCorrect) { borderColor = "rgba(45,158,107,0.45)"; bg = "rgba(45,158,107,0.12)"; textColor = "var(--color-success)"; }
+                if (quizSubmitted && isSelected && !isCorrect) { borderColor = "rgba(217,79,61,0.45)"; bg = "rgba(217,79,61,0.10)"; textColor = "var(--color-danger)"; }
+                if (quizSubmitted && !isSelected && isCorrect) { borderColor = "rgba(45,158,107,0.45)"; bg = "rgba(45,158,107,0.12)"; textColor = "var(--color-success)"; }
                 return (
                   <button key={i} disabled={quizSubmitted}
                     onClick={() => { setQuizAnswer(i); setQuizSubmitted(true); saveQuizAttempt(lessonId, opt, isCorrect); }}
@@ -197,24 +197,24 @@ const Courses = () => {
               })}
             </div>
             {quizSubmitted && (
-              <div style={{ marginTop: 12, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 12, padding: 12 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 4 }}>{quizAnswer === lesson.quiz.correctIndex ? "Well done! 🌸" : "Almost! Here's why..."}</p>
-                <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "rgba(255,255,255,0.80)" }}>{lesson.quiz.explanation}</p>
+              <div style={{ marginTop: 12, background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 12, padding: 12 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 4 }}>{quizAnswer === lesson.quiz.correctIndex ? "Well done! 🌸" : "Almost! Here's why..."}</p>
+                <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "var(--color-text-secondary)" }}>{lesson.quiz.explanation}</p>
               </div>
             )}
           </div>
-          <div className="rounded-[14px] p-4" style={{ background: "#2A1200" }}>
-            <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "#D4B0A0" }}>Key takeaway</p>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, lineHeight: 1.6, color: "#FFF4EE" }}>{lesson.keyTakeaway}</p>
+          <div className="rounded-[14px] p-4" style={{ background: "var(--color-accent-light)", border: "1px solid var(--color-border-default)" }}>
+            <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "var(--color-text-muted)" }}>Key takeaway</p>
+            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, lineHeight: 1.6, color: "var(--color-accent-dark)" }}>{lesson.keyTakeaway}</p>
           </div>
         </div>
-        <div className="fixed bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3" style={{ background: "rgba(255,140,66,0.65)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.14)" }}>
+        <div className="fixed bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3" style={{ background: "var(--color-bg-card)", borderTop: "1px solid var(--color-border-default)" }}>
           {selectedLesson > 0 && (
             <button onClick={() => { setSelectedLesson(selectedLesson - 1); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
-              className="h-11 px-4 rounded-[12px] text-[13px] font-semibold" style={{ background: "rgba(255,255,255,0.20)", color: "white" }}>← Previous</button>
+              className="h-11 px-4 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--color-bg-card-subtle)", color: "var(--color-accent-dark)", border: "1px solid var(--color-border-default)" }}>← Previous</button>
           )}
           <button onClick={handleComplete} disabled={isCompleted}
-            className="flex-1 h-11 rounded-[12px] text-[14px] font-bold disabled:opacity-50" style={{ background: "white", color: "#FF6520" }}>
+            className="flex-1 h-11 rounded-[12px] text-[14px] font-bold disabled:opacity-50" style={{ background: "var(--color-accent-primary)", color: "#fff" }}>
             {isCompleted ? "✓ Completed" : isLast ? "Complete course 🌸" : "Complete & continue →"}
           </button>
         </div>
