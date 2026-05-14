@@ -66,7 +66,7 @@ const Profile = () => {
       {/* Hero — no card wrapper, sits on orange */}
       <div style={{ padding: "40px 20px 16px", textAlign: "center" }}>
         <div style={{
-          width: 76, height: 76, borderRadius: "50%", background: "white",
+          width: 76, height: 76, borderRadius: "50%", background: "var(--color-bg-card)",
           boxShadow: "0 0 0 4px rgba(255,255,255,0.28), 0 0 0 8px rgba(255,255,255,0.10)",
           display: "flex", alignItems: "center", justifyContent: "center",
           margin: "0 auto 10px"
@@ -142,7 +142,7 @@ const Profile = () => {
               </div>
               <div className="flex gap-2">
                 <button onClick={() => setEditing(false)} className="flex-1 h-10 rounded-[10px] text-sm belly-btn-press" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", color: "var(--color-accent-dark)", fontFamily: "'Outfit', system-ui" }}>Cancel</button>
-                <button onClick={handleSave} className="flex-1 h-10 rounded-[20px] text-sm font-semibold belly-btn-primary" style={{ background: "white", color: "var(--color-accent-primary)", fontFamily: "'Outfit', system-ui", fontWeight: 700 }}>Save</button>
+                <button onClick={handleSave} className="flex-1 h-10 rounded-[20px] text-sm font-semibold belly-btn-primary" style={{ background: "var(--color-accent-primary)", color: "#fff", fontFamily: "'Outfit', system-ui", fontWeight: 700 }}>Save</button>
               </div>
             </div>
           ) : (
@@ -208,7 +208,7 @@ const Profile = () => {
               <div className="ml-[52px]">
                 <span style={{
                   fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 700,
-                  background: "white", color: "var(--color-accent-primary)", borderRadius: 20,
+                  background: "var(--color-accent-primary)", color: "#fff", borderRadius: 20,
                   padding: "8px 18px", display: "inline-block",
                   boxShadow: "0 3px 12px rgba(0,0,0,0.10)"
                 }}>Go Pro →</span>

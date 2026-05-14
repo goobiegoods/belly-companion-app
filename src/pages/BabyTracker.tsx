@@ -288,7 +288,7 @@ const BabyTracker = () => {
               </div>
             </div>
             <div style={{ textAlign: "center", paddingBottom: 10, paddingTop: 6 }}>
-              <button onClick={() => navigate("/recipes")} style={{ background: "white", border: "none", borderRadius: 22, padding: "9px 20px", fontSize: 13, fontWeight: 700, color: "var(--color-accent-primary)", cursor: "pointer", fontFamily: "'Outfit', system-ui", boxShadow: "0 3px 10px rgba(0,0,0,0.08)", display: "inline-block" }}>
+              <button onClick={() => navigate("/recipes")} style={{ background: "var(--color-accent-primary)", border: "none", borderRadius: 22, padding: "9px 20px", fontSize: 13, fontWeight: 700, color: "#fff", cursor: "pointer", fontFamily: "'Outfit', system-ui", boxShadow: "0 3px 10px rgba(0,0,0,0.08)", display: "inline-block" }}>
                 See all {weekRecipes.length} recipes for week {selectedWeek} →
               </button>
             </div>
@@ -311,7 +311,7 @@ const BabyTracker = () => {
                 position: "relative",
                 boxShadow: isActive ? "0 4px 16px rgba(0,0,0,0.08)" : "none",
               }}>
-                {isActive && <div style={{ position: "absolute", top: 10, right: 10, width: 7, height: 7, borderRadius: "50%", background: "white", opacity: 0.7 }} />}
+                {isActive && <div style={{ position: "absolute", top: 10, right: 10, width: 7, height: 7, borderRadius: "50%", background: "var(--color-bg-card)", opacity: 0.7 }} />}
                 <p style={{ fontFamily: "'Outfit', system-ui", fontSize: isActive ? 13 : 12, fontWeight: isActive ? 700 : 600, color: isActive ? "white" : "rgba(255,255,255,0.65)" }}>{t.name}</p>
                 <p style={{ fontSize: 9, color: isActive ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.40)", fontWeight: isActive ? 500 : 400, fontFamily: "'Outfit', system-ui" }}>{t.range}</p>
                 <p style={{ fontSize: isActive ? 9 : 8, color: isActive ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.35)", lineHeight: 1.4, marginTop: 2, fontFamily: "'Outfit', system-ui" }}>{t.desc}</p>
@@ -331,7 +331,7 @@ const BabyTracker = () => {
             <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--color-text-secondary)", fontWeight: 600, marginBottom: 4 }}>Kick Counter</p>
             <p style={{ fontFamily: "'Fraunces', serif", fontSize: 52, fontWeight: 900, color: "var(--color-accent-dark)", letterSpacing: -3, lineHeight: 1, margin: "6px 0 2px" }}>{kickCount}</p>
             <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: "var(--color-text-secondary)", fontStyle: "italic", marginBottom: 12 }}>Goal: 10 kicks</p>
-            <button onClick={addKick} style={{ background: "white", borderRadius: 16, padding: 12, width: "100%", fontSize: 14, fontWeight: 700, color: "var(--color-accent-primary)", border: "none", cursor: "pointer", fontFamily: "'Outfit', system-ui", boxShadow: "0 3px 12px rgba(0,0,0,0.10)" }}>
+            <button onClick={addKick} style={{ background: "var(--color-accent-primary)", borderRadius: 16, padding: 12, width: "100%", fontSize: 14, fontWeight: 700, color: "#fff", border: "none", cursor: "pointer", fontFamily: "'Outfit', system-ui", boxShadow: "0 3px 12px rgba(0,0,0,0.10)" }}>
               + Kick
             </button>
             <button onClick={() => setKickCount(0)} style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 12, padding: 8, width: "100%", fontSize: 12, fontWeight: 500, color: "var(--color-text-primary)", marginTop: 6, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>

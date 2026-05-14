@@ -226,7 +226,7 @@ const Community = () => {
           ) : notifications.map(n => (
             <button key={n.id} onClick={() => handleNotifTap(n)}
               className="w-full text-left px-4 py-3 flex gap-3 belly-card-interactive" style={{ borderBottom: "1px solid var(--color-border-default)", opacity: n.is_read ? 0.6 : 1 }}>
-              {!n.is_read && <div className="w-[3px] rounded-full self-stretch shrink-0" style={{ background: "white" }} />}
+              {!n.is_read && <div className="w-[3px] rounded-full self-stretch shrink-0" style={{ background: "var(--color-bg-card)" }} />}
               <div className="flex-1 min-w-0">
                 <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 600, color: "var(--color-accent-dark)" }}>{n.title}</p>
                 {n.body && <p className="text-[12px] leading-[1.4] mt-0.5 line-clamp-2" style={{ color: "var(--color-text-secondary)" }}>{n.body}</p>}
@@ -398,7 +398,7 @@ const Community = () => {
           <button onClick={() => setShowCreate(true)}
             className="flex items-center gap-1 belly-btn-primary"
             style={{
-              background: "white", color: "var(--color-accent-primary)",
+              background: "var(--color-accent-primary)", color: "#fff",
               fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 13,
               borderRadius: 20, padding: "7px 16px",
               boxShadow: "0 2px 10px rgba(0,0,0,0.08)", border: "none",
@@ -480,8 +480,8 @@ const Community = () => {
               <button onClick={createPost} disabled={!newTitle.trim() || !newBody.trim() || posting}
                 className="w-full rounded-[14px] py-[14px] text-[16px] font-semibold transition-all"
                 style={{
-                  background: "white",
-                  color: "var(--color-accent-primary)",
+                  background: "var(--color-accent-primary)",
+                  color: "#fff",
                   fontFamily: "'Fraunces', serif",
                   fontWeight: 700,
                   border: "none",
