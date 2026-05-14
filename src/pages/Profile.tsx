@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek, getDaysToGo, getWeekData } from "@/data/pregnancyWeeks";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { PremiumModal } from "@/components/PremiumModal";
+import PremiumUpgradeSheet from "@/components/PremiumUpgradeSheet";
+import { getStreak } from "@/lib/streak";
+import { getDisplayName } from "@/lib/community";
 
 const BADGES = [
   { emoji: "🌱", label: "First check-in", earned: true },
@@ -22,13 +25,24 @@ const Profile = () => {
   const { profile, user, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [showPremium, setShowPremium] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editDueDate, setEditDueDate] = useState(profile?.due_date || "");
   const [editName, setEditName] = useState(profile?.first_name || "");
+  const [streak, setStreak] = useState({ current: 0, longest: 0 });
+  const [checkedInToday, setCheckedInToday] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    getStreak(user.id).then((s) => s && setStreak(s));
+    const today = new Date().toISOString().slice(0, 10);
+    supabase.from("streak_state").select("last_checkin_date").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => setCheckedInToday(data?.last_checkin_date === today));
+  }, [user]);
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 0;
   const daysToGo = profile?.due_date ? getDaysToGo(profile.due_date) : 0;
-  const initials = (profile?.first_name || "M").charAt(0).toUpperCase();
+  const initials = getDisplayName({ first_name: profile?.first_name }).charAt(0).toUpperCase();
 
   const handleSave = async () => {
     if (!user) return;
