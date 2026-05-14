@@ -408,19 +408,20 @@ const Community = () => {
         </div>
       </div>
 
-      <div className="flex gap-2 px-5 mb-4 overflow-x-auto hide-scrollbar">
+      <div className="px-5 mb-4 hide-scrollbar" style={{ display: "flex", flexDirection: "row", overflowX: "auto", flexWrap: "nowrap", gap: 8, paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
         {CATEGORIES.map(cat => (
           <button key={cat} onClick={() => setActiveCategory(cat)}
             className="whitespace-nowrap transition-all belly-btn-press"
             style={{
-              background: activeCategory === cat ? "white" : "rgba(255,255,255,0.16)",
-              color: activeCategory === cat ? "#FF6520" : "rgba(255,255,255,0.80)",
+              flexShrink: 0,
+              background: activeCategory === cat ? "var(--color-accent-primary)" : "var(--color-bg-card)",
+              color: activeCategory === cat ? "#fff" : "var(--color-text-secondary)",
               fontWeight: activeCategory === cat ? 700 : 500,
-              fontSize: activeCategory === cat ? 12 : 11,
+              fontSize: 12,
               fontFamily: "'Outfit', system-ui",
-              border: activeCategory === cat ? "none" : "1px solid rgba(255,255,255,0.24)",
+              border: activeCategory === cat ? "none" : "1px solid var(--color-border-default)",
               borderRadius: 20,
-              padding: activeCategory === cat ? "5px 14px" : "5px 12px",
+              padding: "6px 14px",
             }}>
             {cat}
           </button>
