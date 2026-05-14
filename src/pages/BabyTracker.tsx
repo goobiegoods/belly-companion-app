@@ -388,6 +388,7 @@ const BabyTracker = () => {
           </div>
         )}
       </div>
+      <PremiumUpgradeSheet open={showWeekLock} onClose={() => setShowWeekLock(false)} source="week-lock" />
     </div>
   );
 };
