@@ -147,7 +147,9 @@ const BabyTracker = () => {
       {/* Large Fruit Card */}
       <div className="px-5 mt-2">
         <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 24, padding: "28px 16px 20px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
-          <span style={{ fontSize: 88, display: "block", margin: "0 auto 14px", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.15))" }}>{fruitEmoji}</span>
+          <div style={{ width: 170, height: 170, borderRadius: "50%", background: "#FFF0E0", margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center" }} className="belly-float">
+            <span style={{ fontSize: 120, lineHeight: 1, filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.12))" }}>{fruitEmoji}</span>
+          </div>
           <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 16 }}>About the size of a {fruitName}</p>
           <div style={{ display: "flex", gap: 8 }}>
             {[
@@ -155,7 +157,7 @@ const BabyTracker = () => {
               { value: weekData.babyLength, label: "LENGTH" },
               { value: `${selectedWeek}w`, label: "AGE" },
             ].map(stat => (
-              <div key={stat.label} style={{ flex: 1, background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 14, padding: "10px 8px", textAlign: "center" }}>
+              <div key={stat.label} style={{ flex: 1, background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 14, padding: "10px 8px", textAlign: "center" }}>
                 <p style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "var(--color-accent-dark)" }}>{stat.value}</p>
                 <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{stat.label}</p>
               </div>
@@ -164,51 +166,53 @@ const BabyTracker = () => {
         </div>
       </div>
 
-      {/* Browse weeks */}
+      {/* Browse weeks (1–40 with locks for non-premium) */}
       <div className="px-5 mt-3 mb-1">
         <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "var(--color-accent-dark)", marginBottom: 8 }}>Browse weeks</p>
       </div>
-      <div ref={scrollRef} style={{ display: "flex", gap: 8, padding: "0 16px", paddingBottom: 12, overflowX: "auto" }} className="hide-scrollbar">
-        {pregnancyWeeks.filter(w => w.week >= 6).map(w => (
-          <button key={w.week} onClick={() => setSelectedWeek(w.week)}
-            className="belly-btn-press"
-            style={{
-              width: 40, height: 40, minWidth: 40,
-              borderRadius: "50%",
-              background: w.week === selectedWeek ? "white" : "rgba(255,255,255,0.18)",
-              border: w.week === selectedWeek ? "none" : "1px solid rgba(255,255,255,0.26)",
-              color: w.week === selectedWeek ? "#FF6520" : "rgba(255,255,255,0.75)",
-              fontFamily: w.week === selectedWeek ? "'Fraunces', serif" : "'Outfit', system-ui",
-              fontWeight: w.week === selectedWeek ? 700 : 600,
-              fontSize: w.week === selectedWeek ? 13 : 12,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              padding: 0, cursor: "pointer", flexShrink: 0,
-              boxShadow: w.week === selectedWeek ? "0 3px 10px rgba(0,0,0,0.10)" : "none",
-            }}>
-            {w.week}
-          </button>
-        ))}
+      <div ref={scrollRef} style={{ display: "flex", gap: 8, padding: "0 16px", paddingBottom: 12, overflowX: "auto", flexWrap: "nowrap" }} className="hide-scrollbar">
+        {Array.from({ length: 40 }, (_, i) => i + 1).map(w => {
+          const isCurrent = w === currentWeek;
+          const isPast = w < currentWeek;
+          const isFuture = w > currentWeek;
+          const isLocked = isFuture && !profile?.is_premium;
+          const isSelected = w === selectedWeek;
+          const bg = isCurrent ? "var(--color-accent-primary)" : isPast ? "var(--color-bg-card-subtle)" : "var(--color-bg-card)";
+          const color = isCurrent ? "#fff" : isPast ? "var(--color-text-muted)" : "var(--color-text-muted)";
+          const border = isFuture ? "1px solid var(--color-border-default)" : "none";
+          return (
+            <button key={w}
+              onClick={() => { if (isLocked) { setShowWeekLock(true); return; } setSelectedWeek(w); }}
+              className="belly-btn-press"
+              style={{
+                position: "relative",
+                width: 40, height: 40, minWidth: 40,
+                borderRadius: "50%",
+                background: bg, border, color,
+                fontFamily: "'Outfit', system-ui",
+                fontWeight: isCurrent ? 700 : 600,
+                fontSize: 13,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                padding: 0, cursor: "pointer", flexShrink: 0,
+                transform: isCurrent ? "scale(1.1)" : isSelected ? "scale(1.05)" : "scale(1)",
+                boxShadow: isCurrent ? "0 4px 12px rgba(244,123,32,0.35)" : "none",
+                outline: isSelected && !isCurrent ? "2px solid var(--color-accent-primary)" : "none",
+                outlineOffset: -2,
+              }}>
+              {w}
+              {isLocked && <span style={{ position: "absolute", bottom: -2, right: -2, fontSize: 8, background: "var(--color-bg-card)", borderRadius: "50%", width: 12, height: 12, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--color-border-default)" }}>🔒</span>}
+            </button>
+          );
+        })}
       </div>
 
       <div className="px-5 space-y-3 mb-5">
         {/* Baby Development */}
-        <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 18, padding: "14px 15px", backdropFilter: "blur(14px)" }}>
+        <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 18, padding: "14px 15px" }}>
           <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6, color: "var(--color-text-secondary)", fontWeight: 600 }}>Baby Development</p>
           <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "var(--color-text-primary)", lineHeight: 1.65, fontWeight: 400 }}>{weekData.developmentHighlight}</p>
         </div>
 
-        {/* Baby Size — warm yellow tint */}
-        <div style={{ background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 18, padding: "13px 15px", display: "flex", alignItems: "center", gap: 12, backdropFilter: "blur(14px)" }}>
-          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 24 }}>
-            {fruitEmoji}
-          </div>
-          <div>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>Baby Size</p>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "var(--color-accent-dark)" }}>{fruitName} · {weekData.babyLength} · {weekData.babyWeight}</p>
-          </div>
-        </div>
-
-        {/* Symptoms */}
         <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 18, padding: "12px 14px", backdropFilter: "blur(14px)" }}>
           <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "var(--color-text-secondary)", fontWeight: 600 }}>What You Might Feel</p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
