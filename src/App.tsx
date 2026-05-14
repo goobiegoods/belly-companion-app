@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
+import { initTheme } from "@/lib/theme";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
@@ -80,13 +81,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "#FF8C42" }}>
+  <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "var(--color-bg-base)" }}>
     {children}
     <BottomNav />
   </div>
 );
 
 const AppContent = () => {
+  useEffect(() => { initTheme(); }, []);
   const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem("belly-splash-shown"));
 
   if (showSplash) {
