@@ -242,21 +242,21 @@ const AskDoula = () => {
 
   const renderAssistantBubble = (content: string, imageUrl?: string, timestamp?: string) => (
     <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
-        <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
+      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-bg-card)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+        <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)" }}>D</span>
       </div>
       <div className="mr-auto" style={{ maxWidth: "85%" }}>
         <div className="px-4 py-3 text-[14px] leading-[1.65]"
-          style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.22)", color: "#fff", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
+          style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", color: "var(--color-accent-dark)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
           {imageUrl && (
             <img src={imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
           )}
-          <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "#fff" }}>
+          <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "var(--color-accent-dark)" }}>
             <ReactMarkdown>{content}</ReactMarkdown>
           </div>
         </div>
         {timestamp && (
-          <p style={{ fontFamily: "'Outfit', system-ui", fontWeight: 300, fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 6, paddingLeft: 4 }}>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontWeight: 300, fontSize: 10, color: "var(--color-text-secondary)", marginTop: 6, paddingLeft: 4 }}>
             {timestamp}
           </p>
         )}
@@ -265,7 +265,7 @@ const AskDoula = () => {
   );
 
   return (
-    <div className="page-enter" style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#FF8C42" }}>
+    <div className="page-enter" style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "var(--color-bg-base)" }}>
       <style>{`
         @keyframes livePulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
         @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-7px); } }
@@ -287,8 +287,8 @@ const AskDoula = () => {
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                background: "rgba(255,255,255,0.15)",
-                border: "1px solid rgba(255,255,255,0.22)",
+                background: "var(--color-bg-card)",
+                border: "1px solid var(--color-border-default)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -297,16 +297,16 @@ const AskDoula = () => {
                 padding: 0,
               }}
             >
-              <ChevronLeft size={18} color="#fff" />
+              <ChevronLeft size={18} color="var(--color-accent-primary)" />
             </button>
-            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 800, color: "white" }}>Ask the Doula</h1>
+            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 800, color: "var(--color-accent-dark)" }}>Ask the Doula</h1>
           </div>
-          <span style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 20, padding: "4px 10px", display: "flex", alignItems: "center", gap: 5, marginTop: 6 }}>
+          <span style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 20, padding: "4px 10px", display: "flex", alignItems: "center", gap: 5, marginTop: 6 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", animation: "livePulse 2s infinite" }} />
-            <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, letterSpacing: 1, color: "#fff" }}>AI · LIVE</span>
+            <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, letterSpacing: 1, color: "var(--color-accent-dark)" }}>AI · LIVE</span>
           </span>
         </div>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 300, color: "rgba(255,255,255,0.55)", marginLeft: 44 }}>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 300, color: "var(--color-text-secondary)", marginLeft: 44 }}>
           Your natural pregnancy guide
         </p>
       </div>
@@ -322,7 +322,7 @@ const AskDoula = () => {
             ) : (
               <div className="ml-auto" style={{ maxWidth: "80%" }}>
                 <div className="px-[14px] py-3 text-[14px] leading-[1.55]"
-                  style={{ background: "#fff", color: "#333", borderRadius: "16px 16px 4px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
+                  style={{ background: "#fff", color: "var(--color-text-primary)", borderRadius: "16px 16px 4px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
                   {msg.imageUrl && (
                     <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
                   )}
@@ -335,12 +335,12 @@ const AskDoula = () => {
 
         {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
-              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
+            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-bg-card)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)" }}>D</span>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: "12px 12px 12px 3px", padding: "10px 14px", display: "inline-flex", gap: 5, alignItems: "center", alignSelf: "flex-start" }}>
+            <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: "12px 12px 12px 3px", padding: "10px 14px", display: "inline-flex", gap: 5, alignItems: "center", alignSelf: "flex-start" }}>
               {[0, 0.15, 0.3].map(d => (
-                <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.7)", animation: `typingBounce 1.2s infinite ${d}s`, display: "inline-block" }} />
+                <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-bg-card)", animation: `typingBounce 1.2s infinite ${d}s`, display: "inline-block" }} />
               ))}
             </div>
           </div>
@@ -349,17 +349,17 @@ const AskDoula = () => {
         {/* Inline upsell when quota exhausted */}
         {quotaExhausted && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
-              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "#fff" }}>D</span>
+            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-bg-card)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)" }}>D</span>
             </div>
             <div style={{ maxWidth: "85%" }}>
               <div className="px-4 py-3"
-                style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
-                <p style={{ fontSize: 14, color: "#fff", lineHeight: 1.65, marginBottom: 10 }}>
+                style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
+                <p style={{ fontSize: 14, color: "var(--color-accent-dark)", lineHeight: 1.65, marginBottom: 10 }}>
                   You've used your 10 free messages for today 🌸 Upgrade to Premium for unlimited access.
                 </p>
                 <button onClick={() => setShowPremium(true)}
-                  style={{ background: "#fff", color: "#FF8C42", border: "none", borderRadius: 20, padding: "8px 18px", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+                  style={{ background: "var(--color-accent-primary)", color: "#fff", border: "none", borderRadius: 20, padding: "8px 18px", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
                   Go Premium →
                 </button>
               </div>
@@ -375,12 +375,12 @@ const AskDoula = () => {
         <div className="chip-row" style={{ display: "flex", flexDirection: "row", gap: 8, overflowX: "auto", padding: "8px 16px", flexShrink: 0, scrollbarWidth: "none" }}>
           <button
             onClick={handleSafetyChipClick}
-            style={{ background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.45)", borderRadius: 20, padding: "8px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 12, color: "#fff", whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer", boxShadow: "0 0 0 1px rgba(255,255,255,0.08) inset" }}>
+            style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 20, padding: "8px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 12, color: "var(--color-accent-dark)", whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer", boxShadow: "0 0 0 1px rgba(255,255,255,0.08) inset" }}>
             📸 Is this safe to use?
           </button>
           {QUICK_PROMPTS.map(prompt => (
             <button key={prompt} onClick={() => sendMessage(prompt)}
-              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 20, padding: "8px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 500, fontSize: 12, color: "#fff", whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer" }}>
+              style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 20, padding: "8px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 500, fontSize: 12, color: "var(--color-accent-dark)", whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer" }}>
               {prompt}
             </button>
           ))}
@@ -388,33 +388,33 @@ const AskDoula = () => {
       )}
 
       {showPhotoMenu && (
-        <div className="px-4 py-2 flex gap-2" style={{ background: "rgba(200,80,10,0.40)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+        <div className="px-4 py-2 flex gap-2" style={{ background: "var(--color-bg-card)", backdropFilter: "blur(16px)", borderTop: "1px solid var(--color-border-default)" }}>
           <button onClick={() => { cameraInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FF8C42", color: "white", fontFamily: "'Outfit', system-ui" }}>
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--color-bg-base)", color: "var(--color-accent-dark)", fontFamily: "'Outfit', system-ui" }}>
             📸 Take a photo
           </button>
           <button onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "#FF8C42", color: "white", fontFamily: "'Outfit', system-ui" }}>
+            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--color-bg-base)", color: "var(--color-accent-dark)", fontFamily: "'Outfit', system-ui" }}>
             🖼️ Choose from library
           </button>
         </div>
       )}
 
       {attachedImage && (
-        <div className="px-4 py-2" style={{ background: "rgba(200,80,10,0.40)", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+        <div className="px-4 py-2" style={{ background: "var(--color-bg-card)", borderTop: "1px solid var(--color-border-default)" }}>
           <div className="relative inline-block">
-            <img src={attachedImage.url} alt="Preview" className="w-[60px] h-[60px] rounded-[10px] object-cover" style={{ border: "1px solid rgba(255,255,255,0.22)" }} />
+            <img src={attachedImage.url} alt="Preview" className="w-[60px] h-[60px] rounded-[10px] object-cover" style={{ border: "1px solid var(--color-border-default)" }} />
             <button onClick={() => setAttachedImage(null)}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.9)", border: "1px solid rgba(255,255,255,0.3)" }}>
-              <X size={10} style={{ color: "#3A1A00" }} />
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)" }}>
+              <X size={10} style={{ color: "var(--color-text-primary)" }} />
             </button>
           </div>
         </div>
       )}
 
       {/* Sticky input bar */}
-      <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "rgba(220,90,10,0.97)", backdropFilter: "blur(16px)", padding: "10px 16px 14px" }}>
-        <div className="flex items-center" style={{ background: "rgba(255,255,255,0.95)", borderRadius: 24, padding: "4px 4px 4px 16px", gap: 8 }}>
+      <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "var(--color-bg-card)", backdropFilter: "blur(16px)", padding: "10px 16px 14px" }}>
+        <div className="flex items-center" style={{ background: "var(--color-bg-card)", borderRadius: 24, padding: "4px 4px 4px 16px", gap: 8 }}>
           {(() => {
             const lastMsg = messages[messages.length - 1];
             const showSpinner = isStreaming && (!!lastMsg?.imageUrl || (messages[messages.length - 2]?.imageUrl && lastMsg?.role === "assistant"));
@@ -424,7 +424,7 @@ const AskDoula = () => {
                 className="shrink-0 flex items-center justify-center transition-colors hover:bg-[rgba(255,140,66,0.22)]"
                 style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,140,66,0.12)" }}>
                 {showSpinner
-                  ? <Loader2 size={14} className="animate-spin" style={{ color: "#FF8C42" }} />
+                  ? <Loader2 size={14} className="animate-spin" style={{ color: "var(--color-accent-primary)" }} />
                   : <Camera size={14} style={{ color: "rgba(255,140,66,0.7)" }} />}
               </button>
             );
@@ -436,12 +436,12 @@ const AskDoula = () => {
             placeholder="Ask anything..."
             disabled={quotaExhausted}
             className="flex-1 outline-none bg-transparent doula-input"
-            style={{ color: "#333", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 14, border: "none" }}
+            style={{ color: "var(--color-text-primary)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 14, border: "none" }}
           />
           {isStreaming ? (
             <button onClick={cancelStream} className="shrink-0 flex items-center justify-center"
-              style={{ width: 38, height: 38, borderRadius: "50%", background: "#FF8C42" }}>
-              <Square size={16} style={{ color: "white" }} />
+              style={{ width: 38, height: 38, borderRadius: "50%", background: "var(--color-bg-base)" }}>
+              <Square size={16} style={{ color: "var(--color-accent-dark)" }} />
             </button>
           ) : (
             <button onClick={() => sendMessage(input)}
@@ -453,7 +453,7 @@ const AskDoula = () => {
                 opacity: ((!input.trim() && !attachedImage) || quotaExhausted) ? 0.5 : 1,
                 cursor: ((!input.trim() && !attachedImage) || quotaExhausted) ? "not-allowed" : "pointer",
               }}>
-              <Send size={16} style={{ color: "white" }} />
+              <Send size={16} style={{ color: "var(--color-accent-dark)" }} />
             </button>
           )}
         </div>
