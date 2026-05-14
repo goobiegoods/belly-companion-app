@@ -5,6 +5,7 @@ import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { Heart, MessageCircle, Plus, Send, Bell } from "lucide-react";
 import { toast } from "sonner";
 import NotificationBell, { useNotifications } from "@/components/NotificationBell";
+import { getDisplayName } from "@/lib/community";
 
 interface Post {
   id: string; user_id: string; title: string; body: string; category: string;
@@ -45,7 +46,10 @@ const CATEGORY_PILL_COLORS: Record<string, string> = {
   support: "rgba(255,255,200,0.20)",
 };
 
-const titleCase = (s: string) => s?.split(' ').map(w => w[0]?.toUpperCase() + w.slice(1).toLowerCase()).join(' ') || '';
+const titleCase = (s: string) => {
+  const safe = getDisplayName({ first_name: s });
+  return safe.split(' ').map(w => w[0]?.toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+};
 
 const Community = () => {
   const { user, profile } = useAuth();
@@ -320,17 +324,17 @@ const Community = () => {
     <button key={post.id} onClick={() => openPost(post)}
       className="w-full text-left belly-card-interactive"
       style={{
-        background: isPinned ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.16)",
-        border: isPinned ? "1px solid rgba(255,255,255,0.34)" : "1px solid rgba(255,255,255,0.24)",
+        background: "var(--color-bg-card)",
+        border: isPinned ? "1px solid var(--color-accent-primary)" : "1px solid var(--color-border-default)",
         borderRadius: 18,
-        backdropFilter: "blur(14px)",
         padding: "13px 14px",
         position: "relative",
+        boxShadow: "0 2px 12px rgba(180,100,20,0.06)",
       }}>
       {isPinned && (
         <span style={{
           position: "absolute", top: 10, right: 10,
-          background: "var(--color-bg-card)",
+          background: "var(--color-accent-light)",
           borderRadius: 6, padding: "2px 7px",
           fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 8,
           color: "var(--color-accent-dark)", textTransform: "uppercase", letterSpacing: "0.05em",
@@ -338,39 +342,39 @@ const Community = () => {
       )}
       <div className="flex items-center gap-2 mb-1.5">
         <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-          style={{ background: "var(--color-bg-card)", color: "var(--color-accent-dark)", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12 }}>
+          style={{ background: "var(--color-accent-light)", color: "var(--color-accent-dark)", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12 }}>
           {initials(post.author_name || "")}
         </div>
-        <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 700, color: "var(--color-accent-dark)" }}>{titleCase(post.author_name || "")}</span>
+        <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>{titleCase(post.author_name || "")}</span>
         {post.week_posted && (
           <span style={{
-            background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)",
+            background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)",
             borderRadius: 7, padding: "2px 6px",
             fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 9, color: "var(--color-accent-dark)",
           }}>
             Week {post.week_posted}
           </span>
         )}
-        <span className="ml-auto" style={{ color: "var(--color-text-secondary)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 10 }}>{timeAgo(post.created_at)}</span>
+        <span className="ml-auto" style={{ color: "var(--color-text-muted)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 10 }}>{timeAgo(post.created_at)}</span>
       </div>
       <span className="inline-block capitalize mb-1" style={{
-        background: CATEGORY_PILL_COLORS[post.category] || "rgba(255,255,255,0.20)",
+        background: "var(--color-bg-card-subtle)",
         borderRadius: 8, padding: "2px 8px",
         fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)",
         border: "none",
       }}>
         {post.category}
       </span>
-      <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 15, fontWeight: 700, color: "var(--color-accent-dark)", marginTop: 4, marginBottom: 4, lineHeight: "1.25" }}>{post.title}</p>
-      <p className="line-clamp-2" style={{ color: "var(--color-text-primary)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 11, lineHeight: "1.5" }}>{post.body}</p>
-      <div className="flex items-center gap-[10px]" style={{ borderTop: "1px solid var(--color-border-default)", paddingTop: 8, marginTop: 8 }}>
+      <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", marginTop: 4, marginBottom: 4, lineHeight: "1.3" }}>{post.title}</p>
+      <p className="line-clamp-2" style={{ color: "var(--color-text-secondary)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 13, lineHeight: "1.5" }}>{post.body}</p>
+      <div className="flex items-center gap-[14px]" style={{ borderTop: "1px solid var(--color-border-default)", paddingTop: 8, marginTop: 10 }}>
         <button onClick={(e) => { e.stopPropagation(); toggleLike(post); }}
-          className={`flex items-center gap-1 text-[11px] ${likeAnimating === post.id ? "heart-liked" : ""}`}
-          style={{ color: post.is_liked ? "white" : "rgba(255,255,255,0.45)" }}>
-          <Heart size={14} className={post.is_liked ? "fill-current" : ""} /> {post.likes}
+          className={`flex items-center gap-1.5 ${likeAnimating === post.id ? "heart-liked" : ""}`}
+          style={{ color: post.is_liked ? "var(--color-accent-primary)" : "var(--color-text-muted)", fontSize: 13, fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
+          <Heart size={15} className={post.is_liked ? "fill-current" : ""} /> {post.likes}
         </button>
-        <span className="flex items-center gap-1 text-[11px]" style={{ color: "var(--color-text-secondary)" }}>
-          <MessageCircle size={14} /> {post.comment_count}
+        <span className="flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)", fontSize: 13, fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
+          <MessageCircle size={15} /> {post.comment_count}
         </span>
       </div>
     </button>
@@ -408,19 +412,20 @@ const Community = () => {
         </div>
       </div>
 
-      <div className="flex gap-2 px-5 mb-4 overflow-x-auto hide-scrollbar">
+      <div className="px-5 mb-4 hide-scrollbar" style={{ display: "flex", flexDirection: "row", overflowX: "auto", flexWrap: "nowrap", gap: 8, paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
         {CATEGORIES.map(cat => (
           <button key={cat} onClick={() => setActiveCategory(cat)}
             className="whitespace-nowrap transition-all belly-btn-press"
             style={{
-              background: activeCategory === cat ? "white" : "rgba(255,255,255,0.16)",
-              color: activeCategory === cat ? "#FF6520" : "rgba(255,255,255,0.80)",
+              flexShrink: 0,
+              background: activeCategory === cat ? "var(--color-accent-primary)" : "var(--color-bg-card)",
+              color: activeCategory === cat ? "#fff" : "var(--color-text-secondary)",
               fontWeight: activeCategory === cat ? 700 : 500,
-              fontSize: activeCategory === cat ? 12 : 11,
+              fontSize: 12,
               fontFamily: "'Outfit', system-ui",
-              border: activeCategory === cat ? "none" : "1px solid rgba(255,255,255,0.24)",
+              border: activeCategory === cat ? "none" : "1px solid var(--color-border-default)",
               borderRadius: 20,
-              padding: activeCategory === cat ? "5px 14px" : "5px 12px",
+              padding: "6px 14px",
             }}>
             {cat}
           </button>

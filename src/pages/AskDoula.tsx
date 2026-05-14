@@ -242,16 +242,16 @@ const AskDoula = () => {
 
   const renderAssistantBubble = (content: string, imageUrl?: string, timestamp?: string) => (
     <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-bg-card)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
-        <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)" }}>D</span>
+      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>
+        🌸
       </div>
       <div className="mr-auto" style={{ maxWidth: "85%" }}>
         <div className="px-4 py-3 text-[14px] leading-[1.65]"
-          style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", color: "var(--color-accent-dark)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
+          style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
           {imageUrl && (
             <img src={imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
           )}
-          <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>strong]:font-semibold" style={{ color: "var(--color-accent-dark)" }}>
+          <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h3]:text-[var(--color-accent-dark)] [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>h2]:text-[var(--color-accent-dark)] [&>strong]:font-semibold [&>strong]:text-[var(--color-accent-dark)] [&>em]:text-[var(--color-accent-primary)]" style={{ color: "var(--color-text-primary)" }}>
             <ReactMarkdown>{content}</ReactMarkdown>
           </div>
         </div>
@@ -299,15 +299,15 @@ const AskDoula = () => {
             >
               <ChevronLeft size={18} color="var(--color-accent-primary)" />
             </button>
-            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 800, color: "var(--color-accent-dark)" }}>Ask the Doula</h1>
+            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 800, color: "var(--color-accent-dark)" }}>Ask <span style={{ color: "var(--color-accent-primary)", fontStyle: "italic" }}>Bella</span></h1>
           </div>
-          <span style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 20, padding: "4px 10px", display: "flex", alignItems: "center", gap: 5, marginTop: 6 }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", animation: "livePulse 2s infinite" }} />
-            <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, letterSpacing: 1, color: "var(--color-accent-dark)" }}>AI · LIVE</span>
-          </span>
+          <div style={{ position: "relative", width: 28, height: 28, marginTop: 6 }}>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🌸</div>
+            <span style={{ position: "absolute", bottom: -1, right: -1, width: 6, height: 6, borderRadius: "50%", background: "#22C55E", animation: "livePulse 2s infinite", boxShadow: "0 0 0 2px var(--color-bg-base)" }} />
+          </div>
         </div>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 300, color: "var(--color-text-secondary)", marginLeft: 44 }}>
-          Your natural pregnancy guide
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 400, color: "var(--color-text-secondary)", marginLeft: 44 }}>
+          Knows your history · Week {currentWeek} · {(profile?.pregnancy_number ?? 1) === 1 ? "1st" : (profile?.pregnancy_number ?? 1) === 2 ? "2nd" : `${profile?.pregnancy_number}th`} pregnancy
         </p>
       </div>
 
@@ -335,12 +335,10 @@ const AskDoula = () => {
 
         {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-bg-card)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
-              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)" }}>D</span>
-            </div>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>🌸</div>
             <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: "12px 12px 12px 3px", padding: "10px 14px", display: "inline-flex", gap: 5, alignItems: "center", alignSelf: "flex-start" }}>
               {[0, 0.15, 0.3].map(d => (
-                <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-bg-card)", animation: `typingBounce 1.2s infinite ${d}s`, display: "inline-block" }} />
+                <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-accent-primary)", animation: `typingBounce 1.2s infinite ${d}s`, display: "inline-block" }} />
               ))}
             </div>
           </div>
@@ -349,13 +347,11 @@ const AskDoula = () => {
         {/* Inline upsell when quota exhausted */}
         {quotaExhausted && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--color-bg-card)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
-              <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)" }}>D</span>
-            </div>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>🌸</div>
             <div style={{ maxWidth: "85%" }}>
               <div className="px-4 py-3"
                 style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
-                <p style={{ fontSize: 14, color: "var(--color-accent-dark)", lineHeight: 1.65, marginBottom: 10 }}>
+                <p style={{ fontSize: 14, color: "var(--color-text-primary)", lineHeight: 1.65, marginBottom: 10 }}>
                   You've used your 10 free messages for today 🌸 Upgrade to Premium for unlimited access.
                 </p>
                 <button onClick={() => setShowPremium(true)}

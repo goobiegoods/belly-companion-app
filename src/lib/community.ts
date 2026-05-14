@@ -1,5 +1,23 @@
 // Community helpers: safe display name + sensitive content detection.
 
+function clean(s: unknown): string {
+  if (s == null) return "";
+  const v = String(s).trim();
+  if (!v || v.toLowerCase() === "undefined" || v.toLowerCase() === "null") return "";
+  return v;
+}
+
+export function getDisplayName(user: any): string {
+  if (!user) return "Mama";
+  const parts = [
+    clean(user.firstName ?? user.first_name),
+    clean(user.lastName ?? user.last_name),
+  ].filter(Boolean);
+  if (parts.length > 0) return parts.join(" ");
+  const dn = clean(user.displayName ?? user.display_name ?? user.full_name ?? user.name ?? user.author_name);
+  return dn || "Mama";
+}
+
 export function safeDisplayName(name: unknown): string {
   if (name == null) return "Mama";
   const s = String(name).trim();
