@@ -5,6 +5,7 @@ import { getCurrentWeek, getWeekData, pregnancyWeeks } from "@/data/pregnancyWee
 import { supabase } from "@/integrations/supabase/client";
 import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from "@/data/recipesData";
 import ShareableWeekCard from "@/components/ShareableWeekCard";
+import PremiumUpgradeSheet from "@/components/PremiumUpgradeSheet";
 
 function getFruitName(babySize: string): string {
   // Strip parentheticals like "(pre-conception)" then lowercase.
@@ -50,6 +51,7 @@ const BabyTracker = () => {
   const [contractionStart, setContractionStart] = useState<Date | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [showResult, setShowResult] = useState<number | null>(null);
+  const [showWeekLock, setShowWeekLock] = useState(false);
 
   useEffect(() => {
     if (scrollRef.current) {
