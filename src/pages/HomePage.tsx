@@ -127,26 +127,27 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Week card */}
+      {/* Week card — centered vertical stack */}
       <div style={{ padding: "0 20px", marginBottom: 28 }}>
-        <div className="v2-card" style={{ padding: 18, position: "relative", overflow: "hidden" }}>
-          <p className="belly-caps">YOU'RE IN</p>
-          <p className="font-display" style={{ fontSize: 40, fontStyle: "italic", color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -1, marginTop: 4, marginBottom: 12 }}>
+        <div className="v2-card" style={{ padding: "20px 16px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <p className="belly-caps" style={{ textAlign: "center" }}>YOU'RE IN</p>
+          <p className="font-display" style={{ fontSize: 44, fontStyle: "italic", color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -1, marginTop: 4, marginBottom: 14 }}>
             week {currentWeek}
           </p>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-            <div className="belly-float" style={{ fontSize: 80, lineHeight: 1, filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.10))" }}>{fruitEmoji}</div>
-            <p className="belly-body" style={{ flex: 1, fontSize: 15, lineHeight: 1.7 }}>
-              {currentWeek >= 23 ? (
-                <>Your baby can hear you now. Talk to them — <em style={{ fontStyle: "italic", color: "var(--color-accent-dark)" }}>they already know your voice</em>.</>
-              ) : (
-                emotionalFact
-              )}
-            </p>
+          <div style={{ width: 130, height: 130, borderRadius: "50%", background: "#FFF0E0", margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center" }} className="belly-float">
+            <span style={{ fontSize: 100, lineHeight: 1, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.10))" }}>{fruitEmoji}</span>
           </div>
 
-          <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+          <p className="belly-body" style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 14, padding: "0 6px" }}>
+            {currentWeek >= 23 ? (
+              <>Your baby can hear you now. Talk to them —<br /><em style={{ fontStyle: "italic", color: "var(--color-accent-primary)" }}>they already know your voice.</em></>
+            ) : (
+              emotionalFact
+            )}
+          </p>
+
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 14 }}>
             <span style={{
               borderRadius: 999, padding: "5px 12px", fontSize: 12, fontWeight: 500,
               border: "1px solid var(--color-accent-primary)", color: "var(--color-accent-primary)",
