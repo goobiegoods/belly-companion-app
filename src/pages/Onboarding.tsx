@@ -82,7 +82,7 @@ const Onboarding = () => {
   const currentWeek = dueDate ? getCurrentWeek(dueDate) : null;
   const weekData = currentWeek ? getWeekData(currentWeek) : null;
 
-  const currentWeek2 = currentWeek;
+  
 
 
   return (
