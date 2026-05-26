@@ -451,53 +451,87 @@ const Community = () => {
         )}
       </div>
 
-      {/* Create post sheet */}
+      {/* Create post bottom-sheet modal */}
       {showCreate && (
-        <div className="fixed inset-0 bg-black/40 z-[200] flex items-end" onClick={() => { setShowCreate(false); setPostError(""); }}>
-          <div className="w-full rounded-t-[24px] flex flex-col max-h-[90vh] overflow-hidden sheet-enter"
-            style={{ background: "var(--color-bg-base)" }}
-            onClick={e => e.stopPropagation()}>
-            <div className="pt-3 pb-0 flex justify-center shrink-0">
-              <div className="w-10 h-[5px] rounded-full" style={{ background: "var(--color-bg-card)" }} />
+        <div
+          className="fixed inset-0 z-[200] flex items-end"
+          style={{ background: "rgba(40, 20, 5, 0.45)" }}
+          onClick={() => { setShowCreate(false); setPostError(""); }}
+        >
+          <div
+            className="w-full flex flex-col sheet-enter relative"
+            style={{
+              background: "var(--color-bg-base)",
+              borderTopLeftRadius: 24, borderTopRightRadius: 24,
+              height: "85vh", maxWidth: 430, margin: "0 auto",
+              boxShadow: "0 -10px 40px rgba(40,20,5,0.18)",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="pt-3 pb-1 flex justify-center shrink-0">
+              <div style={{ width: 44, height: 5, borderRadius: 5, background: "var(--color-border-strong)" }} />
             </div>
-            <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "var(--color-accent-dark)", padding: "16px 20px 16px" }}>Create a post</h2>
-            <div className="flex-1 overflow-y-auto min-h-0 px-5" style={{ paddingBottom: "calc(100px + env(safe-area-inset-bottom))" }}>
-              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Give your post a title..."
-                className="w-full rounded-[14px] p-[12px_16px] text-[15px] outline-none mb-3"
-                style={{ background: "#fff", color: "var(--color-text-primary)", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none" }} />
-              <textarea value={newBody} onChange={e => setNewBody(e.target.value)} placeholder="What's on your mind, mama?" rows={5}
-                className="w-full rounded-[14px] p-[12px_16px] text-[13px] outline-none resize-none mb-4"
-                style={{ background: "#fff", color: "var(--color-text-primary)", fontFamily: "'Outfit', system-ui", fontStyle: "italic", border: "none", minHeight: "140px" }} />
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "var(--color-text-primary)", fontWeight: 600 }}>Post type</p>
-              <div className="flex gap-2 flex-wrap mb-4">
-                {["question", "story", "tip", "support"].map(cat => (
-                  <button key={cat} onClick={() => setNewCategory(cat)}
-                    className="rounded-full px-4 py-[7px] text-[12px] capitalize transition-all belly-btn-press"
+            <button onClick={() => { setShowCreate(false); setPostError(""); }} aria-label="Close"
+              style={{
+                position: "absolute", top: 14, right: 14, width: 32, height: 32, borderRadius: "50%",
+                background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)",
+                display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+              }}>
+              <span style={{ color: "var(--color-text-primary)", fontSize: 16, lineHeight: 1 }}>×</span>
+            </button>
+
+            <div className="px-5 pt-3 pb-2 shrink-0">
+              <h2 className="font-serif-display" style={{ fontSize: 22, fontWeight: 700, color: "var(--color-text-primary)" }}>Share with the mamas</h2>
+              <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-muted)", marginTop: 2 }}>
+                Your story might be the one another mama needs today
+              </p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto min-h-0 px-5" style={{ paddingBottom: 24 }}>
+              <p className="section-label" style={{ marginBottom: 8 }}>POST TYPE</p>
+              <div className="flex gap-2 flex-wrap mb-5">
+                {[
+                  { key: "question", label: "Questions", cls: "pill-terra" },
+                  { key: "story", label: "Stories", cls: "pill-sage" },
+                  { key: "tip", label: "Tips", cls: "pill-amber" },
+                  { key: "support", label: "Support", cls: "pill-pink" },
+                ].map(cat => (
+                  <button key={cat.key} onClick={() => setNewCategory(cat.key)}
+                    className={`pill-base belly-btn-press ${cat.cls}`}
                     style={{
-                      background: newCategory === cat ? "white" : "rgba(255,255,255,0.18)",
-                      color: newCategory === cat ? "#FF6520" : "#fff",
-                      fontWeight: newCategory === cat ? 700 : 500,
-                      fontFamily: "'Outfit', system-ui",
-                      border: newCategory === cat ? "none" : "1px solid rgba(255,255,255,0.22)",
+                      fontWeight: newCategory === cat.key ? 700 : 500,
+                      fontSize: 12,
+                      border: newCategory === cat.key ? "1.5px solid var(--color-accent-primary)" : "1px solid transparent",
+                      cursor: "pointer",
                     }}>
-                    {cat}
+                    {cat.label}
                   </button>
                 ))}
               </div>
+
+              <p className="section-label" style={{ marginBottom: 8 }}>TITLE</p>
+              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Give your post a title..."
+                className="w-full text-[15px] outline-none mb-4 belly-input-focus"
+                style={{ background: "var(--color-bg-card)", color: "var(--color-text-primary)", fontFamily: "'Outfit', system-ui", border: "1px solid var(--color-border-default)", borderRadius: 14, padding: "12px 16px" }} />
+
+              <p className="section-label" style={{ marginBottom: 8 }}>YOUR MESSAGE</p>
+              <textarea value={newBody} onChange={e => setNewBody(e.target.value)} placeholder="What's on your mind, mama?" rows={6}
+                className="w-full text-[14px] outline-none resize-none mb-5 belly-input-focus"
+                style={{ background: "var(--color-bg-card)", color: "var(--color-text-primary)", fontFamily: "'Outfit', system-ui", border: "1px solid var(--color-border-default)", borderRadius: 14, padding: "12px 16px", minHeight: 160 }} />
+
               <button onClick={createPost} disabled={!newTitle.trim() || !newBody.trim() || posting}
-                className="w-full rounded-[14px] py-[14px] text-[16px] font-semibold transition-all"
+                className="w-full belly-btn-press"
                 style={{
-                  background: "var(--color-accent-primary)",
-                  color: "#fff",
-                  fontFamily: "'Fraunces', serif",
-                  fontWeight: 700,
-                  border: "none",
+                  background: "var(--color-accent-primary)", color: "#fff",
+                  fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 15,
+                  borderRadius: 999, height: 52, border: "none",
+                  boxShadow: "var(--shadow-warm)",
                   opacity: (!newTitle.trim() || !newBody.trim() || posting) ? 0.4 : 1,
-                  pointerEvents: (!newTitle.trim() || !newBody.trim() || posting) ? "none" : "auto",
+                  cursor: (!newTitle.trim() || !newBody.trim() || posting) ? "not-allowed" : "pointer",
                 }}>
-                {posting ? "Posting..." : "Post it →"}
+                {posting ? "Posting…" : "Post it →"}
               </button>
-              {postError && <p className="text-[12px] text-center mt-2" style={{ color: "#FFB899" }}>{postError}</p>}
+              {postError && <p className="text-[12px] text-center mt-2" style={{ color: "var(--color-danger)" }}>{postError}</p>}
             </div>
           </div>
         </div>
