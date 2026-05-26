@@ -20,7 +20,7 @@ const BottomNav = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50" style={{
       maxWidth: 430,
       margin: "0 auto",
-      background: "var(--color-bg-card)",
+      background: "var(--color-bg-base)",
       borderTop: "1px solid var(--color-border-default)",
     }}>
       <div className="flex items-center justify-around" style={{ height: 64 }}>
@@ -32,7 +32,7 @@ const BottomNav = () => {
               key={path}
               onClick={() => navigate(path)}
               className="flex flex-col items-center justify-center belly-btn-press relative"
-              style={{ minWidth: 48, paddingTop: 8, paddingBottom: 6 }}
+              style={{ minWidth: 48, minHeight: 48, paddingTop: 8, paddingBottom: 6 }}
               aria-label={label}
               aria-current={active ? "page" : undefined}
             >
@@ -46,7 +46,7 @@ const BottomNav = () => {
                       minWidth: 16, height: 16, padding: "0 4px",
                       borderRadius: 999,
                       background: "var(--color-accent-primary)",
-                      border: "2px solid var(--color-bg-card)",
+                      border: "2px solid var(--color-bg-base)",
                       fontFamily: "'Outfit', system-ui",
                       fontWeight: 700, fontSize: 9,
                       color: "#fff", lineHeight: 1,
@@ -68,6 +68,12 @@ const BottomNav = () => {
               >
                 {label}
               </span>
+              {active && (
+                <span style={{
+                  position: "absolute", bottom: 2, left: "50%", transform: "translateX(-50%)",
+                  width: 22, height: 2, borderRadius: 2, background: "var(--color-accent-primary)",
+                }} />
+              )}
             </button>
           );
         })}
