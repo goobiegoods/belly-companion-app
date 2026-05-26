@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from "@/data/recipesData";
 import ShareableWeekCard from "@/components/ShareableWeekCard";
 import PremiumUpgradeSheet from "@/components/PremiumUpgradeSheet";
+import BabySizeIllustration from "@/components/BabySizeIllustration";
 
 function getFruitName(babySize: string): string {
   // Strip parentheticals like "(pre-conception)" then lowercase.
@@ -149,8 +150,18 @@ const BabyTracker = () => {
       {/* Large Fruit Card */}
       <div className="px-5 mt-2">
         <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 24, padding: "28px 16px 20px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
-          <div style={{ width: 170, height: 170, borderRadius: "50%", background: "#FFF0E0", margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center" }} className="belly-float">
-            <span style={{ fontSize: 120, lineHeight: 1, filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.12))" }}>{fruitEmoji}</span>
+          <div style={{ position: "relative", width: 200, height: 170, margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center" }} className="belly-float">
+            <span aria-hidden style={{
+              position: "absolute", left: "50%", top: "50%",
+              width: 200, height: 160,
+              transform: "translate(-50%, -50%)",
+              borderRadius: "50%",
+              background: "#C8D9C4",
+              opacity: 0.28,
+              filter: "blur(30px)",
+              pointerEvents: "none",
+            }} />
+            <BabySizeIllustration week={selectedWeek} size={160} />
           </div>
           <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 16 }}>About the size of a {fruitName}</p>
           <div style={{ display: "flex", gap: 8 }}>
@@ -158,12 +169,15 @@ const BabyTracker = () => {
               { value: weekData.babyWeight, label: "WEIGHT" },
               { value: weekData.babyLength, label: "LENGTH" },
               { value: `${selectedWeek}w`, label: "AGE" },
-            ].map(stat => (
-              <div key={stat.label} style={{ flex: 1, background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 14, padding: "10px 8px", textAlign: "center" }}>
-                <p style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "var(--color-accent-dark)" }}>{stat.value}</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{stat.label}</p>
-              </div>
-            ))}
+            ].map(stat => {
+              const isMissing = !stat.value || stat.value === "N/A";
+              return (
+                <div key={stat.label} style={{ flex: 1, background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 14, padding: "10px 8px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: isMissing ? "#B8A99A" : "var(--color-accent-dark)" }}>{isMissing ? "—" : stat.value}</p>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{stat.label}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -174,35 +188,30 @@ const BabyTracker = () => {
       </div>
       <div ref={scrollRef} style={{ display: "flex", gap: 8, padding: "0 16px", paddingBottom: 12, overflowX: "auto", flexWrap: "nowrap" }} className="hide-scrollbar">
         {Array.from({ length: 40 }, (_, i) => i + 1).map(w => {
-          const isCurrent = w === currentWeek;
-          const isPast = w < currentWeek;
           const isFuture = w > currentWeek;
           const isLocked = isFuture && !profile?.is_premium;
           const isSelected = w === selectedWeek;
-          const bg = isCurrent ? "var(--color-accent-primary)" : isPast ? "var(--color-bg-card-subtle)" : "var(--color-bg-card)";
-          const color = isCurrent ? "#fff" : isPast ? "var(--color-text-muted)" : "var(--color-text-muted)";
-          const border = isFuture ? "1px solid var(--color-border-default)" : "none";
+          const bg = isSelected ? "#C9622F" : "#F0EAE2";
+          const color = isSelected ? "#fff" : "#3D2C1E";
+          const border = isSelected ? "0.5px solid #C9622F" : "0.5px solid #E3D9CE";
           return (
             <button key={w}
               onClick={() => { if (isLocked) { setShowWeekLock(true); return; } setSelectedWeek(w); }}
               className="belly-btn-press"
               style={{
                 position: "relative",
-                width: 40, height: 40, minWidth: 40,
-                borderRadius: "50%",
+                height: 36, minWidth: 52, padding: "0 14px",
+                borderRadius: 18,
                 background: bg, border, color,
                 fontFamily: "'Outfit', system-ui",
-                fontWeight: isCurrent ? 700 : 600,
+                fontWeight: isSelected ? 700 : 600,
                 fontSize: 13,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                padding: 0, cursor: "pointer", flexShrink: 0,
-                transform: isCurrent ? "scale(1.1)" : isSelected ? "scale(1.05)" : "scale(1)",
-                boxShadow: isCurrent ? "0 4px 12px rgba(244,123,32,0.35)" : "none",
-                outline: isSelected && !isCurrent ? "2px solid var(--color-accent-primary)" : "none",
-                outlineOffset: -2,
+                cursor: "pointer", flexShrink: 0,
+                boxShadow: isSelected ? "0 4px 12px rgba(201,98,47,0.25)" : "none",
               }}>
-              {w}
-              {isLocked && <span style={{ position: "absolute", bottom: -2, right: -2, fontSize: 8, background: "var(--color-bg-card)", borderRadius: "50%", width: 12, height: 12, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--color-border-default)" }}>🔒</span>}
+              w{w}
+              {isLocked && <span style={{ marginLeft: 4, fontSize: 10 }}>🔒</span>}
             </button>
           );
         })}

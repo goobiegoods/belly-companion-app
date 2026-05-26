@@ -66,19 +66,18 @@ const HomePage = () => {
 
       <div className="stagger">
 
-      {/* Ask-doula card with sage left border */}
+      {/* Ask-doula card — soft sage tint, no left accent */}
       <div style={{ padding: "0 20px", marginBottom: 22 }}>
         <div style={{
-          background: "var(--color-bg-card)",
+          background: "#F3F6F1",
           borderRadius: 20,
           padding: 18,
           border: "1px solid var(--color-border-default)",
-          borderLeft: "4px solid var(--color-sage)",
           boxShadow: "var(--shadow-card)",
           position: "relative",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🌸</div>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#C9622F", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "'Outfit',system-ui", fontSize: 15, fontWeight: 500 }}>B</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
               <span style={{ fontFamily: "'Outfit',system-ui", fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>Bella</span>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-sage)", animation: "livePulse 2s infinite" }} />
@@ -127,18 +126,22 @@ const HomePage = () => {
       <div style={{ padding: "0 20px", marginBottom: 22 }}>
         <div className="card" style={{ padding: "20px 16px", textAlign: "center", position: "relative", overflow: "hidden", boxShadow: "var(--shadow-card)" }}>
           <p className="section-label" style={{ textAlign: "center" }}>YOU'RE IN</p>
-          <p className="font-serif-display" style={{ fontSize: 48, fontStyle: "italic", color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -1, marginTop: 4, marginBottom: 14 }}>
+          <p className="font-serif-display" style={{ fontSize: 48, fontStyle: "italic", color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -1, marginTop: 4, marginBottom: 2 }}>
             week {currentWeek}
           </p>
 
-          <div style={{ position: "relative", width: 150, height: 130, margin: "0 auto 14px" }}>
+          <div style={{ position: "relative", width: 180, height: 140, margin: "0 auto" }}>
             <span aria-hidden style={{
-              position: "absolute", inset: 0,
+              position: "absolute", left: "50%", top: "50%",
+              width: 180, height: 140,
+              transform: "translate(-50%, -50%)",
               borderRadius: "50%",
-              background: "radial-gradient(ellipse at center, var(--color-sage) 0%, transparent 65%)",
-              opacity: 0.18,
+              background: "#C8D9C4",
+              opacity: 0.25,
+              filter: "blur(28px)",
+              pointerEvents: "none",
             }} />
-            <div className="belly-float" style={{ position: "relative", width: 130, height: 130, margin: "0 auto", borderRadius: "50%", background: "var(--color-bg-card-subtle)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div className="belly-float" style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontSize: 96, lineHeight: 1, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.10))" }}>{fruitEmoji}</span>
             </div>
           </div>
@@ -189,14 +192,22 @@ const HomePage = () => {
         <p className="section-label" style={{ padding: "0 20px", marginBottom: 10 }}>QUICK NAVIGATE</p>
         <div className="hide-scrollbar" style={{ display: "flex", gap: 8, padding: "0 20px", overflowX: "auto" }}>
           {[
-            { label: "Baby Size", to: "/baby", tone: "sage" },
-            { label: "Ask Bella", to: "/ask", tone: "terra" },
-            { label: "Recipes", to: "/recipes", tone: "sage" },
-            { label: "Mamas", to: "/community", tone: "terra" },
+            { label: "Baby Size", to: "/baby", fill: "#EEF3EC", border: "#CBD7C8" },
+            { label: "Ask Bella", to: "/ask", fill: "#FAE8DE", border: "#E5CFC0" },
+            { label: "Recipes", to: "/recipes", fill: "#EEF3EC", border: "#CBD7C8" },
+            { label: "Mamas", to: "/community", fill: "#FAE8DE", border: "#E5CFC0" },
           ].map(p => (
             <button key={p.label} onClick={() => navigate(p.to)}
-              className={`pill-base belly-btn-press ${p.tone === "sage" ? "pill-sage" : "pill-terra"}`}
-              style={{ flexShrink: 0, height: 36, padding: "0 16px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+              className="belly-btn-press"
+              style={{
+                flexShrink: 0, height: 36, padding: "0 16px",
+                borderRadius: 18,
+                background: p.fill,
+                border: `0.5px solid ${p.border}`,
+                color: "#C9622F",
+                fontFamily: "'Outfit',system-ui",
+                fontWeight: 600, fontSize: 13, cursor: "pointer",
+              }}>
               {p.label}
             </button>
           ))}
@@ -205,15 +216,35 @@ const HomePage = () => {
 
       {/* Quick journey tiles */}
       <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 22 }}>
-        <button onClick={() => navigate("/cant-sleep")} className="card belly-card-interactive" style={{ padding: 16, textAlign: "left" }}>
-          <div style={{ fontSize: 26, marginBottom: 8 }}>🌙</div>
-          <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Can't sleep?</p>
-          <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>Guided breathing</p>
+        <button onClick={() => navigate("/cant-sleep")} className="belly-card-interactive" style={{
+          background: "#FDF9F4", border: "0.5px solid #E3D9CE",
+          borderLeft: "3px solid #7A9E7E",
+          borderRadius: 16, padding: 14, textAlign: "left", cursor: "pointer",
+          display: "flex", flexDirection: "column", gap: 8,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#EEF3EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🌙</div>
+            <span style={{ color: "#7A9E7E", fontSize: 20 }}>›</span>
+          </div>
+          <div>
+            <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Can't sleep?</p>
+            <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>Guided breathing</p>
+          </div>
         </button>
-        <button onClick={() => navigate("/courses")} className="card belly-card-interactive" style={{ padding: 16, textAlign: "left" }}>
-          <div style={{ fontSize: 26, marginBottom: 8 }}>📚</div>
-          <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Your Courses</p>
-          <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>3 in progress</p>
+        <button onClick={() => navigate("/courses")} className="belly-card-interactive" style={{
+          background: "#FDF9F4", border: "0.5px solid #E3D9CE",
+          borderLeft: "3px solid #C9622F",
+          borderRadius: 16, padding: 14, textAlign: "left", cursor: "pointer",
+          display: "flex", flexDirection: "column", gap: 8,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#FAE8DE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📚</div>
+            <span style={{ color: "#C9622F", fontSize: 20 }}>›</span>
+          </div>
+          <div>
+            <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Your Courses</p>
+            <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>3 in progress</p>
+          </div>
         </button>
       </div>
 
