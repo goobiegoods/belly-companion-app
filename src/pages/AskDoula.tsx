@@ -306,9 +306,11 @@ const AskDoula = () => {
             <span style={{ position: "absolute", bottom: -1, right: -1, width: 6, height: 6, borderRadius: "50%", background: "#22C55E", animation: "livePulse 2s infinite", boxShadow: "0 0 0 2px var(--color-bg-base)" }} />
           </div>
         </div>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 400, color: "var(--color-text-secondary)", marginLeft: 44 }}>
-          Knows your history · Week {currentWeek} · {(profile?.pregnancy_number ?? 1) === 1 ? "1st" : (profile?.pregnancy_number ?? 1) === 2 ? "2nd" : `${profile?.pregnancy_number}th`} pregnancy
-        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginLeft: 44, marginTop: 4 }}>
+          <span className="pill-base pill-sage" style={{ fontSize: 10, padding: "3px 10px" }}>Knows your history</span>
+          <span className="pill-base pill-sage" style={{ fontSize: 10, padding: "3px 10px" }}>Week {currentWeek}</span>
+          <span className="pill-base pill-sage" style={{ fontSize: 10, padding: "3px 10px" }}>{(profile?.pregnancy_number ?? 1) === 1 ? "1st" : (profile?.pregnancy_number ?? 1) === 2 ? "2nd" : `${profile?.pregnancy_number}th`} pregnancy</span>
+        </div>
       </div>
 
       {/* Chat area */}
