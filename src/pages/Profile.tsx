@@ -77,48 +77,44 @@ const Profile = () => {
         }}>Settings</button>
       </div>
 
-      {/* Hero — no card wrapper, sits on orange */}
-      <div style={{ padding: "40px 20px 16px", textAlign: "center" }}>
-        <div style={{
-          width: 76, height: 76, borderRadius: "50%", background: "var(--color-bg-card)",
-          boxShadow: "0 0 0 4px rgba(255,255,255,0.28), 0 0 0 8px rgba(255,255,255,0.10)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          margin: "0 auto 10px"
-        }}>
-          <span style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 700, color: "var(--color-accent-primary)" }}>{initials}</span>
+      {/* Hero with animated gradient ring */}
+      <div style={{ padding: "32px 20px 16px", textAlign: "center" }}>
+        <div className="avatar-ring-gradient" style={{ width: 84, height: 84, margin: "0 auto 12px" }}>
+          <div style={{
+            width: "100%", height: "100%", borderRadius: "50%", background: "var(--color-bg-card)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span className="font-serif-display" style={{ fontSize: 30, fontWeight: 700, color: "var(--color-accent-primary)" }}>{initials}</span>
+          </div>
         </div>
-        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 26, fontWeight: 700, color: "var(--color-accent-dark)", letterSpacing: "-0.3px" }}>
+        <h1 className="font-serif-display" style={{ fontSize: 26, fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: -0.3, display: "inline-block", borderBottom: "2px solid var(--color-accent-light)", paddingBottom: 2 }}>
           {getDisplayName({ first_name: profile?.first_name })}
         </h1>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 4 }}>
+        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 6 }}>
           Week {currentWeek} · Due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
         </p>
         {profile?.pregnancy_number && (
-          <span style={{
-            display: "inline-block", marginTop: 8, fontFamily: "'Outfit', system-ui",
-            fontSize: 11, fontWeight: 600, color: "var(--color-accent-dark)", padding: "4px 14px",
-            borderRadius: 20, background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)"
-          }}>
+          <span className="pill-base pill-sage" style={{ marginTop: 10, fontSize: 11 }}>
             {profile.pregnancy_number === 1 ? "1st" : profile.pregnancy_number === 2 ? "2nd" : "3rd+"} pregnancy
           </span>
         )}
       </div>
 
-      {/* Streak hero card */}
+      {/* Streak card — amber */}
       <div className="px-5 mb-3">
-        <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 18, padding: 18, boxShadow: "0 2px 12px rgba(180,100,20,0.06)" }}>
+        <div style={{ background: "var(--color-amber-soft)", border: "0.5px solid var(--color-border-default)", borderRadius: 18, padding: 18, boxShadow: "var(--shadow-card)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 56 }}>
-              <span style={{ fontSize: 36, lineHeight: 1 }}>🔥</span>
-              <span style={{ fontFamily: "'Fraunces', serif", fontSize: 32, fontWeight: 700, color: "var(--color-streak-flame)", lineHeight: 1, marginTop: 4 }}>{streak.current}</span>
+              <span style={{ fontSize: 34, lineHeight: 1, color: "var(--color-accent-primary)" }}>🔥</span>
+              <span className="font-serif-display" style={{ fontSize: 30, fontWeight: 700, color: "var(--color-accent-primary)", lineHeight: 1, marginTop: 4 }}>{streak.current}</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "var(--color-text-primary)" }}>{streak.current}-day streak</p>
               <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "var(--color-text-secondary)", marginTop: 2 }}>Check in tomorrow to keep it going</p>
-              <div style={{ height: 6, borderRadius: 50, background: "var(--color-border-default)", marginTop: 10, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.min(100, (streak.current / 7) * 100)}%`, background: "var(--color-accent-primary)", borderRadius: 50, transition: "width 300ms" }} />
+              <div style={{ height: 6, borderRadius: 50, background: "rgba(122,158,126,0.18)", marginTop: 10, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, (streak.current / 7) * 100)}%`, background: "var(--color-sage)", borderRadius: 50, transition: "width 300ms" }} />
               </div>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "var(--color-text-muted)", marginTop: 6 }}>{Math.min(streak.current, 7)} of 7 days — unlock the Week Streak badge</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "var(--color-text-secondary)", marginTop: 6 }}>{Math.min(streak.current, 7)} of 7 days — unlock the Week Streak badge</p>
             </div>
           </div>
           {checkedInToday && (
@@ -129,20 +125,16 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Stats — 2 tiles */}
+      {/* Stats — sage + peach tiles */}
       <div className="flex gap-2 px-5 mb-5">
-        {[
-          { label: "WEEK", value: currentWeek },
-          { label: "DAYS TO GO", value: daysToGo },
-        ].map(stat => (
-          <div key={stat.label} className="flex-1 text-center" style={{
-            background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)",
-            borderRadius: 16, padding: "14px 8px"
-          }}>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 900, color: "var(--color-accent-dark)", letterSpacing: -0.5 }}>{stat.value}</p>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "var(--color-text-secondary)", marginTop: 4 }}>{stat.label}</p>
-          </div>
-        ))}
+        <div className="flex-1 text-center" style={{ background: "var(--color-sage-soft)", border: "0.5px solid var(--color-border-default)", borderRadius: 16, padding: "14px 8px" }}>
+          <p className="font-serif-display" style={{ fontSize: 28, fontWeight: 800, color: "var(--color-text-primary)", letterSpacing: -0.5 }}>{currentWeek}</p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "#3F5C42", marginTop: 4 }}>WEEK</p>
+        </div>
+        <div className="flex-1 text-center" style={{ background: "var(--color-peach-soft)", border: "0.5px solid var(--color-border-default)", borderRadius: 16, padding: "14px 8px" }}>
+          <p className="font-serif-display" style={{ fontSize: 28, fontWeight: 800, color: "var(--color-text-primary)", letterSpacing: -0.5 }}>{daysToGo}</p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "var(--color-accent-dark)", marginTop: 4 }}>DAYS TO GO</p>
+        </div>
       </div>
 
       {/* Achievements */}
