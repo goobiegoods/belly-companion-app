@@ -139,20 +139,38 @@ const Profile = () => {
 
       {/* Achievements */}
       <div className="px-5 mb-5">
-        <p style={sectionLabelStyle}>MY ACHIEVEMENTS</p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="section-label">MY ACHIEVEMENTS</p>
+          <span style={{ fontFamily: "'Outfit',system-ui", fontSize: 11, color: "var(--color-text-secondary)" }}>
+            {BADGES.filter(b => b.earned).length} of {BADGES.length} unlocked
+          </span>
+        </div>
+        <div style={{ height: 6, borderRadius: 50, background: "var(--color-border-default)", marginBottom: 10, overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${(BADGES.filter(b => b.earned).length / BADGES.length) * 100}%`, background: "var(--color-accent-primary)", borderRadius: 50 }} />
+        </div>
         <div className="flex gap-2 overflow-x-auto hide-scrollbar">
           {BADGES.map(badge => (
             <div key={badge.label} className="flex flex-col items-center relative" style={{
               minWidth: 64, borderRadius: 14, padding: "10px 8px",
-              background: badge.earned ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.07)",
-              border: "1px solid var(--color-border-default)",
-              opacity: badge.earned ? 1 : 0.4,
+              background: "var(--color-bg-card)",
+              border: "0.5px solid var(--color-border-default)",
+              boxShadow: badge.earned ? "0 0 0 2px var(--color-accent-light)" : "none",
+              opacity: badge.earned ? 1 : 0.45,
             }}>
               <span style={{ fontSize: 22, marginBottom: 4, filter: badge.earned ? "none" : "grayscale(100%)" }}>{badge.emoji}</span>
-              <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "var(--color-accent-dark)" }}>{badge.label}</span>
+              <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "var(--color-text-primary)" }}>{badge.label}</span>
               {!badge.earned && <span style={{ position: "absolute", bottom: 4, right: 4, fontSize: 10 }}>🔒</span>}
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Motivational sage card */}
+      <div className="px-5 mb-5">
+        <div style={{ background: "var(--color-sage-soft)", border: "0.5px solid rgba(122,158,126,0.35)", borderRadius: 18, padding: 16, textAlign: "center" }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 15, color: "var(--color-text-primary)", lineHeight: 1.5 }}>
+            You're doing amazing, {getDisplayName({ first_name: profile?.first_name })}. {daysToGo} days left — every single one counts. 🌱
+          </p>
         </div>
       </div>
 
