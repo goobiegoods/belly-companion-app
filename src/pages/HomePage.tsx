@@ -126,18 +126,22 @@ const HomePage = () => {
       <div style={{ padding: "0 20px", marginBottom: 22 }}>
         <div className="card" style={{ padding: "20px 16px", textAlign: "center", position: "relative", overflow: "hidden", boxShadow: "var(--shadow-card)" }}>
           <p className="section-label" style={{ textAlign: "center" }}>YOU'RE IN</p>
-          <p className="font-serif-display" style={{ fontSize: 48, fontStyle: "italic", color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -1, marginTop: 4, marginBottom: 14 }}>
+          <p className="font-serif-display" style={{ fontSize: 48, fontStyle: "italic", color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -1, marginTop: 4, marginBottom: 2 }}>
             week {currentWeek}
           </p>
 
-          <div style={{ position: "relative", width: 150, height: 130, margin: "0 auto 14px" }}>
+          <div style={{ position: "relative", width: 180, height: 140, margin: "0 auto" }}>
             <span aria-hidden style={{
-              position: "absolute", inset: 0,
+              position: "absolute", left: "50%", top: "50%",
+              width: 180, height: 140,
+              transform: "translate(-50%, -50%)",
               borderRadius: "50%",
-              background: "radial-gradient(ellipse at center, var(--color-sage) 0%, transparent 65%)",
-              opacity: 0.18,
+              background: "#C8D9C4",
+              opacity: 0.25,
+              filter: "blur(28px)",
+              pointerEvents: "none",
             }} />
-            <div className="belly-float" style={{ position: "relative", width: 130, height: 130, margin: "0 auto", borderRadius: "50%", background: "var(--color-bg-card-subtle)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div className="belly-float" style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontSize: 96, lineHeight: 1, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.10))" }}>{fruitEmoji}</span>
             </div>
           </div>
