@@ -5,6 +5,44 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
 import { toast } from "sonner";
 
+// page chrome — warm cream + radial terracotta wash on top + sage wave at bottom
+const PageBg = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden"
+    style={{ background: "var(--color-bg-base)" }}>
+    <div aria-hidden style={{
+      position: "absolute", inset: 0, pointerEvents: "none",
+      background: "radial-gradient(ellipse 90% 45% at 50% 0%, rgba(201,98,47,0.06), transparent 70%)",
+    }} />
+    <svg aria-hidden viewBox="0 0 430 120" preserveAspectRatio="none"
+      style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: 110, opacity: 0.35 }}>
+      <path d="M0,60 C90,20 180,100 270,60 C360,20 430,80 430,80 L430,120 L0,120 Z"
+        fill="var(--color-sage-soft)" />
+      <path d="M0,80 C100,40 200,110 300,75 C400,40 430,90 430,90 L430,120 L0,120 Z"
+        fill="none" stroke="var(--color-sage)" strokeOpacity="0.35" strokeWidth="1.5" />
+    </svg>
+    <div className="w-full max-w-sm relative z-10 fade-in-up">{children}</div>
+  </div>
+);
+
+const PrimaryCTA = ({ onClick, disabled, children }: { onClick: () => void; disabled?: boolean; children: React.ReactNode }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className="w-full belly-btn-press group"
+    style={{
+      height: 52, borderRadius: 999,
+      background: "var(--color-accent-primary)", color: "#fff",
+      fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 15,
+      border: "none", boxShadow: "var(--shadow-warm)",
+      opacity: disabled ? 0.5 : 1, cursor: disabled ? "not-allowed" : "pointer",
+      display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+    }}
+  >
+    {children}
+  </button>
+);
+
+
 const Onboarding = () => {
   const { user, profile, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -44,42 +82,8 @@ const Onboarding = () => {
   const currentWeek = dueDate ? getCurrentWeek(dueDate) : null;
   const weekData = currentWeek ? getWeekData(currentWeek) : null;
 
-  // page chrome — warm cream + radial terracotta wash on top + sage wave at bottom
-  const PageBg = ({ children }: { children: React.ReactNode }) => (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden"
-      style={{ background: "var(--color-bg-base)" }}>
-      <div aria-hidden style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse 90% 45% at 50% 0%, rgba(201,98,47,0.06), transparent 70%)",
-      }} />
-      <svg aria-hidden viewBox="0 0 430 120" preserveAspectRatio="none"
-        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: 110, opacity: 0.35 }}>
-        <path d="M0,60 C90,20 180,100 270,60 C360,20 430,80 430,80 L430,120 L0,120 Z"
-          fill="var(--color-sage-soft)" />
-        <path d="M0,80 C100,40 200,110 300,75 C400,40 430,90 430,90 L430,120 L0,120 Z"
-          fill="none" stroke="var(--color-sage)" strokeOpacity="0.35" strokeWidth="1.5" />
-      </svg>
-      <div className="w-full max-w-sm relative z-10 fade-in-up">{children}</div>
-    </div>
-  );
+  
 
-  const PrimaryCTA = ({ onClick, disabled, children }: { onClick: () => void; disabled?: boolean; children: React.ReactNode }) => (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="w-full belly-btn-press group"
-      style={{
-        height: 52, borderRadius: 999,
-        background: "var(--color-accent-primary)", color: "#fff",
-        fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 15,
-        border: "none", boxShadow: "var(--shadow-warm)",
-        opacity: disabled ? 0.5 : 1, cursor: disabled ? "not-allowed" : "pointer",
-        display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-      }}
-    >
-      {children}
-    </button>
-  );
 
   return (
     <PageBg>
