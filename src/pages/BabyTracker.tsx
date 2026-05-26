@@ -150,8 +150,18 @@ const BabyTracker = () => {
       {/* Large Fruit Card */}
       <div className="px-5 mt-2">
         <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 24, padding: "28px 16px 20px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
-          <div style={{ width: 170, height: 170, borderRadius: "50%", background: "#FFF0E0", margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center" }} className="belly-float">
-            <span style={{ fontSize: 120, lineHeight: 1, filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.12))" }}>{fruitEmoji}</span>
+          <div style={{ position: "relative", width: 200, height: 170, margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center" }} className="belly-float">
+            <span aria-hidden style={{
+              position: "absolute", left: "50%", top: "50%",
+              width: 200, height: 160,
+              transform: "translate(-50%, -50%)",
+              borderRadius: "50%",
+              background: "#C8D9C4",
+              opacity: 0.28,
+              filter: "blur(30px)",
+              pointerEvents: "none",
+            }} />
+            <BabySizeIllustration week={selectedWeek} size={160} />
           </div>
           <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 16 }}>About the size of a {fruitName}</p>
           <div style={{ display: "flex", gap: 8 }}>
@@ -159,12 +169,15 @@ const BabyTracker = () => {
               { value: weekData.babyWeight, label: "WEIGHT" },
               { value: weekData.babyLength, label: "LENGTH" },
               { value: `${selectedWeek}w`, label: "AGE" },
-            ].map(stat => (
-              <div key={stat.label} style={{ flex: 1, background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 14, padding: "10px 8px", textAlign: "center" }}>
-                <p style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "var(--color-accent-dark)" }}>{stat.value}</p>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{stat.label}</p>
-              </div>
-            ))}
+            ].map(stat => {
+              const isMissing = !stat.value || stat.value === "N/A";
+              return (
+                <div key={stat.label} style={{ flex: 1, background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 14, padding: "10px 8px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: isMissing ? "#B8A99A" : "var(--color-accent-dark)" }}>{isMissing ? "—" : stat.value}</p>
+                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{stat.label}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
