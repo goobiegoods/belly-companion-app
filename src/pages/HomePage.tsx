@@ -66,19 +66,18 @@ const HomePage = () => {
 
       <div className="stagger">
 
-      {/* Ask-doula card with sage left border */}
+      {/* Ask-doula card — soft sage tint, no left accent */}
       <div style={{ padding: "0 20px", marginBottom: 22 }}>
         <div style={{
-          background: "var(--color-bg-card)",
+          background: "#F3F6F1",
           borderRadius: 20,
           padding: 18,
           border: "1px solid var(--color-border-default)",
-          borderLeft: "4px solid var(--color-sage)",
           boxShadow: "var(--shadow-card)",
           position: "relative",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🌸</div>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#C9622F", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "'Outfit',system-ui", fontSize: 15, fontWeight: 500 }}>B</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
               <span style={{ fontFamily: "'Outfit',system-ui", fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>Bella</span>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-sage)", animation: "livePulse 2s infinite" }} />
