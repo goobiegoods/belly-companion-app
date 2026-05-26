@@ -44,76 +44,153 @@ const Onboarding = () => {
   const currentWeek = dueDate ? getCurrentWeek(dueDate) : null;
   const weekData = currentWeek ? getWeekData(currentWeek) : null;
 
-  return (
-    <div className="min-h-screen bg-belly-bg flex flex-col items-center justify-center px-6">
-      <div className="w-full max-w-sm">
-        {step === 1 && (
-          <div className="text-center">
-            <div className="w-24 h-24 rounded-full bg-primary mx-auto mb-6 flex items-center justify-center">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-primary-foreground">
-                <ellipse cx="12" cy="14" rx="7" ry="8" stroke="currentColor" strokeWidth="1.5" fill="none" />
-                <circle cx="12" cy="8" r="3" stroke="currentColor" strokeWidth="1.5" fill="none" />
-              </svg>
-            </div>
-            <h1 className="font-display text-[26px] font-bold text-foreground mb-3">Made for every mama</h1>
-            <p className="text-belly-text-muted text-sm leading-relaxed mb-8">
-              Track your journey, ask questions, and connect with moms just like you — all in one place.
-            </p>
-            <button onClick={() => setStep(2)} className="w-full h-12 rounded-input bg-primary text-primary-foreground font-semibold text-sm belly-btn-press">
-              Get started →
-            </button>
-          </div>
-        )}
+  // page chrome — warm cream + radial terracotta wash on top + sage wave at bottom
+  const PageBg = ({ children }: { children: React.ReactNode }) => (
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden"
+      style={{ background: "var(--color-bg-base)" }}>
+      <div aria-hidden style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse 90% 45% at 50% 0%, rgba(201,98,47,0.06), transparent 70%)",
+      }} />
+      <svg aria-hidden viewBox="0 0 430 120" preserveAspectRatio="none"
+        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: 110, opacity: 0.35 }}>
+        <path d="M0,60 C90,20 180,100 270,60 C360,20 430,80 430,80 L430,120 L0,120 Z"
+          fill="var(--color-sage-soft)" />
+        <path d="M0,80 C100,40 200,110 300,75 C400,40 430,90 430,90 L430,120 L0,120 Z"
+          fill="none" stroke="var(--color-sage)" strokeOpacity="0.35" strokeWidth="1.5" />
+      </svg>
+      <div className="w-full max-w-sm relative z-10 fade-in-up">{children}</div>
+    </div>
+  );
 
-        {step === 2 && (
-          <div>
-            <h2 className="font-display text-[24px] font-bold text-foreground mb-1 text-center">Tell us about you</h2>
-            <p className="text-belly-text-muted text-xs text-center mb-6">We'll personalize your experience</p>
-            <div className="space-y-4">
-              <div>
-                <label className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint font-body mb-1 block">Your name</label>
-                <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="First name" className="w-full h-12 rounded-input border border-belly-card-border bg-card px-4 text-sm belly-input-focus placeholder:text-belly-text-hint" />
-              </div>
-              <div>
-                <label className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint font-body mb-1 block">Due date</label>
-                <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full h-12 rounded-input border border-belly-card-border bg-card px-4 text-sm belly-input-focus text-foreground" />
-              </div>
-              <div>
-                <label className="text-[10px] uppercase tracking-[0.1em] text-belly-text-hint font-body mb-1 block">Pregnancy number</label>
-                <select value={pregnancyNumber} onChange={e => setPregnancyNumber(Number(e.target.value))} className="w-full h-12 rounded-input border border-belly-card-border bg-card px-4 text-sm belly-input-focus text-foreground">
+  const PrimaryCTA = ({ onClick, disabled, children }: { onClick: () => void; disabled?: boolean; children: React.ReactNode }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="w-full belly-btn-press group"
+      style={{
+        height: 52, borderRadius: 999,
+        background: "var(--color-accent-primary)", color: "#fff",
+        fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 15,
+        border: "none", boxShadow: "var(--shadow-warm)",
+        opacity: disabled ? 0.5 : 1, cursor: disabled ? "not-allowed" : "pointer",
+        display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+      }}
+    >
+      {children}
+    </button>
+  );
+
+  return (
+    <PageBg>
+      {step === 1 && (
+        <div className="text-center">
+          <div style={{ position: "relative", width: 110, height: 110, margin: "0 auto 18px" }}>
+            <span aria-hidden style={{
+              position: "absolute", inset: -10, borderRadius: "50%",
+              background: "var(--color-sage)", opacity: 0.12,
+            }} />
+            <div style={{
+              position: "relative", width: 110, height: 110, borderRadius: "50%",
+              background: "var(--color-accent-primary)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "var(--shadow-warm)",
+            }}>
+              <span style={{ fontSize: 44 }}>🤰</span>
+            </div>
+          </div>
+
+          <span className="pill-base pill-sage-solid" style={{ marginBottom: 14 }}>Week 24 · second trimester</span>
+
+          <h1 className="font-serif-display" style={{
+            fontSize: 30, fontWeight: 700, color: "var(--color-text-primary)",
+            letterSpacing: -0.5, marginTop: 6, marginBottom: 8,
+          }}>Made for every mama</h1>
+
+          <p style={{
+            fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 14,
+            color: "var(--color-accent-primary)", marginBottom: 14,
+          }}>Every heartbeat is a hello 🤍</p>
+
+          <p style={{
+            fontFamily: "'Outfit', system-ui", fontSize: 14, lineHeight: 1.6,
+            color: "var(--color-text-secondary)", marginBottom: 18, padding: "0 6px",
+          }}>
+            Track your journey, ask questions, and connect with mamas just like you — all in one warm place.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-2 mb-7">
+            <span className="pill-base pill-sage">Viability milestone</span>
+            <span className="pill-base pill-sage">Hearing begins</span>
+            <span className="pill-base pill-sage">Lungs forming</span>
+          </div>
+
+          <PrimaryCTA onClick={() => setStep(2)}>
+            Get started <span style={{ transition: "transform 200ms" }} className="group-active:translate-x-1">→</span>
+          </PrimaryCTA>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div>
+          <h2 className="font-serif-display" style={{ fontSize: 26, fontWeight: 700, color: "var(--color-text-primary)", textAlign: "center", marginBottom: 4 }}>Tell us about you</h2>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "var(--color-text-muted)", textAlign: "center", marginBottom: 22 }}>We'll personalise your experience</p>
+
+          <div className="space-y-4">
+            {[
+              { label: "Your name", el: <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="First name" className="w-full h-12 px-4 text-sm belly-input-focus" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 14, color: "var(--color-text-primary)" }} /> },
+              { label: "Due date", el: <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full h-12 px-4 text-sm belly-input-focus" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 14, color: "var(--color-text-primary)" }} /> },
+              { label: "Pregnancy number", el: (
+                <select value={pregnancyNumber} onChange={e => setPregnancyNumber(Number(e.target.value))} className="w-full h-12 px-4 text-sm belly-input-focus" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 14, color: "var(--color-text-primary)" }}>
                   <option value={1}>1st pregnancy</option>
                   <option value={2}>2nd pregnancy</option>
                   <option value={3}>3rd or more</option>
                 </select>
+              ) },
+            ].map(({ label, el }) => (
+              <div key={label}>
+                <label className="section-label" style={{ marginBottom: 6, display: "block" }}>{label}</label>
+                {el}
               </div>
-              <div className="flex items-center justify-between py-2">
-                <span className="text-sm text-foreground">Working with a midwife or OB?</span>
-                <button onClick={() => setHasProvider(!hasProvider)} className={`w-12 h-7 rounded-full transition-colors ${hasProvider ? 'bg-primary' : 'bg-belly-card-border'} relative`}>
-                  <div className={`w-5 h-5 rounded-full bg-white absolute top-1 transition-transform ${hasProvider ? 'translate-x-6' : 'translate-x-1'}`} />
-                </button>
-              </div>
-              <button onClick={handleSaveProfile} disabled={!firstName || !dueDate || saving} className="w-full h-12 rounded-input bg-primary text-primary-foreground font-semibold text-sm belly-btn-press disabled:opacity-50">
-                {saving ? "Saving..." : "Continue →"}
+            ))}
+
+            <div className="flex items-center justify-between py-2">
+              <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, color: "var(--color-text-primary)" }}>Working with a midwife or OB?</span>
+              <button onClick={() => setHasProvider(!hasProvider)} className="relative" style={{ width: 48, height: 28, borderRadius: 999, background: hasProvider ? "var(--color-sage)" : "var(--color-border-default)", border: "none", transition: "background 200ms" }}>
+                <span style={{ position: "absolute", top: 3, left: hasProvider ? 23 : 3, width: 22, height: 22, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.15)", transition: "left 200ms" }} />
               </button>
             </div>
-          </div>
-        )}
 
-        {step === 3 && currentWeek && weekData && (
-          <div className="text-center">
-            <div className="w-24 h-24 rounded-full bg-primary mx-auto mb-6 flex items-center justify-center">
-              <span className="text-3xl">🌸</span>
-            </div>
-            <h1 className="font-display text-[26px] font-bold text-foreground mb-2">Your journey starts now</h1>
-            <p className="text-belly-text-muted text-lg mb-2">You're in week {currentWeek} 🌸</p>
-            <p className="text-belly-accent text-sm mb-8">Your baby is about the size of a {weekData.babySize.toLowerCase()}</p>
-            <button onClick={handleComplete} className="w-full h-12 rounded-input bg-primary text-primary-foreground font-semibold text-sm belly-btn-press">
-              Take me to my home →
-            </button>
+            <PrimaryCTA onClick={handleSaveProfile} disabled={!firstName || !dueDate || saving}>
+              {saving ? "Saving…" : <>Continue →</>}
+            </PrimaryCTA>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+
+      {step === 3 && currentWeek && weekData && (
+        <div className="text-center">
+          <div style={{ position: "relative", width: 110, height: 110, margin: "0 auto 18px" }}>
+            <span aria-hidden style={{ position: "absolute", inset: -10, borderRadius: "50%", background: "var(--color-sage)", opacity: 0.12 }} />
+            <div style={{ position: "relative", width: 110, height: 110, borderRadius: "50%", background: "var(--color-accent-primary)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-warm)" }}>
+              <span style={{ fontSize: 44 }}>🌸</span>
+            </div>
+          </div>
+
+          <span className="pill-base pill-sage-solid" style={{ marginBottom: 14 }}>Week {currentWeek}</span>
+
+          <h1 className="font-serif-display" style={{ fontSize: 28, fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: -0.5, marginBottom: 6 }}>Your journey starts now</h1>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 14, color: "var(--color-accent-primary)", marginBottom: 18 }}>
+            Every heartbeat is a hello 🤍
+          </p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, color: "var(--color-text-secondary)", marginBottom: 22 }}>
+            Your baby is about the size of a <strong style={{ color: "var(--color-text-primary)" }}>{weekData.babySize.toLowerCase()}</strong>
+          </p>
+
+          <PrimaryCTA onClick={handleComplete}>Take me to my home →</PrimaryCTA>
+        </div>
+      )}
+    </PageBg>
   );
 };
 
