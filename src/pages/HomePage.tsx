@@ -192,14 +192,22 @@ const HomePage = () => {
         <p className="section-label" style={{ padding: "0 20px", marginBottom: 10 }}>QUICK NAVIGATE</p>
         <div className="hide-scrollbar" style={{ display: "flex", gap: 8, padding: "0 20px", overflowX: "auto" }}>
           {[
-            { label: "Baby Size", to: "/baby", tone: "sage" },
-            { label: "Ask Bella", to: "/ask", tone: "terra" },
-            { label: "Recipes", to: "/recipes", tone: "sage" },
-            { label: "Mamas", to: "/community", tone: "terra" },
+            { label: "Baby Size", to: "/baby", fill: "#EEF3EC", border: "#CBD7C8" },
+            { label: "Ask Bella", to: "/ask", fill: "#FAE8DE", border: "#E5CFC0" },
+            { label: "Recipes", to: "/recipes", fill: "#EEF3EC", border: "#CBD7C8" },
+            { label: "Mamas", to: "/community", fill: "#FAE8DE", border: "#E5CFC0" },
           ].map(p => (
             <button key={p.label} onClick={() => navigate(p.to)}
-              className={`pill-base belly-btn-press ${p.tone === "sage" ? "pill-sage" : "pill-terra"}`}
-              style={{ flexShrink: 0, height: 36, padding: "0 16px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+              className="belly-btn-press"
+              style={{
+                flexShrink: 0, height: 36, padding: "0 16px",
+                borderRadius: 18,
+                background: p.fill,
+                border: `0.5px solid ${p.border}`,
+                color: "#C9622F",
+                fontFamily: "'Outfit',system-ui",
+                fontWeight: 600, fontSize: 13, cursor: "pointer",
+              }}>
               {p.label}
             </button>
           ))}
@@ -208,15 +216,35 @@ const HomePage = () => {
 
       {/* Quick journey tiles */}
       <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 22 }}>
-        <button onClick={() => navigate("/cant-sleep")} className="card belly-card-interactive" style={{ padding: 16, textAlign: "left" }}>
-          <div style={{ fontSize: 26, marginBottom: 8 }}>🌙</div>
-          <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Can't sleep?</p>
-          <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>Guided breathing</p>
+        <button onClick={() => navigate("/cant-sleep")} className="belly-card-interactive" style={{
+          background: "#FDF9F4", border: "0.5px solid #E3D9CE",
+          borderLeft: "3px solid #7A9E7E",
+          borderRadius: 16, padding: 14, textAlign: "left", cursor: "pointer",
+          display: "flex", flexDirection: "column", gap: 8,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#EEF3EC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🌙</div>
+            <span style={{ color: "#7A9E7E", fontSize: 20 }}>›</span>
+          </div>
+          <div>
+            <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Can't sleep?</p>
+            <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>Guided breathing</p>
+          </div>
         </button>
-        <button onClick={() => navigate("/courses")} className="card belly-card-interactive" style={{ padding: 16, textAlign: "left" }}>
-          <div style={{ fontSize: 26, marginBottom: 8 }}>📚</div>
-          <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Your Courses</p>
-          <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>3 in progress</p>
+        <button onClick={() => navigate("/courses")} className="belly-card-interactive" style={{
+          background: "#FDF9F4", border: "0.5px solid #E3D9CE",
+          borderLeft: "3px solid #C9622F",
+          borderRadius: 16, padding: 14, textAlign: "left", cursor: "pointer",
+          display: "flex", flexDirection: "column", gap: 8,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#FAE8DE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📚</div>
+            <span style={{ color: "#C9622F", fontSize: 20 }}>›</span>
+          </div>
+          <div>
+            <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Your Courses</p>
+            <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>3 in progress</p>
+          </div>
         </button>
       </div>
 
