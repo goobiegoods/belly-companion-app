@@ -324,3 +324,28 @@
 @keyframes bellBadgePop { 0%{transform:scale(0);} 60%{transform:scale(1.2);} 100%{transform:scale(1);} }
 @keyframes livePulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.5);opacity:0.5;} }
 @keyframes typingBounce { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-7px);} }
+
+/* ===== v3 motion utilities ===== */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in-up { animation: fadeInUp 300ms ease-out both; }
+.stagger > * { animation: fadeInUp 320ms ease-out both; }
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 60ms; }
+.stagger > *:nth-child(3) { animation-delay: 120ms; }
+.stagger > *:nth-child(4) { animation-delay: 180ms; }
+.stagger > *:nth-child(5) { animation-delay: 240ms; }
+
+@keyframes ringSpin { to { transform: rotate(360deg); } }
+.avatar-ring-gradient {
+  position: relative;
+  border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(from 0deg, var(--color-accent-primary), var(--color-sage), var(--color-accent-primary));
+  animation: ringSpin 8s linear infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(201,98,47,0.5); }
+  50% { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(201,98,47,0); }
+}
+.pulse-dot { animation: pulseDot 1.8s ease-in-out infinite; }
