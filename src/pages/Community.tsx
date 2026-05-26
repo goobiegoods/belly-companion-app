@@ -384,12 +384,12 @@ const Community = () => {
 
   // --- FEED ---
   return (
-    <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
+    <div className="min-h-screen pb-20 page-enter" style={{ background: "var(--color-bg-base)" }}>
       <div className="px-5 pt-5 pb-3 flex items-center justify-between">
         <div>
-          <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 32, color: "var(--color-accent-dark)", display: "block", lineHeight: "1.0" }}>Mama</span>
-          <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 800, fontStyle: "italic", fontSize: 38, color: "var(--color-accent-dark)", letterSpacing: -1, display: "block", lineHeight: "1.0", marginBottom: 5 }}>community</span>
-          <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 11, color: "var(--color-text-secondary)" }}>
+          <span className="font-serif-display" style={{ fontWeight: 700, fontSize: 30, color: "var(--color-text-primary)", display: "block", lineHeight: 1.0 }}>Mama</span>
+          <span className="font-serif-display" style={{ fontWeight: 700, fontStyle: "italic", fontSize: 36, color: "var(--color-accent-primary)", letterSpacing: -1, display: "block", lineHeight: 1.0, marginBottom: 6 }}>community</span>
+          <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 11, color: "var(--color-text-muted)" }}>
             {currentWeek ? `Week ${currentWeek} mamas` : "Mamas"} · {posts.length} members
           </span>
         </div>
