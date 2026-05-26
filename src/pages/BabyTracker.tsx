@@ -188,35 +188,30 @@ const BabyTracker = () => {
       </div>
       <div ref={scrollRef} style={{ display: "flex", gap: 8, padding: "0 16px", paddingBottom: 12, overflowX: "auto", flexWrap: "nowrap" }} className="hide-scrollbar">
         {Array.from({ length: 40 }, (_, i) => i + 1).map(w => {
-          const isCurrent = w === currentWeek;
-          const isPast = w < currentWeek;
           const isFuture = w > currentWeek;
           const isLocked = isFuture && !profile?.is_premium;
           const isSelected = w === selectedWeek;
-          const bg = isCurrent ? "var(--color-accent-primary)" : isPast ? "var(--color-bg-card-subtle)" : "var(--color-bg-card)";
-          const color = isCurrent ? "#fff" : isPast ? "var(--color-text-muted)" : "var(--color-text-muted)";
-          const border = isFuture ? "1px solid var(--color-border-default)" : "none";
+          const bg = isSelected ? "#C9622F" : "#F0EAE2";
+          const color = isSelected ? "#fff" : "#3D2C1E";
+          const border = isSelected ? "0.5px solid #C9622F" : "0.5px solid #E3D9CE";
           return (
             <button key={w}
               onClick={() => { if (isLocked) { setShowWeekLock(true); return; } setSelectedWeek(w); }}
               className="belly-btn-press"
               style={{
                 position: "relative",
-                width: 40, height: 40, minWidth: 40,
-                borderRadius: "50%",
+                height: 36, minWidth: 52, padding: "0 14px",
+                borderRadius: 18,
                 background: bg, border, color,
                 fontFamily: "'Outfit', system-ui",
-                fontWeight: isCurrent ? 700 : 600,
+                fontWeight: isSelected ? 700 : 600,
                 fontSize: 13,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                padding: 0, cursor: "pointer", flexShrink: 0,
-                transform: isCurrent ? "scale(1.1)" : isSelected ? "scale(1.05)" : "scale(1)",
-                boxShadow: isCurrent ? "0 4px 12px rgba(244,123,32,0.35)" : "none",
-                outline: isSelected && !isCurrent ? "2px solid var(--color-accent-primary)" : "none",
-                outlineOffset: -2,
+                cursor: "pointer", flexShrink: 0,
+                boxShadow: isSelected ? "0 4px 12px rgba(201,98,47,0.25)" : "none",
               }}>
-              {w}
-              {isLocked && <span style={{ position: "absolute", bottom: -2, right: -2, fontSize: 8, background: "var(--color-bg-card)", borderRadius: "50%", width: 12, height: 12, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--color-border-default)" }}>🔒</span>}
+              w{w}
+              {isLocked && <span style={{ marginLeft: 4, fontSize: 10 }}>🔒</span>}
             </button>
           );
         })}
