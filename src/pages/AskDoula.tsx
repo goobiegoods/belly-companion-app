@@ -415,20 +415,20 @@ const AskDoula = () => {
         </div>
       )}
 
-      {/* Sticky input bar */}
-      <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "var(--color-bg-card)", backdropFilter: "blur(16px)", padding: "10px 16px 14px" }}>
-        <div className="flex items-center" style={{ background: "var(--color-bg-card)", borderRadius: 24, padding: "4px 4px 4px 16px", gap: 8 }}>
+      {/* Sticky pill input bar */}
+      <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "var(--color-bg-base)", padding: "10px 16px 14px", borderTop: "1px solid var(--color-border-default)" }}>
+        <div className="flex items-center" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 28, padding: "5px 5px 5px 16px", gap: 8, boxShadow: "var(--shadow-card)" }}>
           {(() => {
             const lastMsg = messages[messages.length - 1];
             const showSpinner = isStreaming && (!!lastMsg?.imageUrl || (messages[messages.length - 2]?.imageUrl && lastMsg?.role === "assistant"));
             return (
               <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
                 disabled={isStreaming}
-                className="shrink-0 flex items-center justify-center transition-colors hover:bg-[rgba(255,140,66,0.22)]"
-                style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,140,66,0.12)" }}>
+                className="shrink-0 flex items-center justify-center"
+                style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--color-bg-base)", border: "none" }}>
                 {showSpinner
-                  ? <Loader2 size={14} className="animate-spin" style={{ color: "var(--color-accent-primary)" }} />
-                  : <Camera size={14} style={{ color: "rgba(255,140,66,0.7)" }} />}
+                  ? <Loader2 size={15} className="animate-spin" style={{ color: "var(--color-accent-primary)" }} />
+                  : <Camera size={15} style={{ color: "var(--color-accent-primary)" }} />}
               </button>
             );
           })()}
@@ -443,7 +443,7 @@ const AskDoula = () => {
           />
           {isStreaming ? (
             <button onClick={cancelStream} className="shrink-0 flex items-center justify-center"
-              style={{ width: 38, height: 38, borderRadius: "50%", background: "var(--color-bg-base)" }}>
+              style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--color-bg-base)", border: "1px solid var(--color-border-default)" }}>
               <Square size={16} style={{ color: "var(--color-accent-dark)" }} />
             </button>
           ) : (
@@ -451,16 +451,17 @@ const AskDoula = () => {
               disabled={(!input.trim() && !attachedImage) || quotaExhausted}
               className="shrink-0 flex items-center justify-center"
               style={{
-                width: 38, height: 38, borderRadius: "50%",
-                background: quotaExhausted ? "rgba(255,255,255,0.3)" : "#FF8C42",
+                width: 40, height: 40, borderRadius: "50%",
+                background: "var(--color-accent-primary)", border: "none",
+                boxShadow: "var(--shadow-warm)",
                 opacity: ((!input.trim() && !attachedImage) || quotaExhausted) ? 0.5 : 1,
                 cursor: ((!input.trim() && !attachedImage) || quotaExhausted) ? "not-allowed" : "pointer",
               }}>
-              <Send size={16} style={{ color: "var(--color-accent-dark)" }} />
+              <Send size={16} style={{ color: "#fff" }} />
             </button>
           )}
         </div>
-        <p style={{ textAlign: "center", marginTop: 8, fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 10, color: profile?.is_premium ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.5)" }}>
+        <p style={{ textAlign: "center", marginTop: 8, fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 10, color: "var(--color-text-muted)" }}>
           {profile?.is_premium
             ? "Unlimited messages ✨"
             : quotaExhausted
