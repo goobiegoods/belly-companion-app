@@ -320,27 +320,34 @@ const Community = () => {
   }
 
   // --- Render a post card ---
+  const categoryPillClass = (cat: string) =>
+    cat === "story" ? "pill-sage"
+    : cat === "question" ? "pill-terra"
+    : cat === "tip" ? "pill-amber"
+    : "pill-pink";
+
   const renderPostCard = (post: Post, isPinned: boolean) => (
     <button key={post.id} onClick={() => openPost(post)}
       className="w-full text-left belly-card-interactive"
       style={{
         background: "var(--color-bg-card)",
-        border: isPinned ? "1px solid var(--color-accent-primary)" : "1px solid var(--color-border-default)",
+        border: "0.5px solid var(--color-border-default)",
+        borderLeft: isPinned ? "3px solid var(--color-sage)" : "0.5px solid var(--color-border-default)",
         borderRadius: 18,
-        padding: "13px 14px",
+        padding: "16px 16px",
         position: "relative",
-        boxShadow: "0 2px 12px rgba(180,100,20,0.06)",
+        boxShadow: "var(--shadow-card)",
       }}>
       {isPinned && (
         <span style={{
-          position: "absolute", top: 10, right: 10,
-          background: "var(--color-accent-light)",
-          borderRadius: 6, padding: "2px 7px",
-          fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 8,
-          color: "var(--color-accent-dark)", textTransform: "uppercase", letterSpacing: "0.05em",
+          position: "absolute", top: 12, right: 12,
+          background: "var(--color-sage)", color: "#fff",
+          borderRadius: 6, padding: "2px 8px",
+          fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9,
+          textTransform: "uppercase", letterSpacing: "0.06em",
         }}>PINNED</span>
       )}
-      <div className="flex items-center gap-2 mb-1.5">
+      <div className="flex items-center gap-2 mb-2">
         <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
           style={{ background: "var(--color-accent-light)", color: "var(--color-accent-dark)", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12 }}>
           {initials(post.author_name || "")}
@@ -349,25 +356,20 @@ const Community = () => {
         {post.week_posted && (
           <span style={{
             background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)",
-            borderRadius: 7, padding: "2px 6px",
-            fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 9, color: "var(--color-accent-dark)",
+            borderRadius: 8, padding: "2px 8px",
+            fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 9, color: "var(--color-text-secondary)",
           }}>
             Week {post.week_posted}
           </span>
         )}
         <span className="ml-auto" style={{ color: "var(--color-text-muted)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 10 }}>{timeAgo(post.created_at)}</span>
       </div>
-      <span className="inline-block capitalize mb-1" style={{
-        background: "var(--color-bg-card-subtle)",
-        borderRadius: 8, padding: "2px 8px",
-        fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 9, color: "var(--color-accent-dark)",
-        border: "none",
-      }}>
+      <span className={`pill-base ${categoryPillClass(post.category)} capitalize`} style={{ fontSize: 10, padding: "3px 10px", marginBottom: 6 }}>
         {post.category}
       </span>
-      <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", marginTop: 4, marginBottom: 4, lineHeight: "1.3" }}>{post.title}</p>
-      <p className="line-clamp-2" style={{ color: "var(--color-text-secondary)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 13, lineHeight: "1.5" }}>{post.body}</p>
-      <div className="flex items-center gap-[14px]" style={{ borderTop: "1px solid var(--color-border-default)", paddingTop: 8, marginTop: 10 }}>
+      <p style={{ fontFamily: "'Playfair Display',serif", fontSize: 16, fontWeight: 700, color: "var(--color-text-primary)", marginTop: 6, marginBottom: 4, lineHeight: 1.3 }}>{post.title}</p>
+      <p className="line-clamp-2" style={{ color: "var(--color-text-secondary)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 13, lineHeight: 1.5 }}>{post.body}</p>
+      <div className="flex items-center gap-[14px]" style={{ borderTop: "1px solid var(--color-border-default)", paddingTop: 10, marginTop: 12 }}>
         <button onClick={(e) => { e.stopPropagation(); toggleLike(post); }}
           className={`flex items-center gap-1.5 ${likeAnimating === post.id ? "heart-liked" : ""}`}
           style={{ color: post.is_liked ? "var(--color-accent-primary)" : "var(--color-text-muted)", fontSize: 13, fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
