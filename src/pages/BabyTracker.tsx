@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from "@/data/recipesData";
 import ShareableWeekCard from "@/components/ShareableWeekCard";
 import PremiumUpgradeSheet from "@/components/PremiumUpgradeSheet";
+import BabySizeIllustration from "@/components/BabySizeIllustration";
 
 function getFruitName(babySize: string): string {
   // Strip parentheticals like "(pre-conception)" then lowercase.
