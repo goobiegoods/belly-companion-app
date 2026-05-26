@@ -242,12 +242,12 @@ const AskDoula = () => {
 
   const renderAssistantBubble = (content: string, imageUrl?: string, timestamp?: string) => (
     <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>
+      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-sage-soft)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>
         🌸
       </div>
       <div className="mr-auto" style={{ maxWidth: "85%" }}>
         <div className="px-4 py-3 text-[14px] leading-[1.65]"
-          style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
+          style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderLeft: "3px solid var(--color-sage)", color: "var(--color-text-primary)", borderRadius: 18, fontFamily: "'Outfit', system-ui" }}>
           {imageUrl && (
             <img src={imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
           )}
@@ -256,7 +256,7 @@ const AskDoula = () => {
           </div>
         </div>
         {timestamp && (
-          <p style={{ fontFamily: "'Outfit', system-ui", fontWeight: 300, fontSize: 10, color: "var(--color-text-secondary)", marginTop: 6, paddingLeft: 4 }}>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontWeight: 300, fontSize: 10, color: "var(--color-text-muted)", marginTop: 6, paddingLeft: 4 }}>
             {timestamp}
           </p>
         )}
