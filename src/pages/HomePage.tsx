@@ -45,6 +45,9 @@ const HomePage = () => {
     ? "Your baby can hear you now. Talk to them — they already know your voice."
     : weekData.developmentHighlight.split(/(?<=\.)\s/)[0];
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
   return (
     <div className="min-h-screen page-enter" style={{ background: "var(--color-bg-base)", paddingBottom: 110 }}>
       {/* Header */}
@@ -52,73 +55,66 @@ const HomePage = () => {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🤰</div>
           <div>
-            <h1 className="font-display" style={{ fontSize: 18, fontWeight: 800, color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -0.5 }}>belly</h1>
-            <p className="belly-caps" style={{ marginTop: 2, fontSize: 9 }}>Virtual Doula</p>
+            <h1 className="font-serif-display" style={{ fontSize: 20, fontStyle: "italic", fontWeight: 700, color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -0.5 }}>belly</h1>
+            <p className="section-label" style={{ marginTop: 2, fontSize: 9 }}>Virtual Doula</p>
           </div>
         </div>
-        <p className="belly-support" style={{ fontWeight: 500 }}>Hi {displayName} 💛</p>
+        <p className="font-serif-display" style={{ fontSize: 14, fontStyle: "italic", color: "var(--color-text-primary)" }}>
+          {greeting}, {displayName}
+        </p>
       </div>
 
-      {/* Hero card */}
-      <div style={{ padding: "0 20px", marginBottom: 28 }}>
+      <div className="stagger">
+
+      {/* Ask-doula card with sage left border */}
+      <div style={{ padding: "0 20px", marginBottom: 22 }}>
         <div style={{
           background: "var(--color-bg-card)",
           borderRadius: 20,
           padding: 18,
           border: "1px solid var(--color-border-default)",
-          boxShadow: "0 6px 22px rgba(244,123,32,0.10), 0 0 0 1px rgba(244,123,32,0.05)",
+          borderLeft: "4px solid var(--color-sage)",
+          boxShadow: "var(--shadow-card)",
           position: "relative",
         }}>
-          {/* Bella row */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: "50%",
-              background: "var(--color-accent-light)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 18,
-            }}>🌸</div>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🌸</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
               <span style={{ fontFamily: "'Outfit',system-ui", fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>Bella</span>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E", animation: "livePulse 2s infinite" }} />
-              <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>online now · replies in seconds</span>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-sage)", animation: "livePulse 2s infinite" }} />
+              <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>online · replies in seconds</span>
             </div>
           </div>
 
-          {/* Headline */}
-          <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 28, fontWeight: 700, color: "var(--color-text-primary)", lineHeight: 1.05 }}>Ask your</p>
-          <p className="font-display" style={{ fontSize: 34, fontStyle: "italic", color: "var(--color-accent-primary)", letterSpacing: -1, lineHeight: 1.05, marginBottom: 10 }}>doula anything</p>
-          <p className="belly-support" style={{ marginBottom: 14 }}>
+          <p className="font-serif-display" style={{ fontSize: 26, fontWeight: 600, color: "var(--color-text-primary)", lineHeight: 1.1 }}>Ask your</p>
+          <p className="font-serif-display" style={{ fontSize: 32, fontStyle: "italic", color: "var(--color-accent-primary)", letterSpacing: -1, lineHeight: 1.05, marginBottom: 10 }}>doula anything</p>
+          <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 13, color: "var(--color-text-secondary)", lineHeight: 1.55, marginBottom: 14 }}>
             Natural guidance for your body, your week, your worries — no waiting rooms, no judgment.
           </p>
 
-          {/* Search input */}
           <div style={{
             display: "flex", alignItems: "center", gap: 8,
-            background: "var(--color-bg-card)",
-            border: "1px solid var(--color-border-strong)",
-            borderRadius: 18, height: 52, padding: "0 6px 0 18px",
+            background: "var(--color-bg-base)",
+            border: "1px solid var(--color-border-default)",
+            borderRadius: 28, height: 52, padding: "0 6px 0 18px",
           }}>
             <input
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && goToAsk(searchValue)}
               placeholder="Cramps, sleep, what's normal..."
-              style={{
-                flex: 1, border: "none", outline: "none", background: "transparent",
-                fontFamily: "'Outfit',system-ui", fontSize: 15, color: "var(--color-text-primary)",
-              }}
+              style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: "'Outfit',system-ui", fontSize: 14, color: "var(--color-text-primary)" }}
             />
             <button onClick={() => goToAsk(searchValue || undefined)} aria-label="Ask Bella" style={{
               width: 40, height: 40, borderRadius: "50%", border: "none",
               background: "var(--color-accent-primary)", display: "flex",
               alignItems: "center", justifyContent: "center", cursor: "pointer",
-              boxShadow: "0 3px 10px rgba(244,123,32,0.35)",
+              boxShadow: "var(--shadow-warm)",
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           </div>
 
-          {/* Suggestion chips — single horizontal scroll row */}
           <div className="hide-scrollbar" style={{ display: "flex", gap: 8, marginTop: 12, overflowX: "auto", flexWrap: "nowrap" }}>
             {SUGGESTION_CHIPS.map(chip => (
               <button key={chip} onClick={() => goToAsk(chip)} className="v2-chip" style={{ flexShrink: 0 }}>{chip}</button>
@@ -127,16 +123,24 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Week card — centered vertical stack */}
-      <div style={{ padding: "0 20px", marginBottom: 28 }}>
-        <div className="v2-card" style={{ padding: "20px 16px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-          <p className="belly-caps" style={{ textAlign: "center" }}>YOU'RE IN</p>
-          <p className="font-display" style={{ fontSize: 44, fontStyle: "italic", color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -1, marginTop: 4, marginBottom: 14 }}>
+      {/* Week card with sage glow behind illustration */}
+      <div style={{ padding: "0 20px", marginBottom: 22 }}>
+        <div className="card" style={{ padding: "20px 16px", textAlign: "center", position: "relative", overflow: "hidden", boxShadow: "var(--shadow-card)" }}>
+          <p className="section-label" style={{ textAlign: "center" }}>YOU'RE IN</p>
+          <p className="font-serif-display" style={{ fontSize: 48, fontStyle: "italic", color: "var(--color-accent-primary)", lineHeight: 1, letterSpacing: -1, marginTop: 4, marginBottom: 14 }}>
             week {currentWeek}
           </p>
 
-          <div style={{ width: 130, height: 130, borderRadius: "50%", background: "#FFF0E0", margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center" }} className="belly-float">
-            <span style={{ fontSize: 100, lineHeight: 1, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.10))" }}>{fruitEmoji}</span>
+          <div style={{ position: "relative", width: 150, height: 130, margin: "0 auto 14px" }}>
+            <span aria-hidden style={{
+              position: "absolute", inset: 0,
+              borderRadius: "50%",
+              background: "radial-gradient(ellipse at center, var(--color-sage) 0%, transparent 65%)",
+              opacity: 0.18,
+            }} />
+            <div className="belly-float" style={{ position: "relative", width: 130, height: 130, margin: "0 auto", borderRadius: "50%", background: "var(--color-bg-card-subtle)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 96, lineHeight: 1, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.10))" }}>{fruitEmoji}</span>
+            </div>
           </div>
 
           <p className="belly-body" style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 14, padding: "0 6px" }}>
@@ -147,15 +151,9 @@ const HomePage = () => {
             )}
           </p>
 
-          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 14 }}>
-            <span style={{
-              borderRadius: 999, padding: "5px 12px", fontSize: 12, fontWeight: 500,
-              border: "1px solid var(--color-accent-primary)", color: "var(--color-accent-primary)",
-            }}>{40 - currentWeek} weeks to go</span>
-            <span style={{
-              borderRadius: 999, padding: "5px 12px", fontSize: 12, fontWeight: 500,
-              border: "1px solid var(--color-accent-primary)", color: "var(--color-accent-primary)",
-            }}>Trimester {weekData.trimester}</span>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 14, flexWrap: "wrap" }}>
+            <span className="pill-base pill-terra">{40 - currentWeek} weeks to go</span>
+            <span className="pill-base pill-sage">Trimester {weekData.trimester}</span>
           </div>
 
           <ShareableMilestoneCard
@@ -167,25 +165,63 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Quick journey tiles */}
-      <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 28 }}>
-        <button onClick={() => navigate("/cant-sleep")} className="v2-card belly-card-interactive" style={{ padding: 16, textAlign: "left", border: "1px solid var(--color-border-default)" }}>
-          <div style={{ fontSize: 26, marginBottom: 8 }}>🌙</div>
-          <p style={{ fontFamily: "'Fraunces',serif", fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Can't sleep?</p>
-          <p className="belly-support" style={{ marginTop: 2 }}>Guided breathing</p>
-        </button>
-        <button onClick={() => navigate("/courses")} className="v2-card belly-card-interactive" style={{ padding: 16, textAlign: "left" }}>
-          <div style={{ fontSize: 26, marginBottom: 8 }}>📚</div>
-          <p style={{ fontFamily: "'Fraunces',serif", fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Your Courses</p>
-          <p className="belly-support" style={{ marginTop: 2 }}>3 in progress</p>
+      {/* Today's Recipe mini-card */}
+      <div style={{ padding: "0 20px", marginBottom: 22 }}>
+        <button onClick={() => navigate("/recipes")} className="belly-card-interactive" style={{
+          width: "100%", display: "flex", alignItems: "center", gap: 14,
+          background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)",
+          borderLeft: "4px solid var(--color-accent-primary)", borderRadius: 18,
+          padding: 14, textAlign: "left", cursor: "pointer",
+        }}>
+          <div style={{ width: 54, height: 54, borderRadius: 14, background: "var(--color-sage-soft)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>🥗</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p className="section-label" style={{ fontSize: 10, marginBottom: 2 }}>TODAY'S RECIPE</p>
+            <p className="font-serif-display" style={{ fontSize: 16, fontWeight: 700, color: "var(--color-text-primary)", lineHeight: 1.2 }}>Iron-Rich Lentil & Spinach Bowl</p>
+            <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 11, color: "var(--color-text-secondary)", marginTop: 3 }}>Week {currentWeek} · 5 min · Good for baby's brain</p>
+            <span className="pill-base pill-sage" style={{ marginTop: 6, fontSize: 10, padding: "3px 10px" }}>Iron</span>
+          </div>
+          <span style={{ color: "var(--color-accent-primary)", fontSize: 22 }}>›</span>
         </button>
       </div>
 
-      {/* Streak callout above bottom nav */}
+      {/* Quick Navigate horizontal row */}
+      <div style={{ marginBottom: 22 }}>
+        <p className="section-label" style={{ padding: "0 20px", marginBottom: 10 }}>QUICK NAVIGATE</p>
+        <div className="hide-scrollbar" style={{ display: "flex", gap: 8, padding: "0 20px", overflowX: "auto" }}>
+          {[
+            { label: "Baby Size", to: "/baby", tone: "sage" },
+            { label: "Ask Bella", to: "/ask", tone: "terra" },
+            { label: "Recipes", to: "/recipes", tone: "sage" },
+            { label: "Mamas", to: "/community", tone: "terra" },
+          ].map(p => (
+            <button key={p.label} onClick={() => navigate(p.to)}
+              className={`pill-base belly-btn-press ${p.tone === "sage" ? "pill-sage" : "pill-terra"}`}
+              style={{ flexShrink: 0, height: 36, padding: "0 16px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Quick journey tiles */}
+      <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 22 }}>
+        <button onClick={() => navigate("/cant-sleep")} className="card belly-card-interactive" style={{ padding: 16, textAlign: "left" }}>
+          <div style={{ fontSize: 26, marginBottom: 8 }}>🌙</div>
+          <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Can't sleep?</p>
+          <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>Guided breathing</p>
+        </button>
+        <button onClick={() => navigate("/courses")} className="card belly-card-interactive" style={{ padding: 16, textAlign: "left" }}>
+          <div style={{ fontSize: 26, marginBottom: 8 }}>📚</div>
+          <p className="font-serif-display" style={{ fontWeight: 700, fontSize: 16, color: "var(--color-text-primary)" }}>Your Courses</p>
+          <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>3 in progress</p>
+        </button>
+      </div>
+
+      {/* Streak callout */}
       <div style={{ padding: "0 20px", marginBottom: 16 }}>
         <button onClick={() => navigate("/me")} style={{
           width: "100%", display: "flex", alignItems: "center", gap: 10,
-          background: "var(--color-accent-light)", border: "none",
+          background: "var(--color-amber-soft)", border: "1px solid var(--color-border-default)",
           borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left",
         }}>
           <span style={{ fontSize: 20 }}>🔥</span>
@@ -196,7 +232,9 @@ const HomePage = () => {
         </button>
       </div>
 
-      <p style={{ textAlign: "center", marginTop: 4, marginBottom: 0, padding: "0 20px" }} className="belly-support">
+      </div>
+
+      <p style={{ textAlign: "center", marginTop: 4, marginBottom: 0, padding: "0 20px", fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-muted)" }}>
         Day {daysToGo > 0 ? 280 - daysToGo : 280} of your journey
       </p>
     </div>
