@@ -322,13 +322,18 @@ const AskDoula = () => {
             {msg.role === "assistant" ? (
               renderAssistantBubble(getTextContent(msg.content), msg.imageUrl)
             ) : (
-              <div className="ml-auto" style={{ maxWidth: "80%" }}>
-                <div className="px-[14px] py-3 text-[14px] leading-[1.55]"
-                  style={{ background: "#fff", color: "var(--color-text-primary)", borderRadius: "16px 16px 4px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
-                  {msg.imageUrl && (
-                    <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
-                  )}
-                  {getTextContent(msg.content)}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 6, justifyContent: "flex-end" }}>
+                <div style={{ maxWidth: "78%" }}>
+                  <div className="px-[14px] py-3 text-[14px] leading-[1.55]"
+                    style={{ background: "var(--color-accent-light)", color: "var(--color-text-primary)", borderRadius: 18, fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
+                    {msg.imageUrl && (
+                      <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
+                    )}
+                    {getTextContent(msg.content)}
+                  </div>
+                </div>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", color: "var(--color-accent-dark)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 4, fontSize: 13, fontFamily: "'Outfit',system-ui", fontWeight: 700 }}>
+                  {(displayName?.[0] || "B").toUpperCase()}
                 </div>
               </div>
             )}
