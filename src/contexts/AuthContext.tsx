@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Subscribe to realtime profile updates so entitlement changes (is_premium)
   // pushed by the payments webhook are reflected immediately in the UI.
   useEffect(() => {
-    if (!user) {
+    if (!user?.id) {
       if (profileChannelRef.current) {
         supabase.removeChannel(profileChannelRef.current);
         profileChannelRef.current = null;
@@ -73,26 +73,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       supabase.removeChannel(channel);
       profileChannelRef.current = null;
     };
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        // Use setTimeout to avoid potential deadlocks with Supabase auth
-        setTimeout(() => fetchProfile(session.user.id), 0);
-      } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      const newUserId = newSession?.user?.id ?? null;
+      setSession(newSession);
+      setUser((prev) => (prev?.id === newUserId ? prev : newSession?.user ?? null));
+      if (newSession?.user && event !== "TOKEN_REFRESHED") {
+        setTimeout(() => fetchProfile(newSession.user.id), 0);
+      } else if (!newSession?.user) {
         setProfile(null);
-      }
-      setLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
       }
       setLoading(false);
     });
