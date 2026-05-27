@@ -7,6 +7,7 @@ import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from 
 import ShareableWeekCard from "@/components/ShareableWeekCard";
 import PremiumUpgradeSheet from "@/components/PremiumUpgradeSheet";
 import BabySizeIllustration from "@/components/BabySizeIllustration";
+import AppHeader, { HeaderGhostPill } from "@/components/AppHeader";
 
 function getFruitName(babySize: string): string {
   // Strip parentheticals like "(pre-conception)" then lowercase.
@@ -130,7 +131,7 @@ const BabyTracker = () => {
   ];
 
   return (
-    <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
+    <div className="min-h-screen pb-20 page-enter" style={{ background: "#F0E8DC", position: "relative", overflow: "hidden" }}>
       <style>{`
         @keyframes contractionPulse {
           0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
@@ -138,11 +139,13 @@ const BabyTracker = () => {
         }
       `}</style>
 
+      <AppHeader right={<HeaderGhostPill>week {currentWeek}</HeaderGhostPill>} />
+
       {/* Hero headline */}
-      <div style={{ padding: "12px 16px 4px" }}>
-        <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 22, fontWeight: 600, color: "var(--color-accent-dark)", display: "block", lineHeight: 1.1 }}>Your</span>
-        <span style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 800, fontStyle: "italic", color: "var(--color-accent-dark)", letterSpacing: -0.5, display: "block", lineHeight: 1.0, marginBottom: 4 }}>baby's world</span>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "var(--color-text-secondary)" }}>
+      <div style={{ padding: "10px 16px 4px", position: "relative", zIndex: 1 }}>
+        <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 20, fontWeight: 800, color: "#1A0E06", display: "block", lineHeight: 1.1 }}>Your</span>
+        <span className="font-display" style={{ fontSize: 26, fontStyle: "italic", color: "#E8702A", letterSpacing: -0.5, display: "block", lineHeight: 1.0, marginBottom: 4 }}>baby's world</span>
+        <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 10, fontWeight: 600, color: "#C0907A" }}>
           Week {selectedWeek} · {fruitName} · ~{weekData.babyLength}
         </p>
       </div>
