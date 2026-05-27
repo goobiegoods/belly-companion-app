@@ -156,7 +156,7 @@
     color: var(--color-text-primary);
   }
   body {
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: 'Nunito', 'Outfit', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
     overscroll-behavior: none;
@@ -166,7 +166,135 @@
 
 @layer utilities {
   .font-display { font-family: 'Fraunces', Georgia, serif; }
-  .font-body    { font-family: 'Outfit', system-ui, sans-serif; }
+  .font-body    { font-family: 'Nunito', 'Outfit', system-ui, sans-serif; }
+  .font-nunito  { font-family: 'Nunito', 'Outfit', system-ui, sans-serif; }
+  .font-fraunces-italic { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 400; }
+
+  /* ---- Belly v4 surfaces ---- */
+  .belly-card {
+    background: #FFFFFF;
+    border: 1.5px solid #E8702A;
+    border-radius: 22px;
+    box-shadow: 0 3px 16px rgba(232,112,42,0.10);
+  }
+  .belly-eyebrow {
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #E8702A;
+  }
+  .belly-watermark {
+    position: absolute;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    color: #E8702A;
+    opacity: 0.045;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    z-index: 0;
+  }
+  .belly-pill-orange {
+    background: #FAEADA;
+    color: #A84818;
+    border: 1px solid rgba(232,112,42,0.22);
+    border-radius: 18px;
+    padding: 4px 11px;
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .belly-pill-neutral {
+    background: #F0E8DC;
+    color: #7A5A40;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 18px;
+    padding: 4px 11px;
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .belly-btn-primary-v4 {
+    background: #E8702A;
+    color: #FFFFFF;
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    border: none;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 4px 16px rgba(232,112,42,0.42);
+    cursor: pointer;
+    transition: transform 100ms ease;
+  }
+  .belly-btn-primary-v4:active { transform: scale(0.97); }
+  .belly-send-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #E8702A;
+    box-shadow: 0 2px 8px rgba(232,112,42,0.5);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 100ms ease;
+  }
+  .belly-send-circle:active { transform: scale(0.94); }
+  .belly-input-pill {
+    background: #F0E8DC;
+    border: 1px solid rgba(232,112,42,0.18);
+    border-radius: 28px;
+    padding: 10px 8px 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .belly-input-pill input,
+  .belly-input-pill textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 13px;
+    color: #1A0E06;
+  }
+  .belly-input-pill input::placeholder,
+  .belly-input-pill textarea::placeholder {
+    color: #C0987A;
+    font-weight: 400;
+  }
+  .belly-header-bar {
+    background: linear-gradient(135deg, #E8702A 0%, #D45810 100%);
+    color: #FFFFFF;
+    padding: 14px 18px 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .belly-header-glow {
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    pointer-events: none;
+  }
+  .belly-press-scale { transition: transform 100ms ease; }
+  .belly-press-scale:active { transform: scale(0.97); }
 
   /* ---- v2 type scale ---- */
   .belly-display    { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 36px; line-height: 1.05; letter-spacing: -0.5px; }
