@@ -74,9 +74,17 @@ const ShareableMilestoneCard = ({ week, fruitEmoji, fruitName, emotionalFact }: 
         </div>
       </div>
 
-      <button onClick={handleShare} disabled={busy} className="v2-btn-secondary" style={{ width: "100%", height: 44, fontSize: 14 }}>
+      <button onClick={handleShare} disabled={busy} style={{
+        width: "100%", height: 44, fontSize: 14,
+        background: "#E8702A", color: "#fff", fontWeight: 800,
+        fontFamily: "'Nunito', system-ui",
+        border: "none", borderRadius: 12,
+        boxShadow: "0 3px 12px rgba(232,112,42,0.42)",
+        cursor: busy ? "wait" : "pointer",
+      }}>
         {busy ? "Preparing…" : "Share my week 📤"}
       </button>
+
     </div>
   );
 };

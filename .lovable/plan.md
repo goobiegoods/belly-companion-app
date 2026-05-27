@@ -1,49 +1,37 @@
-# Fix: Infinite refresh loop
+## Fix Week Card on Home Screen
 
-## Root cause
+Scope: `src/pages/HomePage.tsx` (Card 2) and the Share button in `src/components/ShareableMilestoneCard.tsx`. No other changes.
 
-The session replay shows the Onboarding "Get started" screen re-rendering every ~1 second even though the network log confirms the user's profile has `onboarding_completed: true`. The loop is between `/` and `/onboarding`:
+### 1. Move corn circle into the orange header zone
 
-1. `ProtectedRoute` in `src/App.tsx` only waits on `auth.loading`. Once auth finishes, `profile` is still `null` for a tick (it's fetched asynchronously via `setTimeout(fetchProfile, 0)` inside `onAuthStateChange`). During that gap `!profile?.onboarding_completed` is true → it `<Navigate to="/onboarding">`.
-2. Onboarding then loads, profile arrives, sees `onboarding_completed: true` → `<Navigate to="/">`.
-3. Meanwhile `AuthProvider` rebuilds its context `value={{...}}` object on every render, and `setSession(newSession)` fires for every auth event with a fresh reference, so every consumer re-renders. Combined with the realtime profile channel pushing partial `payload.new` objects (Supabase realtime UPDATE payloads can omit unchanged columns when REPLICA IDENTITY isn't FULL), `profile` momentarily loses `onboarding_completed` → bounce back to `/onboarding`.
-4. Repeat → visible refresh loop.
+In `src/pages/HomePage.tsx` Card 2:
 
-## Fix
+- Inside the orange gradient `<div>` (currently ends after the "VIABILITY MILESTONE" `<p>`), append the fruit circle as a normal block element with these exact styles:
+  - `width: 80px, height: 80px`
+  - `borderRadius: 50%`
+  - `background: rgba(255,255,255,0.15)`
+  - `border: 2px solid rgba(255,255,255,0.25)`
+  - `display: flex, alignItems: center, justifyContent: center`
+  - `fontSize: 50px`
+  - `margin: 0 auto 16px`
+- Remove the existing corn circle that currently sits between the orange and white zones (the one with `margin: "-18px auto 8px"`, `border: "3px solid #FFFFFF"`, radial-gradient background, `position: relative, zIndex: 2`). Delete it entirely.
+- The orange header's bottom padding stays as-is (already `0`); the 16px margin-bottom on the circle provides spacing inside the orange zone before the hard edge.
+- The white body wrapper currently has `padding: "0 16px 14px"` — change to `padding: "14px 16px"` so the white zone starts with `padding-top: 14px` as specified.
 
-Three small, surgical changes — no UI, routing, or data logic changes.
+Result: clean hard edge between orange and white. Corn circle is fully inside orange. No negative margins, no z-index, no white border.
 
-### 1. `src/App.tsx` — `ProtectedRoute` waits for profile
+### 2. Make Share button solid filled orange
 
-Treat "session exists but profile not yet fetched" as still loading instead of redirecting:
+In `src/components/ShareableMilestoneCard.tsx` line 77, replace the `v2-btn-secondary` button with inline styles:
+- `background: '#E8702A'`
+- `color: '#fff'`
+- `fontWeight: 800`
+- `fontFamily: "'Nunito', system-ui"`
+- `border: 'none'`
+- `borderRadius: 12`
+- `height: 44, width: '100%'`
+- `fontSize: 14`
+- `boxShadow: '0 3px 12px rgba(232,112,42,0.42)'`
+- `cursor: busy ? 'wait' : 'pointer'`
 
-```tsx
-if (loading) return <Spinner />;
-if (!session) return <Navigate to="/auth" replace />;
-if (!profile) return <Spinner />;            // NEW: wait for profile
-if (!profile.onboarding_completed) return <Navigate to="/onboarding" replace />;
-return <>{children}</>;
-```
-
-This alone breaks the `/` ↔ `/onboarding` ping-pong.
-
-### 2. `src/contexts/AuthContext.tsx` — merge realtime profile + stable context value
-
-- In the realtime `UPDATE` handler, merge into existing profile instead of replacing, so a partial payload can never drop `onboarding_completed`:
-  ```ts
-  setProfile((prev) => prev ? { ...prev, ...(payload.new as Partial<Profile>) } : (payload.new as Profile));
-  ```
-- Wrap the context value in `useMemo` keyed on `[session, user, profile, loading]` so consumers don't re-render on every parent render.
-- Keep the existing `setUser((prev) => prev?.id === newId ? prev : ...)` guard (already correct).
-
-### 3. Verify
-
-- Reload the preview at `/`, confirm a single render to HomePage, no flicker through Onboarding.
-- Confirm the network panel shows a single `profiles?select=*` fetch on load (not a stream).
-- Confirm navigating to `/baby`, `/ask`, etc. still works and that signed-out users still get redirected to `/auth`.
-
-## Out of scope
-
-- No design changes.
-- No changes to routing structure, Onboarding flow, or any feature page.
-- No DB/migration changes.
+No other changes to the file.

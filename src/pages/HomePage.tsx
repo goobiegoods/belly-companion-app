@@ -121,18 +121,18 @@ const HomePage = () => {
               <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 7.5, letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)", fontWeight: 500, marginBottom: 12, textTransform: "uppercase" }}>
                 {currentWeek >= 24 ? "VIABILITY MILESTONE" : currentWeek >= 13 ? "SECOND TRIMESTER" : "FIRST TRIMESTER"}
               </p>
+
+              <div style={{
+                width: 80, height: 80, borderRadius: "50%",
+                background: "rgba(255,255,255,0.15)",
+                border: "2px solid rgba(255,255,255,0.25)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 50, lineHeight: 1,
+                margin: "0 auto 16px",
+              }}>{fruitEmoji}</div>
             </div>
 
-            <div style={{
-              width: 82, height: 82, borderRadius: "50%",
-              background: "radial-gradient(circle, #FAEADA 0%, #FFFFFF 70%)",
-              border: "3px solid #FFFFFF",
-              boxShadow: "0 3px 14px rgba(232,112,42,0.15)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 44, lineHeight: 1, margin: "-18px auto 8px", position: "relative", zIndex: 2,
-            }}>{fruitEmoji}</div>
-
-            <div style={{ padding: "0 16px 14px" }}>
+            <div style={{ padding: "14px 16px" }}>
               <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 11, color: "#2A1808", marginBottom: 2 }}>
                 Your baby can hear you now —
               </p>
@@ -144,6 +144,7 @@ const HomePage = () => {
                 <span className="belly-pill-orange">{Math.max(0, 40 - currentWeek)} weeks to go</span>
                 <span className="belly-pill-neutral">Trimester {weekData.trimester}</span>
               </div>
+
 
               <ShareableMilestoneCard
                 week={currentWeek}
