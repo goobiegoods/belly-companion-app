@@ -155,7 +155,38 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Card 3 — Milestones row */}
+        {/* Card 3 — Belly Breathe */}
+        <div style={{ padding: "0 11px", marginBottom: 10 }}>
+          <button onClick={() => navigate("/breathe")} className="belly-press-scale" style={{
+            width: "100%", textAlign: "left", cursor: "pointer",
+            background: "linear-gradient(135deg, #E8702A 0%, #C84E08 100%)",
+            border: "none", borderRadius: 18, padding: 14, position: "relative", overflow: "hidden",
+            boxShadow: "0 4px 16px rgba(232,112,42,0.4)",
+            display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <span style={{ position: "absolute", top: -15, right: -15, width: 70, height: 70, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
+            <div style={{
+              width: 52, height: 52, borderRadius: "50%",
+              background: "rgba(255,255,255,0.18)", border: "2px solid rgba(255,255,255,0.30)",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 10, fontWeight: 800, color: "#fff" }}>4-7-8</span>
+              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 8, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>breath</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
+              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 8, letterSpacing: "0.14em", color: "rgba(255,255,255,0.65)", fontWeight: 700, textTransform: "uppercase" }}>BELLY BREATHE</p>
+              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 13, fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>Calm your body in 60 seconds</p>
+              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 9, color: "rgba(255,255,255,0.70)", fontWeight: 500 }}>Sleep · Anxiety · Birth prep</p>
+            </div>
+            <span style={{
+              background: "rgba(255,255,255,0.22)", border: "0.5px solid rgba(255,255,255,0.30)",
+              borderRadius: 10, padding: "7px 10px", fontFamily: "'Nunito',system-ui", fontSize: 10, fontWeight: 800, color: "#fff",
+              position: "relative", zIndex: 1, flexShrink: 0,
+            }}>Start →</span>
+          </button>
+        </div>
+
+        {/* Card 4 — Milestones row */}
         <div style={{ padding: "0 11px", marginBottom: 12 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7 }}>
             {milestones.map(m => (
@@ -211,6 +242,29 @@ const HomePage = () => {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Feeding Tracker entry */}
+        <div style={{ padding: "0 12px", marginBottom: 12 }}>
+          <button onClick={() => navigate("/feeding")} className="belly-card belly-press-scale" style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 12, padding: 14, cursor: "pointer", textAlign: "left",
+          }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 12, background: "#FAEADA",
+              border: "1px solid rgba(232,112,42,0.2)",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0,
+            }}>🍼</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p className="belly-eyebrow" style={{ marginBottom: 3 }}>FEEDING TRACKER</p>
+              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 12, fontWeight: 700, color: "#1A0E06", lineHeight: 1.25 }}>Log breast + bottle feeds</p>
+              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 9, color: "#B89070", marginTop: 2 }}>Quick log · Weekly trends</p>
+            </div>
+            <div style={{
+              width: 26, height: 26, borderRadius: "50%", background: "#FAEADA",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              color: "#E8702A", fontSize: 16, fontWeight: 700,
+            }}>›</div>
+          </button>
         </div>
 
         {/* Streak callout */}

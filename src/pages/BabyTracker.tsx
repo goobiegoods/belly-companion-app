@@ -7,6 +7,7 @@ import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from 
 import ShareableWeekCard from "@/components/ShareableWeekCard";
 import PremiumUpgradeSheet from "@/components/PremiumUpgradeSheet";
 import BabySizeIllustration from "@/components/BabySizeIllustration";
+import AppHeader, { HeaderGhostPill } from "@/components/AppHeader";
 
 function getFruitName(babySize: string): string {
   // Strip parentheticals like "(pre-conception)" then lowercase.
@@ -130,7 +131,7 @@ const BabyTracker = () => {
   ];
 
   return (
-    <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
+    <div className="min-h-screen pb-20 page-enter" style={{ background: "#F0E8DC", position: "relative", overflow: "hidden" }}>
       <style>{`
         @keyframes contractionPulse {
           0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
@@ -138,43 +139,45 @@ const BabyTracker = () => {
         }
       `}</style>
 
+      <AppHeader right={<HeaderGhostPill>week {currentWeek}</HeaderGhostPill>} />
+
       {/* Hero headline */}
-      <div style={{ padding: "12px 16px 4px" }}>
-        <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 22, fontWeight: 600, color: "var(--color-accent-dark)", display: "block", lineHeight: 1.1 }}>Your</span>
-        <span style={{ fontFamily: "'Fraunces', serif", fontSize: 30, fontWeight: 800, fontStyle: "italic", color: "var(--color-accent-dark)", letterSpacing: -0.5, display: "block", lineHeight: 1.0, marginBottom: 4 }}>baby's world</span>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 400, color: "var(--color-text-secondary)" }}>
+      <div style={{ padding: "10px 16px 4px", position: "relative", zIndex: 1 }}>
+        <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 20, fontWeight: 800, color: "#1A0E06", display: "block", lineHeight: 1.1 }}>Your</span>
+        <span className="font-display" style={{ fontSize: 26, fontStyle: "italic", color: "#E8702A", letterSpacing: -0.5, display: "block", lineHeight: 1.0, marginBottom: 4 }}>baby's world</span>
+        <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 10, fontWeight: 600, color: "#C0907A" }}>
           Week {selectedWeek} · {fruitName} · ~{weekData.babyLength}
         </p>
       </div>
 
-      {/* Large Fruit Card */}
-      <div className="px-5 mt-2">
-        <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 24, padding: "28px 16px 20px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
-          <div style={{ position: "relative", width: 200, height: 170, margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center" }} className="belly-float">
-            <span aria-hidden style={{
-              position: "absolute", left: "50%", top: "50%",
-              width: 200, height: 160,
-              transform: "translate(-50%, -50%)",
-              borderRadius: "50%",
-              background: "#C8D9C4",
-              opacity: 0.28,
-              filter: "blur(30px)",
-              pointerEvents: "none",
-            }} />
-            <BabySizeIllustration week={selectedWeek} size={160} />
-          </div>
-          <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 18, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 16 }}>About the size of a {fruitName}</p>
-          <div style={{ display: "flex", gap: 8 }}>
+      {/* Large Fruit Card — emoji per spec */}
+      <div className="px-3 mt-2">
+        <div className="belly-card" style={{ padding: 14, textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <span className="belly-watermark" style={{ top: -6, left: -6, fontSize: 80 }}>baby</span>
+          <div style={{
+            width: 110, height: 110, borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(232,112,42,0.11) 0%, transparent 70%)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 10px", fontSize: 62, lineHeight: 1, position: "relative", zIndex: 1,
+          }}>{fruitEmoji}</div>
+          <p className="font-display" style={{ fontStyle: "italic", fontWeight: 300, fontSize: 14, color: "#E8702A", marginBottom: 14, position: "relative", zIndex: 1 }}>
+            About the size of a {fruitName}
+          </p>
+          <div style={{ display: "flex", gap: 7, position: "relative", zIndex: 1 }}>
             {[
-              { value: weekData.babyWeight, label: "WEIGHT" },
-              { value: weekData.babyLength, label: "LENGTH" },
-              { value: `${selectedWeek}w`, label: "AGE" },
+              { value: weekData.babyWeight, label: "WEIGHT", tint: "orange" as const },
+              { value: weekData.babyLength, label: "LENGTH", tint: "orange" as const },
+              { value: `${selectedWeek}w`,  label: "AGE",    tint: "neutral" as const },
             ].map(stat => {
               const isMissing = !stat.value || stat.value === "N/A";
+              const bg = stat.tint === "orange" ? "#FAEADA" : "#F0E8DC";
+              const border = stat.tint === "orange" ? "1px solid rgba(232,112,42,0.20)" : "1px solid rgba(0,0,0,0.07)";
+              const valColor = isMissing ? "#B8A898" : stat.tint === "orange" ? "#A84818" : "#7A5038";
+              const labColor = stat.tint === "orange" ? "#C0907A" : "#A08060";
               return (
-                <div key={stat.label} style={{ flex: 1, background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 14, padding: "10px 8px", textAlign: "center" }}>
-                  <p style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: isMissing ? "#B8A99A" : "var(--color-accent-dark)" }}>{isMissing ? "—" : stat.value}</p>
-                  <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{stat.label}</p>
+                <div key={stat.label} style={{ flex: 1, background: bg, border, borderRadius: 12, padding: "10px 6px", textAlign: "center" }}>
+                  <p className="font-display" style={{ fontSize: 20, fontStyle: "italic", color: valColor, lineHeight: 1 }}>{isMissing ? "—" : stat.value}</p>
+                  <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 7.5, color: labColor, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginTop: 4 }}>{stat.label}</p>
                 </div>
               );
             })}

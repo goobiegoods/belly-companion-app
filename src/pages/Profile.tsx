@@ -77,27 +77,75 @@ const Profile = () => {
         }}>Settings</button>
       </div>
 
-      {/* Hero with animated gradient ring */}
-      <div style={{ padding: "32px 20px 16px", textAlign: "center" }}>
-        <div className="avatar-ring-gradient" style={{ width: 84, height: 84, margin: "0 auto 12px" }}>
-          <div style={{
-            width: "100%", height: "100%", borderRadius: "50%", background: "var(--color-bg-card)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <span className="font-serif-display" style={{ fontSize: 30, fontWeight: 700, color: "var(--color-accent-primary)" }}>{initials}</span>
-          </div>
+      {/* Hero — orange-bordered avatar, no gradient ring */}
+      <div style={{ padding: "20px 20px 16px", textAlign: "center", position: "relative" }}>
+        <span className="belly-watermark" style={{ top: 30, left: "50%", transform: "translateX(-50%)", fontSize: 68 }}>journey</span>
+        <div style={{
+          width: 64, height: 64, borderRadius: "50%",
+          background: "#FAEADA", border: "2.5px solid #E8702A",
+          margin: "0 auto 10px",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 4px 16px rgba(232,112,42,0.20)",
+          position: "relative", zIndex: 1,
+        }}>
+          <span className="font-display" style={{ fontStyle: "italic", fontSize: 25, color: "#C45818" }}>{initials}</span>
         </div>
-        <h1 className="font-serif-display" style={{ fontSize: 26, fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: -0.3, display: "inline-block", borderBottom: "2px solid var(--color-accent-light)", paddingBottom: 2 }}>
+        <h1 style={{ fontFamily: "'Nunito',system-ui", fontSize: 15, fontWeight: 800, color: "#1A0E06", position: "relative", zIndex: 1 }}>
           {getDisplayName({ first_name: profile?.first_name })}
         </h1>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "var(--color-text-secondary)", marginTop: 6 }}>
+        <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 8.5, color: "#C0907A", marginTop: 4, fontWeight: 600, position: "relative", zIndex: 1 }}>
           Week {currentWeek} · Due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
         </p>
         {profile?.pregnancy_number && (
-          <span className="pill-base pill-sage" style={{ marginTop: 10, fontSize: 11 }}>
+          <span className="belly-pill-orange" style={{ marginTop: 8, fontSize: 10 }}>
             {profile.pregnancy_number === 1 ? "1st" : profile.pregnancy_number === 2 ? "2nd" : "3rd+"} pregnancy
           </span>
         )}
+      </div>
+
+      {/* Journey timeline */}
+      <div className="px-3 mb-3">
+        <div className="belly-card" style={{ padding: 14 }}>
+          <p className="belly-eyebrow" style={{ marginBottom: 10 }}>MY JOURNEY</p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
+            {[1, 12, currentWeek, 40].map((w, i, arr) => {
+              const isCurrent = w === currentWeek;
+              const isPast = w <= currentWeek;
+              return (
+                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, position: "relative" }}>
+                  {i < arr.length - 1 && (
+                    <span style={{
+                      position: "absolute", top: 5, left: "50%", right: "-50%", height: 2,
+                      background: arr[i + 1] <= currentWeek ? "rgba(232,112,42,0.30)" : "rgba(0,0,0,0.08)",
+                    }} />
+                  )}
+                  <span style={{
+                    width: isCurrent ? 11 : 8, height: isCurrent ? 11 : 8, borderRadius: "50%",
+                    background: isCurrent ? "#E8702A" : isPast ? "rgba(232,112,42,0.40)" : "rgba(0,0,0,0.12)",
+                    boxShadow: isCurrent ? "0 0 0 3px rgba(232,112,42,0.20)" : "none",
+                    position: "relative", zIndex: 1,
+                  }} />
+                  <p style={{
+                    fontFamily: "'Nunito',system-ui", fontSize: 7.5, fontWeight: isCurrent ? 800 : 600,
+                    color: isCurrent ? "#E8702A" : "#C0A888", marginTop: 8,
+                  }}>{isCurrent ? `Wk ${w} ●` : `Wk ${w}`}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Motivational card */}
+      <div className="px-3 mb-4">
+        <div style={{
+          background: "#FAEADA", border: "1.5px solid rgba(232,112,42,0.22)",
+          borderRadius: 14, padding: 12, textAlign: "center",
+        }}>
+          <p className="font-display" style={{ fontStyle: "italic", fontWeight: 300, fontSize: 12, color: "#A84818", lineHeight: 1.7 }}>
+            You're doing amazing, mama. {daysToGo} days left — every one counts. 🌸
+          </p>
+        </div>
       </div>
 
       {/* Streak card — amber */}
@@ -198,6 +246,8 @@ const Profile = () => {
               {[
                 { icon: "✏️", label: "Edit pregnancy details", action: () => setEditing(true) },
                 { icon: "📔", label: "Journal & Symptom Tracker", action: () => navigate("/journal") },
+                { icon: "🍼", label: "Feeding tracker", action: () => navigate("/feeding") },
+                { icon: "🌬️", label: "Belly breathe & rest", action: () => navigate("/breathe") },
                 { icon: "📚", label: "My Courses", action: () => navigate("/courses") },
                 { icon: "🛍️", label: "My Orders", action: () => navigate("/orders") },
               ].map((row, idx, arr) => (
