@@ -1,97 +1,121 @@
-# Belly App — Complete UI Redesign Plan
+# Belly v4 — Full Design System Rollout + 2 New Features
 
-A pure visual redesign. No changes to data, routing, auth, or functionality.
+Apply the complete warm-cream/orange-border design language to every screen, then add Belly Breathe and Feeding Tracker as new routes. Zero changes to data, auth, or routing logic — additive visuals + two new pages.
 
-## 1. Design tokens (src/index.css + tailwind.config.ts)
+## 1. Global tokens (`src/index.css`, `tailwind.config.ts`, `index.html`)
 
-Replace v3 tri-tone tokens with the new Belly v4 palette:
+- Add Fraunces (ital 300,400) + Nunito (400–800) via Google Fonts in `index.html`.
+- Extend CSS with the full token set:
+  - Page `#F0E8DC`, card `#FFFFFF`, border `1.5px solid #E8702A`, shadow `0 3px 14px rgba(232,112,42,0.10)`.
+  - Primary `#E8702A`, header gradient `135deg #E8702A → #C84E08`, nav `#C85818`.
+  - Pills, inputs, send button, avatars, text colors, eyebrow label per spec.
+- Utility classes: `.belly-card`, `.belly-pill-orange`, `.belly-pill-neutral`, `.belly-btn-primary-v4`, `.belly-input`, `.belly-send`, `.belly-avatar`, `.belly-eyebrow`, `.belly-watermark`, `.belly-header-bar`, `.belly-card-header-gradient`.
+- Keyframes: `card-enter` (opacity+translateY, 280ms stagger 50ms), `breath-cycle` (1→1.15 4s, hold 7s, →1 8s, loop), button press `scale(0.97)`.
 
-- `--bg-page: #F0E8DC`, `--card-surface: #FFFFFF`, `--card-border: #E8702A` (1.5px), `--card-shadow: 0 3px 16px rgba(232,112,42,0.10)`
-- `--primary: #E8702A`, `--primary-dark: #D45810`, `--header-gradient: linear-gradient(135deg,#E8702A,#D45810)`
-- `--nav-bg: #C85818`
-- Pills: `--pill-orange-bg #FAEADA / text #A84818`, `--pill-neutral-bg #F0E8DC / text #7A5A40`
-- Text: `--text-dark #1A0E06`, `--text-mid #7A5038`, `--text-soft #C0907A`, `--label-muted #C0A888`
-- Update shadcn HSL tokens (`--background`, `--card`, `--primary`, `--border`, etc.) so existing shadcn components inherit the new look.
+## 2. Shared chrome
 
-Fonts (add to `index.html` Google Fonts link + Tailwind `fontFamily`):
-- Nunito 400/500/600/700 → default sans
-- Fraunces italic 300/400 → `font-display`
+- **AppHeader** (already exists): keep gradient + glow circles, accept `rightSlot` per screen (greeting pill / week pill / "+ Post" / "Settings" / "breathe" / "today" / back-arrow + title variants for Ask Bella).
+- **BottomNav** (already exists): expand to 6 tabs in order Today · Baby · Ask Bella · Mamas · Shop · Journey, SVG line icons stroke 1.6, white active indicator bar 14×2.
+- **PostSheet** (already exists): keep as global bottom sheet — already triggered via `usePostSheet()`.
 
-Utility classes in `@layer components`:
-- `.card-belly` (white + 1.5px orange border + 20px radius + shadow)
-- `.pill-orange`, `.pill-neutral`
-- `.btn-primary` (orange CTA), `.btn-circle-send`
-- `.input-belly`
-- `.eyebrow` (uppercase 8px 0.16em #E8702A bold)
-- `.watermark` (Fraunces italic, opacity .045, color #E8702A, absolute)
-- Animations: `card-enter` (opacity+translateY, 280ms, stagger via delay utility), `sheet-up` (cubic-bezier(.34,1.56,.64,1) 300ms), `press` (active:scale-97).
+## 3. Screen redesigns
 
-## 2. Shared layout components
+**Today (`HomePage.tsx`)** — already redone in last turn; verify: time-aware greeting pill, Ask Bella card with watermark, Week card OPTION A (corn emoji circle fully inside orange header zone, white body below), Belly Breathe orange gradient card linking to `/breathe`, 3 milestone boxes, Today's Recipe row, Quick Navigate pills, + new Feeding Tracker card linking to `/feeding`. "doula" watermark top-left.
 
-- `src/components/AppHeader.tsx` — fixed gradient header, decorative top-right radial glow, left "belly · VIRTUAL DOULA" lockup, `right` slot for per-screen control. Props: `right?: ReactNode`, `showBack?: boolean`.
-- `src/components/BottomNav.tsx` — rebuild with `#C85818` bg, 6 items (Today/Baby/Ask Bella/Mamas/Shop/Journey), SVG line icons stroke 1.6, white active label + 16×2 indicator bar, inactive `rgba(255,255,255,.55)`.
-- `src/components/PageShell.tsx` — wraps `<AppHeader>` + scroll container with `#F0E8DC` bg, top padding for fixed header, bottom padding for nav, optional `watermark` prop (word + position + size).
-- `src/components/PostSheet.tsx` — bottom sheet modal (Radix Dialog or shadcn Sheet side="bottom"), 85vh, drag handle, X close, category pills (Questions/Stories/Tips/Support), title input, body textarea, primary CTA, overlay `rgba(40,20,5,.45)`, slide-up spring. Global trigger via context (`usePostSheet().open()`) so any "+ Post" button across the app opens it instantly without route change.
+**Baby (`BabyTracker.tsx`)** — rewrite presentation only:
+- Watermark "baby" top-left.
+- Title block "Your / baby's world" + subtitle.
+- Size card OPTION A: replace `BabySizeIllustration` SVG with native food emoji (62px) inside 110px radial-gradient circle. Build a 1–40 week → emoji map (1–5 🌱, 6 🫛, 7 🫐, 8 🍇, 9 🍒, 10 🍊, 11 🍋‍🟩, 12 🍋‍🟩, 13 🍑, 14 🍋, 15 🍎, 16 🥑, 17 🍐, 18 🫑, 19 🥭, 20 🍌, 21 🥕, 22 🥥, 23 🍆, 24 🌽, 25 🥬, 26 🥒, 27 🥬, 28 🍆, 29 🎃, 30 🥬, 31 🍍, 32 🎃, 33 🍍, 34 🍈, 35 🍈, 36 🥬, 37 🍈, 38 🥬, 39 🍉, 40 🍉).
+- Stats trio (Weight / Length / Age) per token spec; weeks 1–4 show `—` in `#B8A898`.
+- Horizontal week pill scroller (orange active, neutral inactive, locked = neutral + 🔒 opacity 0.6).
+- Development card + Nutrition link card.
 
-## 3. Per-screen redesigns
+**Ask Bella (`AskDoula.tsx`)** — presentation only:
+- Custom header variant: back-arrow circle + "Ask Bella" mixed font + Bella avatar with green dot.
+- Context pills row + divider.
+- User bubbles orange right-aligned no avatar; Bella bubbles white with orange border + 🌸 avatar. Italic Fraunces inline for emphasized terms (regex-wrap a small whitelist).
+- Suggestion chips row, input bar with camera + orange send circle.
+- Watermark "bella" top-right.
 
-### HomePage (`src/pages/HomePage.tsx`) — Today
-- Header right: time-aware greeting pill ("good morning/afternoon/evening, mama") based on `new Date().getHours()`.
-- Watermark "doula" top-left ~100px.
-- Card 1 Ask Bella: white card, "bella" watermark inside top-right, 33px orange "B" avatar, name + green-dot online + "replies in seconds", split headline ("Ask your" Nunito bold / "doula anything" Fraunces italic), subtext, input pill with orange send circle, suggestion pills row (mix orange/neutral). Tapping input or pills routes to `/ask`.
-- Card 2 Week: white card; inner top section uses gradient header strip (radius top 20), eyebrow "YOU'RE IN", "week N" Fraunces 44px, milestone label, fruit illustration circle floats with `-mt-18`, body line ("Your baby … voice." mixing Nunito + Fraunces italic), tag row ("X weeks to go" + "Trimester N"), full-width Share CTA. Wire to existing share handler.
-- Card 3 Milestones: three equal white bordered mini-cards (emoji + bold 8px label). Pull from existing week-content data; fall back to static set if absent.
-- Card 4 Today's Recipe: horizontal white card → links to `/recipes` (or baby tab nutrition).
-- Quick Navigate: eyebrow + 4 pills (Baby Size, Ask Bella, Recipes, Mamas) routing to respective tabs.
+**Mamas (`Community.tsx`)** — presentation:
+- Watermark "mamas" top-right.
+- Title "Mama / community" + member subtitle.
+- Category filter pills (All active orange).
+- Post cards in white + orange border per spec; "+ Post" header pill opens PostSheet.
 
-### BabyTracker (`src/pages/BabyTracker.tsx`) — Baby
-- Header right: week pill ("week N").
-- Watermark "baby" top-left ~90px.
-- Title block "Your" / "baby's world" + subtitle "Week N · {fruit} · ~{size}".
-- Size illustration card: centered 110px circle w/ radial glow, existing BabySizeIllustration mapped per week, Fraunces caption.
-- Three stat boxes (Weight/Length peach, Age cream). For weeks 1–4 render `—` in `#B8A898`.
-- Week browser: horizontal scroll pills w(N-2)…w(N+2), active = orange pill bold, locked future weeks = neutral pill opacity .6 with 🔒.
-- Card "BABY DEVELOPMENT": body text + symptom pills (mix).
-- Card "WEEK N NUTRITION": horizontal link card → `/recipes`.
-- Audit `BabySizeIllustration` mapping for all 40 weeks; confirm Week 1 poppy seed, Week 24 corn, etc. Fix any mismatches.
+**Journey (`Profile.tsx`)** — presentation:
+- Watermark "journey" top-center.
+- Profile block: 64px avatar orange border (no gradient ring).
+- Stats row (Week / Days to go).
+- Streak card with progress bar.
+- Achievements grid (4-per-row, progress bar in eyebrow).
+- Journey timeline card with 4 nodes (Week 1, 12, current, 40) computed from `current_week`.
+- Motivational card with dynamic days-left text.
+- "Track feeds" entry point linking to `/feeding`.
 
-### AskDoula (`src/pages/AskDoula.tsx`) — Ask Bella
-- Header: back arrow circle (left, overrides default lockup), centered "Ask Bella" split typography, right: 30px orange "B" avatar with green online dot.
-- Context pills row (Week / pregnancy / "Knows your history") + thin divider.
-- Message bubbles: user = orange right-aligned (no avatar, no flower), Bella = white with 1.5px orange border + 28px 🌸 avatar left. Inline Fraunces italic for emphasized terms (wrap key phrases via simple regex on known terms, or `<em>` already in messages).
-- Suggestion chips above input, horizontal scroll (mix pills).
-- Input bar: camera icon left, pill input, orange send circle. Keep existing send/streaming logic untouched.
+## 4. New routes
 
-### Community (`src/pages/Community.tsx`) — Mamas
-- Header right: white "+ Post" pill → `usePostSheet().open()` (never scrolls/navigates).
-- Title block "Mama / community" + subtitle ("Week N mamas · X members").
-- Category filter pills (All/Questions/Stories/Tips/Support) — All active = orange.
-- Post cards: white + orange border, 26px orange avatar w/ initial, username + week badge orange pill + timestamp right, type badge pill (orange story / neutral question), title bold, preview text, engagement row (♡ 💬 counts).
-- Replace any existing inline composer trigger with the global PostSheet.
+**`/breathe` → `src/pages/BellyBreathe.tsx`** (new)
+- AppHeader with "breathe" ghost pill.
+- Title "Belly / breathe & rest" + subtitle.
+- Category filter pills (All · Breathing · Sleep · Meditation · Anxiety) — client-side filter on a local in-file dataset.
+- Featured 4-7-8 orange-gradient card with animated breathing circle (CSS `breath-cycle` + JS phase label cycling Inhale 4s → Hold 7s → Exhale 8s).
+- "Start breathing →" expands a full-screen overlay running the same animation larger with phase text.
+- 3 category cards (Sleep stories / Body scan / Anxiety relief) — static counts.
+- "Continue where you left off" card (localStorage-backed last-session marker, optional).
+- Nav highlights Today (per spec).
 
-### Profile (`src/pages/Profile.tsx`) — Journey
-- Header right: "Settings" ghost pill.
-- Watermark "journey" top-center ~68px.
-- Centered profile: 68px peach avatar w/ 2.5px orange border + Fraunces initial, name, week+due subtitle, "1st pregnancy" orange pill.
-- Stats row: Week box (cream) + Days-to-go box (peach), Fraunces 28px values.
-- Streak card: 🔥 + "{N}-day streak" + progress bar (#FAEADA track, #E8702A fill) + "{N} of 7 days".
-- Achievements: eyebrow + 4 equal bordered cards (earned full opacity, locked 0.35 + 🔒). Use existing achievements data.
-- Journey timeline card: 4 nodes Wk1 → Wk12 → Wk24(now) → Wk40, completed segments orange-30, current node solid orange with halo, future segment gray.
-- Motivational card: peach bg, Fraunces italic copy, dynamic days-left from due date.
+**`/feeding` → `src/pages/FeedingTracker.tsx`** (new)
+- AppHeader with "today" ghost pill.
+- Title "Feeding / tracker" + subtitle.
+- Orange-gradient summary card with 3 dynamic boxes (Feeds today / Total ml / Since last).
+- 3 quick-log cards (Breastfeed / Bottle / Pump) — each opens its own bottom-sheet modal (local component, mirrors PostSheet styling):
+  - Breastfeed: side selector (L/R/Both) + duration start/stop timer + notes.
+  - Bottle: ml input + type select (breast milk/formula/water) + notes.
+  - Pump: side + ml + notes.
+- Today's log list (white card, swipeable delete via touch handlers, "Done" pill on each row).
+- Weekly summary card: 7-day mini bar chart (pure SVG) + avg feeds/day, avg ml/day.
+- Persistence: new Lovable Cloud table `feed_logs` (see §6) with RLS.
+- Add nav route + entry cards from Today and Journey.
 
-## 4. Global polish
+## 5. Routing (`src/App.tsx`)
 
-- Mount `<PostSheetProvider>` in `App.tsx` so `usePostSheet` works app-wide.
-- Add card-enter stagger via tailwind `animate-card-enter` + `style={{animationDelay: ...}}`.
-- Buttons get `active:scale-[0.97] transition-transform`.
-- Update `index.html` `<title>` and Google Fonts link.
+- Add `<Route path="/breathe" element={<BellyBreathe />} />` and `<Route path="/feeding" element={<FeedingTracker />} />`.
+- Keep all existing routes untouched.
 
-## 5. Out of scope (explicit)
+## 6. Backend (Lovable Cloud migration)
 
-- Other screens (Cart, Shop, Recipes, Courses, Auth, Onboarding, admin) — token updates will cascade visually but no structural rework.
-- No backend, route, hook, or data changes. No new dependencies beyond existing Radix/shadcn primitives.
+Single migration creating `public.feed_logs`:
 
-## 6. Verification
+```
+id uuid pk default gen_random_uuid()
+user_id uuid not null
+kind text not null check (kind in ('breast','bottle','pump'))
+side text                 -- L/R/Both for breast/pump
+duration_seconds int      -- breast
+amount_ml int             -- bottle/pump
+bottle_type text          -- 'breast_milk'|'formula'|'water'
+notes text
+logged_at timestamptz not null default now()
+created_at timestamptz not null default now()
+```
 
-- Build passes (auto).
-- Manually walk each of the 5 screens at 390px viewport via preview; confirm header/footer/watermark/cards/pills match tokens; confirm "+ Post" opens bottom sheet without navigation; confirm Bella avatar appears only on Bella bubbles; confirm week 24 → corn illustration and weeks 1–4 show em-dash stats.
+GRANTs for `authenticated` (CRUD own rows) + `service_role` ALL. RLS enabled with `user_id = auth.uid()` for select/insert/update/delete. No anon grant.
+
+## 7. Animations
+
+- Wrap page sections in a small `<StaggerCards>` helper applying `card-enter` with `style={{ animationDelay: i*50+'ms' }}`.
+- Add global `button { transition: transform 100ms } button:active { transform: scale(0.97) }` scoped to `.belly-press`.
+- PostSheet + feed log sheets reuse the existing spring cubic-bezier.
+
+## Out of scope
+
+- No auth changes, no Supabase client edits, no edge function work, no changes to existing routes/data fetching, no Shop/Cart/Orders rewrites (they inherit tokens only).
+
+## Technical notes
+
+- Emoji mapping lives in a new `src/data/babyEmojiByWeek.ts` to avoid touching the SVG `BabySizeIllustration` consumers elsewhere (Shareable cards keep SVG).
+- Watermarks rendered as a single `<BellyWatermark text size position />` helper.
+- Breathing circle phase machine: `useEffect` with `setTimeout` chain {inhale 4000, hold 7000, exhale 8000}, cleanup on unmount.
+- Time-aware greeting computed once per mount + on visibilitychange.
+- Feeding timer uses `useRef` for start timestamp to avoid re-render loops.

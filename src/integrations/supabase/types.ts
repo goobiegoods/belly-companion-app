@@ -208,6 +208,45 @@ export type Database = {
         }
         Relationships: []
       }
+      feed_logs: {
+        Row: {
+          amount_ml: number | null
+          bottle_type: string | null
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          kind: string
+          logged_at: string
+          notes: string | null
+          side: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_ml?: number | null
+          bottle_type?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          kind: string
+          logged_at?: string
+          notes?: string | null
+          side?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_ml?: number | null
+          bottle_type?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          kind?: string
+          logged_at?: string
+          notes?: string | null
+          side?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_entries: {
         Row: {
           created_at: string
