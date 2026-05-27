@@ -34,10 +34,10 @@ const Courses = () => {
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
     supabase.from("lesson_completions").select("lesson_id").eq("user_id", user.id)
       .then(({ data }) => setCompletions(data?.map(d => d.lesson_id) || []));
-  }, [user]);
+  }, [user?.id]);
 
   const totalLessons = coursesData.reduce((s, c) => s + c.lessonCount, 0);
   const completedCount = completions.length;

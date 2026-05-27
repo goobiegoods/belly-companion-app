@@ -32,7 +32,8 @@ const Journal = () => {
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
 
-  useEffect(() => { if (user) fetchEntries(); }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (user?.id) fetchEntries(); }, [user?.id]);
 
   const fetchEntries = async () => {
     if (!user) return;
