@@ -168,7 +168,9 @@ const App = () => (
         <AuthProvider>
           <CartProvider>
             <SavedRecipesProvider>
-              <AppContent />
+              <PostSheetProvider>
+                <AppContent />
+              </PostSheetProvider>
             </SavedRecipesProvider>
           </CartProvider>
         </AuthProvider>
