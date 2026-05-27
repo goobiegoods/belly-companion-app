@@ -1,14 +1,35 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Heart, MessageCircle, Users, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
-const tabs = [
-  { path: "/", icon: Home, label: "Today" },
-  { path: "/baby", icon: Heart, label: "Baby" },
-  { path: "/ask", icon: MessageCircle, label: "Ask Bella" },
-  { path: "/community", icon: Users, label: "Mamas" },
-  { path: "/shop", icon: ShoppingBag, label: "Shop" },
-  { path: "/me", icon: User, label: "Journey" },
+type IconName = "today" | "baby" | "ask" | "mamas" | "shop" | "journey";
+
+const Icon = ({ name, active }: { name: IconName; active: boolean }) => {
+  const stroke = active ? "#FFFFFF" : "rgba(255,255,255,0.55)";
+  const sw = 1.6;
+  const common = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke, strokeWidth: sw, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  switch (name) {
+    case "today":
+      return <svg {...common}><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>;
+    case "baby":
+      return <svg {...common}><path d="M20.8 6.6a5 5 0 0 0-8.8-2.2 5 5 0 0 0-8.8 2.2c0 6.2 8.8 11 8.8 11s8.8-4.8 8.8-11z"/></svg>;
+    case "ask":
+      return <svg {...common}><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.4A8 8 0 1 1 21 12z"/></svg>;
+    case "mamas":
+      return <svg {...common}><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M14.5 20c0-2.4 1.6-4.4 3.5-5"/></svg>;
+    case "shop":
+      return <svg {...common}><path d="M5 8h14l-1.2 11a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 8a3 3 0 1 1 6 0"/></svg>;
+    case "journey":
+      return <svg {...common}><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c.7-3.6 3.8-6 7.5-6s6.8 2.4 7.5 6"/></svg>;
+  }
+};
+
+const tabs: { path: string; icon: IconName; label: string }[] = [
+  { path: "/", icon: "today", label: "Today" },
+  { path: "/baby", icon: "baby", label: "Baby" },
+  { path: "/ask", icon: "ask", label: "Ask Bella" },
+  { path: "/community", icon: "mamas", label: "Mamas" },
+  { path: "/shop", icon: "shop", label: "Shop" },
+  { path: "/me", icon: "journey", label: "Journey" },
 ];
 
 const BottomNav = () => {
@@ -20,65 +41,49 @@ const BottomNav = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50" style={{
       maxWidth: 430,
       margin: "0 auto",
-      background: "var(--color-bg-base)",
-      borderTop: "1px solid var(--color-border-default)",
+      background: "#C85818",
     }}>
-      <div className="flex items-center justify-around" style={{ height: 64 }}>
-        {tabs.map(({ path, icon: Icon, label }) => {
+      <div className="flex items-center justify-around" style={{ padding: "10px 4px 14px" }}>
+        {tabs.map(({ path, icon, label }) => {
           const active = location.pathname === path;
-          const color = active ? "var(--color-accent-primary)" : "var(--color-text-muted)";
           return (
             <button
               key={path}
               onClick={() => navigate(path)}
-              className="flex flex-col items-center justify-center belly-btn-press relative"
-              style={{ minWidth: 48, minHeight: 48, paddingTop: 8, paddingBottom: 6 }}
+              className="flex flex-col items-center justify-center belly-press-scale relative"
+              style={{ minWidth: 48, paddingTop: 4, paddingBottom: 4 }}
               aria-label={label}
               aria-current={active ? "page" : undefined}
             >
               <div className="relative">
-                <Icon size={22} style={{ color }} strokeWidth={active ? 2.4 : 2} />
+                <Icon name={icon} active={active} />
                 {path === "/shop" && cartCount > 0 && (
-                  <div
-                    className="absolute flex items-center justify-center"
-                    style={{
-                      top: -5, right: -7,
-                      minWidth: 16, height: 16, padding: "0 4px",
-                      borderRadius: 999,
-                      background: "var(--color-accent-primary)",
-                      border: "2px solid var(--color-bg-base)",
-                      fontFamily: "'Outfit', system-ui",
-                      fontWeight: 700, fontSize: 9,
-                      color: "#fff", lineHeight: 1,
-                    }}
-                  >
-                    {cartCount > 9 ? "9+" : cartCount}
-                  </div>
+                  <div className="absolute flex items-center justify-center" style={{
+                    top: -5, right: -8, minWidth: 16, height: 16, padding: "0 4px",
+                    borderRadius: 999, background: "#FFFFFF",
+                    border: "2px solid #C85818",
+                    fontFamily: "'Nunito',system-ui", fontWeight: 700, fontSize: 9,
+                    color: "#C85818", lineHeight: 1,
+                  }}>{cartCount > 9 ? "9+" : cartCount}</div>
                 )}
               </div>
-              <span
-                style={{
-                  fontFamily: "'Outfit', system-ui, sans-serif",
-                  fontSize: 10,
-                  fontWeight: active ? 600 : 500,
-                  color,
-                  marginTop: 3,
-                  letterSpacing: 0.1,
-                }}
-              >
-                {label}
-              </span>
+              <span style={{
+                fontFamily: "'Nunito',system-ui",
+                fontSize: 7.5, fontWeight: 700,
+                color: active ? "#FFFFFF" : "rgba(255,255,255,0.55)",
+                marginTop: 4, letterSpacing: 0.2,
+              }}>{label}</span>
               {active && (
                 <span style={{
-                  position: "absolute", bottom: 2, left: "50%", transform: "translateX(-50%)",
-                  width: 22, height: 2, borderRadius: 2, background: "var(--color-accent-primary)",
+                  position: "absolute", bottom: -2, left: "50%", transform: "translateX(-50%)",
+                  width: 16, height: 2, borderRadius: 2, background: "#FFFFFF",
                 }} />
               )}
             </button>
           );
         })}
       </div>
-      <div style={{ height: "calc(env(safe-area-inset-bottom))" }} />
+      <div style={{ height: "env(safe-area-inset-bottom)" }} />
     </nav>
   );
 };
