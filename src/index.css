@@ -8,44 +8,54 @@
 
 @layer base {
   :root {
-    /* ---- v3 warm tri-tone tokens (terracotta / cream / sage) ---- */
-    --color-bg-base:         #FAF7F2;
-    --color-bg-card:         #FDF9F4;
-    --color-bg-card-subtle:  #F5EFE6;
-    --color-accent-primary:  #C9622F;  /* muted terracotta */
-    --color-accent-light:    #F5D5C0;  /* warm peach */
-    --color-accent-dark:     #A04E22;
-    --color-sage:            #7A9E7E;
-    --color-sage-soft:       #EEF4EE;
-    --color-amber-soft:      #FFF3E0;
-    --color-peach-soft:      #FDF0EA;
-    --color-text-primary:    #3D2C1E;  /* warm dark brown */
-    --color-text-secondary:  #6B5544;
-    --color-text-muted:      #9E8E82;
+    /* ---- Belly v4 tokens (cream page, white cards, terracotta accent) ---- */
+    --color-bg-base:         #F0E8DC;   /* page background */
+    --color-bg-card:         #FFFFFF;   /* card surface */
+    --color-bg-card-subtle:  #FAEADA;   /* blush tint */
+    --color-accent-primary:  #E8702A;   /* belly orange */
+    --color-accent-light:    #FAEADA;   /* blush */
+    --color-accent-dark:     #A84818;
+    --color-sage:            #6EC87A;   /* online dot only */
+    --color-sage-soft:       #F0E8DC;   /* legacy alias → neutral */
+    --color-amber-soft:      #FAEADA;
+    --color-peach-soft:      #FAEADA;
+    --color-text-primary:    #1A0E06;
+    --color-text-secondary:  #7A5038;
+    --color-text-muted:      #C0907A;
     --color-text-on-accent:  #FFFFFF;
-    --color-border-default:  #E3D9CE;  /* warm beige-gray */
-    --color-border-strong:   #C9B7A4;
-    --color-success:         #7A9E7E;
+    --color-border-default:  #E8702A;   /* orange border */
+    --color-border-strong:   #C85818;
+    --color-success:         #6EC87A;
     --color-danger:          #C66845;
-    --color-streak-flame:    #C9622F;
-    --shadow-warm:           0 2px 8px rgba(180, 90, 30, 0.18);
-    --shadow-card:           0 2px 12px rgba(180, 100, 20, 0.05);
+    --color-streak-flame:    #E8702A;
+    --shadow-warm:           0 4px 16px rgba(232,112,42,0.42);
+    --shadow-card:           0 3px 16px rgba(232,112,42,0.10);
+
+    /* Belly v4 specific */
+    --belly-header-gradient: linear-gradient(135deg, #E8702A 0%, #D45810 100%);
+    --belly-nav-bg:          #C85818;
+    --belly-pill-orange-bg:  #FAEADA;
+    --belly-pill-orange-tx:  #A84818;
+    --belly-pill-neutral-bg: #F0E8DC;
+    --belly-pill-neutral-tx: #7A5A40;
+    --belly-text-soft:       #C0907A;
+    --belly-label-muted:     #C0A888;
 
     /* ---- legacy aliases ---- */
     --bg: var(--color-bg-base);
-    --c1: rgba(201,98,47,0.06);
-    --c1-border: rgba(201,98,47,0.18);
-    --c2: rgba(201,98,47,0.04);
-    --c2-border: rgba(201,98,47,0.12);
-    --input-bg: var(--color-bg-card);
+    --c1: rgba(232,112,42,0.06);
+    --c1-border: rgba(232,112,42,0.22);
+    --c2: rgba(232,112,42,0.04);
+    --c2-border: rgba(232,112,42,0.18);
+    --input-bg: var(--color-bg-base);
     --white: #FFFFFF;
     --w90: var(--color-text-primary);
     --w70: var(--color-text-secondary);
     --w50: var(--color-text-muted);
     --w40: var(--color-text-muted);
-    --w15: var(--color-border-default);
-    --w08: var(--color-border-default);
-    --nav-bg: var(--color-bg-base);
+    --w15: rgba(232,112,42,0.18);
+    --w08: rgba(232,112,42,0.10);
+    --nav-bg: var(--belly-nav-bg);
     --send: var(--color-accent-primary);
 
     /* ---- shadcn semantic tokens (HSL) ---- */
@@ -146,7 +156,7 @@
     color: var(--color-text-primary);
   }
   body {
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: 'Nunito', 'Outfit', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
     overscroll-behavior: none;
@@ -156,7 +166,135 @@
 
 @layer utilities {
   .font-display { font-family: 'Fraunces', Georgia, serif; }
-  .font-body    { font-family: 'Outfit', system-ui, sans-serif; }
+  .font-body    { font-family: 'Nunito', 'Outfit', system-ui, sans-serif; }
+  .font-nunito  { font-family: 'Nunito', 'Outfit', system-ui, sans-serif; }
+  .font-fraunces-italic { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 400; }
+
+  /* ---- Belly v4 surfaces ---- */
+  .belly-card {
+    background: #FFFFFF;
+    border: 1.5px solid #E8702A;
+    border-radius: 22px;
+    box-shadow: 0 3px 16px rgba(232,112,42,0.10);
+  }
+  .belly-eyebrow {
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #E8702A;
+  }
+  .belly-watermark {
+    position: absolute;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    color: #E8702A;
+    opacity: 0.045;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    z-index: 0;
+  }
+  .belly-pill-orange {
+    background: #FAEADA;
+    color: #A84818;
+    border: 1px solid rgba(232,112,42,0.22);
+    border-radius: 18px;
+    padding: 4px 11px;
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .belly-pill-neutral {
+    background: #F0E8DC;
+    color: #7A5A40;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 18px;
+    padding: 4px 11px;
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .belly-btn-primary-v4 {
+    background: #E8702A;
+    color: #FFFFFF;
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    border: none;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 4px 16px rgba(232,112,42,0.42);
+    cursor: pointer;
+    transition: transform 100ms ease;
+  }
+  .belly-btn-primary-v4:active { transform: scale(0.97); }
+  .belly-send-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #E8702A;
+    box-shadow: 0 2px 8px rgba(232,112,42,0.5);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 100ms ease;
+  }
+  .belly-send-circle:active { transform: scale(0.94); }
+  .belly-input-pill {
+    background: #F0E8DC;
+    border: 1px solid rgba(232,112,42,0.18);
+    border-radius: 28px;
+    padding: 10px 8px 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .belly-input-pill input,
+  .belly-input-pill textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 13px;
+    color: #1A0E06;
+  }
+  .belly-input-pill input::placeholder,
+  .belly-input-pill textarea::placeholder {
+    color: #C0987A;
+    font-weight: 400;
+  }
+  .belly-header-bar {
+    background: linear-gradient(135deg, #E8702A 0%, #D45810 100%);
+    color: #FFFFFF;
+    padding: 14px 18px 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .belly-header-glow {
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    pointer-events: none;
+  }
+  .belly-press-scale { transition: transform 100ms ease; }
+  .belly-press-scale:active { transform: scale(0.97); }
 
   /* ---- v2 type scale ---- */
   .belly-display    { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 36px; line-height: 1.05; letter-spacing: -0.5px; }

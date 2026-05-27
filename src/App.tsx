@@ -27,6 +27,7 @@ import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
 import { CartProvider } from "./contexts/CartContext";
+import { PostSheetProvider } from "./components/PostSheet";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
@@ -167,7 +168,9 @@ const App = () => (
         <AuthProvider>
           <CartProvider>
             <SavedRecipesProvider>
-              <AppContent />
+              <PostSheetProvider>
+                <AppContent />
+              </PostSheetProvider>
             </SavedRecipesProvider>
           </CartProvider>
         </AuthProvider>
