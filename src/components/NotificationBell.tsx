@@ -49,23 +49,25 @@ export function useNotifications() {
   };
 
   useEffect(() => {
-    if (!user) return;
+    const uid = user?.id;
+    if (!uid) return;
     fetchNotifications();
 
     const channel = supabase
-      .channel(`notifications-${user.id}`)
+      .channel(`notifications-${uid}`)
       .on("postgres_changes", {
         event: "INSERT",
         schema: "public",
         table: "notifications",
-        filter: `user_id=eq.${user.id}`,
+        filter: `user_id=eq.${uid}`,
       }, (payload) => {
         setNotifications(prev => [payload.new as Notification, ...prev]);
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const markAsRead = async (id: string) => {
     await supabase.from("notifications").update({ is_read: true }).eq("id", id);

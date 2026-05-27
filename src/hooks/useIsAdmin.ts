@@ -13,7 +13,8 @@ export const useIsAdmin = () => {
 
   useEffect(() => {
     let cancelled = false;
-    if (!user) {
+    const uid = user?.id;
+    if (!uid) {
       setState({ isAdmin: false, loading: false });
       return;
     }
@@ -22,7 +23,7 @@ export const useIsAdmin = () => {
       const { data } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", user.id)
+        .eq("user_id", uid)
         .eq("role", "admin")
         .maybeSingle();
       if (!cancelled) setState({ isAdmin: !!data, loading: false });
@@ -30,7 +31,7 @@ export const useIsAdmin = () => {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user?.id]);
 
   return state;
 };

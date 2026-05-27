@@ -62,7 +62,7 @@ const AskDoula = () => {
   }, [messages]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
     const today = new Date().toISOString().split("T")[0];
     supabase
       .from("chat_messages")
@@ -71,7 +71,7 @@ const AskDoula = () => {
       .eq("role", "user")
       .gte("created_at", today + "T00:00:00Z")
       .then(({ count }) => setMessageCount(count || 0));
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     const prefill = (location.state as any)?.prefill;

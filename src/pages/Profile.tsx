@@ -33,12 +33,12 @@ const Profile = () => {
   const [checkedInToday, setCheckedInToday] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
     getStreak(user.id).then((s) => s && setStreak(s));
     const today = new Date().toISOString().slice(0, 10);
     supabase.from("streak_state").select("last_checkin_date").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => setCheckedInToday(data?.last_checkin_date === today));
-  }, [user]);
+  }, [user?.id]);
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 0;
   const daysToGo = profile?.due_date ? getDaysToGo(profile.due_date) : 0;

@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { initTheme } from "@/lib/theme";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -45,11 +45,13 @@ const queryClient = new QueryClient();
 const SplashScreen = ({ onDone }: { onDone: () => void }) => {
   const [showLogo, setShowLogo] = useState(false);
 
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
   useEffect(() => {
     const t1 = setTimeout(() => setShowLogo(true), 400);
-    const t2 = setTimeout(() => onDone(), 1600);
+    const t2 = setTimeout(() => onDoneRef.current(), 1600);
     return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [onDone]);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center" style={{ background: "#FEF8F4" }}>

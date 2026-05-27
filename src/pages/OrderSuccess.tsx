@@ -11,7 +11,8 @@ const OrderSuccess = () => {
   useEffect(() => {
     // Clear cart now that the user has paid (webhook marks the order paid server-side).
     setCartCount(0);
-  }, [setCartCount]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 page-enter" style={{ background: "transparent" }}>

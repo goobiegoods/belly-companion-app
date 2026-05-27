@@ -30,9 +30,9 @@ const HomePage = () => {
   const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
     getStreak(user.id).then((s) => s && setStreakDays(s.current));
-  }, [user]);
+  }, [user?.id]);
 
   const goToAsk = (prefill?: string) => {
     navigate("/ask", { state: prefill ? { prefill } : undefined });

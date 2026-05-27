@@ -19,11 +19,11 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
     supabase.from("orders").select("*").eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => { setOrders(data || []); setLoading(false); });
-  }, [user]);
+  }, [user?.id]);
 
   const formatDate = (d: string) => {
     try { return new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }); }
