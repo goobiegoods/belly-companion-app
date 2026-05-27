@@ -79,9 +79,15 @@ const SplashScreen = ({ onDone }: { onDone: () => void }) => {
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, profile, loading } = useAuth();
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#FF7840", borderTopColor: "transparent" }} /></div>;
+  const Spinner = (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#FF7840", borderTopColor: "transparent" }} />
+    </div>
+  );
+  if (loading) return Spinner;
   if (!session) return <Navigate to="/auth" replace />;
-  if (!profile?.onboarding_completed) return <Navigate to="/onboarding" replace />;
+  if (!profile) return Spinner;
+  if (!profile.onboarding_completed) return <Navigate to="/onboarding" replace />;
   return <>{children}</>;
 };
 
