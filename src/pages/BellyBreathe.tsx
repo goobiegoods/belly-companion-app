@@ -295,36 +295,43 @@ const SessionStep = ({
   const [elapsed, setElapsed] = useState(0);
 
   const completedRef = useRef(false);
+  const elapsedRef = useRef(0);
+  const onCompleteRef = useRef(onComplete);
+  const phasesRef = useRef(technique.phases);
+  const totalRoundsRef = useRef(totalRounds);
+
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+  useEffect(() => { phasesRef.current = technique.phases; }, [technique]);
+  useEffect(() => { totalRoundsRef.current = totalRounds; }, [totalRounds]);
 
   useEffect(() => {
     if (paused) return;
     const id = setInterval(() => {
       setCount(c => {
         if (c > 1) return c - 1;
-        // phase finished
         setPhaseIdx(pi => {
-          const nextIdx = (pi + 1) % technique.phases.length;
+          const phases = phasesRef.current;
+          const nextIdx = (pi + 1) % phases.length;
           if (nextIdx === 0) {
-            // round finished
             setRound(r => {
               const nr = r + 1;
-              if (nr > totalRounds && !completedRef.current) {
+              if (nr > totalRoundsRef.current && !completedRef.current) {
                 completedRef.current = true;
-                setTimeout(() => onComplete({ roundsCompleted: totalRounds, elapsed: elapsed + 1 }), 0);
+                setTimeout(() => onCompleteRef.current({ roundsCompleted: totalRoundsRef.current, elapsed: elapsedRef.current + 1 }), 0);
               }
               return nr;
             });
           }
-          // set next count
-          setTimeout(() => setCount(technique.phases[nextIdx].sec), 0);
+          setTimeout(() => setCount(phases[nextIdx].sec), 0);
           return nextIdx;
         });
         return 0;
       });
+      elapsedRef.current += 1;
       setElapsed(e => e + 1);
     }, 1000);
     return () => clearInterval(id);
-  }, [paused, technique, totalRounds, onComplete, elapsed]);
+  }, [paused, technique.id]);
 
   const phase = technique.phases[phaseIdx];
   const isInhale = phase.label === "Inhale";
