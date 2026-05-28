@@ -59,6 +59,30 @@ export type Database = {
         }
         Relationships: []
       }
+      breathing_streak: {
+        Row: {
+          current_streak: number
+          last_session_date: string | null
+          longest_streak: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          last_session_date?: string | null
+          longest_streak?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          last_session_date?: string | null
+          longest_streak?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       broadcast_reads: {
         Row: {
           broadcast_id: string

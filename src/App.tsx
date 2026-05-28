@@ -133,7 +133,7 @@ const AppContent = () => {
       <Route path="/premium-success" element={<ProtectedRoute><AppLayout><PremiumSuccess /></AppLayout></ProtectedRoute>} />
       <Route path="/recipes" element={<ProtectedRoute><AppLayout><Recipes /></AppLayout></ProtectedRoute>} />
       <Route path="/recipes/:id" element={<ProtectedRoute><RecipeDetail /></ProtectedRoute>} />
-      <Route path="/breathe" element={<ProtectedRoute><AppLayout><BellyBreathe /></AppLayout></ProtectedRoute>} />
+      <Route path="/breathe" element={<ProtectedRoute><BellyBreathe /></ProtectedRoute>} />
       <Route path="/feeding" element={<ProtectedRoute><AppLayout><FeedingTracker /></AppLayout></ProtectedRoute>} />
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminOverview />} />
