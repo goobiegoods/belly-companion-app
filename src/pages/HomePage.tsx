@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek, getWeekData, getDaysToGo } from "@/data/pregnancyWeeks";
 import { useNavigate } from "react-router-dom";
 import { getStreak } from "@/lib/streak";
+import { getBreathingStreak } from "@/lib/breathingStreak";
 import ShareableMilestoneCard from "@/components/ShareableMilestoneCard";
 import AppHeader, { HeaderGhostPill } from "@/components/AppHeader";
 
