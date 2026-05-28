@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import type { Product } from "@/data/shopData";
 
 export interface CartItem { product: Product; qty: number }
@@ -79,8 +79,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (n === 0) clearCart();
   };
 
+  const value = useMemo(
+    () => ({ items, cartCount, cartTotal, addItem, updateQty, removeItem, clearCart, setCartCount }),
+    [items, cartCount, cartTotal]
+  );
+
   return (
-    <CartContext.Provider value={{ items, cartCount, cartTotal, addItem, updateQty, removeItem, clearCart, setCartCount }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );
