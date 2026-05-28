@@ -43,7 +43,15 @@ import AdminCommunity from "./pages/admin/AdminCommunity";
 import AdminBroadcast from "./pages/admin/AdminBroadcast";
 import AdminSettings from "./pages/admin/AdminSettings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5,
+    },
+  },
+});
 
 const SplashScreen = ({ onDone }: { onDone: () => void }) => {
   const [showLogo, setShowLogo] = useState(false);
