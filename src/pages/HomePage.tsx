@@ -271,18 +271,27 @@ const HomePage = () => {
           </button>
         </div>
 
-        {/* Streak callout */}
-        <div style={{ padding: "0 12px" }}>
+        {/* Streak callouts */}
+        <div style={{ padding: "0 12px", display: "flex", gap: 8 }}>
           <button onClick={() => navigate("/me")} className="belly-press-scale" style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 10,
+            flex: 1, display: "flex", alignItems: "center", gap: 8,
             background: "#FAEADA", border: "1px solid rgba(232,112,42,0.25)",
-            borderRadius: 14, padding: "10px 14px", cursor: "pointer", textAlign: "left",
+            borderRadius: 14, padding: "10px 12px", cursor: "pointer", textAlign: "left",
           }}>
-            <span style={{ fontSize: 18 }}>🔥</span>
-            <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 12, fontWeight: 700, color: "#A84818" }}>
-              {streakDays}-day streak — keep it up
+            <span style={{ fontSize: 16 }}>🔥</span>
+            <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 11, fontWeight: 700, color: "#A84818", lineHeight: 1.2 }}>
+              {streakDays}-day streak
             </span>
-            <span style={{ marginLeft: "auto", color: "#A84818" }}>›</span>
+          </button>
+          <button onClick={() => navigate("/breathe")} className="belly-press-scale" style={{
+            flex: 1, display: "flex", alignItems: "center", gap: 8,
+            background: "#FAEADA", border: "1px solid rgba(232,112,42,0.25)",
+            borderRadius: 14, padding: "10px 12px", cursor: "pointer", textAlign: "left",
+          }}>
+            <span style={{ fontSize: 16 }}>🌬</span>
+            <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 11, fontWeight: 700, color: "#A84818", lineHeight: 1.2 }}>
+              {breathingStreak}-day breathing
+            </span>
           </button>
         </div>
 
