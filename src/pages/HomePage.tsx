@@ -26,11 +26,13 @@ const HomePage = () => {
   const displayName = titleCase((profile?.first_name || "").split(" ")[0]) || "mama";
 
   const [streakDays, setStreakDays] = useState(0);
+  const [breathingStreak, setBreathingStreak] = useState(0);
   const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     if (!user?.id) return;
     getStreak(user.id).then((s) => s && setStreakDays(s.current));
+    getBreathingStreak(user.id).then((s) => setBreathingStreak(s.current));
   }, [user?.id]);
 
   const goToAsk = (prefill?: string) => navigate("/ask", { state: prefill ? { prefill } : undefined });
