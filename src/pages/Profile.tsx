@@ -77,21 +77,30 @@ const Profile = () => {
         }}>Settings</button>
       </div>
 
-      {/* Hero — orange-bordered avatar, no gradient ring */}
+      {/* Pulse ring keyframes (scoped) */}
+      <style>{`
+        @keyframes belly-pulse-ring {
+          0% { box-shadow: 0 0 0 0 rgba(232,96,26,0.45); }
+          70% { box-shadow: 0 0 0 10px rgba(232,96,26,0); }
+          100% { box-shadow: 0 0 0 0 rgba(232,96,26,0); }
+        }
+      `}</style>
+
+      {/* Hero — solid orange avatar matching Bella */}
       <div style={{ padding: "20px 20px 16px", textAlign: "center", position: "relative" }}>
         <span className="belly-watermark" style={{ top: 30, left: "50%", transform: "translateX(-50%)", fontSize: 68 }}>journey</span>
         <div style={{
           width: 64, height: 64, borderRadius: "50%",
-          background: "#FAEADA", border: "2.5px solid #E8702A",
+          background: "#E8601A",
           margin: "0 auto 10px",
           display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 4px 16px rgba(232,112,42,0.20)",
+          boxShadow: "0 4px 16px rgba(232,96,26,0.28)",
           position: "relative", zIndex: 1,
         }}>
-          <span className="font-display" style={{ fontStyle: "italic", fontSize: 25, color: "#C45818" }}>{initials}</span>
+          <span style={{ fontFamily: "'Nunito',system-ui", fontWeight: 800, fontSize: 28, color: "#FFFFFF" }}>B</span>
         </div>
         <h1 style={{ fontFamily: "'Nunito',system-ui", fontSize: 15, fontWeight: 800, color: "#1A0E06", position: "relative", zIndex: 1 }}>
-          {getDisplayName({ first_name: profile?.first_name })}
+          {formatName(getDisplayName({ first_name: profile?.first_name }))}
         </h1>
         <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 8.5, color: "#C0907A", marginTop: 4, fontWeight: 600, position: "relative", zIndex: 1 }}>
           Week {currentWeek} · Due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
@@ -115,19 +124,19 @@ const Profile = () => {
                 <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, position: "relative" }}>
                   {i < arr.length - 1 && (
                     <span style={{
-                      position: "absolute", top: 5, left: "50%", right: "-50%", height: 2,
-                      background: arr[i + 1] <= currentWeek ? "rgba(232,112,42,0.30)" : "rgba(0,0,0,0.08)",
+                      position: "absolute", top: 6, left: "50%", right: "-50%", height: 2,
+                      background: arr[i + 1] <= currentWeek ? "#E8601A" : "#F0E4DA",
                     }} />
                   )}
                   <span style={{
-                    width: isCurrent ? 11 : 8, height: isCurrent ? 11 : 8, borderRadius: "50%",
-                    background: isCurrent ? "#E8702A" : isPast ? "rgba(232,112,42,0.40)" : "rgba(0,0,0,0.12)",
-                    boxShadow: isCurrent ? "0 0 0 3px rgba(232,112,42,0.20)" : "none",
+                    width: isCurrent ? 13 : 8, height: isCurrent ? 13 : 8, borderRadius: "50%",
+                    background: isCurrent ? "#E8601A" : isPast ? "#E8601A" : "#F0E4DA",
                     position: "relative", zIndex: 1,
+                    animation: isCurrent ? "belly-pulse-ring 1.8s ease-out infinite" : "none",
                   }} />
                   <p style={{
                     fontFamily: "'Nunito',system-ui", fontSize: 7.5, fontWeight: isCurrent ? 800 : 600,
-                    color: isCurrent ? "#E8702A" : "#C0A888", marginTop: 8,
+                    color: isCurrent ? "#E8601A" : "#C0A888", marginTop: 8,
                   }}>{isCurrent ? `Wk ${w} ●` : `Wk ${w}`}</p>
                 </div>
               );
@@ -139,8 +148,8 @@ const Profile = () => {
       {/* Motivational card */}
       <div className="px-3 mb-4">
         <div style={{
-          background: "#FAEADA", border: "1.5px solid rgba(232,112,42,0.22)",
-          borderRadius: 14, padding: 12, textAlign: "center",
+          background: "#FDE8D8", border: "1.5px solid rgba(232,112,42,0.22)",
+          borderRadius: 14, padding: 14, textAlign: "left",
         }}>
           <p className="font-display" style={{ fontStyle: "italic", fontWeight: 300, fontSize: 12, color: "#A84818", lineHeight: 1.7 }}>
             You're doing amazing, mama. {daysToGo} days left — every one counts. 🌸
@@ -152,15 +161,16 @@ const Profile = () => {
       <div className="px-5 mb-3">
         <div style={{ background: "var(--color-amber-soft)", border: "0.5px solid var(--color-border-default)", borderRadius: 18, padding: 18, boxShadow: "var(--shadow-card)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 56 }}>
-              <span style={{ fontSize: 34, lineHeight: 1, color: "var(--color-accent-primary)" }}>🔥</span>
-              <span className="font-serif-display" style={{ fontSize: 30, fontWeight: 700, color: "var(--color-accent-primary)", lineHeight: 1, marginTop: 4 }}>{streak.current}</span>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0, minWidth: 56 }}>
+              <span style={{ fontSize: 40, lineHeight: 1 }}>🔥</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "var(--color-text-primary)" }}>{streak.current}-day streak</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                {streak.current === 0 ? "Start your streak today 🔥" : `${streak.current}-day streak`}
+              </p>
               <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "var(--color-text-secondary)", marginTop: 2 }}>Check in tomorrow to keep it going</p>
-              <div style={{ height: 6, borderRadius: 50, background: "rgba(122,158,126,0.18)", marginTop: 10, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.min(100, (streak.current / 7) * 100)}%`, background: "var(--color-sage)", borderRadius: 50, transition: "width 300ms" }} />
+              <div style={{ height: 6, borderRadius: 50, background: "#FDE8D8", marginTop: 10, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, (streak.current / 7) * 100)}%`, background: "#E8601A", borderRadius: 50, transition: "width 300ms" }} />
               </div>
               <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "var(--color-text-secondary)", marginTop: 6 }}>{Math.min(streak.current, 7)} of 7 days — unlock the Week Streak badge</p>
             </div>
@@ -177,11 +187,11 @@ const Profile = () => {
       <div className="flex gap-2 px-5 mb-5">
         <div className="flex-1 text-center" style={{ background: "var(--color-sage-soft)", border: "0.5px solid var(--color-border-default)", borderRadius: 16, padding: "14px 8px" }}>
           <p className="font-serif-display" style={{ fontSize: 28, fontWeight: 800, color: "var(--color-text-primary)", letterSpacing: -0.5 }}>{currentWeek}</p>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "#3F5C42", marginTop: 4 }}>WEEK</p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "#9A7B66", marginTop: 4 }}>WEEK</p>
         </div>
         <div className="flex-1 text-center" style={{ background: "var(--color-peach-soft)", border: "0.5px solid var(--color-border-default)", borderRadius: 16, padding: "14px 8px" }}>
           <p className="font-serif-display" style={{ fontSize: 28, fontWeight: 800, color: "var(--color-text-primary)", letterSpacing: -0.5 }}>{daysToGo}</p>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "var(--color-accent-dark)", marginTop: 4 }}>DAYS TO GO</p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "#9A7B66", marginTop: 4 }}>DAYS TO GO</p>
         </div>
       </div>
 
@@ -202,12 +212,23 @@ const Profile = () => {
               minWidth: 64, borderRadius: 14, padding: "10px 8px",
               background: "var(--color-bg-card)",
               border: "0.5px solid var(--color-border-default)",
-              boxShadow: badge.earned ? "0 0 0 2px var(--color-accent-light)" : "none",
-              opacity: badge.earned ? 1 : 0.45,
+              boxShadow: badge.earned
+                ? "0 0 0 2px #FFE0C7, 0 4px 14px rgba(232,96,26,0.18)"
+                : "none",
+              opacity: badge.earned ? 1 : 0.4,
             }}>
               <span style={{ fontSize: 22, marginBottom: 4, filter: badge.earned ? "none" : "grayscale(100%)" }}>{badge.emoji}</span>
               <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "var(--color-text-primary)" }}>{badge.label}</span>
-              {!badge.earned && <span style={{ position: "absolute", bottom: 4, right: 4, fontSize: 10 }}>🔒</span>}
+              {!badge.earned && (
+                <span style={{
+                  position: "absolute", top: 4, right: 4,
+                  width: 14, height: 14, borderRadius: "50%",
+                  background: "#FFFFFF",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 8, lineHeight: 1,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+                }}>🔒</span>
+              )}
             </div>
           ))}
         </div>
