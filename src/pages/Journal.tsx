@@ -57,7 +57,7 @@ const Journal = () => {
     });
     setSaving(false);
     if (error) { toast.error("Something went wrong. Try again."); return; }
-    toast.success("Entry saved 💛");
+    toast.success("✓ Entry saved for today!");
     setSelectedMood(null); setSelectedSymptoms([]); setNote("");
     fetchEntries();
   };
