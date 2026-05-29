@@ -45,15 +45,15 @@ const Recipes = () => {
 
   return (
     <div style={{ background: "transparent", height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "12px 14px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <button onClick={() => navigate("/")} style={{ background: "none", border: "none", color: "white", fontSize: 9, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>← Home</button>
-        <span style={{ fontFamily: "'Fraunces', serif", fontSize: 12, fontWeight: 700, color: "white" }}>Week {currentWeek} Recipes</span>
-        <span style={{ fontSize: 16 }}>🍽️</span>
+      <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, background: "#E8601A", boxShadow: "0 2px 8px rgba(120,60,10,0.18)" }}>
+        <button onClick={() => navigate("/")} style={{ background: "none", border: "none", color: "white", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>← Home</button>
+        <span style={{ fontFamily: "'Fraunces', serif", fontSize: 14, fontWeight: 700, color: "white" }}>Week {currentWeek} Recipes</span>
+        <span style={{ fontSize: 18 }}>🍽️</span>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch" as any }}>
         {/* Nutrition hero — darkened amber for white-text contrast on every week */}
-        <div style={{ margin: "7px 11px 0", borderRadius: 16, padding: "12px 14px", background: "linear-gradient(135deg, #D4500F, #E8731A, #F0934A)", boxShadow: "0 6px 20px rgba(120,60,10,0.25), inset 0 0 0 1px rgba(255,255,255,0.08)", position: "relative", overflow: "hidden" }}>
+        <div style={{ margin: "10px 11px 0", borderRadius: 16, padding: "12px 14px", background: "linear-gradient(135deg, #D4500F, #E8731A, #F0934A)", boxShadow: "0 6px 20px rgba(120,60,10,0.25), inset 0 0 0 1px rgba(255,255,255,0.08)", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", right: -8, top: -8, width: 65, height: 65, borderRadius: "50%", background: "rgba(255,255,255,0.1)" }} />
           <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.78)", fontWeight: 600, marginBottom: 6 }}>This week's key nutrients</p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
