@@ -6,7 +6,7 @@ type IconName = "today" | "baby" | "ask" | "mamas" | "shop" | "journey";
 const Icon = ({ name, active }: { name: IconName; active: boolean }) => {
   const stroke = active ? "#FFFFFF" : "rgba(255,255,255,0.55)";
   const sw = 1.6;
-  const common = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke, strokeWidth: sw, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  const common = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke, strokeWidth: sw, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, shapeRendering: "geometricPrecision" as const, style: { display: "block" } };
   switch (name) {
     case "today":
       return <svg {...common}><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>;
@@ -38,10 +38,10 @@ const BottomNav = () => {
   const { cartCount } = useCart();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[40px] shadow-[0_-6px_20px_rgba(232,96,26,0.27)] border-t border-orange-200/40" style={{
+    <nav className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[20px] shadow-[0_-6px_20px_rgba(232,96,26,0.27)] border-t border-orange-200/40" style={{
       maxWidth: 430,
       margin: "0 auto",
-      background: "#C85818",
+      background: "#E8601A",
     }}>
       <div className="flex items-center justify-around" style={{ padding: "10px 4px 14px" }}>
         {tabs.map(({ path, icon, label }) => {
