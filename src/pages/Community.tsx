@@ -530,6 +530,9 @@ const Community = () => {
               </button>
               {postError && <p className="text-[12px] text-center mt-2" style={{ color: "var(--color-danger)" }}>{postError}</p>}
             </div>
+            <div className="pt-1 pb-3 flex justify-center shrink-0">
+              <div style={{ width: 44, height: 5, borderRadius: 5, background: "var(--color-border-strong)" }} />
+            </div>
           </div>
         </div>
       )}
