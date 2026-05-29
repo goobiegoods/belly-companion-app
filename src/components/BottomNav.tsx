@@ -69,8 +69,8 @@ const BottomNav = () => {
               </div>
               <span style={{
                 fontFamily: "'Nunito',system-ui",
-                fontSize: 7.5, fontWeight: 700,
-                color: active ? "#FFFFFF" : "rgba(255,255,255,0.55)",
+                fontSize: 10, fontWeight: 700,
+                color: active ? "#FFFFFF" : "rgba(255,255,255,0.75)",
                 marginTop: 4, letterSpacing: 0.2,
               }}>{label}</span>
               {active && (
