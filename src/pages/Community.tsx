@@ -468,9 +468,6 @@ const Community = () => {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="pt-3 pb-1 flex justify-center shrink-0">
-              <div style={{ width: 44, height: 5, borderRadius: 5, background: "var(--color-border-strong)" }} />
-            </div>
             <button onClick={() => { setShowCreate(false); setPostError(""); }} aria-label="Close"
               style={{
                 position: "absolute", top: 14, right: 14, width: 32, height: 32, borderRadius: "50%",
