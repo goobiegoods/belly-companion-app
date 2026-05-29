@@ -200,21 +200,21 @@ const Shop = () => {
   const cardShadow = "0 2px 12px rgba(180,100,20,0.06)";
   return (
     <div className="min-h-screen pb-20 page-enter" style={{ background: "var(--color-bg-base)", minHeight: "100vh" }}>
-      <div className="px-5 pt-5 pb-1 flex items-start justify-between">
+      <div style={{ background: "#E8601A", padding: "14px 16px", boxShadow: "0 2px 8px rgba(120,60,10,0.18)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 28, color: "var(--color-text-primary)" }}>Belly Shop</h1>
-          <p style={{ color: "var(--color-text-secondary)", fontWeight: 400, fontSize: 13, fontFamily: "'Outfit', sans-serif" }}>Natural remedies, delivered to you</p>
+          <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 18, color: "#fff", lineHeight: 1.1 }}>Belly Shop</h1>
+          <p style={{ color: "rgba(255,255,255,0.85)", fontWeight: 400, fontSize: 10, fontFamily: "'Outfit', sans-serif", marginTop: 2 }}>Natural remedies, delivered to you</p>
         </div>
-        <button onClick={() => navigate("/cart")} aria-label="Open cart" className="relative shrink-0 mt-1"
-          style={{ width: 38, height: 38, borderRadius: "50%", background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <button onClick={() => navigate("/cart")} aria-label="Open cart" className="relative shrink-0"
+          style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "none", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
             <line x1="3" y1="6" x2="21" y2="6" />
             <path d="M16 10a4 4 0 01-8 0" />
           </svg>
           {cartCount > 0 && (
             <div className="absolute -top-1 -right-1 flex items-center justify-center"
-              style={{ width: 18, height: 18, borderRadius: "50%", background: "var(--color-accent-primary)", color: "#fff", fontSize: 9, fontWeight: 700, animation: "badgePop 200ms cubic-bezier(0.34,1.56,0.64,1)" }}>
+              style={{ width: 18, height: 18, borderRadius: "50%", background: "#fff", color: "#E8601A", fontSize: 9, fontWeight: 700, animation: "badgePop 200ms cubic-bezier(0.34,1.56,0.64,1)" }}>
               {cartCount}
             </div>
           )}
