@@ -385,34 +385,34 @@ const Community = () => {
   // --- FEED ---
   return (
     <div className="min-h-screen pb-20 page-enter" style={{ background: "var(--color-bg-base)" }}>
-      <div className="px-5 pt-5 pb-3 flex items-center justify-between">
+      <div style={{ background: "#E8601A", padding: "14px 16px", boxShadow: "0 2px 8px rgba(120,60,10,0.18)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <span className="font-serif-display" style={{ fontWeight: 700, fontSize: 30, color: "var(--color-text-primary)", display: "block", lineHeight: 1.0 }}>Mama</span>
-          <span className="font-serif-display" style={{ fontWeight: 700, fontStyle: "italic", fontSize: 36, color: "var(--color-accent-primary)", letterSpacing: -1, display: "block", lineHeight: 1.0, marginBottom: 6 }}>community</span>
-          <span style={{ fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 11, color: "var(--color-text-muted)" }}>
+          <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 18, color: "#fff", lineHeight: 1.1 }}>Mama Community</div>
+          <div style={{ fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 10, color: "rgba(255,255,255,0.85)", marginTop: 2 }}>
             {currentWeek ? `Week ${currentWeek} mamas` : "Mamas"} · {posts.length} members
-          </span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <div style={{
             width: 32, height: 32, borderRadius: "50%",
-            background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)",
-            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(255,255,255,0.18)", border: "none",
+            display: "flex", alignItems: "center", justifyContent: "center", color: "#fff",
           }}>
             <NotificationBell onOpenNotifications={() => setShowNotifications(true)} unreadCount={unreadCount} />
           </div>
           <button onClick={() => setShowCreate(true)}
             className="flex items-center gap-1 belly-btn-primary"
             style={{
-              background: "var(--color-accent-primary)", color: "#fff",
+              background: "#fff", color: "#E8601A",
               fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 13,
               borderRadius: 20, padding: "7px 16px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.08)", border: "none",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.12)", border: "none",
             }}>
             <Plus size={14} /> Post
           </button>
         </div>
       </div>
+
 
       <div className="px-5 mb-4 hide-scrollbar" style={{ display: "flex", flexDirection: "row", overflowX: "auto", flexWrap: "nowrap", gap: 8, paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
         {CATEGORIES.map(cat => (
