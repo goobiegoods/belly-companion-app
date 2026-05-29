@@ -53,7 +53,7 @@ const Recipes = () => {
 
       <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch" as any }}>
         {/* Nutrition hero — darkened amber for white-text contrast on every week */}
-        <div style={{ margin: "7px 11px 0", borderRadius: 16, padding: "12px 14px", background: "linear-gradient(135deg, #D4500F, #E8731A, #F0934A)", boxShadow: "0 6px 20px rgba(120,60,10,0.25), inset 0 0 0 1px rgba(255,255,255,0.08)", position: "relative", overflow: "hidden" }}>
+        <div style={{ margin: "10px 11px 0", borderRadius: 16, padding: "12px 14px", background: "linear-gradient(135deg, #D4500F, #E8731A, #F0934A)", boxShadow: "0 6px 20px rgba(120,60,10,0.25), inset 0 0 0 1px rgba(255,255,255,0.08)", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", right: -8, top: -8, width: 65, height: 65, borderRadius: "50%", background: "rgba(255,255,255,0.1)" }} />
           <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 7, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.78)", fontWeight: 600, marginBottom: 6 }}>This week's key nutrients</p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
