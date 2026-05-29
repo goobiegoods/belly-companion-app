@@ -221,7 +221,7 @@ const FeedingTracker = () => {
   );
 };
 
-const LogSheet = ({ kind, onClose, onSaved }: { kind: Kind; onClose: () => void; onSaved: () => void }) => {
+const LogSheet = ({ kind, onClose, onSaved }: { kind: Kind; onClose: () => void; onSaved: (optimistic?: FeedLog) => void }) => {
   const { user } = useAuth();
   const [side, setSide] = useState<string>("Both");
   const [ml, setMl] = useState("");
