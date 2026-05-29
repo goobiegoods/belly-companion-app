@@ -1,31 +1,22 @@
 ## Goal
-Give `/community` and `/shop` the same uniform solid-orange header band used on `/recipes`, so all three pages share one visual language at the top.
+Two small fixes on `/community`:
+1. The "+ Post" create-post sheet currently slides up from the bottom and feels clipped. Make it roll **down from the top** instead.
+2. The category chips row (All / Questions / Stories / Tips / Support) sits flush against the new orange header. Add breathing room.
 
-## Reference (already shipped on `/recipes`)
-- Background: solid `#E8601A`, full-bleed.
-- Padding: `14px 16px`.
-- Shadow: `0 2px 8px rgba(120,60,10,0.18)`.
-- White text, Fraunces serif title centered, Outfit secondary text.
+## Changes
 
-## `/community` — `src/pages/Community.tsx` (header at lines ~388–414)
-Replace the current stacked "Mama / community" serif header with a uniform orange band:
+### 1. Top-sheet create-post modal — `src/pages/Community.tsx` (lines ~455–500)
+- Change the overlay flex alignment from `items-end` to `items-start` so the sheet anchors to the top.
+- Swap the sheet's rounded corners: remove `borderTopLeft/RightRadius`, add `borderBottomLeftRadius: 24` and `borderBottomRightRadius: 24`.
+- Change shadow direction: `0 10px 40px rgba(40,20,5,0.18)` (drops below instead of above).
+- Move the grabber pill from the top of the sheet to the **bottom** (small visual cue that it pulls down from the top).
+- Keep close (×) button position at top-right; the rest of the form layout is unchanged.
+- Animation: add a new `sheet-down` class in `src/index.css` mirroring `.sheet-enter` but using `translateY(-100%) → 0` with the same easing/duration. Replace `sheet-enter` with `sheet-down` on this modal only. (Other usages of `sheet-enter` in `FeedingTracker.tsx` and `PremiumUpgradeSheet.tsx` are untouched.)
 
-- Left: white Fraunces serif title "Mama Community" (`fontSize: 18`, `fontWeight: 700`), with a small white/80% subtitle below it ("Week N mamas · X members", `fontSize: 10`, Outfit).
-- Right: keep the existing Notification bell + "+ New post" button, but restyle for the orange background:
-  - Bell wrapper: `background: rgba(255,255,255,0.18)`, no border, white icon.
-  - "+ New" button: `background: #fff`, `color: #E8601A`, same rounded pill, `fontWeight: 700`.
-- Remove the giant 30/36px serif "Mama / community" lockup — it becomes the compact header title.
+### 2. Category chips spacing — `src/pages/Community.tsx` (line ~417)
+- The chips row currently has no top margin. Change its top padding to `paddingTop: 14` (or add `marginTop: 12`) so the pills sit cleanly below the orange header band rather than touching it.
 
-## `/shop` — `src/pages/Shop.tsx` (header at lines ~203–222)
-Wrap the title row in the same orange band:
-
-- Left: white Fraunces serif "Belly Shop" (`fontSize: 18`, `fontWeight: 700`) with subtitle "Natural remedies, delivered to you" (`fontSize: 10`, white/80%, Outfit).
-- Right: keep the cart button but restyle:
-  - Circle background `rgba(255,255,255,0.18)`, no border, white stroke icon.
-  - Cart count badge keeps `background: #fff`, `color: #E8601A` for contrast on the orange.
-- Tabs row ("remedies / learn") and everything below remain unchanged, sitting on the page background as today.
-
-## Notes
-- Only the header bands change. Page bodies, cards, tabs, modals, and logic are untouched.
-- No new components, no token changes — inline styles matching the recipes header for consistency.
-- Out of scope: other pages, the cart page, post-detail view, learn-tab content.
+## Out of scope
+- Other pages.
+- Modal content / form fields.
+- The bottom-sheet pattern elsewhere in the app.
