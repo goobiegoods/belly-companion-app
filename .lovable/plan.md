@@ -1,17 +1,14 @@
-## Plan: Header and Footer Nav Styling Update
+## Plan
 
-Add rounded corners, orange drop shadow, and a faint border to the app's header and footer navigation.
+### Scope
+Single file change: `src/components/BottomNav.tsx`
 
 ### Changes
 
-1. **AppHeader.tsx**
-   - Add `rounded-b-[40px]` to the `<header>` element
-   - Add `shadow-[0_6px_20px_rgba(232,96,26,0.27)]`
-   - Add `border-b border-orange-200/40`
-   - Remove or override any conflicting inline `borderRadius`/`borderBottom` styles
+1. **Border radius**: Change `rounded-t-[40px]` to `rounded-t-[20px]` on the `<nav>` element.
 
-2. **BottomNav.tsx**
-   - Add `rounded-t-[40px]` to the `<nav>` element
-   - Add `shadow-[0_-6px_20px_rgba(232,96,26,0.27)]`
-   - Add `border-t border-orange-200/40`
-   - Remove or override any conflicting inline `borderRadius`/`borderTop` styles
+2. **Background color**: Change the inline `background` from `#C85818` to `#E8601A` to match the header.
+
+3. **SVG icon crispness**: The nav icons are already inline SVGs. To eliminate subpixel blur caused by the 18×18 size on a 24×24 viewBox, add `shape-rendering="geometricPrecision"` to each SVG and, if needed, force GPU compositing on the icon wrapper so strokes render sharply on all screen densities.
+
+No UI changes beyond these three fixes. No other files touched.
