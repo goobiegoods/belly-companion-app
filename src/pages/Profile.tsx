@@ -148,8 +148,8 @@ const Profile = () => {
       {/* Motivational card */}
       <div className="px-3 mb-4">
         <div style={{
-          background: "#FAEADA", border: "1.5px solid rgba(232,112,42,0.22)",
-          borderRadius: 14, padding: 12, textAlign: "center",
+          background: "#FDE8D8", border: "1.5px solid rgba(232,112,42,0.22)",
+          borderRadius: 14, padding: 14, textAlign: "left",
         }}>
           <p className="font-display" style={{ fontStyle: "italic", fontWeight: 300, fontSize: 12, color: "#A84818", lineHeight: 1.7 }}>
             You're doing amazing, mama. {daysToGo} days left — every one counts. 🌸
