@@ -264,21 +264,19 @@ const LogSheet = ({ kind, onClose, onSaved }: { kind: Kind; onClose: () => void;
   return (
     <div onClick={onClose} style={{
       position: "fixed", inset: 0, zIndex: 200, background: "rgba(40,20,5,0.45)",
-      display: "flex", alignItems: "flex-end", justifyContent: "center",
+      display: "flex", alignItems: "flex-start", justifyContent: "center",
     }}>
-      <div onClick={(e) => e.stopPropagation()} className="sheet-enter" style={{
+      <div onClick={(e) => e.stopPropagation()} className="sheet-down" style={{
         width: "100%", maxWidth: 430, background: "#F0E8DC",
-        borderTopLeftRadius: 26, borderTopRightRadius: 26,
-        boxShadow: "0 -10px 40px rgba(40,20,5,0.18)",
-        maxHeight: "85vh", display: "flex", flexDirection: "column",
+        borderBottomLeftRadius: 26, borderBottomRightRadius: 26,
+        boxShadow: "0 10px 40px rgba(40,20,5,0.18)",
+        maxHeight: "92vh", display: "flex", flexDirection: "column",
       }}>
         <div style={{ flex: "1 1 auto", overflowY: "auto", padding: "16px 18px 16px" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)" }} />
-          </div>
           <h2 className="font-display" style={{ fontSize: 22, fontStyle: "italic", color: "#E8702A", marginBottom: 14 }}>
             Log {LABEL[kind].toLowerCase()}
           </h2>
+
 
           {(kind === "breast" || kind === "pump") && (
             <>
@@ -369,6 +367,9 @@ const LogSheet = ({ kind, onClose, onSaved }: { kind: Kind; onClose: () => void;
             }}>
             {saving ? "Saving..." : "Save log"}
           </button>
+        </div>
+        <div style={{ flexShrink: 0, background: "#FFFFFF", display: "flex", justifyContent: "center", padding: "6px 0 10px" }}>
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)" }} />
         </div>
       </div>
     </div>
