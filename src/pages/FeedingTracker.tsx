@@ -273,90 +273,103 @@ const LogSheet = ({ kind, onClose, onSaved }: { kind: Kind; onClose: () => void;
         maxHeight: "85vh", display: "flex", flexDirection: "column",
       }}>
         <div style={{ flex: "1 1 auto", overflowY: "auto", padding: "16px 18px 16px" }}>
-          <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)" }} />
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)" }} />
+          </div>
+          <h2 className="font-display" style={{ fontSize: 22, fontStyle: "italic", color: "#E8702A", marginBottom: 14 }}>
+            Log {LABEL[kind].toLowerCase()}
+          </h2>
+
+          {(kind === "breast" || kind === "pump") && (
+            <>
+              <p className="belly-eyebrow" style={{ marginBottom: 6 }}>SIDE</p>
+              <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                {["Left", "Right", "Both"].map(s => (
+                  <button key={s} onClick={() => setSide(s)}
+                    className={side === s ? "belly-pill-orange" : "belly-pill-neutral"}
+                    style={{ cursor: "pointer", fontWeight: side === s ? 700 : 500 }}>{s}</button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {kind === "breast" && (
+            <>
+              <p className="belly-eyebrow" style={{ marginBottom: 6 }}>DURATION</p>
+              <div style={{
+                background: "#FFFFFF", border: "1.5px solid rgba(232,112,42,0.18)", borderRadius: 16,
+                padding: 14, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14,
+              }}>
+                <span className="font-display" style={{ fontSize: 28, fontStyle: "italic", color: "#A84818" }}>
+                  {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}
+                </span>
+                <button onClick={() => timerStart ? setTimerStart(null) : setTimerStart(Date.now() - elapsed * 1000)}
+                  className="belly-btn-primary-v4" style={{ padding: "8px 16px", fontSize: 11 }}>
+                  {timerStart ? "Stop" : elapsed > 0 ? "Resume" : "Start"}
+                </button>
+              </div>
+            </>
+          )}
+
+          {kind === "bottle" && (
+            <>
+              <p className="belly-eyebrow" style={{ marginBottom: 6 }}>TYPE</p>
+              <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
+                {[
+                  { k: "breast_milk", label: "Breast milk" },
+                  { k: "formula", label: "Formula" },
+                  { k: "water", label: "Water" },
+                ].map(t => (
+                  <button key={t.k} onClick={() => setBottleType(t.k)}
+                    className={bottleType === t.k ? "belly-pill-orange" : "belly-pill-neutral"}
+                    style={{ cursor: "pointer", fontWeight: bottleType === t.k ? 700 : 500 }}>{t.label}</button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {(kind === "bottle" || kind === "pump") && (
+            <>
+              <p className="belly-eyebrow" style={{ marginBottom: 6 }}>AMOUNT (ML)</p>
+              <input
+                value={ml} onChange={(e) => setMl(e.target.value.replace(/\D/g, ""))}
+                inputMode="numeric" placeholder="120"
+                style={{
+                  width: "100%", background: "#FFFFFF", border: "1.5px solid rgba(232,112,42,0.18)",
+                  borderRadius: 16, padding: "12px 14px", fontFamily: "'Nunito',system-ui", fontSize: 14,
+                  color: "#1A0E06", marginBottom: 14, outline: "none",
+                }}
+              />
+            </>
+          )}
+
+          <p className="belly-eyebrow" style={{ marginBottom: 6 }}>NOTES</p>
+          <textarea
+            value={notes} onChange={(e) => setNotes(e.target.value)}
+            placeholder="Optional notes..." rows={2}
+            style={{
+              width: "100%", background: "#FFFFFF", border: "1.5px solid rgba(232,112,42,0.18)",
+              borderRadius: 16, padding: "12px 14px", fontFamily: "'Nunito',system-ui", fontSize: 13,
+              color: "#1A0E06", resize: "none", outline: "none", marginBottom: 4,
+            }}
+          />
         </div>
-        <h2 className="font-display" style={{ fontSize: 22, fontStyle: "italic", color: "#E8702A", marginBottom: 14 }}>
-          Log {LABEL[kind].toLowerCase()}
-        </h2>
 
-        {(kind === "breast" || kind === "pump") && (
-          <>
-            <p className="belly-eyebrow" style={{ marginBottom: 6 }}>SIDE</p>
-            <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-              {["Left", "Right", "Both"].map(s => (
-                <button key={s} onClick={() => setSide(s)}
-                  className={side === s ? "belly-pill-orange" : "belly-pill-neutral"}
-                  style={{ cursor: "pointer", fontWeight: side === s ? 700 : 500 }}>{s}</button>
-              ))}
-            </div>
-          </>
-        )}
-
-        {kind === "breast" && (
-          <>
-            <p className="belly-eyebrow" style={{ marginBottom: 6 }}>DURATION</p>
-            <div style={{
-              background: "#FFFFFF", border: "1.5px solid rgba(232,112,42,0.18)", borderRadius: 16,
-              padding: 14, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14,
+        <div style={{
+          flexShrink: 0, background: "#FFFFFF", borderTop: "1px solid #F0E4DA",
+          padding: "12px 18px", paddingBottom: "calc(16px + env(safe-area-inset-bottom))",
+        }}>
+          <button onClick={save} disabled={saving}
+            style={{
+              width: "100%", background: "#E8601A", color: "#FFFFFF",
+              fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 15,
+              borderRadius: 14, padding: 14, border: "none",
+              opacity: saving ? 0.6 : 1, cursor: saving ? "default" : "pointer",
+              boxShadow: "0 4px 12px rgba(232,96,26,0.25)",
             }}>
-              <span className="font-display" style={{ fontSize: 28, fontStyle: "italic", color: "#A84818" }}>
-                {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}
-              </span>
-              <button onClick={() => timerStart ? setTimerStart(null) : setTimerStart(Date.now() - elapsed * 1000)}
-                className="belly-btn-primary-v4" style={{ padding: "8px 16px", fontSize: 11 }}>
-                {timerStart ? "Stop" : elapsed > 0 ? "Resume" : "Start"}
-              </button>
-            </div>
-          </>
-        )}
-
-        {kind === "bottle" && (
-          <>
-            <p className="belly-eyebrow" style={{ marginBottom: 6 }}>TYPE</p>
-            <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
-              {[
-                { k: "breast_milk", label: "Breast milk" },
-                { k: "formula", label: "Formula" },
-                { k: "water", label: "Water" },
-              ].map(t => (
-                <button key={t.k} onClick={() => setBottleType(t.k)}
-                  className={bottleType === t.k ? "belly-pill-orange" : "belly-pill-neutral"}
-                  style={{ cursor: "pointer", fontWeight: bottleType === t.k ? 700 : 500 }}>{t.label}</button>
-              ))}
-            </div>
-          </>
-        )}
-
-        {(kind === "bottle" || kind === "pump") && (
-          <>
-            <p className="belly-eyebrow" style={{ marginBottom: 6 }}>AMOUNT (ML)</p>
-            <input
-              value={ml} onChange={(e) => setMl(e.target.value.replace(/\D/g, ""))}
-              inputMode="numeric" placeholder="120"
-              style={{
-                width: "100%", background: "#FFFFFF", border: "1.5px solid rgba(232,112,42,0.18)",
-                borderRadius: 16, padding: "12px 14px", fontFamily: "'Nunito',system-ui", fontSize: 14,
-                color: "#1A0E06", marginBottom: 14, outline: "none",
-              }}
-            />
-          </>
-        )}
-
-        <p className="belly-eyebrow" style={{ marginBottom: 6 }}>NOTES</p>
-        <textarea
-          value={notes} onChange={(e) => setNotes(e.target.value)}
-          placeholder="Optional notes..." rows={2}
-          style={{
-            width: "100%", background: "#FFFFFF", border: "1.5px solid rgba(232,112,42,0.18)",
-            borderRadius: 16, padding: "12px 14px", fontFamily: "'Nunito',system-ui", fontSize: 13,
-            color: "#1A0E06", resize: "none", outline: "none", marginBottom: 16,
-          }}
-        />
-
-        <button onClick={save} disabled={saving} className="belly-btn-primary-v4"
-          style={{ width: "100%", fontSize: 13, padding: 14, opacity: saving ? 0.6 : 1 }}>
-          {saving ? "Saving..." : "Save feed"}
-        </button>
+            {saving ? "Saving..." : "Save log"}
+          </button>
+        </div>
       </div>
     </div>
   );
