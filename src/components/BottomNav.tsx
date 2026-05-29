@@ -38,7 +38,7 @@ const BottomNav = () => {
   const { cartCount } = useCart();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50" style={{
+    <nav className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[40px] shadow-[0_-6px_20px_rgba(232,96,26,0.27)] border-t border-orange-200/40" style={{
       maxWidth: 430,
       margin: "0 auto",
       background: "#C85818",
