@@ -187,11 +187,11 @@ const Profile = () => {
       <div className="flex gap-2 px-5 mb-5">
         <div className="flex-1 text-center" style={{ background: "var(--color-sage-soft)", border: "0.5px solid var(--color-border-default)", borderRadius: 16, padding: "14px 8px" }}>
           <p className="font-serif-display" style={{ fontSize: 28, fontWeight: 800, color: "var(--color-text-primary)", letterSpacing: -0.5 }}>{currentWeek}</p>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "#3F5C42", marginTop: 4 }}>WEEK</p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "#9A7B66", marginTop: 4 }}>WEEK</p>
         </div>
         <div className="flex-1 text-center" style={{ background: "var(--color-peach-soft)", border: "0.5px solid var(--color-border-default)", borderRadius: 16, padding: "14px 8px" }}>
           <p className="font-serif-display" style={{ fontSize: 28, fontWeight: 800, color: "var(--color-text-primary)", letterSpacing: -0.5 }}>{daysToGo}</p>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "var(--color-accent-dark)", marginTop: 4 }}>DAYS TO GO</p>
+          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "#9A7B66", marginTop: 4 }}>DAYS TO GO</p>
         </div>
       </div>
 
@@ -212,12 +212,23 @@ const Profile = () => {
               minWidth: 64, borderRadius: 14, padding: "10px 8px",
               background: "var(--color-bg-card)",
               border: "0.5px solid var(--color-border-default)",
-              boxShadow: badge.earned ? "0 0 0 2px var(--color-accent-light)" : "none",
-              opacity: badge.earned ? 1 : 0.45,
+              boxShadow: badge.earned
+                ? "0 0 0 2px #FFE0C7, 0 4px 14px rgba(232,96,26,0.18)"
+                : "none",
+              opacity: badge.earned ? 1 : 0.4,
             }}>
               <span style={{ fontSize: 22, marginBottom: 4, filter: badge.earned ? "none" : "grayscale(100%)" }}>{badge.emoji}</span>
               <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "var(--color-text-primary)" }}>{badge.label}</span>
-              {!badge.earned && <span style={{ position: "absolute", bottom: 4, right: 4, fontSize: 10 }}>🔒</span>}
+              {!badge.earned && (
+                <span style={{
+                  position: "absolute", top: 4, right: 4,
+                  width: 14, height: 14, borderRadius: "50%",
+                  background: "#FFFFFF",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 8, lineHeight: 1,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+                }}>🔒</span>
+              )}
             </div>
           ))}
         </div>
