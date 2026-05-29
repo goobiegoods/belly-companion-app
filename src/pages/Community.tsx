@@ -454,17 +454,17 @@ const Community = () => {
       {/* Create post bottom-sheet modal */}
       {showCreate && (
         <div
-          className="fixed inset-0 z-[200] flex items-end"
+          className="fixed inset-0 z-[200] flex items-start"
           style={{ background: "rgba(40, 20, 5, 0.45)" }}
           onClick={() => { setShowCreate(false); setPostError(""); }}
         >
           <div
-            className="w-full flex flex-col sheet-enter relative"
+            className="w-full flex flex-col sheet-down relative"
             style={{
               background: "var(--color-bg-base)",
-              borderTopLeftRadius: 24, borderTopRightRadius: 24,
+              borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
               height: "85vh", maxWidth: 430, margin: "0 auto",
-              boxShadow: "0 -10px 40px rgba(40,20,5,0.18)",
+              boxShadow: "0 10px 40px rgba(40,20,5,0.18)",
             }}
             onClick={e => e.stopPropagation()}
           >
