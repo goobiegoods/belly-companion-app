@@ -416,8 +416,13 @@ const AskDoula = () => {
       )}
 
       {/* Sticky pill input bar */}
-      <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "var(--color-bg-base)", padding: "10px 16px 14px", borderTop: "1px solid var(--color-border-default)" }}>
-        <div className="flex items-center" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 28, padding: "5px 5px 5px 16px", gap: 8, boxShadow: "var(--shadow-card)" }}>
+      <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "var(--color-bg-base)", padding: "12px 16px 14px", borderTop: "2px solid var(--color-accent-primary)", boxShadow: "0 -8px 24px -12px rgba(255, 140, 66, 0.25)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, margin: "0 auto 8px" }}>
+          <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--color-accent-primary)", opacity: 0.7 }} />
+          <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", color: "var(--color-accent-primary)", textTransform: "uppercase" }}>Ask Bella anything</span>
+          <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--color-accent-primary)", opacity: 0.7 }} />
+        </div>
+        <div className="flex items-center" style={{ background: "var(--color-bg-card)", border: "1.5px solid rgba(255, 140, 66, 0.35)", borderRadius: 28, padding: "5px 5px 5px 16px", gap: 8, boxShadow: "0 6px 20px -6px rgba(255, 140, 66, 0.22), 0 2px 6px rgba(40, 20, 5, 0.06)" }}>
           {(() => {
             const lastMsg = messages[messages.length - 1];
             const showSpinner = isStreaming && (!!lastMsg?.imageUrl || (messages[messages.length - 2]?.imageUrl && lastMsg?.role === "assistant"));
@@ -439,8 +444,9 @@ const AskDoula = () => {
             placeholder="Ask anything..."
             disabled={quotaExhausted}
             className="flex-1 outline-none bg-transparent doula-input"
-            style={{ color: "var(--color-text-primary)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 14, border: "none" }}
+            style={{ color: "var(--color-text-primary)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 14.5, border: "none" }}
           />
+
           {isStreaming ? (
             <button onClick={cancelStream} className="shrink-0 flex items-center justify-center"
               style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--color-bg-base)", border: "1px solid var(--color-border-default)" }}>
