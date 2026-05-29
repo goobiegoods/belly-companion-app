@@ -477,7 +477,7 @@ const Community = () => {
               <span style={{ color: "var(--color-text-primary)", fontSize: 16, lineHeight: 1 }}>×</span>
             </button>
 
-            <div className="px-5 pt-3 pb-2 shrink-0">
+            <div className="px-5 pt-5 pb-2 shrink-0">
               <h2 className="font-serif-display" style={{ fontSize: 22, fontWeight: 700, color: "var(--color-text-primary)" }}>Share with the mamas</h2>
               <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-muted)", marginTop: 2 }}>
                 Your story might be the one another mama needs today
