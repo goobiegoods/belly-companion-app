@@ -210,7 +210,11 @@ const FeedingTracker = () => {
         <LogSheet
           kind={openSheet}
           onClose={() => setOpenSheet(null)}
-          onSaved={() => { setOpenSheet(null); fetchLogs(); }}
+          onSaved={(optimistic) => {
+            if (optimistic) setLogs(prev => [optimistic, ...prev]);
+            setOpenSheet(null);
+            fetchLogs();
+          }}
         />
       )}
     </div>
