@@ -161,15 +161,16 @@ const Profile = () => {
       <div className="px-5 mb-3">
         <div style={{ background: "var(--color-amber-soft)", border: "0.5px solid var(--color-border-default)", borderRadius: 18, padding: 18, boxShadow: "var(--shadow-card)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, minWidth: 56 }}>
-              <span style={{ fontSize: 34, lineHeight: 1, color: "var(--color-accent-primary)" }}>🔥</span>
-              <span className="font-serif-display" style={{ fontSize: 30, fontWeight: 700, color: "var(--color-accent-primary)", lineHeight: 1, marginTop: 4 }}>{streak.current}</span>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0, minWidth: 56 }}>
+              <span style={{ fontSize: 40, lineHeight: 1 }}>🔥</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "var(--color-text-primary)" }}>{streak.current}-day streak</p>
+              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                {streak.current === 0 ? "Start your streak today 🔥" : `${streak.current}-day streak`}
+              </p>
               <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "var(--color-text-secondary)", marginTop: 2 }}>Check in tomorrow to keep it going</p>
-              <div style={{ height: 6, borderRadius: 50, background: "rgba(122,158,126,0.18)", marginTop: 10, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.min(100, (streak.current / 7) * 100)}%`, background: "var(--color-sage)", borderRadius: 50, transition: "width 300ms" }} />
+              <div style={{ height: 6, borderRadius: 50, background: "#FDE8D8", marginTop: 10, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, (streak.current / 7) * 100)}%`, background: "#E8601A", borderRadius: 50, transition: "width 300ms" }} />
               </div>
               <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: "var(--color-text-secondary)", marginTop: 6 }}>{Math.min(streak.current, 7)} of 7 days — unlock the Week Streak badge</p>
             </div>
