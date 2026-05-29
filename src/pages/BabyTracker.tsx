@@ -143,7 +143,7 @@ const BabyTracker = () => {
 
       {/* Hero headline */}
       <div style={{ padding: "10px 16px 4px", position: "relative", zIndex: 1 }}>
-        <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 20, fontWeight: 500, fontStyle: "italic", color: "#B8755A", letterSpacing: -0.3, display: "block", lineHeight: 1.1, marginBottom: -2 }}>Your</span>
+        <span style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 20, fontWeight: 400, fontStyle: "italic", color: "#B8755A", letterSpacing: -0.3, display: "block", lineHeight: 1.1, marginBottom: -2 }}>Your</span>
         <span className="font-display" style={{ fontSize: 26, fontStyle: "italic", color: "#E8702A", letterSpacing: -0.5, display: "block", lineHeight: 1.0, marginBottom: 4 }}>baby's world</span>
         <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 10, fontWeight: 600, color: "#C0907A" }}>
           Week {selectedWeek} · {fruitName} · ~{weekData.babyLength}

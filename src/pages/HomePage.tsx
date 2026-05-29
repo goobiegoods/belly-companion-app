@@ -77,7 +77,7 @@ const HomePage = () => {
               <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 9, color: "#B8886A" }}>online · replies in seconds</span>
             </div>
 
-            <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 21, fontWeight: 500, fontStyle: "italic", color: "#B8755A", letterSpacing: -0.3, lineHeight: 1.1, marginBottom: -2 }}>Ask your</p>
+            <p style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 21, fontWeight: 400, fontStyle: "italic", color: "#B8755A", letterSpacing: -0.3, lineHeight: 1.1, marginBottom: -2 }}>Ask your</p>
             <p className="font-display" style={{ fontSize: 25, fontStyle: "italic", fontWeight: 400, color: "#E8702A", letterSpacing: -0.5, lineHeight: 1.1, marginBottom: 8 }}>
               doula anything
             </p>
