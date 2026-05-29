@@ -77,21 +77,30 @@ const Profile = () => {
         }}>Settings</button>
       </div>
 
-      {/* Hero — orange-bordered avatar, no gradient ring */}
+      {/* Pulse ring keyframes (scoped) */}
+      <style>{`
+        @keyframes belly-pulse-ring {
+          0% { box-shadow: 0 0 0 0 rgba(232,96,26,0.45); }
+          70% { box-shadow: 0 0 0 10px rgba(232,96,26,0); }
+          100% { box-shadow: 0 0 0 0 rgba(232,96,26,0); }
+        }
+      `}</style>
+
+      {/* Hero — solid orange avatar matching Bella */}
       <div style={{ padding: "20px 20px 16px", textAlign: "center", position: "relative" }}>
         <span className="belly-watermark" style={{ top: 30, left: "50%", transform: "translateX(-50%)", fontSize: 68 }}>journey</span>
         <div style={{
           width: 64, height: 64, borderRadius: "50%",
-          background: "#FAEADA", border: "2.5px solid #E8702A",
+          background: "#E8601A",
           margin: "0 auto 10px",
           display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 4px 16px rgba(232,112,42,0.20)",
+          boxShadow: "0 4px 16px rgba(232,96,26,0.28)",
           position: "relative", zIndex: 1,
         }}>
-          <span className="font-display" style={{ fontStyle: "italic", fontSize: 25, color: "#C45818" }}>{initials}</span>
+          <span style={{ fontFamily: "'Nunito',system-ui", fontWeight: 800, fontSize: 28, color: "#FFFFFF" }}>B</span>
         </div>
         <h1 style={{ fontFamily: "'Nunito',system-ui", fontSize: 15, fontWeight: 800, color: "#1A0E06", position: "relative", zIndex: 1 }}>
-          {getDisplayName({ first_name: profile?.first_name })}
+          {formatName(getDisplayName({ first_name: profile?.first_name }))}
         </h1>
         <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 8.5, color: "#C0907A", marginTop: 4, fontWeight: 600, position: "relative", zIndex: 1 }}>
           Week {currentWeek} · Due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
@@ -115,19 +124,19 @@ const Profile = () => {
                 <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, position: "relative" }}>
                   {i < arr.length - 1 && (
                     <span style={{
-                      position: "absolute", top: 5, left: "50%", right: "-50%", height: 2,
-                      background: arr[i + 1] <= currentWeek ? "rgba(232,112,42,0.30)" : "rgba(0,0,0,0.08)",
+                      position: "absolute", top: 6, left: "50%", right: "-50%", height: 2,
+                      background: arr[i + 1] <= currentWeek ? "#E8601A" : "#F0E4DA",
                     }} />
                   )}
                   <span style={{
-                    width: isCurrent ? 11 : 8, height: isCurrent ? 11 : 8, borderRadius: "50%",
-                    background: isCurrent ? "#E8702A" : isPast ? "rgba(232,112,42,0.40)" : "rgba(0,0,0,0.12)",
-                    boxShadow: isCurrent ? "0 0 0 3px rgba(232,112,42,0.20)" : "none",
+                    width: isCurrent ? 13 : 8, height: isCurrent ? 13 : 8, borderRadius: "50%",
+                    background: isCurrent ? "#E8601A" : isPast ? "#E8601A" : "#F0E4DA",
                     position: "relative", zIndex: 1,
+                    animation: isCurrent ? "belly-pulse-ring 1.8s ease-out infinite" : "none",
                   }} />
                   <p style={{
                     fontFamily: "'Nunito',system-ui", fontSize: 7.5, fontWeight: isCurrent ? 800 : 600,
-                    color: isCurrent ? "#E8702A" : "#C0A888", marginTop: 8,
+                    color: isCurrent ? "#E8601A" : "#C0A888", marginTop: 8,
                   }}>{isCurrent ? `Wk ${w} ●` : `Wk ${w}`}</p>
                 </div>
               );
