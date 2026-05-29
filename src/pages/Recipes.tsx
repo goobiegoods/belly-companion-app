@@ -45,10 +45,10 @@ const Recipes = () => {
 
   return (
     <div style={{ background: "transparent", height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "12px 14px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <button onClick={() => navigate("/")} style={{ background: "none", border: "none", color: "white", fontSize: 9, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>← Home</button>
-        <span style={{ fontFamily: "'Fraunces', serif", fontSize: 12, fontWeight: 700, color: "white" }}>Week {currentWeek} Recipes</span>
-        <span style={{ fontSize: 16 }}>🍽️</span>
+      <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, background: "#E8601A", boxShadow: "0 2px 8px rgba(120,60,10,0.18)" }}>
+        <button onClick={() => navigate("/")} style={{ background: "none", border: "none", color: "white", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>← Home</button>
+        <span style={{ fontFamily: "'Fraunces', serif", fontSize: 14, fontWeight: 700, color: "white" }}>Week {currentWeek} Recipes</span>
+        <span style={{ fontSize: 18 }}>🍽️</span>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch" as any }}>
