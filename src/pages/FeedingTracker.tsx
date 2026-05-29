@@ -251,11 +251,14 @@ const LogSheet = ({ kind, onClose, onSaved }: { kind: Kind; onClose: () => void;
       payload.side = side;
       payload.amount_ml = parseInt(ml) || null;
     }
-    const { error } = await supabase.from("feed_logs").insert(payload);
+    const { data, error } = await supabase.from("feed_logs").insert(payload).select().single();
     setSaving(false);
     if (error) { toast.error("Couldn't save feed"); return; }
-    toast.success("Feed logged 🌸");
-    onSaved();
+    const mlNum = parseInt(ml) || 0;
+    if (kind === "bottle") toast.success(`✓ Bottle logged — ${mlNum}ml saved!`);
+    else if (kind === "pump") toast.success(`✓ Pump logged — ${mlNum}ml saved!`);
+    else toast.success("✓ Breastfeed logged!");
+    onSaved((data as FeedLog) || undefined);
   };
 
   return (
@@ -265,10 +268,11 @@ const LogSheet = ({ kind, onClose, onSaved }: { kind: Kind; onClose: () => void;
     }}>
       <div onClick={(e) => e.stopPropagation()} className="sheet-enter" style={{
         width: "100%", maxWidth: 430, background: "#F0E8DC",
-        borderTopLeftRadius: 26, borderTopRightRadius: 26, padding: "16px 18px 28px",
+        borderTopLeftRadius: 26, borderTopRightRadius: 26,
         boxShadow: "0 -10px 40px rgba(40,20,5,0.18)",
+        maxHeight: "85vh", display: "flex", flexDirection: "column",
       }}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+        <div style={{ flex: "1 1 auto", overflowY: "auto", padding: "16px 18px 16px" }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)" }} />
         </div>
         <h2 className="font-display" style={{ fontSize: 22, fontStyle: "italic", color: "#E8702A", marginBottom: 14 }}>
