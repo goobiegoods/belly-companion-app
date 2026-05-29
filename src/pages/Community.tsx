@@ -6,12 +6,7 @@ import { Heart, MessageCircle, Plus, Send, Bell } from "lucide-react";
 import { toast } from "sonner";
 import NotificationBell, { useNotifications } from "@/components/NotificationBell";
 import { getDisplayName } from "@/lib/community";
-
-interface Post {
-  id: string; user_id: string; title: string; body: string; category: string;
-  week_posted: number | null; likes: number; created_at: string;
-  author_name?: string; comment_count?: number; is_liked?: boolean;
-}
+import { SEEDED_POSTS, type Post } from "@/data/seededPosts";
 
 interface Notification {
   id: string; title: string; body: string | null; post_id: string | null;
@@ -19,25 +14,6 @@ interface Notification {
 }
 
 const CATEGORIES = ["All", "Questions", "Stories", "Tips", "Support"];
-
-const SEEDED_POSTS: Post[] = [
-  { id: "seed-1", user_id: "", title: "Anyone else terrified of the anatomy scan?", body: "I'm 19 weeks and my anatomy scan is next week. I'm so excited but also scared they'll find something wrong. Is it normal to feel both things at once? How did you all cope with the wait?", category: "question", week_posted: 19, likes: 8, created_at: new Date(Date.now() - 86400000 * 11).toISOString(), author_name: "Maya", comment_count: 3, is_liked: false },
-  { id: "seed-2", user_id: "", title: "Round ligament pain or something worse?", body: "Getting these sharp stabbing pains on my right side when I move too fast or sneeze. Doctor said round ligament pain but it freaks me out every time. Anyone have a natural remedy that actually helped?", category: "question", week_posted: 22, likes: 14, created_at: new Date(Date.now() - 86400000 * 6).toISOString(), author_name: "Priya", comment_count: 5, is_liked: false },
-  { id: "seed-3", user_id: "", title: "Husband doesn't understand the exhaustion", body: "I am 9 weeks and I cannot explain to my husband why I need to be in bed by 8pm. He thinks I'm being overdramatic. Am I the only one? Please tell me this gets better in the second trimester.", category: "question", week_posted: 9, likes: 31, created_at: new Date(Date.now() - 86400000 * 3).toISOString(), author_name: "Chloe", comment_count: 11, is_liked: false },
-  { id: "seed-4", user_id: "", title: "Natural ways to turn a breech baby?", body: "My baby is still breech at 34 weeks. Midwife mentioned ECV but I want to try everything natural first. Has anyone had success with spinning babies, moxibustion, or anything else?", category: "question", week_posted: 34, likes: 19, created_at: new Date(Date.now() - 86400000 * 8).toISOString(), author_name: "Layla", comment_count: 7, is_liked: false },
-  { id: "seed-5", user_id: "", title: "Nux Vomica 30c literally saved my first trimester", body: "I was vomiting 4-5 times a day until my naturopath recommended Nux Vomica 30c from Boiron. Three pellets under my tongue before bed and when I woke up. Within 3 days the nausea was 60% better.", category: "tip", week_posted: 10, likes: 47, created_at: new Date(Date.now() - 86400000 * 5).toISOString(), author_name: "Sofia", comment_count: 8, is_liked: false },
-  { id: "seed-6", user_id: "", title: "P6 acupressure point is no joke", body: "Two finger widths below your wrist between the two tendons. Press firmly for 60 seconds on each wrist. I do this every morning before getting out of bed and it genuinely takes the edge off the nausea.", category: "tip", week_posted: 8, likes: 62, created_at: new Date(Date.now() - 86400000 * 9).toISOString(), author_name: "Amara", comment_count: 12, is_liked: false },
-  { id: "seed-7", user_id: "", title: "CCF tea for bloating and digestion", body: "Cumin, coriander, fennel — equal parts, steep for 10 minutes. My Ayurvedic practitioner recommended this for the gas and bloating in my second trimester.", category: "tip", week_posted: 18, likes: 28, created_at: new Date(Date.now() - 86400000 * 12).toISOString(), author_name: "Rania", comment_count: 4, is_liked: false },
-  { id: "seed-8", user_id: "", title: "Magnesium glycinate for sleep is everything", body: "I was waking up 3-4 times a night from leg cramps and restlessness. My midwife suggested magnesium glycinate powder in warm water before bed.", category: "tip", week_posted: 26, likes: 55, created_at: new Date(Date.now() - 86400000 * 2).toISOString(), author_name: "Jade", comment_count: 9, is_liked: false },
-  { id: "seed-9", user_id: "", title: "I felt the first kick today and I ugly cried", body: "Week 18. I was sitting at my desk eating lunch and just — this tiny flutter. Then again. Nothing prepares you for that moment.", category: "story", week_posted: 18, likes: 89, created_at: new Date(Date.now() - 86400000 * 4).toISOString(), author_name: "Zara", comment_count: 15, is_liked: false },
-  { id: "seed-10", user_id: "", title: "My home birth was everything I hoped for", body: "Week 39, my midwife arrived at 11pm. Baby was born in our bedroom at 4:17am. It was the most primal, beautiful, terrifying and empowering thing I have ever done.", category: "story", week_posted: 39, likes: 134, created_at: new Date(Date.now() - 86400000 * 7).toISOString(), author_name: "Isla", comment_count: 22, is_liked: false },
-  { id: "seed-11", user_id: "", title: "NICU journey — week 28 premature birth", body: "Our son arrived at 28 weeks. We spent 72 days in the NICU. I am writing this with him asleep on my chest at home, 3.4kg and perfect.", category: "story", week_posted: 28, likes: 203, created_at: new Date(Date.now() - 86400000 * 10).toISOString(), author_name: "Nina", comment_count: 31, is_liked: false },
-  { id: "seed-12", user_id: "", title: "Second pregnancy is so different and nobody told me", body: "With my first I was anxious, reading every app, tracking every symptom. This time I'm 14 weeks and just... living.", category: "story", week_posted: 14, likes: 41, created_at: new Date(Date.now() - 86400000 * 1).toISOString(), author_name: "Orel", comment_count: 6, is_liked: false },
-  { id: "seed-13", user_id: "", title: "Scared to tell people because of my history", body: "I've had two losses. I'm now 8 weeks and terrified to feel hopeful. I haven't told anyone except my partner.", category: "support", week_posted: 8, likes: 76, created_at: new Date(Date.now() - 86400000 * 6).toISOString(), author_name: "Hana", comment_count: 14, is_liked: false },
-  { id: "seed-14", user_id: "", title: "Prenatal anxiety is real and nobody talks about it", body: "I thought postpartum depression was the thing to worry about. Nobody warned me about the anxiety during pregnancy.", category: "support", week_posted: 22, likes: 94, created_at: new Date(Date.now() - 86400000 * 3).toISOString(), author_name: "Leila", comment_count: 18, is_liked: false },
-  { id: "seed-15", user_id: "", title: "Doing this completely alone — partner left at 6 weeks", body: "I know there are others out here. My partner left when I told him. I'm 16 weeks now and I've built the most incredible support system.", category: "support", week_posted: 16, likes: 167, created_at: new Date(Date.now() - 86400000 * 5).toISOString(), author_name: "Ava", comment_count: 25, is_liked: false },
-  { id: "seed-16", user_id: "", title: "Grieving my pre-pregnancy body and feeling ashamed of that", body: "I love this baby more than I can say. And I also miss feeling like myself in my body.", category: "support", week_posted: 20, likes: 88, created_at: new Date(Date.now() - 86400000 * 8).toISOString(), author_name: "Mia", comment_count: 13, is_liked: false },
-];
 
 const CATEGORY_PILL_COLORS: Record<string, string> = {
   question: "rgba(255,255,255,0.20)",
