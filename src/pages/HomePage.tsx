@@ -65,16 +65,17 @@ const HomePage = () => {
           <div className="belly-card" style={{ position: "relative", overflow: "hidden", padding: 16 }}>
             <span className="belly-watermark" style={{ top: -8, right: -6, fontSize: 72, opacity: 0.05 }}>bella</span>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, position: "relative", zIndex: 1 }}>
-              <div style={{
-                width: 33, height: 33, borderRadius: "50%", background: "#E8702A",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "#fff", fontFamily: "'Nunito',system-ui", fontWeight: 700, fontSize: 14,
-                boxShadow: "0 2px 8px rgba(232,112,42,0.4)",
-              }}>B</div>
-              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 12, fontWeight: 700, color: "#1A0E06" }}>Bella</span>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#6EC87A", animation: "livePulse 2s infinite" }} />
-              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 9, color: "#B8886A" }}>online · replies in seconds</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, position: "relative", zIndex: 1 }}>
+              <span style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                background: "linear-gradient(135deg, #E8702A, #D45810)",
+                padding: "4px 11px 4px 10px", borderRadius: 999,
+                boxShadow: "0 2px 8px rgba(232,112,42,0.35)",
+              }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", animation: "livePulse 2s infinite" }} />
+                <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 11.5, fontWeight: 700, color: "#fff", letterSpacing: "0.02em" }}>Bella</span>
+              </span>
+              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 10, fontWeight: 600, color: "#9A6B4E" }}>online</span>
             </div>
 
             <p style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 21, fontWeight: 400, fontStyle: "italic", color: "#B8755A", letterSpacing: -0.3, lineHeight: 1.1, marginBottom: -2 }}>Ask your</p>
