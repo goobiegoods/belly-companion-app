@@ -20,6 +20,17 @@ const PILL_BORDER = "#F6D2B6";
 const PILL_TEXT = "#B84A10";
 const ACCENT = "#E8601A";
 
+const HERO_PALETTE = ["#4a7c40","#d4920a","#6b8f3a","#8b4a42","#c47820","#b05a30","#a03060","#7a5030"];
+const getHeroColor = (idx: number) => HERO_PALETTE[idx % HERO_PALETTE.length];
+const isLightHex = (hex: string) => {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  // relative luminance
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 165;
+};
+
 const Recipes = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
