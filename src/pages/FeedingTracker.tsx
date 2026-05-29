@@ -368,6 +368,9 @@ const LogSheet = ({ kind, onClose, onSaved }: { kind: Kind; onClose: () => void;
             {saving ? "Saving..." : "Save log"}
           </button>
         </div>
+        <div style={{ flexShrink: 0, background: "#FFFFFF", display: "flex", justifyContent: "center", padding: "6px 0 10px" }}>
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)" }} />
+        </div>
       </div>
     </div>
   );
