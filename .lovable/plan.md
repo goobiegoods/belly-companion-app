@@ -1,26 +1,17 @@
-## Findings
+## Plan: Header and Footer Nav Styling Update
 
-The structural issues listed are already fixed in this codebase:
+Add rounded corners, orange drop shadow, and a faint border to the app's header and footer navigation.
 
-- `queryClient` is module-scoped (line 46) — outside the App function ✓
-- `ProtectedRoute` is module-scoped (line 80) — not nested in App ✓
-- `BrowserRouter` appears exactly once (App.tsx line 177); `main.tsx` does not include another ✓
-- `main.tsx` does NOT wrap `<App />` in `React.StrictMode` ✓
+### Changes
 
-## Single change to apply
+1. **AppHeader.tsx**
+   - Add `rounded-b-[40px]` to the `<header>` element
+   - Add `shadow-[0_6px_20px_rgba(232,96,26,0.27)]`
+   - Add `border-b border-orange-200/40`
+   - Remove or override any conflicting inline `borderRadius`/`borderBottom` styles
 
-Upgrade the bare `new QueryClient()` (line 46 of `src/App.tsx`) to use the recommended defaults to reduce unnecessary refetches:
-
-```ts
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5,
-    },
-  },
-});
-```
-
-No other files touched. No UI changes.
+2. **BottomNav.tsx**
+   - Add `rounded-t-[40px]` to the `<nav>` element
+   - Add `shadow-[0_-6px_20px_rgba(232,96,26,0.27)]`
+   - Add `border-t border-orange-200/40`
+   - Remove or override any conflicting inline `borderRadius`/`borderTop` styles

@@ -30,7 +30,7 @@ const Logo = () => (
 
 const AppHeader = ({ right, left, center }: AppHeaderProps) => {
   return (
-    <header className="belly-header-bar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 60 }}>
+    <header className="belly-header-bar rounded-b-[40px] shadow-[0_6px_20px_rgba(232,96,26,0.27)] border-b border-orange-200/40" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 60 }}>
       <span className="belly-header-glow" aria-hidden />
       <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative", zIndex: 1, flex: center ? 0 : 1 }}>
         {left ?? <Logo />}
