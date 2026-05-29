@@ -414,7 +414,7 @@ const Community = () => {
       </div>
 
 
-      <div className="px-5 mb-4 hide-scrollbar" style={{ display: "flex", flexDirection: "row", overflowX: "auto", flexWrap: "nowrap", gap: 8, paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+      <div className="px-5 mb-4 hide-scrollbar" style={{ display: "flex", flexDirection: "row", overflowX: "auto", flexWrap: "nowrap", gap: 8, paddingTop: 14, paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
         {CATEGORIES.map(cat => (
           <button key={cat} onClick={() => setActiveCategory(cat)}
             className="whitespace-nowrap transition-all belly-btn-press"
@@ -454,23 +454,20 @@ const Community = () => {
       {/* Create post bottom-sheet modal */}
       {showCreate && (
         <div
-          className="fixed inset-0 z-[200] flex items-end"
+          className="fixed inset-0 z-[200] flex items-start"
           style={{ background: "rgba(40, 20, 5, 0.45)" }}
           onClick={() => { setShowCreate(false); setPostError(""); }}
         >
           <div
-            className="w-full flex flex-col sheet-enter relative"
+            className="w-full flex flex-col sheet-down relative"
             style={{
               background: "var(--color-bg-base)",
-              borderTopLeftRadius: 24, borderTopRightRadius: 24,
+              borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
               height: "85vh", maxWidth: 430, margin: "0 auto",
-              boxShadow: "0 -10px 40px rgba(40,20,5,0.18)",
+              boxShadow: "0 10px 40px rgba(40,20,5,0.18)",
             }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="pt-3 pb-1 flex justify-center shrink-0">
-              <div style={{ width: 44, height: 5, borderRadius: 5, background: "var(--color-border-strong)" }} />
-            </div>
             <button onClick={() => { setShowCreate(false); setPostError(""); }} aria-label="Close"
               style={{
                 position: "absolute", top: 14, right: 14, width: 32, height: 32, borderRadius: "50%",
@@ -480,7 +477,7 @@ const Community = () => {
               <span style={{ color: "var(--color-text-primary)", fontSize: 16, lineHeight: 1 }}>×</span>
             </button>
 
-            <div className="px-5 pt-3 pb-2 shrink-0">
+            <div className="px-5 pt-5 pb-2 shrink-0">
               <h2 className="font-serif-display" style={{ fontSize: 22, fontWeight: 700, color: "var(--color-text-primary)" }}>Share with the mamas</h2>
               <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 12, color: "var(--color-text-muted)", marginTop: 2 }}>
                 Your story might be the one another mama needs today
@@ -532,6 +529,9 @@ const Community = () => {
                 {posting ? "Posting…" : "Post it →"}
               </button>
               {postError && <p className="text-[12px] text-center mt-2" style={{ color: "var(--color-danger)" }}>{postError}</p>}
+            </div>
+            <div className="pt-1 pb-3 flex justify-center shrink-0">
+              <div style={{ width: 44, height: 5, borderRadius: 5, background: "var(--color-border-strong)" }} />
             </div>
           </div>
         </div>
