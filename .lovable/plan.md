@@ -1,45 +1,29 @@
 ## Goal
-Make the `/community` feed feel alive and trusted for new users by expanding the existing local `SEEDED_POSTS` array from 16 → ~90 realistic human-sounding posts across all four categories, spanning weeks 4–40, with varied likes, comment counts, and timestamps over the past ~60 days.
+Make the Ask Bella composer feel like the hero of the app — a confident, pop-out footer with a clear "Ask anything" label and a thin orange divider that visually anchors the chat as the most important surface.
 
-## Why this approach
-`src/pages/Community.tsx` already merges a local `SEEDED_POSTS: Post[]` array into the live feed (lines 23–40, 108–120), de-duped by title against real DB posts. No schema change, no auth user needed — just expand the array. Real posts always appear above seeded ones since they get sorted naturally by category filter + real-time updates.
+## Changes — `src/pages/AskDoula.tsx`
 
-## Changes
+### 1. Thin orange top border on the sticky composer (line ~419)
+Replace the current `borderTop: "1px solid var(--color-border-default)"` with a refined orange divider:
+- Two-layer effect: a 2px solid line in `var(--color-accent-primary)` (#FF8C42), softened with a subtle gradient fade at the edges via `borderImage` or a `::before` pseudo. Inline-style version: `borderTop: "2px solid var(--color-accent-primary)"` plus a soft inset shadow `boxShadow: "0 -8px 24px -12px rgba(255, 140, 66, 0.25)"` so the bar feels like it glows up into the conversation.
 
-### 1. Extract & expand seeds — new file `src/data/seededPosts.ts`
-- Move the existing 16 entries out of `Community.tsx` into this new file as `export const SEEDED_POSTS: Post[]`.
-- Add ~74 new entries to reach **~90 total**, distributed roughly:
-  - **Questions: ~30** (symptoms, gear, birth plans, partner stuff, work decisions, food safety, weird body changes nobody warned them about)
-  - **Stories: ~22** (first kick, gender reveal regret, surprise twins, fast labor, slow labor, c-section recovery, rainbow baby, surrogate journey, single-mom-by-choice)
-  - **Tips: ~22** (natural remedies, sleep positions, hospital bag hacks, postpartum prep, perineal massage, pelvic floor PT, lactation, specific herbs/homeopathy tied to the app's naturopathic voice)
-  - **Support: ~16** (loss, anxiety, partner conflict, hyperemesis, body image, NICU, identity, fear of birth, geriatric pregnancy framing, queer pregnancy)
+### 2. "Ask anything" eyebrow label above the input pill
+Add a small centered chip directly above the input bar, inside the sticky footer:
+- Text: `ASK BELLA ANYTHING` (uppercase, letter-spaced).
+- Style: `fontFamily: 'Outfit'`, `fontSize: 9`, `fontWeight: 700`, `letterSpacing: 0.16em`, `color: var(--color-accent-primary)`.
+- Layout: small horizontal row centered, with a thin orange dot/sparkle on either side (•) to give it a "this is the moment" feel.
+- Margin: `4px auto 8px`.
 
-- Voice rules for every post:
-  - First-person, lowercase-first or sentence-case openings, contractions, occasional ellipses, the odd typo-free aside in parentheses — sound like a tired pregnant person typing on their phone, not a marketing copywriter.
-  - No emojis in titles. Bodies may use 0–1 emoji max.
-  - Length: title 4–14 words, body 1–4 sentences (~25–80 words).
-  - Diverse author first names from many cultures (avoid repeats already in the seed: Maya, Priya, Chloe, Layla, Sofia, Amara, Rania, Jade, Zara, Isla, Nina, Orel, Hana, Leila, Ava, Mia).
-  - `week_posted` matches the content (a 36-week labor question shouldn't say week 12).
-  - `likes`: 3–250 with a long-tail (most 5–60, a few breakout 100–250 on emotional stories).
-  - `comment_count`: roughly likes ÷ 6, clamped 0–35.
-  - `created_at`: spread across `now() − 1 day` to `now() − 60 days`, weighted toward the last 2 weeks so the top of the feed feels fresh.
-  - `user_id: ""`, deterministic `id: "seed-{n}"`.
+### 3. Polish the input pill itself
+- Increase pill border from `1px solid var(--color-border-default)` to `1.5px solid rgba(255, 140, 66, 0.35)` so it carries a subtle orange ring matching the new top border.
+- Strengthen the existing shadow to a warm one: `0 6px 20px -6px rgba(255, 140, 66, 0.22), 0 2px 6px rgba(40, 20, 5, 0.06)`.
+- Slightly bump placeholder text: keep "Ask anything..." but make `font-size: 14.5` and add a tiny opacity bump for readability.
+- Sticky bar padding: `12px 16px 14px` (was `10px 16px 14px`) to make room for the eyebrow label.
 
-- Content guardrails:
-  - Tips that mention herbs/remedies stay aligned with the app's existing naturopathic voice (raspberry leaf, magnesium glycinate, P6, Nux Vomica, ginger, dates in 3rd trimester, perineal oil) — never give dosing advice that could be unsafe, and never recommend essential oils internally.
-  - Support posts model healthy responses ("I called my midwife", "I'm seeing a perinatal therapist") — no graphic descriptions of loss.
-  - No medical claims, no brand bashing, no political content.
-
-### 2. Update `src/pages/Community.tsx`
-- Remove the inline `SEEDED_POSTS` definition and its `Post` reference duplication.
-- Add `import { SEEDED_POSTS } from "@/data/seededPosts";`
-- Export the `Post` interface from the new file (or keep it in `Community.tsx` and import it into the seed file — pick the seed-file-imports-Post direction to avoid circular imports).
-
-### 3. No DB, no UI, no logic changes
-- The card rendering, category filtering, dedupe-by-title, and pinned-post behavior all stay identical.
-- Live posts from real users continue to take priority and merge in seamlessly.
+### 4. Quota line below remains unchanged
+The "10/10 free messages today" microcopy stays right where it is.
 
 ## Out of scope
-- Comments on seeded posts (they show a count but tapping in shows 0 real comments — acceptable; matches current behavior).
-- Likes on seeded posts (heart icon is read-only for seeds today — unchanged).
-- Any backend, auth, or schema work.
+- Header, transcript, message bubbles, premium modal, photo picker, prefill chips — none touched.
+- No copy changes to the placeholder or send-button behavior.
+- No backend / streaming logic changes.
