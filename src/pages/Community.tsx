@@ -414,7 +414,7 @@ const Community = () => {
       </div>
 
 
-      <div className="px-5 mb-4 hide-scrollbar" style={{ display: "flex", flexDirection: "row", overflowX: "auto", flexWrap: "nowrap", gap: 8, paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+      <div className="px-5 mb-4 hide-scrollbar" style={{ display: "flex", flexDirection: "row", overflowX: "auto", flexWrap: "nowrap", gap: 8, paddingTop: 14, paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
         {CATEGORIES.map(cat => (
           <button key={cat} onClick={() => setActiveCategory(cat)}
             className="whitespace-nowrap transition-all belly-btn-press"
