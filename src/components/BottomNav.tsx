@@ -41,7 +41,7 @@ const BottomNav = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[20px] shadow-[0_-6px_20px_rgba(232,96,26,0.27)] border-t border-orange-200/40" style={{
       maxWidth: 430,
       margin: "0 auto",
-      background: "#E8601A",
+      background: "#D4500F",
     }}>
       <div className="flex items-center justify-around" style={{ padding: "10px 4px 14px" }}>
         {tabs.map(({ path, icon, label }) => {
