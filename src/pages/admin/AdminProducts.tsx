@@ -88,7 +88,7 @@ export default function AdminProducts() {
           <div style={{ marginBottom:12 }}>
             <Input placeholder="Search products…" value={search} onChange={e => setSearch(e.target.value)} style={{ maxWidth:320 }} />
           </div>
-          <TabBar tabs={CATS} active={tab} onChange={setTab} counts={tabCounts} />
+          <TabBar tabs={CATS.map(c => ({ id: c, label: c === "All" ? "All" : (CAT_LABELS[c] ?? c) + "s", count: tabCounts[c] ?? 0 }))} value={tab} onChange={setTab} />
         </div>
 
         {filtered.length === 0

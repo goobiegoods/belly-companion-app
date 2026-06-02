@@ -191,7 +191,7 @@ export default function AdminOrders() {
                 <option value="90">Last 90 days</option>
               </Select>
             </div>
-            <TabBar tabs={TABS} active={tab} onChange={setTab} counts={tabCounts} />
+            <TabBar tabs={TABS.map(t => ({ id: t, label: t, count: tabCounts[t] ?? 0 }))} value={tab} onChange={setTab} />
           </div>
 
           {filtered.length === 0

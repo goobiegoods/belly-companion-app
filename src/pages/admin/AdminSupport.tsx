@@ -106,12 +106,12 @@ export default function AdminSupport() {
           <div style={{ marginBottom:12 }}>
             <Input placeholder="Search tickets…" value={search} onChange={e => setSearch(e.target.value)} style={{ maxWidth:360 }} />
           </div>
-          <TabBar
-            tabs={["open","in_progress","resolved","all"]}
-            active={tab}
-            onChange={setTab}
-            counts={tabCounts}
-          />
+          <TabBar tabs={[
+            { id:"open", label:"Open", count: open },
+            { id:"in_progress", label:"In Progress", count: inProgress },
+            { id:"resolved", label:"Resolved", count: resolved },
+            { id:"all", label:"All", count: tickets.length },
+          ]} value={tab} onChange={setTab} />
         </div>
 
         {filtered.length === 0

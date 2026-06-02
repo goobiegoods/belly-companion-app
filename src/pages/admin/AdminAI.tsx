@@ -108,7 +108,11 @@ export default function AdminAI() {
             <div style={{ display:"flex", gap:10, marginBottom:12 }}>
               <Input placeholder="Search by user or content…" value={search} onChange={e => setSearch(e.target.value)} style={{ flex:1 }} />
             </div>
-            <TabBar tabs={["All","Today","Flagged"]} active={tab} onChange={setTab} counts={{ All: conversations.length, Today: conversations.filter(c => c.date === today).length, Flagged: conversations.filter(c => c.hasFlagged).length }} />
+            <TabBar tabs={[
+              { id:"All", label:"All", count: conversations.length },
+              { id:"Today", label:"Today", count: conversations.filter(c => c.date === today).length },
+              { id:"Flagged", label:"Flagged", count: conversations.filter(c => c.hasFlagged).length },
+            ]} value={tab} onChange={setTab} />
           </div>
           {loading ? <div style={{ ...fontUI, fontSize:12, color:"#333", padding:20 }}>Loading…</div>
             : filtered.length === 0 ? <Empty>No conversations found</Empty>
