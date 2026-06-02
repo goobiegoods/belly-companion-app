@@ -1,26 +1,33 @@
-## Goal
+# Stop the "refresh" flicker on every navigation
 
-Simplify the cluttered Bella row on the home Ask card. Currently: orange "B" circle + "Bella" text + green pulse dot + "online · replies in seconds". Replace with a single elegant orange pill that reads "Bella" with a soft live dot + "online" right next to it.
+## What's actually happening
 
-## Change
+It isn't a real reload — it's two CSS animations replaying every time a route mounts (which React Router does on every tab change):
 
-### `src/pages/HomePage.tsx` lines 68-78
+- `.page-enter` — 260ms fade + 8px slide on the page root
+- `.stagger > *` — children fade up to ~240ms delay each (on Home, etc.)
 
-Replace the whole header row with:
+Combined that's ~500ms of fade/slide on every page → reads as "the page keeps refreshing." Nothing in auth or data is actually looping.
 
-- **Orange pill** containing "Bella":
-  - background: `linear-gradient(135deg, #E8702A, #D45810)`
-  - padding: `4px 11px 4px 10px`
-  - border-radius: `999px`
-  - white text, Nunito, 11.5px, weight 700, letter-spacing 0.02em
-  - tiny white pulse dot (5px) inside, left of "Bella"
-  - subtle shadow: `0 2px 8px rgba(232,112,42,0.35)`
-- Next to the pill (gap 8): small "online" label
-  - Nunito 10px, weight 600, color `#9A6B4E`
-  - lowercase
+## Fix
 
-Drop the separate "B" avatar, the standalone "Bella" text, the green dot, and the "replies in seconds" copy.
+Disable the mount-time animations app-wide. Navigation becomes instant; the layout and styling stay identical.
+
+### Changes
+
+1. **`src/index.css`** — neutralize the two animation utilities so they no longer play on mount:
+   - `.page-enter { animation: none; }`
+   - `.stagger > * { animation: none; opacity: 1; transform: none; }`
+   - Keep the `@keyframes pageEnter` / `fadeInUp` definitions (harmless, used nowhere else) or remove them — either is fine.
+   - Leave `livePulse` (Bella dot), `belly-float`, sheet animations, etc. untouched.
+
+2. **No component changes needed.** Pages can keep the `page-enter` / `stagger` class names; they just become no-ops. This avoids touching ~15 page files.
 
 ## Out of scope
 
-- The "Ask your / doula anything" title, the input pill, suggestions, and any other card.
+- Auth, Supabase, routing, splash screen — not changing.
+- Sheet/modal entrance animations, Bella pulse, button press scale — kept as-is.
+
+## Verification
+
+Navigate Home → Cart → Shop → Baby. No fade/slide replay; pages snap in. Splash still shows once per session only.
