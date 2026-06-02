@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -8,6 +8,7 @@ type Mode = "signin" | "signup" | "forgot";
 
 const Auth = () => {
   const { session, loading } = useAuth();
+  const location = useLocation();
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +16,10 @@ const Auth = () => {
   const { signUp, signIn } = useAuth();
 
   if (loading) return <div className="min-h-screen bg-belly-bg flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-belly-hero border-t-transparent animate-spin" /></div>;
-  if (session) return <Navigate to="/" replace />;
+  if (session) {
+    const from = (location.state as any)?.from?.pathname ?? "/";
+    return <Navigate to={from} replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
