@@ -1,9 +1,32 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
-import { kits, remedies, teas, homeopathyCourses, SHOP_DISCLAIMER, Product } from "@/data/shopData";
+import { kits as staticKits, remedies as staticRemedies, teas as staticTeas, homeopathyCourses, SHOP_DISCLAIMER, Product } from "@/data/shopData";
+
+function useShopProducts() {
+  const [kits, setKits] = useState<Product[]>(staticKits);
+  const [remedies, setRemedies] = useState<Product[]>(staticRemedies);
+  const [teas, setTeas] = useState<Product[]>(staticTeas);
+  useEffect(() => {
+    supabase.from("products").select("*").eq("is_active", true).order("sort_order").then(({ data }) => {
+      if (!data || data.length === 0) return;
+      const map = (row: any): Product => ({
+        id: row.id, name: row.name, price: Number(row.price), emoji: row.emoji,
+        type: row.category as any, description: row.description,
+        tag: row.tag ?? undefined, brand: row.brand ?? undefined,
+        unit: row.unit ?? undefined, use: row.use_case ?? undefined,
+        contents: row.contents ?? undefined,
+        stripePriceId: row.stripe_price_id || undefined,
+      });
+      setKits(data.filter((r: any) => r.category === "kit").map(map));
+      setRemedies(data.filter((r: any) => r.category === "remedy").map(map));
+      setTeas(data.filter((r: any) => r.category === "tea").map(map));
+    });
+  }, []);
+  return { kits, remedies, teas };
+}
 import { getHomeopathyLessonContent } from "@/data/homeopathyLessons";
 import { LessonContent } from "@/data/lessonContent";
 import { Check, ChevronRight, Lock, Save } from "lucide-react";
@@ -13,6 +36,7 @@ const Shop = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { cartCount, addItem } = useCart();
+  const { kits, remedies, teas } = useShopProducts();
   const [tab, setTab] = useState<"remedies" | "learn">("remedies");
   const [addedId, setAddedId] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);

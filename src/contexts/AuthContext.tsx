@@ -114,6 +114,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
+  // Presence tracking for admin "active users now" counter
+  useEffect(() => {
+    if (!user?.id) return;
+    const ch = supabase.channel("app-presence", { config: { presence: { key: user.id } } });
+    ch.track({ user_id: user.id, online_at: new Date().toISOString() });
+    return () => { supabase.removeChannel(ch); };
+  }, [user?.id]);
+
   const value = useMemo(
     () => ({ session, user, profile, loading, signUp, signIn, signOut, refreshProfile }),
     [session, user, profile, loading]

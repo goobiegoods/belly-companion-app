@@ -1,219 +1,279 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Btn, C, Card, Empty, Input, Modal, PageTitle, Select, SectionTitle,
-  SlidePanel, StatusPill, TabBar, Textarea, fmtUSD, fontUI,
-} from "@/components/admin/ui";
+import { Btn, C, Card, Empty, Input, Label, MetricCard, Modal, PageTitle, Select, SlidePanel, StatusPill, TabBar, Textarea, ago, fmtUSD, fontTitle, fontUI } from "@/components/admin/ui";
 
-type Order = {
-  id: string; user_id: string; total: number; status: string;
-  created_at: string; paid_at: string | null; shipped_at: string | null;
-  items: any; shipping_address: string | null; stripe_session_id: string | null;
-  promo_code: string | null; tracking_number: string | null;
-  carrier: string | null; admin_notes: string | null;
-};
+interface Order {
+  id: string; user_id: string; total: number; status: string; created_at: string;
+  items: any[]; shipping_address: string | null; stripe_session_id: string | null;
+  tracking_number: string | null; carrier: string | null; shipped_at: string | null;
+  paid_at: string | null; admin_notes: string | null; promo_code: string | null; amount_paid: number | null;
+}
 
-const STATUS_TONE: Record<string, "success" | "warning" | "info" | "danger" | "neutral"> = {
-  paid: "success", pending: "warning", shipped: "info", cancelled: "danger",
-};
-const TABS = [
-  { id: "all", label: "All" }, { id: "pending", label: "Pending" },
-  { id: "paid", label: "Paid" }, { id: "shipped", label: "Shipped" }, { id: "cancelled", label: "Cancelled" },
-];
-const RANGE_DAYS: Record<string, number> = { "7": 7, "30": 30, "90": 90, all: 9999 };
+function playOrderChime() {
+  try {
+    const ctx = new AudioContext();
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
+    [659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      osc.connect(gain); osc.frequency.value = freq; osc.type = "sine";
+      osc.start(ctx.currentTime + i * 0.12); osc.stop(ctx.currentTime + i * 0.12 + 0.4);
+    });
+  } catch {}
+}
 
-const AdminOrders = () => {
+const TABS = ["All","Pending","Paid","Shipped","Delivered","Cancelled"];
+const STATUS_MAP: Record<string,string> = { pending:"Pending", pending_payment:"Pending", paid:"Paid", shipped:"Shipped", delivered:"Delivered", cancelled:"Cancelled", abandoned:"Cancelled" };
+
+export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [tab, setTab] = useState("all");
-  const [q, setQ] = useState("");
-  const [range, setRange] = useState("30");
-  const [open, setOpen] = useState<Order | null>(null);
-  const [shipModal, setShipModal] = useState(false);
-  const [refundModal, setRefundModal] = useState(false);
-  const [tracking, setTracking] = useState("");
-  const [carrier, setCarrier] = useState("USPS");
+  const [tab, setTab] = useState("All");
+  const [search, setSearch] = useState("");
+  const [dateRange, setDateRange] = useState("all");
+  const [selected, setSelected] = useState<Order | null>(null);
   const [notes, setNotes] = useState("");
+  const [shipModal, setShipModal] = useState(false);
+  const [carrier, setCarrier] = useState("USPS");
+  const [tracking, setTracking] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [newFlash, setNewFlash] = useState<string | null>(null);
+  const prevCountRef = useRef(0);
 
-  const refresh = async () => {
-    const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-    setOrders((data as Order[]) ?? []);
+  // Revenue calcs
+  const now = new Date();
+  const todayStart = new Date(now); todayStart.setHours(0,0,0,0);
+  const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const paidOrders = useMemo(() => orders.filter(o => o.status === "paid" || o.status === "shipped" || o.status === "delivered"), [orders]);
+  const revenueToday = useMemo(() => paidOrders.filter(o => o.paid_at && new Date(o.paid_at) >= todayStart).reduce((s,o) => s+Number(o.total),0), [paidOrders]);
+  const revenueWeek = useMemo(() => paidOrders.filter(o => o.paid_at && new Date(o.paid_at) >= weekStart).reduce((s,o) => s+Number(o.total),0), [paidOrders]);
+  const revenueMonth = useMemo(() => paidOrders.filter(o => o.paid_at && new Date(o.paid_at) >= monthStart).reduce((s,o) => s+Number(o.total),0), [paidOrders]);
+  const revenueAllTime = useMemo(() => paidOrders.reduce((s,o) => s+Number(o.total),0), [paidOrders]);
+
+  // Best sellers from JSONB items
+  const bestSellers = useMemo(() => {
+    const counts: Record<string, { name:string; qty:number; revenue:number }> = {};
+    paidOrders.forEach(o => {
+      (Array.isArray(o.items) ? o.items : []).forEach((item:any) => {
+        const k = item.id ?? item.name ?? "unknown";
+        if (!counts[k]) counts[k] = { name: item.name ?? k, qty:0, revenue:0 };
+        counts[k].qty += item.qty ?? 1;
+        counts[k].revenue += (item.price ?? 0) * (item.qty ?? 1);
+      });
+    });
+    return Object.values(counts).sort((a,b) => b.qty - a.qty).slice(0,5);
+  }, [paidOrders]);
+
+  // Pipeline counts
+  const pipeline = useMemo(() => ({
+    pending: orders.filter(o => ["pending","pending_payment"].includes(o.status)).length,
+    paid: orders.filter(o => o.status === "paid").length,
+    shipped: orders.filter(o => o.status === "shipped").length,
+    delivered: orders.filter(o => o.status === "delivered").length,
+  }), [orders]);
+
+  const loadOrders = async () => {
+    const { data } = await supabase.from("orders").select("*").order("created_at", { ascending:false });
+    const list = (data ?? []) as Order[];
+    if (prevCountRef.current > 0 && list.length > prevCountRef.current) {
+      setNewFlash(list[0].id);
+      playOrderChime();
+      setTimeout(() => setNewFlash(null), 4000);
+    }
+    prevCountRef.current = list.length;
+    setOrders(list);
   };
-  useEffect(() => { refresh(); }, []);
+
+  useEffect(() => { loadOrders(); }, []);
+
+  // Real-time new orders
+  useEffect(() => {
+    const ch = supabase.channel("admin-orders-live")
+      .on("postgres_changes", { event:"INSERT", schema:"public", table:"orders" }, loadOrders)
+      .on("postgres_changes", { event:"UPDATE", schema:"public", table:"orders" }, loadOrders)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, []);
 
   const filtered = useMemo(() => {
-    const cutoff = Date.now() - RANGE_DAYS[range] * 86400000;
-    return orders.filter((o) => {
-      if (tab !== "all" && o.status !== tab) return false;
-      if (new Date(o.created_at).getTime() < cutoff) return false;
-      if (q) {
-        const hay = `${o.id} ${o.user_id} ${o.shipping_address ?? ""} ${JSON.stringify(o.items)}`.toLowerCase();
-        if (!hay.includes(q.toLowerCase())) return false;
-      }
-      return true;
-    });
-  }, [orders, tab, q, range]);
+    let list = orders;
+    if (tab !== "All") list = list.filter(o => STATUS_MAP[o.status]?.toLowerCase() === tab.toLowerCase());
+    if (search) list = list.filter(o => o.id.toLowerCase().includes(search.toLowerCase()) || (o.user_id ?? "").toLowerCase().includes(search.toLowerCase()) || (o.promo_code ?? "").toLowerCase().includes(search.toLowerCase()));
+    if (dateRange !== "all") {
+      const cutoff = dateRange === "7" ? weekStart : dateRange === "30" ? monthStart : new Date(now.getTime() - 90*24*60*60*1000);
+      list = list.filter(o => new Date(o.created_at) >= cutoff);
+    }
+    return list;
+  }, [orders, tab, search, dateRange]);
 
-  const counts = useMemo(() => {
-    const c: Record<string, number> = { all: orders.length, pending: 0, paid: 0, shipped: 0, cancelled: 0 };
-    orders.forEach((o) => { c[o.status] = (c[o.status] || 0) + 1; });
-    return c;
+  const tabCounts = useMemo(() => {
+    const map: Record<string,number> = { All: orders.length };
+    TABS.slice(1).forEach(t => { map[t] = orders.filter(o => STATUS_MAP[o.status]?.toLowerCase() === t.toLowerCase()).length; });
+    return map;
   }, [orders]);
 
-  const exportCsv = () => {
-    const headers = ["id", "created_at", "user_id", "items", "total", "promo_code", "status", "tracking_number"];
-    const rows = filtered.map((o) =>
-      headers.map((h) => {
-        const v = (o as any)[h];
-        if (h === "items") return JSON.stringify(v).replace(/"/g, '""');
-        return String(v ?? "").replace(/"/g, '""');
-      }).map((s) => `"${s}"`).join(",")
-    );
-    const blob = new Blob([[headers.join(","), ...rows].join("\n")], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
+  const saveNotes = async () => {
+    if (!selected) return;
+    setSaving(true);
+    await supabase.from("orders").update({ admin_notes: notes }).eq("id", selected.id);
+    setOrders(prev => prev.map(o => o.id === selected.id ? { ...o, admin_notes: notes } : o));
+    setSaving(false);
   };
 
-  const submitShip = async () => {
-    if (!open) return;
-    await supabase.from("orders").update({
-      status: "shipped", tracking_number: tracking || null,
-      carrier: carrier || null, shipped_at: new Date().toISOString(),
-    }).eq("id", open.id);
-    setShipModal(false); setTracking(""); refresh(); setOpen(null);
+  const markShipped = async () => {
+    if (!selected) return;
+    await supabase.from("orders").update({ status:"shipped", carrier, tracking_number: tracking, shipped_at: new Date().toISOString() }).eq("id", selected.id);
+    setOrders(prev => prev.map(o => o.id === selected.id ? { ...o, status:"shipped", carrier, tracking_number: tracking } : o));
+    setSelected(s => s ? { ...s, status:"shipped", carrier, tracking_number: tracking } : s);
+    setShipModal(false);
   };
-  const saveNotes = async () => {
-    if (!open) return;
-    await supabase.from("orders").update({ admin_notes: notes }).eq("id", open.id);
-    refresh();
-  };
-  const openOrder = (o: Order) => { setOpen(o); setNotes(o.admin_notes ?? ""); };
 
   return (
-    <>
-      <PageTitle title="Orders" right={<Btn variant="secondary" onClick={exportCsv}>Export CSV</Btn>} />
-      <TabBar tabs={TABS.map((t) => ({ ...t, count: counts[t.id] }))} value={tab} onChange={setTab} />
-      <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
-        <Input placeholder="Search by ID, customer, product…" value={q} onChange={(e) => setQ(e.target.value)} style={{ maxWidth: 360 }} />
-        <Select value={range} onChange={(e) => setRange(e.target.value)}>
-          <option value="7">Last 7 days</option><option value="30">Last 30 days</option>
-          <option value="90">Last 90 days</option><option value="all">All time</option>
-        </Select>
+    <div>
+      <PageTitle title="Orders & Revenue" />
+
+      {/* Revenue metrics */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:18 }}>
+        <MetricCard label="Revenue Today" value={fmtUSD(revenueToday)} />
+        <MetricCard label="Revenue This Week" value={fmtUSD(revenueWeek)} />
+        <MetricCard label="Revenue This Month" value={fmtUSD(revenueMonth)} />
+        <MetricCard label="All-Time Revenue" value={fmtUSD(revenueAllTime)} />
       </div>
-      <Card padding={0}>
-        {filtered.length === 0 ? <Empty>No orders match.</Empty> : (
-          <table style={{ width: "100%", borderCollapse: "collapse", ...fontUI, fontSize: 12 }}>
-            <thead><tr style={{ color: C.muted, fontSize: 10, letterSpacing: 1.2, textTransform: "uppercase" }}>
-              {["Order", "Date", "Customer", "Items", "Promo", "Total", "Status", ""].map((h) => (
-                <th key={h} style={{ textAlign: "left", padding: "10px 18px", fontWeight: 700 }}>{h}</th>
-              ))}
-            </tr></thead>
-            <tbody>
-              {filtered.map((o) => {
-                const items = Array.isArray(o.items) ? o.items : [];
-                return (
-                  <tr key={o.id} onClick={() => openOrder(o)} style={{ borderTop: `1px solid ${C.border}`, cursor: "pointer" }}>
-                    <td style={{ padding: "12px 18px", color: "#ddd", fontFamily: "monospace", fontSize: 11 }}>#{o.id.slice(0, 8)}</td>
-                    <td style={{ padding: "12px 18px", color: "#888" }}>{new Date(o.created_at).toLocaleDateString()}</td>
-                    <td style={{ padding: "12px 18px", color: "#aaa" }}>{o.user_id.slice(0, 8)}…</td>
-                    <td style={{ padding: "12px 18px", color: "#aaa" }}>{items.length}</td>
-                    <td style={{ padding: "12px 18px", color: o.promo_code ? C.orange : "#555" }}>{o.promo_code || "—"}</td>
-                    <td style={{ padding: "12px 18px", color: "#fff", fontWeight: 600 }}>{fmtUSD(Number(o.total))}</td>
-                    <td style={{ padding: "12px 18px" }}><StatusPill tone={STATUS_TONE[o.status] ?? "neutral"}>{o.status}</StatusPill></td>
-                    <td style={{ padding: "12px 18px", color: C.muted }}>›</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+
+      {/* Pipeline */}
+      <Card style={{ marginBottom:18 }}>
+        <p style={{ ...fontUI, fontSize:10, fontWeight:700, letterSpacing:1.2, color:"#444", textTransform:"uppercase", margin:"0 0 14px" }}>Order Pipeline</p>
+        <div style={{ display:"flex", alignItems:"center", gap:0 }}>
+          {[
+            { label:"Pending", count: pipeline.pending, color:"#FF8C42" },
+            { label:"Paid", count: pipeline.paid, color:"#22c55e" },
+            { label:"Shipped", count: pipeline.shipped, color:"#3b82f6" },
+            { label:"Delivered", count: pipeline.delivered, color:"#a855f7" },
+          ].map((stage, i) => (
+            <div key={stage.label} style={{ display:"flex", alignItems:"center" }}>
+              <div style={{ textAlign:"center", padding:"0 20px" }}>
+                <div style={{ ...fontTitle as any, fontSize:28, color: stage.count > 0 ? stage.color : "#333", lineHeight:1 }}>{stage.count}</div>
+                <div style={{ ...fontUI, fontSize:11, color:"#555", marginTop:4 }}>{stage.label}</div>
+              </div>
+              {i < 3 && <div style={{ color:"#2a2a2a", fontSize:18, margin:"0 4px" }}>→</div>}
+            </div>
+          ))}
+        </div>
       </Card>
 
-      <SlidePanel open={!!open} onClose={() => setOpen(null)} title={open ? `#${open.id.slice(0, 8).toUpperCase()}` : ""}>
-        {open && (
-          <div style={{ ...fontUI, color: "#ddd", fontSize: 13, display: "flex", flexDirection: "column", gap: 18 }}>
+      {/* Best sellers + orders table */}
+      <div style={{ display:"grid", gridTemplateColumns:"260px 1fr", gap:12 }}>
+        <Card>
+          <p style={{ ...fontUI, fontSize:10, fontWeight:700, letterSpacing:1.2, color:"#444", textTransform:"uppercase", margin:"0 0 14px" }}>Best Sellers</p>
+          {bestSellers.length === 0 && <p style={{ ...fontUI, fontSize:12, color:"#333" }}>No sales yet</p>}
+          {bestSellers.map((p, i) => (
+            <div key={p.name} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom: i < bestSellers.length-1 ? `1px solid ${C.border}` : "none" }}>
+              <span style={{ ...fontUI, fontSize:12, color:"#444", fontWeight:700, width:16, flexShrink:0 }}>#{i+1}</span>
+              <div style={{ flex:1, minWidth:0 }}>
+                <p style={{ ...fontUI, fontSize:12, color:"#bbb", margin:0, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.name}</p>
+                <p style={{ ...fontUI, fontSize:10, color:"#444", margin:0 }}>{p.qty} sold · {fmtUSD(p.revenue)}</p>
+              </div>
+            </div>
+          ))}
+        </Card>
+
+        <Card style={{ padding:0, overflow:"hidden" }}>
+          <div style={{ padding:"16px 18px 0" }}>
+            <div style={{ display:"flex", gap:10, marginBottom:14 }}>
+              <Input placeholder="Search order ID, user, promo…" value={search} onChange={e => setSearch(e.target.value)} style={{ flex:1 }} />
+              <Select value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ width:130 }}>
+                <option value="all">All time</option>
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </Select>
+            </div>
+            <TabBar tabs={TABS} active={tab} onChange={setTab} counts={tabCounts} />
+          </div>
+
+          {filtered.length === 0
+            ? <Empty>No orders found</Empty>
+            : (
+            <table style={{ width:"100%", borderCollapse:"collapse" }}>
+              <thead>
+                <tr>{["ID","Date","Items","Promo","Total","Status",""].map(h => (
+                  <th key={h} style={{ ...fontUI, fontSize:10, fontWeight:700, color:"#3a3a3a", textAlign:"left", padding:"10px 12px", letterSpacing:0.5, textTransform:"uppercase", borderBottom:`1px solid ${C.border}` }}>{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {filtered.map(o => (
+                  <tr key={o.id}
+                    onClick={() => { setSelected(o); setNotes(o.admin_notes ?? ""); }}
+                    style={{ borderBottom:`1px solid ${C.border}`, cursor:"pointer", background: o.id === newFlash ? "rgba(232,112,42,0.1)" : "transparent", transition:"background 0.5s" }}
+                  >
+                    <td style={{ ...fontUI, fontSize:11, color:"#555", padding:"11px 12px", fontFamily:"monospace" }}>{o.id.slice(0,8)}…</td>
+                    <td style={{ ...fontUI, fontSize:11, color:"#666", padding:"11px 12px" }}>{new Date(o.created_at).toLocaleDateString()}</td>
+                    <td style={{ ...fontUI, fontSize:12, color:"#888", padding:"11px 12px" }}>{Array.isArray(o.items)?o.items.length:0}</td>
+                    <td style={{ ...fontUI, fontSize:11, color:"#555", padding:"11px 12px", fontFamily:"monospace" }}>{o.promo_code ?? "—"}</td>
+                    <td style={{ ...fontUI, fontSize:13, color:C.orange, fontWeight:700, padding:"11px 12px" }}>{fmtUSD(Number(o.total))}</td>
+                    <td style={{ padding:"11px 12px" }}>
+                      <StatusPill tone={o.status==="paid"?"success":o.status==="shipped"?"info":o.status==="delivered"?"success":o.status==="cancelled"||o.status==="abandoned"?"danger":"warning"}>
+                        {STATUS_MAP[o.status] ?? o.status}
+                      </StatusPill>
+                    </td>
+                    <td style={{ padding:"11px 12px" }}>
+                      {o.id === newFlash && <span style={{ ...fontUI, fontSize:10, color:C.orange, fontWeight:700, letterSpacing:0.5 }}>NEW</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Card>
+      </div>
+
+      {/* Order detail panel */}
+      <SlidePanel open={!!selected} onClose={() => setSelected(null)} title={`Order ${selected?.id.slice(0,8)}…`} width={540}>
+        {selected && (
+          <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+              <div><Label>Status</Label><StatusPill tone={selected.status==="paid"?"success":selected.status==="shipped"?"info":"warning"}>{STATUS_MAP[selected.status]??selected.status}</StatusPill></div>
+              <div><Label>Date</Label><p style={{ ...fontUI, fontSize:13, color:"#bbb", margin:0 }}>{new Date(selected.created_at).toLocaleString()}</p></div>
+              <div><Label>Total</Label><p style={{ ...fontUI, fontSize:18, color:C.orange, fontWeight:700, margin:0 }}>{fmtUSD(Number(selected.total))}</p></div>
+              <div><Label>Customer</Label><p style={{ ...fontUI, fontSize:11, color:"#555", margin:0, fontFamily:"monospace" }}>{selected.user_id.slice(0,16)}…</p></div>
+            </div>
             <div>
-              <StatusPill tone={STATUS_TONE[open.status] ?? "neutral"}>{open.status}</StatusPill>
-              <p style={{ margin: "8px 0 0", color: C.muted, fontSize: 12 }}>{new Date(open.created_at).toLocaleString()}</p>
-            </div>
-            <div><SectionTitle>Customer</SectionTitle>
-              <p style={{ margin: 0, fontSize: 12, color: C.muted }}>User ID</p>
-              <p style={{ margin: "2px 0", fontFamily: "monospace", fontSize: 12 }}>{open.user_id}</p>
-            </div>
-            <div><SectionTitle>Items</SectionTitle>
-              {(Array.isArray(open.items) ? open.items : []).map((it: any, i: number) => (
-                <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.border}` }}>
-                  <span>{it.emoji ?? "🛍️"} {it.name} × {it.qty ?? 1}</span>
-                  <span>{fmtUSD(Number(it.price ?? 0) * Number(it.qty ?? 1))}</span>
+              <Label>Items</Label>
+              {(Array.isArray(selected.items)?selected.items:[]).map((item:any, i:number) => (
+                <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:`1px solid ${C.border}` }}>
+                  <span style={{ ...fontUI, fontSize:13, color:"#bbb" }}>{item.emoji ?? ""} {item.name}</span>
+                  <span style={{ ...fontUI, fontSize:13, color:"#888" }}>{item.qty ?? 1} × {fmtUSD(item.price ?? 0)}</span>
                 </div>
               ))}
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0 0", marginTop: 6, borderTop: `1px solid ${C.border}`, fontWeight: 700 }}>
-                <span>Total</span><span style={{ color: C.orange }}>{fmtUSD(Number(open.total))}</span>
-              </div>
-              {open.promo_code && <p style={{ margin: "8px 0 0", color: C.orange, fontSize: 12 }}>Promo: {open.promo_code}</p>}
             </div>
-            {open.shipping_address && (
-              <div><SectionTitle>Shipping</SectionTitle>
-                <p style={{ margin: 0, fontSize: 12, color: "#bbb", whiteSpace: "pre-wrap" }}>{open.shipping_address}</p>
-              </div>
-            )}
-            {open.stripe_session_id && (
-              <div><SectionTitle>Stripe</SectionTitle>
-                <p style={{ margin: 0, fontSize: 11, fontFamily: "monospace", color: "#aaa" }}>{open.stripe_session_id}</p>
-              </div>
-            )}
-            <div><SectionTitle>Timeline</SectionTitle>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12 }}>
-                <span>✓ Placed · {new Date(open.created_at).toLocaleString()}</span>
-                <span style={{ color: open.paid_at ? "#fff" : C.muted }}>{open.paid_at ? "✓" : "○"} Paid {open.paid_at && `· ${new Date(open.paid_at).toLocaleString()}`}</span>
-                <span style={{ color: open.shipped_at ? "#fff" : C.muted }}>{open.shipped_at ? "✓" : "○"} Shipped {open.shipped_at && `· ${new Date(open.shipped_at).toLocaleString()}`}</span>
-              </div>
-              {open.tracking_number && (
-                <p style={{ margin: "8px 0 0", fontSize: 12 }}>
-                  <span style={{ color: C.muted }}>{open.carrier}</span> · <span style={{ fontFamily: "monospace" }}>{open.tracking_number}</span>
-                </p>
-              )}
-            </div>
-            <div><SectionTitle>Internal notes</SectionTitle>
-              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes only visible to admins…" />
-              <Btn size="sm" variant="secondary" onClick={saveNotes} style={{ marginTop: 8 }}>Save notes</Btn>
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              {open.status === "paid" && <Btn onClick={() => setShipModal(true)}>Mark as Shipped</Btn>}
-              <Btn variant="danger" onClick={() => setRefundModal(true)}>Refund</Btn>
+            {selected.shipping_address && <div><Label>Shipping Address</Label><pre style={{ ...fontUI, fontSize:12, color:"#888", margin:0, whiteSpace:"pre-wrap" }}>{selected.shipping_address}</pre></div>}
+            {selected.tracking_number && <div><Label>Tracking</Label><p style={{ ...fontUI, fontSize:12, color:"#bbb", margin:0, fontFamily:"monospace" }}>{selected.carrier} · {selected.tracking_number}</p></div>}
+            <div><Label>Admin Notes</Label><Textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Internal notes (not visible to customer)…" style={{ minHeight:80 }} /></div>
+            <div style={{ display:"flex", gap:10 }}>
+              <Btn variant="primary" size="sm" onClick={saveNotes} disabled={saving}>{saving ? "Saving…" : "Save Notes"}</Btn>
+              {(selected.status === "paid") && <Btn variant="secondary" size="sm" onClick={() => setShipModal(true)}>Mark Shipped</Btn>}
             </div>
           </div>
         )}
       </SlidePanel>
 
-      <Modal open={shipModal} onClose={() => setShipModal(false)} title="Ship order">
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div><p style={{ ...fontUI, fontSize: 11, color: C.muted, marginBottom: 6 }}>Carrier</p>
-            <Select value={carrier} onChange={(e) => setCarrier(e.target.value)}>
-              <option>USPS</option><option>UPS</option><option>FedEx</option><option>DHL</option>
+      <Modal open={shipModal} onClose={() => setShipModal(false)} title="Mark as Shipped">
+        <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+          <div><Label>Carrier</Label>
+            <Select value={carrier} onChange={e => setCarrier(e.target.value)}>
+              {["USPS","UPS","FedEx","DHL"].map(c => <option key={c}>{c}</option>)}
             </Select>
           </div>
-          <div><p style={{ ...fontUI, fontSize: 11, color: C.muted, marginBottom: 6 }}>Tracking number</p>
-            <Input value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="1Z999AA10123456784" />
-          </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-            <Btn variant="secondary" onClick={() => setShipModal(false)}>Cancel</Btn>
-            <Btn onClick={submitShip}>Mark Shipped</Btn>
+          <div><Label>Tracking Number</Label><Input value={tracking} onChange={e => setTracking(e.target.value)} placeholder="1Z…" /></div>
+          <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
+            <Btn variant="secondary" size="sm" onClick={() => setShipModal(false)}>Cancel</Btn>
+            <Btn variant="primary" size="sm" onClick={markShipped}>Confirm Shipment</Btn>
           </div>
         </div>
       </Modal>
-
-      <Modal open={refundModal} onClose={() => setRefundModal(false)} title="Refund via Stripe">
-        <p style={{ ...fontUI, color: C.text, fontSize: 13, marginBottom: 16 }}>
-          Stripe refund integration is not wired up yet. Process this refund in the Stripe dashboard.
-        </p>
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <Btn variant="secondary" onClick={() => setRefundModal(false)}>Got it</Btn>
-        </div>
-      </Modal>
-    </>
+    </div>
   );
-};
-
-export default AdminOrders;
+}

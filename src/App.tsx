@@ -39,6 +39,8 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPremium from "./pages/admin/AdminPremium";
 import AdminChats from "./pages/admin/AdminChats";
+import AdminAI from "./pages/admin/AdminAI";
+import AdminSupport from "./pages/admin/AdminSupport";
 import AdminCommunity from "./pages/admin/AdminCommunity";
 import AdminBroadcast from "./pages/admin/AdminBroadcast";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -158,6 +160,8 @@ const AppContent = () => {
         <Route path="users" element={<AdminUsers />} />
         <Route path="premium" element={<AdminPremium />} />
         <Route path="chats" element={<AdminChats />} />
+        <Route path="ai" element={<AdminAI />} />
+        <Route path="support" element={<AdminSupport />} />
         <Route path="community" element={<AdminCommunity />} />
         <Route path="broadcast" element={<AdminBroadcast />} />
         <Route path="settings" element={<AdminSettings />} />
