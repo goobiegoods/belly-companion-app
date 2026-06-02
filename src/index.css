@@ -164,6 +164,16 @@
   }
 }
 
+/* Desktop framing — give the 430px app column a shadow on wide screens */
+@media (min-width: 431px) {
+  html, body, #root {
+    background: #C8B8A4;
+  }
+  .app-layout {
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.18);
+  }
+}
+
 @layer utilities {
   .font-display { font-family: 'Fraunces', Georgia, serif; }
   .font-body    { font-family: 'Nunito', 'Outfit', system-ui, sans-serif; }

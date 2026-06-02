@@ -31,11 +31,11 @@ const BabySizeIllustration = ({ week, size = 80 }: Props) => {
     10: ( // Kumquat
       <g><ellipse cx="40" cy="40" rx="10" ry="14" fill={f2} stroke={s} strokeWidth={sw} /></g>
     ),
-    11: ( // Lime
-      <g><circle cx="40" cy="40" r="16" fill={f1} stroke={s} strokeWidth={sw} /><circle cx="40" cy="40" r="8" fill="none" stroke={s} strokeWidth={0.5} strokeDasharray="2 3" /></g>
+    11: ( // Fig
+      <g><ellipse cx="40" cy="47" rx="12" ry="15" fill={f2} stroke={s} strokeWidth={sw} /><ellipse cx="40" cy="29" rx="7" ry="9" fill={f2} stroke={s} strokeWidth={sw} /><line x1="40" y1="20" x2="40" y2="15" stroke={s} strokeWidth={1.2} /></g>
     ),
-    12: ( // Plum
-      <g><circle cx="40" cy="40" r="17" fill={f2} stroke={s} strokeWidth={sw} /><line x1="40" y1="23" x2="40" y2="57" stroke={s} strokeWidth={0.8} /><path d="M40 23 Q43 18 46 20" stroke={s} strokeWidth={1} fill="none" /></g>
+    12: ( // Lime
+      <g><circle cx="40" cy="40" r="17" fill={f1} stroke={s} strokeWidth={sw} /><line x1="40" y1="23" x2="40" y2="57" stroke={s} strokeWidth={0.6} /><line x1="24" y1="31" x2="56" y2="49" stroke={s} strokeWidth={0.6} /><line x1="24" y1="49" x2="56" y2="31" stroke={s} strokeWidth={0.6} /><circle cx="40" cy="40" r="5" fill={f2} stroke={s} strokeWidth={0.5} /></g>
     ),
     13: ( // Peach
       <g><circle cx="40" cy="42" r="18" fill={f2} stroke={s} strokeWidth={sw} /><path d="M32 25 Q40 20 48 25" stroke={s} strokeWidth={1} fill="none" /><ellipse cx="46" cy="22" rx="5" ry="3" fill={f1} stroke={s} strokeWidth={0.8} transform="rotate(20 46 22)" /></g>
@@ -64,11 +64,11 @@ const BabySizeIllustration = ({ week, size = 80 }: Props) => {
     21: ( // Carrot
       <g><path d="M40 16 L30 62 L50 62 Z" fill={f2} stroke={s} strokeWidth={sw} /><path d="M36 16 Q40 8 44 16" stroke={s} strokeWidth={1} fill={f1} /><path d="M38 14 Q40 6 42 14" stroke={s} strokeWidth={0.8} fill={f1} /></g>
     ),
-    22: ( // Coconut
-      <g><circle cx="40" cy="40" r="20" fill={f2} stroke={s} strokeWidth={sw} /><path d="M25 35 Q40 30 55 35" stroke={s} strokeWidth={0.8} fill="none" /></g>
+    22: ( // Papaya
+      <g><ellipse cx="40" cy="43" rx="14" ry="21" fill={f2} stroke={s} strokeWidth={sw} /><line x1="40" y1="22" x2="40" y2="16" stroke={s} strokeWidth={1.2} /><ellipse cx="40" cy="47" rx="6" ry="10" fill={f1} stroke={s} strokeWidth={0.6} /></g>
     ),
-    23: ( // Eggplant
-      <g><ellipse cx="40" cy="46" rx="14" ry="20" fill={f2} stroke={s} strokeWidth={sw} /><path d="M32 28 Q40 20 48 28" stroke={s} strokeWidth={1.2} fill={f1} /></g>
+    23: ( // Grapefruit
+      <g><circle cx="40" cy="40" r="20" fill={f2} stroke={s} strokeWidth={sw} /><line x1="40" y1="20" x2="40" y2="60" stroke={s} strokeWidth={0.6} /><line x1="20" y1="40" x2="60" y2="40" stroke={s} strokeWidth={0.6} /><line x1="26" y1="26" x2="54" y2="54" stroke={s} strokeWidth={0.5} /><line x1="54" y1="26" x2="26" y2="54" stroke={s} strokeWidth={0.5} /><circle cx="40" cy="40" r="6" fill={f1} stroke={s} strokeWidth={0.5} /></g>
     ),
     24: ( // Corn
       <g><ellipse cx="40" cy="40" rx="12" ry="24" fill={f1} stroke={s} strokeWidth={sw} /><line x1="34" y1="28" x2="46" y2="28" stroke={s} strokeWidth={0.6} /><line x1="34" y1="34" x2="46" y2="34" stroke={s} strokeWidth={0.6} /><line x1="34" y1="40" x2="46" y2="40" stroke={s} strokeWidth={0.6} /><line x1="34" y1="46" x2="46" y2="46" stroke={s} strokeWidth={0.6} /><path d="M28 20 Q32 14 40 16" stroke={s} strokeWidth={1} fill="none" /><path d="M52 20 Q48 14 40 16" stroke={s} strokeWidth={1} fill="none" /></g>
@@ -79,8 +79,8 @@ const BabySizeIllustration = ({ week, size = 80 }: Props) => {
     26: ( // Zucchini
       <g><rect x="32" y="16" width="16" height="48" rx="8" fill={f1} stroke={s} strokeWidth={sw} /><line x1="40" y1="16" x2="40" y2="12" stroke={s} strokeWidth={1} /></g>
     ),
-    27: ( // Cauliflower head (larger)
-      <g><circle cx="33" cy="44" r="11" fill={f1} stroke={s} strokeWidth={sw} /><circle cx="47" cy="44" r="11" fill={f1} stroke={s} strokeWidth={sw} /><circle cx="40" cy="34" r="11" fill={f1} stroke={s} strokeWidth={sw} /><circle cx="30" cy="34" r="7" fill={f1} stroke={s} strokeWidth={0.8} /><circle cx="50" cy="34" r="7" fill={f1} stroke={s} strokeWidth={0.8} /></g>
+    27: ( // Head of lettuce
+      <g><circle cx="40" cy="43" r="18" fill={f1} stroke={s} strokeWidth={sw} /><path d="M22 38 Q27 31 32 38 Q37 31 42 38 Q47 31 52 38 Q56 31 58 38" stroke={s} strokeWidth={1} fill="none" /><path d="M24 47 Q29 40 34 47 Q39 40 44 47 Q49 40 54 47" stroke={s} strokeWidth={0.7} fill="none" /></g>
     ),
     28: ( // Eggplant large
       <g><ellipse cx="40" cy="46" rx="16" ry="22" fill={f2} stroke={s} strokeWidth={sw} /><path d="M30 26 Q40 16 50 26" stroke={s} strokeWidth={1.5} fill={f1} /></g>
@@ -91,11 +91,11 @@ const BabySizeIllustration = ({ week, size = 80 }: Props) => {
     30: ( // Cabbage
       <g><circle cx="40" cy="40" r="22" fill={f1} stroke={s} strokeWidth={sw} /><path d="M28 40 Q40 32 52 40" stroke={s} strokeWidth={0.8} fill="none" /><path d="M30 46 Q40 38 50 46" stroke={s} strokeWidth={0.6} fill="none" /></g>
     ),
-    31: ( // Pineapple
-      <g><ellipse cx="40" cy="44" rx="16" ry="20" fill={f2} stroke={s} strokeWidth={sw} /><path d="M34 24 L32 14" stroke={s} strokeWidth={1} /><path d="M40 24 L40 12" stroke={s} strokeWidth={1} /><path d="M46 24 L48 14" stroke={s} strokeWidth={1} /><line x1="30" y1="36" x2="50" y2="36" stroke={s} strokeWidth={0.5} /><line x1="30" y1="44" x2="50" y2="44" stroke={s} strokeWidth={0.5} /><line x1="30" y1="52" x2="50" y2="52" stroke={s} strokeWidth={0.5} /></g>
+    31: ( // Coconut
+      <g><circle cx="40" cy="40" r="20" fill={f2} stroke={s} strokeWidth={sw} /><circle cx="33" cy="36" r="2.5" fill={s} /><circle cx="43" cy="34" r="2.5" fill={s} /><circle cx="40" cy="45" r="2.5" fill={s} /><path d="M22 30 Q40 22 58 30" stroke={s} strokeWidth={0.7} fill="none" /></g>
     ),
-    32: ( // Squash
-      <g><ellipse cx="40" cy="42" rx="20" ry="18" fill={f2} stroke={s} strokeWidth={sw} /><path d="M30 42 Q40 34 50 42" stroke={s} strokeWidth={0.8} fill="none" /><line x1="40" y1="24" x2="40" y2="18" stroke={s} strokeWidth={1.2} /></g>
+    32: ( // Jicama
+      <g><ellipse cx="40" cy="43" rx="20" ry="17" fill={f1} stroke={s} strokeWidth={sw} /><line x1="40" y1="26" x2="40" y2="19" stroke={s} strokeWidth={1.2} /><path d="M36 21 Q40 16 44 21" stroke={s} strokeWidth={0.8} fill={f1} /><path d="M22 38 Q40 32 58 38" stroke={s} strokeWidth={0.5} fill="none" /></g>
     ),
     33: ( // Pineapple large
       <g><ellipse cx="40" cy="46" rx="18" ry="22" fill={f2} stroke={s} strokeWidth={sw} /><line x1="32" y1="24" x2="28" y2="12" stroke={s} strokeWidth={1.2} /><line x1="40" y1="24" x2="40" y2="10" stroke={s} strokeWidth={1.2} /><line x1="48" y1="24" x2="52" y2="12" stroke={s} strokeWidth={1.2} /><line x1="28" y1="38" x2="52" y2="38" stroke={s} strokeWidth={0.5} /><line x1="28" y1="46" x2="52" y2="46" stroke={s} strokeWidth={0.5} /><line x1="28" y1="54" x2="52" y2="54" stroke={s} strokeWidth={0.5} /></g>
@@ -109,17 +109,17 @@ const BabySizeIllustration = ({ week, size = 80 }: Props) => {
     36: ( // Romaine lettuce
       <g><ellipse cx="40" cy="40" rx="14" ry="26" fill={f1} stroke={s} strokeWidth={sw} /><path d="M34 20 Q40 30 46 20" stroke={s} strokeWidth={0.6} fill="none" /><path d="M32 28 Q40 38 48 28" stroke={s} strokeWidth={0.6} fill="none" /></g>
     ),
-    37: ( // Winter melon
-      <g><ellipse cx="40" cy="40" rx="24" ry="24" fill={f1} stroke={s} strokeWidth={sw} /><path d="M18 36 Q40 28 62 36" stroke={s} strokeWidth={0.5} fill="none" /></g>
+    37: ( // Swiss chard
+      <g><line x1="40" y1="64" x2="40" y2="28" stroke={s} strokeWidth={2.5} /><path d="M40 50 Q26 44 20 30 Q30 22 40 36Z" fill={f1} stroke={s} strokeWidth={1} /><path d="M40 42 Q54 36 60 22 Q50 14 40 30Z" fill={f1} stroke={s} strokeWidth={1} /><path d="M40 58 Q30 54 26 46" stroke={s} strokeWidth={0.7} fill="none" /></g>
     ),
-    38: ( // Leek
-      <g><rect x="36" y="14" width="8" height="52" rx="4" fill={f1} stroke={s} strokeWidth={sw} /><path d="M32 20 Q36 14 40 10 Q44 14 48 20" stroke={s} strokeWidth={0.8} fill={f1} /></g>
+    38: ( // Winter melon
+      <g><ellipse cx="40" cy="40" rx="25" ry="17" fill={f1} stroke={s} strokeWidth={sw} /><path d="M15 36 Q40 30 65 36" stroke={s} strokeWidth={0.6} fill="none" /><path d="M15 44 Q40 38 65 44" stroke={s} strokeWidth={0.5} fill="none" /><line x1="28" y1="23" x2="24" y2="57" stroke={s} strokeWidth={0.4} /><line x1="52" y1="23" x2="56" y2="57" stroke={s} strokeWidth={0.4} /></g>
     ),
     39: ( // Watermelon
       <g><ellipse cx="40" cy="40" rx="26" ry="22" fill={f1} stroke={s} strokeWidth={sw} /><path d="M16 38 Q28 34 40 38 Q52 34 64 38" stroke={s} strokeWidth={0.8} fill="none" /></g>
     ),
-    40: ( // Pumpkin
-      <g><circle cx="40" cy="42" r="24" fill={f2} stroke={s} strokeWidth={sw} /><path d="M22 42 Q30 34 40 42 Q50 34 58 42" stroke={s} strokeWidth={0.8} fill="none" /><line x1="40" y1="18" x2="40" y2="12" stroke={s} strokeWidth={1.5} /><ellipse cx="40" cy="12" rx="3" ry="2" fill={f1} stroke={s} strokeWidth={0.8} /></g>
+    40: ( // Watermelon
+      <g><ellipse cx="40" cy="40" rx="26" ry="20" fill={f2} stroke={s} strokeWidth={sw} /><ellipse cx="40" cy="40" rx="20" ry="15" fill={f1} stroke="none" /><path d="M18 34 Q40 26 62 34" stroke={s} strokeWidth={0.7} fill="none" /><path d="M16 40 Q40 32 64 40" stroke={s} strokeWidth={0.8} fill="none" /><path d="M18 46 Q40 38 62 46" stroke={s} strokeWidth={0.7} fill="none" /><line x1="40" y1="20" x2="40" y2="14" stroke={s} strokeWidth={1.2} /></g>
     ),
   };
 

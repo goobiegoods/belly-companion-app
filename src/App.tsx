@@ -100,9 +100,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "var(--color-bg-base)" }}>
+  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "var(--color-bg-base)" }}>
     {children}
     <BottomNav />
+  </div>
+);
+
+const FullScreenLayout = ({ children }: { children: React.ReactNode }) => (
+  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "var(--color-bg-base)" }}>
+    {children}
   </div>
 );
 
@@ -128,20 +134,20 @@ const AppContent = () => {
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/" element={<ProtectedRoute><AppLayout><HomePage /></AppLayout></ProtectedRoute>} />
       <Route path="/baby" element={<ProtectedRoute><AppLayout><BabyTracker /></AppLayout></ProtectedRoute>} />
-      <Route path="/ask" element={<ProtectedRoute><AskDoula /></ProtectedRoute>} />
+      <Route path="/ask" element={<ProtectedRoute><FullScreenLayout><AskDoula /></FullScreenLayout></ProtectedRoute>} />
       <Route path="/community" element={<ProtectedRoute><AppLayout><Community /></AppLayout></ProtectedRoute>} />
       <Route path="/shop" element={<ProtectedRoute><AppLayout><Shop /></AppLayout></ProtectedRoute>} />
       <Route path="/cart" element={<ProtectedRoute><AppLayout><Cart /></AppLayout></ProtectedRoute>} />
       <Route path="/me" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
       <Route path="/journal" element={<ProtectedRoute><AppLayout><Journal /></AppLayout></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><AppLayout><Courses /></AppLayout></ProtectedRoute>} />
-      <Route path="/cant-sleep" element={<ProtectedRoute><CantSleep /></ProtectedRoute>} />
+      <Route path="/cant-sleep" element={<ProtectedRoute><FullScreenLayout><CantSleep /></FullScreenLayout></ProtectedRoute>} />
       <Route path="/orders" element={<ProtectedRoute><AppLayout><Orders /></AppLayout></ProtectedRoute>} />
       <Route path="/order-success" element={<ProtectedRoute><AppLayout><OrderSuccess /></AppLayout></ProtectedRoute>} />
       <Route path="/premium-success" element={<ProtectedRoute><AppLayout><PremiumSuccess /></AppLayout></ProtectedRoute>} />
       <Route path="/recipes" element={<ProtectedRoute><AppLayout><Recipes /></AppLayout></ProtectedRoute>} />
-      <Route path="/recipes/:id" element={<ProtectedRoute><RecipeDetail /></ProtectedRoute>} />
-      <Route path="/breathe" element={<ProtectedRoute><BellyBreathe /></ProtectedRoute>} />
+      <Route path="/recipes/:id" element={<ProtectedRoute><FullScreenLayout><RecipeDetail /></FullScreenLayout></ProtectedRoute>} />
+      <Route path="/breathe" element={<ProtectedRoute><FullScreenLayout><BellyBreathe /></FullScreenLayout></ProtectedRoute>} />
       <Route path="/feeding" element={<ProtectedRoute><AppLayout><FeedingTracker /></AppLayout></ProtectedRoute>} />
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminOverview />} />
