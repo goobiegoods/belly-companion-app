@@ -160,9 +160,9 @@ const AskDoula = () => {
     let assistantContent = "";
 
     try {
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/belly-chat`, {
+      const resp = await fetch("/api/belly-chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: apiMessages,
           userContext: {
