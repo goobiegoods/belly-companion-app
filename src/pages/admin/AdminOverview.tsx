@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAdminRealtime } from "@/hooks/useAdminRealtime";
 import { C, Card, MetricCard, PageTitle, Label, StatusPill, ago, fmtUSD, fontUI, fontTitle } from "@/components/admin/ui";
 
@@ -40,18 +39,9 @@ function playChime() {
 export default function AdminOverview() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
-  const [onlineCount, setOnlineCount] = useState(0);
   const [newOrderFlash, setNewOrderFlash] = useState(false);
   const events = useAdminRealtime(40);
   const prevFirstEventId = useMemo(() => events[0]?.id, []);
-
-  useEffect(() => {
-    const ch = supabase.channel("app-presence");
-    ch.on("presence", { event: "sync" }, () => {
-      setOnlineCount(Object.keys(ch.presenceState()).length);
-    }).subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, []);
 
   useEffect(() => {
     const latest = events[0];
@@ -106,14 +96,8 @@ export default function AdminOverview() {
 
       {/* Metrics row */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:12, marginBottom:18 }}>
-        <Card style={{ background:"rgba(34,197,94,0.06)", border:"1px solid rgba(34,197,94,0.18)", position:"relative" }}>
-          <Label>Online Now</Label>
-          <div style={{ ...fontTitle as any, fontSize:38, color:"#22c55e", margin:"4px 0 2px", lineHeight:1 }}>{onlineCount}</div>
-          <p style={{ ...fontUI, fontSize:11, color:"#444", margin:0 }}>active sessions</p>
-          <span style={{ position:"absolute", top:12, right:12, width:7, height:7, borderRadius:"50%", background:"#22c55e", boxShadow:"0 0 8px rgba(34,197,94,0.9)" }} />
-        </Card>
         <MetricCard label="Total Users" value={metrics?.totalUsers ?? "—"} delta={metrics ? `+${metrics.newThisWeek} this week` : undefined} />
-        <MetricCard label="Premium" value={metrics?.premiumCount ?? "—"} />
+        <MetricCard label="Premium Members" value={metrics?.premiumCount ?? "—"} />
         <Card style={{ background: newOrderFlash ? "rgba(232,112,42,0.1)" : undefined, border: newOrderFlash ? "1px solid rgba(232,112,42,0.35)" : undefined, transition:"background 0.6s,border 0.6s" }}>
           <Label>Revenue Today</Label>
           <div style={{ ...fontTitle as any, fontSize:30, color: newOrderFlash ? C.orange : C.white, marginTop:4, transition:"color 0.6s", lineHeight:1.1 }}>

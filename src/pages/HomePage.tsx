@@ -207,6 +207,7 @@ const HomePage = () => {
         <div style={{ padding: "0 12px", marginBottom: 14 }}>
           <button onClick={() => navigate("/recipes")} className="belly-card belly-press-scale" style={{
             width: "100%", display: "flex", alignItems: "center", gap: 12, padding: 14, cursor: "pointer", textAlign: "left",
+            background: "#FEF5EE",
           }}>
             <div style={{
               width: 40, height: 40, borderRadius: 12, background: "#FAEADA",
@@ -253,6 +254,7 @@ const HomePage = () => {
         <div style={{ padding: "0 12px", marginBottom: 12 }}>
           <button onClick={() => navigate("/feeding")} className="belly-card belly-press-scale" style={{
             width: "100%", display: "flex", alignItems: "center", gap: 12, padding: 14, cursor: "pointer", textAlign: "left",
+            background: "#FEF5EE",
           }}>
             <div style={{
               width: 40, height: 40, borderRadius: 12, background: "#FAEADA",
@@ -270,6 +272,80 @@ const HomePage = () => {
               color: "#E8702A", fontSize: 16, fontWeight: 700,
             }}>›</div>
           </button>
+        </div>
+
+        {/* What's happening — community activity */}
+        <div style={{ padding: "0 12px", marginBottom: 12 }}>
+          <div className="belly-card" style={{ overflow: "hidden", padding: 0 }}>
+
+            {/* Orange header band */}
+            <div style={{
+              background: "linear-gradient(135deg, #E8702A 0%, #D45810 100%)",
+              padding: "10px 14px",
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", opacity: 0.9, animation: "livePulse 2s infinite", flexShrink: 0 }} />
+                <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 12.5, fontWeight: 800, color: "#fff", letterSpacing: "0.01em" }}>What's happening</span>
+              </div>
+              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 8.5, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Live</span>
+            </div>
+
+            {/* Feed items */}
+            {[
+              {
+                avatar: "🌸",
+                avatarBg: "linear-gradient(135deg, #FAEADA, #F5C0A0)",
+                text: <>A mama in <span style={{ color: "#E8702A", fontWeight: 700 }}>week 30</span> just posted in Mamas</>,
+                time: "2 min ago",
+                border: true,
+              },
+              {
+                avatar: "💬",
+                avatarBg: "linear-gradient(135deg, #FEE8D6, #FDDCC4)",
+                text: <>Your question got <span style={{ color: "#E8702A", fontWeight: 700 }}>3 new replies</span></>,
+                time: "14 min ago",
+                border: true,
+              },
+              {
+                avatar: "🤰",
+                avatarBg: "linear-gradient(135deg, #FAEADA, #F5C0A0)",
+                text: <>New post in your <span style={{ color: "#E8702A", fontWeight: 700 }}>week {currentWeek} group</span></>,
+                time: "Just now",
+                border: false,
+              },
+            ].map((item, i) => (
+              <button key={i} onClick={() => navigate("/community")} style={{
+                width: "100%", display: "flex", alignItems: "flex-start", gap: 10,
+                padding: "11px 14px",
+                borderBottom: item.border ? "1px solid rgba(232,112,42,0.08)" : "none",
+                background: "none", border: item.border ? undefined : "none",
+                borderTop: "none", borderLeft: "none", borderRight: "none",
+                cursor: "pointer", textAlign: "left",
+              }}>
+                <div style={{
+                  width: 34, height: 34, borderRadius: "50%",
+                  background: item.avatarBg,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 17, flexShrink: 0,
+                }}>{item.avatar}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 11.5, fontWeight: 600, color: "#2A1808", lineHeight: 1.4, margin: 0 }}>{item.text}</p>
+                  <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 9.5, color: "#B89070", marginTop: 3, margin: "3px 0 0" }}>{item.time}</p>
+                </div>
+              </button>
+            ))}
+
+            {/* Footer link */}
+            <div style={{ padding: "8px 14px 11px", borderTop: "1px solid rgba(232,112,42,0.1)" }}>
+              <button onClick={() => navigate("/community")} style={{
+                background: "none", border: "none", padding: 0, cursor: "pointer",
+                fontFamily: "'Nunito',system-ui", fontSize: 11, fontWeight: 700, color: "#E8702A",
+              }}>
+                Open Mamas community →
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Streak callouts */}

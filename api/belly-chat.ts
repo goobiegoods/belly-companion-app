@@ -179,7 +179,7 @@ export default async function handler(req: Request) {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1024,
         system: systemPrompt,
         messages: anthropicMessages,
@@ -195,7 +195,17 @@ export default async function handler(req: Request) {
           status: 429, headers: { ...CORS, 'Content-Type': 'application/json' },
         });
       }
-      return new Response(JSON.stringify({ error: 'AI service error. Please try again.' }), {
+      if (response.status === 401) {
+        return new Response(JSON.stringify({ error: 'Invalid API key. Check ANTHROPIC_API_KEY in Vercel.' }), {
+          status: 500, headers: { ...CORS, 'Content-Type': 'application/json' },
+        });
+      }
+      if (response.status === 400 && text.includes('credit balance is too low')) {
+        return new Response(JSON.stringify({ error: 'AI credits exhausted. Please try again later.' }), {
+          status: 402, headers: { ...CORS, 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ error: `Anthropic ${response.status}: ${text.slice(0, 200)}` }), {
         status: 500, headers: { ...CORS, 'Content-Type': 'application/json' },
       });
     }

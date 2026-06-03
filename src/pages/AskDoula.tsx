@@ -32,6 +32,10 @@ const AskDoula = () => {
   const [showPremium, setShowPremium] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const streamBufferRef = useRef("");
+  const displayIndexRef = useRef(0);
+  const typeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isStreamingRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const safetyScanRef = useRef(false);
@@ -60,6 +64,11 @@ const AskDoula = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Clear typewriter on unmount
+  useEffect(() => {
+    return () => { if (typeTimerRef.current) clearInterval(typeTimerRef.current); };
+  }, []);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -158,6 +167,35 @@ const AskDoula = () => {
     const abortController = new AbortController();
     abortRef.current = abortController;
     let assistantContent = "";
+    streamBufferRef.current = "";
+    displayIndexRef.current = 0;
+    isStreamingRef.current = true;
+
+    // Start the typewriter immediately — no React render cycle needed.
+    // Drips buffered content at ~200 chars/sec; self-terminates when buffer is
+    // drained AND the network stream is finished.
+    if (typeTimerRef.current) clearInterval(typeTimerRef.current);
+    typeTimerRef.current = setInterval(() => {
+      const buf = streamBufferRef.current;
+      const pos = displayIndexRef.current;
+      if (pos >= buf.length) {
+        if (!isStreamingRef.current) {
+          clearInterval(typeTimerRef.current!);
+          typeTimerRef.current = null;
+        }
+        return;
+      }
+      const newPos = Math.min(pos + 4, buf.length);
+      displayIndexRef.current = newPos;
+      const text = buf.slice(0, newPos);
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant") {
+          return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: text } : m);
+        }
+        return [...prev, { role: "assistant", content: text }];
+      });
+    }, 20);
 
     try {
       const resp = await fetch("/api/belly-chat", {
@@ -177,9 +215,18 @@ const AskDoula = () => {
       });
 
       if (!resp.ok) {
-        if (resp.status === 429) toast.error("Too many requests. Please wait a moment.");
-        else if (resp.status === 402) toast.error("AI credits exhausted. Please try again later.");
-        else toast.error("Something went wrong. Please try again.");
+        if (resp.status === 429) {
+          toast.error("Too many requests. Please wait a moment.");
+        } else if (resp.status === 402) {
+          toast.error("AI credits exhausted. Please try again later.");
+        } else {
+          try {
+            const errBody = await resp.json();
+            toast.error(errBody?.error || "Something went wrong. Please try again.");
+          } catch {
+            toast.error("Something went wrong. Please try again.");
+          }
+        }
         setIsStreaming(false);
         return;
       }
@@ -205,13 +252,7 @@ const AskDoula = () => {
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
               assistantContent += content;
-              setMessages(prev => {
-                const last = prev[prev.length - 1];
-                if (last?.role === "assistant") {
-                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantContent } : m);
-                }
-                return [...prev, { role: "assistant", content: assistantContent }];
-              });
+              streamBufferRef.current = assistantContent;
             }
           } catch {
             buffer = line + "\n" + buffer;
@@ -226,6 +267,7 @@ const AskDoula = () => {
     } catch (e: any) {
       if (e.name !== "AbortError") toast.error("Connection failed. Please try again.");
     } finally {
+      isStreamingRef.current = false; // signal typewriter to self-terminate when buffer empties
       setIsStreaming(false);
       abortRef.current = null;
     }
