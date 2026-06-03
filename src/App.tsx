@@ -102,14 +102,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="app-layout" style={{ maxWidth: 480, margin: "0 auto", minHeight: "100vh", position: "relative", overflowX: "clip" as any, background: "var(--color-bg-base)" }}>
+  <div className="app-layout" style={{ maxWidth: 768, margin: "0 auto", minHeight: "100vh", position: "relative", overflowX: "clip" as any, background: "var(--color-bg-base)" }}>
     {children}
     <BottomNav />
   </div>
 );
 
 const FullScreenLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="app-layout" style={{ maxWidth: 480, margin: "0 auto", minHeight: "100vh", position: "relative", overflowX: "clip" as any, background: "var(--color-bg-base)" }}>
+  <div className="app-layout" style={{ maxWidth: 768, margin: "0 auto", minHeight: "100vh", position: "relative", overflowX: "clip" as any, background: "var(--color-bg-base)" }}>
     {children}
   </div>
 );
