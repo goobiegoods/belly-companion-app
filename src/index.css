@@ -165,7 +165,7 @@
 }
 
 /* Desktop framing — give the 430px app column a shadow on wide screens */
-@media (min-width: 431px) {
+@media (min-width: 481px) {
   html, body, #root {
     background: #C8B8A4;
   }

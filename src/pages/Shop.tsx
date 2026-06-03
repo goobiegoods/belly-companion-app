@@ -273,10 +273,9 @@ const Shop = () => {
           </div>
 
           <p id="remedy-kits" style={{ padding: "0 20px", fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.18em", marginBottom: 10, color: "var(--color-text-muted)", fontFamily: "'Outfit', sans-serif" }}>REMEDY KITS</p>
-          <div className="flex gap-3 px-4 overflow-x-auto hide-scrollbar mb-5" style={{ paddingRight: 32 }}>
+          <div className="hide-scrollbar" style={{ display: "flex", gap: 12, paddingLeft: 16, paddingRight: 32, overflowX: "auto", WebkitOverflowScrolling: "touch" as any, marginBottom: 20 }}>
             {kits.map(kit => (
-              <div key={kit.id} className="min-w-[200px] shrink-0 belly-card-interactive overflow-hidden"
-                style={{ background: "#FFFFFF", border: "1px solid var(--color-border-default)", borderRadius: 18, boxShadow: cardShadow, padding: 14 }}>
+              <div key={kit.id} className="belly-card-interactive" style={{ flex: "none", width: 200, background: "#FFFFFF", border: "1px solid var(--color-border-default)", borderRadius: 18, boxShadow: cardShadow, padding: 14, overflow: "hidden" }}>
                 <div style={{ width: 90, height: 90, borderRadius: "50%", background: "var(--color-bg-card-subtle)", display: "flex", alignItems: "center", justifyContent: "center", margin: "4px auto 12px" }}>
                   <span style={{ fontSize: 56, lineHeight: 1 }}>{kit.emoji}</span>
                 </div>
