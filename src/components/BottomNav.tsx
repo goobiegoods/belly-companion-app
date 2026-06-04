@@ -39,7 +39,7 @@ const BottomNav = () => {
 
   return (
     <nav className="fixed bottom-0 z-50 rounded-t-[20px] shadow-[0_-6px_20px_rgba(232,96,26,0.27)] border-t border-orange-200/40" style={{
-      width: "min(768px, 100%)",
+      width: "min(430px, 100%)",
       left: "50%",
       transform: "translateX(-50%)",
       background: "#D4500F",

@@ -154,21 +154,18 @@
   html, body, #root {
     background: var(--color-bg-base);
     color: var(--color-text-primary);
-    width: 100%;
-    overflow-x: hidden;
   }
   body {
     font-family: 'Nunito', 'Outfit', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
-    min-height: 100dvh;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
   }
 }
 
-/* Desktop framing — warm surround + shadow outside the app column */
-@media (min-width: 769px) {
+/* Desktop framing — give the 430px app column a shadow on wide screens */
+@media (min-width: 431px) {
   html, body, #root {
     background: #C8B8A4;
   }
@@ -295,7 +292,6 @@
     background: linear-gradient(135deg, #E8702A 0%, #D45810 100%);
     color: #FFFFFF;
     padding: 14px 18px 12px;
-    padding-top: calc(14px + env(safe-area-inset-top));
     position: relative;
     overflow: hidden;
   }
