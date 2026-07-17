@@ -25,6 +25,7 @@ import RecipeDetail from "./pages/RecipeDetail";
 import Cart from "./pages/Cart";
 import BellyBreathe from "./pages/BellyBreathe";
 import FeedingTracker from "./pages/FeedingTracker";
+import Journey from "./pages/Journey";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
@@ -67,7 +68,7 @@ const SplashScreen = ({ onDone }: { onDone: () => void }) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center" style={{ background: "#FEF8F4" }}>
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center" style={{ background: "linear-gradient(180deg, #150A1F 0%, #0d0713 100%)" }}>
       <div
         style={{
           opacity: showLogo ? 1 : 0,
@@ -76,10 +77,10 @@ const SplashScreen = ({ onDone }: { onDone: () => void }) => {
         }}
         className="text-center"
       >
-        <h1 className="font-display text-[32px] font-semibold tracking-[-0.5px]" style={{ color: "#C85828" }}>
-          BELLY
+        <h1 className="gh-brand" style={{ fontSize: 34 }}>
+          belly
         </h1>
-        <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", marginTop: 4, color: "#C4906A" }}>
+        <p className="gh-brand-tag" style={{ marginTop: 6, textAlign: "center" }}>
           Virtual Doula
         </p>
       </div>
@@ -136,7 +137,8 @@ const AppContent = () => {
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/" element={<ProtectedRoute><AppLayout><HomePage /></AppLayout></ProtectedRoute>} />
       <Route path="/baby" element={<ProtectedRoute><AppLayout><BabyTracker /></AppLayout></ProtectedRoute>} />
-      <Route path="/ask" element={<ProtectedRoute><FullScreenLayout><AskDoula /></FullScreenLayout></ProtectedRoute>} />
+      <Route path="/ask" element={<ProtectedRoute><AppLayout><AskDoula /></AppLayout></ProtectedRoute>} />
+      <Route path="/journey" element={<ProtectedRoute><AppLayout><Journey /></AppLayout></ProtectedRoute>} />
       <Route path="/community" element={<ProtectedRoute><AppLayout><Community /></AppLayout></ProtectedRoute>} />
       <Route path="/shop" element={<ProtectedRoute><AppLayout><Shop /></AppLayout></ProtectedRoute>} />
       <Route path="/cart" element={<ProtectedRoute><AppLayout><Cart /></AppLayout></ProtectedRoute>} />

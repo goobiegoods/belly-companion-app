@@ -119,6 +119,7 @@ export function GhHeader({
   tag,
   brandSize = 22,
   showOrb = false,
+  showMenu = true,
   weekPill,
   right,
   glowStyle,
@@ -128,6 +129,7 @@ export function GhHeader({
   tag: string;
   brandSize?: number;
   showOrb?: boolean;
+  showMenu?: boolean;
   weekPill?: string;
   right?: ReactNode;
   glowStyle?: React.CSSProperties;
@@ -155,7 +157,7 @@ export function GhHeader({
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <OverflowMenu />
+          {showMenu && <OverflowMenu />}
           {weekPill && <div className="gh-week-pill">{weekPill}</div>}
           {right}
         </div>

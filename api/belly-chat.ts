@@ -115,6 +115,73 @@ const ordinal = (n: number): string => {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
+const jsonResponse = (body: object, status: number) =>
+  new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
+
+/**
+ * Server-side daily-message quota. Uses the caller's own Supabase JWT against
+ * PostgREST (RLS-scoped), so no service key is needed. The client inserts the
+ * user message into chat_messages BEFORE calling this API, so today's count
+ * already includes the current message — block only when count > limit.
+ * Returns a Response to short-circuit with, or null to proceed.
+ */
+async function enforceQuota(req: Request): Promise<Response | null> {
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const anonKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
+    console.warn('belly-chat: quota check skipped — SUPABASE env vars not configured');
+    return null;
+  }
+
+  const token = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
+  if (!token) return jsonResponse({ error: 'Sign in required.' }, 401);
+
+  let uid = '';
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    uid = payload.sub || '';
+  } catch {}
+  if (!uid) return jsonResponse({ error: 'Invalid session.' }, 401);
+
+  const headers = { apikey: anonKey, Authorization: `Bearer ${token}` };
+
+  try {
+    const profResp = await fetch(
+      `${supabaseUrl}/rest/v1/profiles?select=is_premium&user_id=eq.${uid}`,
+      { headers },
+    );
+    if (profResp.status === 401) return jsonResponse({ error: 'Session expired. Please sign in again.' }, 401);
+    const prof = await profResp.json().catch(() => []);
+    if (Array.isArray(prof) && prof[0]?.is_premium) return null;
+
+    let limit = 10;
+    try {
+      const cfgResp = await fetch(
+        `${supabaseUrl}/rest/v1/app_config?select=free_message_limit&id=eq.1`,
+        { headers },
+      );
+      const cfg = await cfgResp.json();
+      if (Array.isArray(cfg) && Number(cfg[0]?.free_message_limit) > 0) {
+        limit = Number(cfg[0].free_message_limit);
+      }
+    } catch {}
+
+    const today = new Date().toISOString().split('T')[0];
+    const countResp = await fetch(
+      `${supabaseUrl}/rest/v1/chat_messages?select=id&user_id=eq.${uid}&role=eq.user&created_at=gte.${today}T00:00:00Z`,
+      { headers: { ...headers, Prefer: 'count=exact', Range: '0-0' } },
+    );
+    const total = parseInt((countResp.headers.get('content-range') || '').split('/')[1] || '0', 10);
+    if (Number.isFinite(total) && total > limit) {
+      return jsonResponse({ error: 'daily_limit', limit }, 403);
+    }
+  } catch (e) {
+    // Fail open on transient errors so a Supabase hiccup doesn't kill chat.
+    console.error('belly-chat: quota check error', e);
+  }
+  return null;
+}
+
 function toAnthropicMessages(messages: any[]): any[] {
   return messages.map((msg) => {
     if (typeof msg.content === 'string') {
@@ -144,6 +211,9 @@ export default async function handler(req: Request) {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS });
 
   try {
+    const quotaBlock = await enforceQuota(req);
+    if (quotaBlock) return quotaBlock;
+
     const { messages, userContext } = await req.json();
 
     const apiKey = process.env.ANTHROPIC_API_KEY;

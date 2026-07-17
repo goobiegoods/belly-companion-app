@@ -1,384 +1,192 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { getCurrentWeek, getWeekData, getDaysToGo } from "@/data/pregnancyWeeks";
 import { useNavigate } from "react-router-dom";
-import { getStreak } from "@/lib/streak";
-import { getBreathingStreak } from "@/lib/breathingStreak";
-import ShareableMilestoneCard from "@/components/ShareableMilestoneCard";
-import AppHeader, { HeaderGhostPill } from "@/components/AppHeader";
+import { useAuth } from "@/contexts/AuthContext";
+import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
+import { SceneBackground, GhHeader, GlassCard, BellaOrb } from "@/components/golden";
 
-const SUGGESTIONS = [
-  { label: "Round ligament?", kind: "orange" as const },
-  { label: "Foods to avoid",  kind: "orange" as const },
-  { label: "Better sleep",    kind: "neutral" as const },
-  { label: "Anxiety tips",    kind: "neutral" as const },
-];
+const SUGGESTIONS = ["Round ligament?", "Foods to avoid"];
 
-const HomePage = () => {
-  const { profile, user } = useAuth();
+function greetingWord(): string {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return "morning";
+  if (h >= 12 && h < 18) return "afternoon";
+  return "evening";
+}
+
+/** Three week-appropriate milestone tiles (hearing / lungs / viability style). */
+function milestonesForWeek(week: number): { icon: JSX.Element; label: string }[] {
+  const iconProps = {
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "var(--gold)",
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    strokeWidth: 1.8,
+    width: 20,
+    height: 20,
+    style: { margin: "0 auto 7px", display: "block" },
+  };
+  const hearing = (
+    <svg {...iconProps}><path d="M4 12a8 8 0 0 1 16 0M8 12a4 4 0 0 1 8 0M12 16v2" /></svg>
+  );
+  const lungs = (
+    <svg {...iconProps}><path d="M12 3v6M8 9c-3 0-5 3-5 7s2 5 4 5 3-2 3-5V9M16 9c3 0 5 3 5 7s-2 5-4 5-3-2-3-5V9" /></svg>
+  );
+  const drop = (
+    <svg {...iconProps}><path d="M12 21c0-8 6-9 6-16a6 6 0 0 0-12 0c0 7 6 8 6 16z" /></svg>
+  );
+  const heart = (
+    <svg {...iconProps}><path d="M12 21s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.6-9.5 9-9.5 9z" /></svg>
+  );
+  const brain = (
+    <svg {...iconProps}><path d="M12 4a3 3 0 0 0-3 3c-2 0-3.5 1.5-3.5 3.5 0 1 .4 1.9 1 2.5-.6.6-1 1.5-1 2.5A3.5 3.5 0 0 0 9 19h6a3.5 3.5 0 0 0 3.5-3.5c0-1-.4-1.9-1-2.5.6-.6 1-1.5 1-2.5C18.5 8.5 17 7 15 7a3 3 0 0 0-3-3z" /></svg>
+  );
+  if (week >= 28) return [
+    { icon: hearing, label: "Hearing" },
+    { icon: lungs, label: "Lungs" },
+    { icon: drop, label: "Viability" },
+  ];
+  if (week >= 20) return [
+    { icon: hearing, label: "Hearing" },
+    { icon: brain, label: "Brain growth" },
+    { icon: heart, label: "Movement" },
+  ];
+  return [
+    { icon: heart, label: "Heartbeat" },
+    { icon: brain, label: "Brain forming" },
+    { icon: drop, label: "Growing" },
+  ];
+}
+
+export default function HomePage() {
   const navigate = useNavigate();
+  const { profile } = useAuth();
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const weekData = getWeekData(currentWeek);
-  const daysToGo = profile?.due_date ? getDaysToGo(profile.due_date) : 140;
+  const weeksToGo = Math.max(0, 40 - currentWeek);
+  const titleCase = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "");
+  const name = titleCase((profile?.first_name || "").split(" ")[0]) || "mama";
 
-  const titleCase = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
-  const displayName = titleCase((profile?.first_name || "").split(" ")[0]) || "mama";
-
-  const [streakDays, setStreakDays] = useState(0);
-  const [breathingStreak, setBreathingStreak] = useState(0);
-  const [searchValue, setSearchValue] = useState("");
-
-  useEffect(() => {
-    if (!user?.id) return;
-    getStreak(user.id).then((s) => s && setStreakDays(s.current));
-    getBreathingStreak(user.id).then((s) => setBreathingStreak(s.current));
-  }, [user?.id]);
-
-  const goToAsk = (prefill?: string) => navigate("/ask", { state: prefill ? { prefill } : undefined });
-
-  const fruitEmoji = weekData.emoji || "🌱";
-  const fruitName = weekData.babySize.replace(/\s*\(.*?\)\s*/g, "").trim().toLowerCase();
-
-  const hour = new Date().getHours();
-  const greeting = hour >= 5 && hour < 12 ? "good morning, mama"
-    : hour >= 12 && hour < 18 ? "good afternoon, mama"
-    : "good evening, mama";
-
-  const milestones = [
-    { emoji: currentWeek >= 23 ? "👂" : "💓", label: currentWeek >= 23 ? "Hearing active" : "Heartbeat" },
-    { emoji: "🫁", label: "Lungs forming" },
-    { emoji: currentWeek >= 24 ? "🌱" : "🧠", label: currentWeek >= 24 ? "Viability reached" : "Brain growing" },
-  ];
+  const goToAsk = (prefill?: string) =>
+    navigate("/ask", { state: prefill ? { prefill } : undefined });
 
   return (
-    <div className="min-h-screen page-enter" style={{ background: "#F0E8DC", paddingBottom: 110, position: "relative", overflow: "hidden" }}>
-      <AppHeader right={<HeaderGhostPill>{greeting}</HeaderGhostPill>} />
+    <SceneBackground scene="today">
+      <GhHeader brand="belly" tag="virtual doula" brandSize={26} weekPill={`week ${currentWeek}`}>
+        <div
+          className="font-gh-serif"
+          style={{ position: "relative", zIndex: 2, fontSize: 22, fontWeight: 500, marginTop: 16, lineHeight: 1.3 }}
+        >
+          Good {greetingWord()}, {name}
+          <span
+            style={{
+              opacity: 0.8, fontWeight: 400, fontStyle: "italic",
+              fontSize: 15, display: "block", marginTop: 2,
+            }}
+          >
+            the light is on for you
+          </span>
+        </div>
+        <div className="gh-progress-track" style={{ position: "relative", zIndex: 2, marginTop: 14 }}>
+          <div className="gh-progress-fill" style={{ width: `${Math.round((currentWeek / 40) * 100)}%` }} />
+        </div>
+        <div
+          className="font-gh-mono"
+          style={{
+            position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between",
+            marginTop: 7, fontSize: 11, color: "rgba(251,238,224,0.75)",
+          }}
+        >
+          <span>trimester {weekData.trimester}</span>
+          <span>{weeksToGo} weeks to go</span>
+        </div>
+      </GhHeader>
 
-      {/* Watermark */}
-      <span className="belly-watermark" style={{ top: 70, left: -8, fontSize: 100 }}>doula</span>
-
-      <div className="stagger" style={{ position: "relative", zIndex: 1, padding: "12px 0 0" }}>
-
-        {/* Card 1 — Ask Bella */}
-        <div style={{ padding: "0 12px", marginBottom: 12 }}>
-          <div className="belly-card" style={{ position: "relative", overflow: "hidden", padding: 16 }}>
-            <span className="belly-watermark" style={{ top: -8, right: -6, fontSize: 72, opacity: 0.05 }}>bella</span>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, position: "relative", zIndex: 1 }}>
-              <span style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                background: "linear-gradient(135deg, #E8702A, #D45810)",
-                padding: "4px 11px 4px 10px", borderRadius: 999,
-                boxShadow: "0 2px 8px rgba(232,112,42,0.35)",
-              }}>
-                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", animation: "livePulse 2s infinite" }} />
-                <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 11.5, fontWeight: 700, color: "#fff", letterSpacing: "0.02em" }}>Bella</span>
-              </span>
-              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 10, fontWeight: 600, color: "#9A6B4E" }}>online</span>
+      <div style={{ padding: "12px 16px 110px" }}>
+        {/* Ask your doula */}
+        <GlassCard>
+          <div
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12,
+              background: "rgba(255,255,255,0.14)", padding: "4px 11px 4px 5px",
+              borderRadius: 20, marginBottom: 12, fontWeight: 500,
+            }}
+          >
+            <BellaOrb size={20} /> Bella · here with you
+          </div>
+          <p className="font-gh-serif" style={{ fontSize: 20, fontWeight: 500, margin: "0 0 3px" }}>
+            Ask your doula anything
+          </p>
+          <p style={{ fontSize: 13, color: "rgba(251,238,224,0.7)", margin: "0 0 13px" }}>
+            No waiting rooms. Just honest, warm guidance.
+          </p>
+          <div className="gh-input-row" style={{ marginBottom: 11 }} onClick={() => goToAsk()} role="button">
+            Cramps, sleep, what's normal…
+            <div className="gh-arrow-btn">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
             </div>
-
-            <p style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 21, fontWeight: 400, fontStyle: "italic", color: "#B8755A", letterSpacing: -0.3, lineHeight: 1.1, marginBottom: -2 }}>Ask your</p>
-            <p className="font-display" style={{ fontSize: 25, fontStyle: "italic", fontWeight: 400, color: "#E8702A", letterSpacing: -0.5, lineHeight: 1.1, marginBottom: 8 }}>
-              doula anything
-            </p>
-            <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 10.5, color: "#7A5038", lineHeight: 1.55, marginBottom: 12 }}>
-              No waiting rooms, no judgment — honest guidance for your body.
-            </p>
-
-            <div className="belly-input-pill">
-              <input
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && goToAsk(searchValue)}
-                placeholder="Cramps, sleep, what's normal..."
-              />
-              <button onClick={() => goToAsk(searchValue || undefined)} className="belly-send-circle" aria-label="Ask Bella">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {SUGGESTIONS.map((s) => (
+              <button key={s} className="gh-pill" onClick={() => goToAsk(s)}>
+                {s}
               </button>
-            </div>
-
-            <div className="hide-scrollbar" style={{ display: "flex", gap: 6, marginTop: 12, overflowX: "auto" }}>
-              {SUGGESTIONS.map(s => (
-                <button key={s.label} onClick={() => goToAsk(s.label)}
-                  className={s.kind === "orange" ? "belly-pill-orange" : "belly-pill-neutral"}
-                  style={{ flexShrink: 0, cursor: "pointer" }}>
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Card 2 — Week */}
-        <div style={{ padding: "0 12px", marginBottom: 12 }}>
-          <div className="belly-card" style={{ overflow: "hidden", padding: 0, textAlign: "center" }}>
-            <div style={{
-              background: "linear-gradient(135deg, #E8702A 0%, #D45810 100%)",
-              padding: "14px 12px 0", position: "relative", overflow: "hidden",
-            }}>
-              <span className="belly-header-glow" aria-hidden />
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 7.5, letterSpacing: "0.18em", color: "rgba(255,255,255,0.75)", fontWeight: 600, textTransform: "uppercase" }}>YOU'RE IN</p>
-              <p className="font-display" style={{ fontStyle: "italic", fontWeight: 400, fontSize: 44, color: "#fff", lineHeight: 0.95, letterSpacing: -1.5, margin: "2px 0 4px" }}>
-                week {currentWeek}
-              </p>
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 7.5, letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)", fontWeight: 500, marginBottom: 12, textTransform: "uppercase" }}>
-                {currentWeek >= 24 ? "VIABILITY MILESTONE" : currentWeek >= 13 ? "SECOND TRIMESTER" : "FIRST TRIMESTER"}
-              </p>
-
-              <div style={{
-                width: 80, height: 80, borderRadius: "50%",
-                background: "rgba(255,255,255,0.15)",
-                border: "2px solid rgba(255,255,255,0.25)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 50, lineHeight: 1,
-                margin: "0 auto 16px",
-              }}>{fruitEmoji}</div>
-            </div>
-
-            <div style={{ padding: "14px 16px" }}>
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 11, color: "#2A1808", marginBottom: 2 }}>
-                Your baby can hear you now —
-              </p>
-              <p className="font-display" style={{ fontStyle: "italic", fontSize: 14, color: "#E8702A", marginBottom: 12 }}>
-                they already know your voice.
-              </p>
-
-              <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 12, flexWrap: "wrap" }}>
-                <span className="belly-pill-orange">{Math.max(0, 40 - currentWeek)} weeks to go</span>
-                <span className="belly-pill-neutral">Trimester {weekData.trimester}</span>
-              </div>
-
-
-              <ShareableMilestoneCard
-                week={currentWeek}
-                fruitEmoji={fruitEmoji}
-                fruitName={fruitName}
-                emotionalFact={`Your baby is the size of a ${fruitName}.`}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Card 3 — Belly Breathe */}
-        <div style={{ padding: "0 11px", marginBottom: 10 }}>
-          <button onClick={() => navigate("/breathe")} className="belly-press-scale" style={{
-            width: "100%", textAlign: "left", cursor: "pointer",
-            background: "linear-gradient(135deg, #E8702A 0%, #C84E08 100%)",
-            border: "none", borderRadius: 18, padding: 14, position: "relative", overflow: "hidden",
-            boxShadow: "0 4px 16px rgba(232,112,42,0.4)",
-            display: "flex", alignItems: "center", gap: 12,
-          }}>
-            <span style={{ position: "absolute", top: -15, right: -15, width: 70, height: 70, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
-            <div style={{
-              width: 52, height: 52, borderRadius: "50%",
-              background: "rgba(255,255,255,0.18)", border: "2px solid rgba(255,255,255,0.30)",
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}>
-              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 10, fontWeight: 800, color: "#fff" }}>4-7-8</span>
-              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 8, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>breath</span>
-            </div>
-            <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 8, letterSpacing: "0.14em", color: "rgba(255,255,255,0.65)", fontWeight: 700, textTransform: "uppercase" }}>BELLY BREATHE</p>
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 13, fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>Calm your body in 60 seconds</p>
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 9, color: "rgba(255,255,255,0.70)", fontWeight: 500 }}>Sleep · Anxiety · Birth prep</p>
-            </div>
-            <span style={{
-              background: "rgba(255,255,255,0.22)", border: "0.5px solid rgba(255,255,255,0.30)",
-              borderRadius: 10, padding: "7px 10px", fontFamily: "'Nunito',system-ui", fontSize: 10, fontWeight: 800, color: "#fff",
-              position: "relative", zIndex: 1, flexShrink: 0,
-            }}>Start →</span>
-          </button>
-        </div>
-
-        {/* Card 4 — Milestones row */}
-        <div style={{ padding: "0 11px", marginBottom: 12 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7 }}>
-            {milestones.map(m => (
-              <div key={m.label} className="belly-card" style={{ padding: 12, textAlign: "center", borderRadius: 16 }}>
-                <div style={{ fontSize: 20, marginBottom: 4 }}>{m.emoji}</div>
-                <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 8, fontWeight: 700, color: "#7A4818", lineHeight: 1.3 }}>{m.label}</p>
-              </div>
             ))}
           </div>
-        </div>
+        </GlassCard>
 
-        {/* Card 4 — Today's Recipe */}
-        <div style={{ padding: "0 12px", marginBottom: 14 }}>
-          <button onClick={() => navigate("/recipes")} className="belly-card belly-press-scale" style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 12, padding: 14, cursor: "pointer", textAlign: "left",
-            background: "#FEF5EE",
-          }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: 12, background: "#FAEADA",
-              border: "1px solid rgba(232,112,42,0.2)",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0,
-            }}>🥗</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p className="belly-eyebrow" style={{ marginBottom: 3 }}>TODAY'S RECIPE</p>
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 12, fontWeight: 700, color: "#1A0E06", lineHeight: 1.25 }}>Iron-Rich Lentil Bowl</p>
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 9, color: "#B89070", marginTop: 2 }}>5 min · Iron · Week {currentWeek}</p>
-            </div>
-            <div style={{
-              width: 26, height: 26, borderRadius: "50%", background: "#FAEADA",
+        {/* Belly breathe */}
+        <div
+          onClick={() => navigate("/breathe")}
+          role="button"
+          style={{
+            borderRadius: 18, padding: 16,
+            background: "linear-gradient(135deg, rgba(44,156,143,0.35), rgba(181,56,107,0.35))",
+            border: "1px solid var(--glass-border)",
+            display: "flex", alignItems: "center", gap: 13,
+            backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+            marginBottom: 12, cursor: "pointer",
+          }}
+        >
+          <div
+            className="font-gh-mono"
+            style={{
+              fontSize: 15, fontWeight: 600, background: "rgba(255,255,255,0.16)",
+              width: 50, height: 50, borderRadius: "50%",
               display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-              color: "#E8702A", fontSize: 16, fontWeight: 700,
-            }}>›</div>
-          </button>
-        </div>
-
-        {/* Quick Navigate */}
-        <div style={{ marginBottom: 16 }}>
-          <p style={{
-            fontFamily: "'Nunito',system-ui", fontSize: 7.5, letterSpacing: "0.14em",
-            color: "#C0907A", fontWeight: 700, textTransform: "uppercase",
-            padding: "0 14px 6px",
-          }}>QUICK NAVIGATE</p>
-          <div className="hide-scrollbar" style={{ display: "flex", gap: 6, padding: "0 14px", overflowX: "auto" }}>
-            {[
-              { label: "Baby Size", to: "/baby", kind: "orange" as const },
-              { label: "Ask Bella", to: "/ask", kind: "neutral" as const },
-              { label: "Recipes", to: "/recipes", kind: "orange" as const },
-              { label: "Mamas", to: "/community", kind: "neutral" as const },
-            ].map(p => (
-              <button key={p.label} onClick={() => navigate(p.to)}
-                className={p.kind === "orange" ? "belly-pill-orange" : "belly-pill-neutral"}
-                style={{ flexShrink: 0, cursor: "pointer", fontSize: 11, padding: "6px 13px" }}>
-                {p.label}
-              </button>
-            ))}
+            }}
+          >
+            4·7·8
+          </div>
+          <div>
+            <b className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, display: "block" }}>
+              Belly breathe
+            </b>
+            <span style={{ fontSize: 12, opacity: 0.85 }}>Calm your body in 60 seconds</span>
           </div>
         </div>
 
-        {/* Feeding Tracker entry */}
-        <div style={{ padding: "0 12px", marginBottom: 12 }}>
-          <button onClick={() => navigate("/feeding")} className="belly-card belly-press-scale" style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 12, padding: 14, cursor: "pointer", textAlign: "left",
-            background: "#FEF5EE",
-          }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: 12, background: "#FAEADA",
-              border: "1px solid rgba(232,112,42,0.2)",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0,
-            }}>🍼</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p className="belly-eyebrow" style={{ marginBottom: 3 }}>FEEDING TRACKER</p>
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 12, fontWeight: 700, color: "#1A0E06", lineHeight: 1.25 }}>Log breast + bottle feeds</p>
-              <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 9, color: "#B89070", marginTop: 2 }}>Quick log · Weekly trends</p>
+        {/* This week's milestones */}
+        <div className="gh-section-label">this week's milestones</div>
+        <div style={{ display: "flex", gap: 9 }}>
+          {milestonesForWeek(currentWeek).map((m) => (
+            <div
+              key={m.label}
+              style={{
+                flex: 1, background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.16)", borderRadius: 15,
+                padding: "13px 6px", textAlign: "center",
+                backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+              }}
+            >
+              {m.icon}
+              <span style={{ fontSize: 11, fontWeight: 500, display: "block" }}>{m.label}</span>
             </div>
-            <div style={{
-              width: 26, height: 26, borderRadius: "50%", background: "#FAEADA",
-              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-              color: "#E8702A", fontSize: 16, fontWeight: 700,
-            }}>›</div>
-          </button>
+          ))}
         </div>
-
-        {/* What's happening — community activity */}
-        <div style={{ padding: "0 12px", marginBottom: 12 }}>
-          <div className="belly-card" style={{ overflow: "hidden", padding: 0 }}>
-
-            {/* Orange header band */}
-            <div style={{
-              background: "linear-gradient(135deg, #E8702A 0%, #D45810 100%)",
-              padding: "10px 14px",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", opacity: 0.9, animation: "livePulse 2s infinite", flexShrink: 0 }} />
-                <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 12.5, fontWeight: 800, color: "#fff", letterSpacing: "0.01em" }}>What's happening</span>
-              </div>
-              <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 8.5, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Live</span>
-            </div>
-
-            {/* Feed items */}
-            {[
-              {
-                avatar: "🌸",
-                avatarBg: "linear-gradient(135deg, #FAEADA, #F5C0A0)",
-                text: <>A mama in <span style={{ color: "#E8702A", fontWeight: 700 }}>week 30</span> just posted in Mamas</>,
-                time: "2 min ago",
-                border: true,
-              },
-              {
-                avatar: "💬",
-                avatarBg: "linear-gradient(135deg, #FEE8D6, #FDDCC4)",
-                text: <>Your question got <span style={{ color: "#E8702A", fontWeight: 700 }}>3 new replies</span></>,
-                time: "14 min ago",
-                border: true,
-              },
-              {
-                avatar: "🤰",
-                avatarBg: "linear-gradient(135deg, #FAEADA, #F5C0A0)",
-                text: <>New post in your <span style={{ color: "#E8702A", fontWeight: 700 }}>week {currentWeek} group</span></>,
-                time: "Just now",
-                border: false,
-              },
-            ].map((item, i) => (
-              <button key={i} onClick={() => navigate("/community")} style={{
-                width: "100%", display: "flex", alignItems: "flex-start", gap: 10,
-                padding: "11px 14px",
-                borderBottom: item.border ? "1px solid rgba(232,112,42,0.08)" : "none",
-                background: "none", border: item.border ? undefined : "none",
-                borderTop: "none", borderLeft: "none", borderRight: "none",
-                cursor: "pointer", textAlign: "left",
-              }}>
-                <div style={{
-                  width: 34, height: 34, borderRadius: "50%",
-                  background: item.avatarBg,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 17, flexShrink: 0,
-                }}>{item.avatar}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 11.5, fontWeight: 600, color: "#2A1808", lineHeight: 1.4, margin: 0 }}>{item.text}</p>
-                  <p style={{ fontFamily: "'Nunito',system-ui", fontSize: 9.5, color: "#B89070", marginTop: 3, margin: "3px 0 0" }}>{item.time}</p>
-                </div>
-              </button>
-            ))}
-
-            {/* Footer link */}
-            <div style={{ padding: "8px 14px 11px", borderTop: "1px solid rgba(232,112,42,0.1)" }}>
-              <button onClick={() => navigate("/community")} style={{
-                background: "none", border: "none", padding: 0, cursor: "pointer",
-                fontFamily: "'Nunito',system-ui", fontSize: 11, fontWeight: 700, color: "#E8702A",
-              }}>
-                Open Mamas community →
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Streak callouts */}
-        <div style={{ padding: "0 12px", display: "flex", gap: 8 }}>
-          <button onClick={() => navigate("/me")} className="belly-press-scale" style={{
-            flex: 1, display: "flex", alignItems: "center", gap: 8,
-            background: "#FAEADA", border: "1px solid rgba(232,112,42,0.25)",
-            borderRadius: 14, padding: "10px 12px", cursor: "pointer", textAlign: "left",
-          }}>
-            <span style={{ fontSize: 16 }}>🔥</span>
-            <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 11, fontWeight: 700, color: "#A84818", lineHeight: 1.2 }}>
-              {streakDays}-day streak
-            </span>
-          </button>
-          <button onClick={() => navigate("/breathe")} className="belly-press-scale" style={{
-            flex: 1, display: "flex", alignItems: "center", gap: 8,
-            background: "#FAEADA", border: "1px solid rgba(232,112,42,0.25)",
-            borderRadius: 14, padding: "10px 12px", cursor: "pointer", textAlign: "left",
-          }}>
-            <span style={{ fontSize: 16 }}>🌬</span>
-            <span style={{ fontFamily: "'Nunito',system-ui", fontSize: 11, fontWeight: 700, color: "#A84818", lineHeight: 1.2 }}>
-              {breathingStreak}-day breathing
-            </span>
-          </button>
-        </div>
-
       </div>
-
-      <p style={{ textAlign: "center", marginTop: 14, padding: "0 20px", fontFamily: "'Nunito',system-ui", fontSize: 10, color: "#C0A888" }}>
-        Day {daysToGo > 0 ? 280 - daysToGo : 280} of your journey
-      </p>
-    </div>
+    </SceneBackground>
   );
-};
-
-export default HomePage;
+}

@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { getCurrentWeek, pregnancyWeeks } from "@/data/pregnancyWeeks";
-import { Send, Square, Camera, X, ChevronLeft, Loader2 } from "lucide-react";
+import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
+import { Send, Square, Camera, X, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { PremiumModal } from "@/components/PremiumModal";
+import { SceneBackground, GhHeader, BellaOrb } from "@/components/golden";
 
 interface Message {
   role: "user" | "assistant";
@@ -14,19 +15,35 @@ interface Message {
   imageUrl?: string;
 }
 
+type CategoryTone = "ember" | "teal" | "magenta";
+
+const TILE_ICON_PROPS = {
+  viewBox: "0 0 24 24",
+  fill: "none",
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  strokeWidth: 1.8,
+  width: 20,
+  height: 20,
+  style: { margin: "0 auto 7px", display: "block" },
+};
+const TONE_STROKE: Record<CategoryTone, string> = {
+  ember: "#ffb187",
+  teal: "#7fe0d3",
+  magenta: "#f79fc0",
+};
+
 const AskDoula = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { user, profile } = useAuth();
 
-  const handleBack = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate("/");
-  };
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
+  const [freeLimit, setFreeLimit] = useState(10);
+  const [serverBlocked, setServerBlocked] = useState(false);
+  const [trendingCount, setTrendingCount] = useState<number | null>(null);
   const [attachedImage, setAttachedImage] = useState<{ base64: string; url: string } | null>(null);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const [showPremium, setShowPremium] = useState(false);
@@ -42,34 +59,54 @@ const AskDoula = () => {
   const safetyCameraInputRef = useRef<HTMLInputElement>(null);
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
-  pregnancyWeeks.find(w => w.week === currentWeek); // keep import side-effect parity
-  const titleCase = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
+  const weekData = getWeekData(currentWeek);
+  const titleCase = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "");
   const displayName = titleCase(profile?.first_name || "") || "mama";
 
-  const weekMilestone =
-    currentWeek === 20 ? "you're halfway there!"
-    : currentWeek <= 12 ? "first trimester, the early days"
-    : currentWeek <= 26 ? "you're in the second trimester"
-    : "in the home stretch now";
+  const quotaExhausted = !profile?.is_premium && (serverBlocked || messageCount >= freeLimit);
 
-  const QUICK_PROMPTS = [
-    `What's normal at week ${currentWeek}?`,
-    "Help me sleep tonight",
-    "What should I avoid?",
-    "I'm feeling anxious",
+  const CATEGORY_TILES: { label: string; tone: CategoryTone; icon: JSX.Element; action: () => void }[] = [
+    {
+      label: "Nausea", tone: "ember",
+      icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.ember}><path d="M12 3c-5 4-8 8-8 12a8 8 0 0 0 16 0c0-4-3-8-8-12z" /></svg>,
+      action: () => sendMessage("I'm feeling nauseous — what can help right now?"),
+    },
+    {
+      label: "Sleep", tone: "teal",
+      icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.teal}><path d="M21 12.5A8.5 8.5 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5z" /></svg>,
+      action: () => sendMessage("Help me sleep tonight"),
+    },
+    {
+      label: "Safe?", tone: "ember",
+      icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.ember}><path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6l8-3z" /></svg>,
+      action: () => handleSafetyChipClick(),
+    },
+    {
+      label: "What to eat", tone: "teal",
+      icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.teal}><path d="M4 13c4 0 6-3 8-3s4 3 8 3M6 17c3 0 5-2 6-2s3 2 6 2" /></svg>,
+      action: () => sendMessage(`What should I be eating at week ${currentWeek}?`),
+    },
+    {
+      label: "Herbal", tone: "teal",
+      icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.teal}><path d="M12 21V9M12 9c0-4-3-6-7-6 0 4 3 6 7 6zm0 0c0-4 3-6 7-6 0 4-3 6-7 6z" /></svg>,
+      action: () => sendMessage("Which herbs are safe for me right now?"),
+    },
+    {
+      label: "Labor prep", tone: "magenta",
+      icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.magenta}><path d="M12 3c-1 3-3 4-3 7a3 3 0 0 0 6 0c0-3-2-4-3-7z" /><path d="M8 21h8" /></svg>,
+      action: () => sendMessage("How can I start preparing for labor?"),
+    },
   ];
-
-  const quotaExhausted = !profile?.is_premium && messageCount >= 10;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Clear typewriter on unmount
   useEffect(() => {
     return () => { if (typeTimerRef.current) clearInterval(typeTimerRef.current); };
   }, []);
 
+  // Daily count is real: today's user rows in chat_messages.
   useEffect(() => {
     if (!user?.id) return;
     const today = new Date().toISOString().split("T")[0];
@@ -81,6 +118,31 @@ const AskDoula = () => {
       .gte("created_at", today + "T00:00:00Z")
       .then(({ count }) => setMessageCount(count || 0));
   }, [user?.id]);
+
+  // Free limit comes from app_config so the admin setting actually applies.
+  useEffect(() => {
+    supabase
+      .from("app_config")
+      .select("free_message_limit")
+      .eq("id", 1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.free_message_limit && data.free_message_limit > 0) {
+          setFreeLimit(data.free_message_limit);
+        }
+      });
+  }, []);
+
+  // Trending: how many mamas posted questions this week.
+  useEffect(() => {
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("category", "Questions")
+      .gte("created_at", weekAgo)
+      .then(({ count }) => setTrendingCount(count ?? null));
+  }, []);
 
   useEffect(() => {
     const prefill = (location.state as any)?.prefill;
@@ -106,7 +168,7 @@ const AskDoula = () => {
       setAttachedImage(img);
       if (wasSafetyScan) {
         const prompt = `Is this product safe for me at week ${currentWeek}?`;
-        setTimeout(() => sendMessageWithImage(prompt, img), 50);
+        setTimeout(() => sendMessage(prompt, img), 50);
       }
     };
     reader.readAsDataURL(file);
@@ -118,13 +180,10 @@ const AskDoula = () => {
     safetyCameraInputRef.current?.click();
   };
 
-  const sendMessageWithImage = (text: string, img: { base64: string; url: string }) =>
-    sendMessage(text, img);
-
   const sendMessage = async (text: string, imageOverride?: { base64: string; url: string }) => {
     const activeImage = imageOverride || attachedImage;
     if ((!text.trim() && !activeImage) || isStreaming) return;
-    if (!profile?.is_premium && messageCount >= 10) {
+    if (quotaExhausted) {
       toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
       return;
     }
@@ -171,9 +230,8 @@ const AskDoula = () => {
     displayIndexRef.current = 0;
     isStreamingRef.current = true;
 
-    // Start the typewriter immediately — no React render cycle needed.
-    // Drips buffered content at ~200 chars/sec; self-terminates when buffer is
-    // drained AND the network stream is finished.
+    // Typewriter: drips buffered content at ~200 chars/sec; self-terminates when
+    // the buffer is drained AND the network stream is finished.
     if (typeTimerRef.current) clearInterval(typeTimerRef.current);
     typeTimerRef.current = setInterval(() => {
       const buf = streamBufferRef.current;
@@ -198,9 +256,15 @@ const AskDoula = () => {
     }, 20);
 
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
       const resp = await fetch("/api/belly-chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
         body: JSON.stringify({
           messages: apiMessages,
           userContext: {
@@ -219,6 +283,9 @@ const AskDoula = () => {
           toast.error("Too many requests. Please wait a moment.");
         } else if (resp.status === 402) {
           toast.error("AI credits exhausted. Please try again later.");
+        } else if (resp.status === 403) {
+          setServerBlocked(true);
+          toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
         } else {
           try {
             const errBody = await resp.json();
@@ -267,7 +334,7 @@ const AskDoula = () => {
     } catch (e: any) {
       if (e.name !== "AbortError") toast.error("Connection failed. Please try again.");
     } finally {
-      isStreamingRef.current = false; // signal typewriter to self-terminate when buffer empties
+      isStreamingRef.current = false;
       setIsStreaming(false);
       abortRef.current = null;
     }
@@ -280,246 +347,278 @@ const AskDoula = () => {
     return content.find(c => c.type === "text")?.text || "";
   };
 
-  const greetingText = `Hi ${displayName}! 🌸 You're at week ${currentWeek} — ${weekMilestone}. I'm here for you 24/7. What's on your mind today?`;
+  const markdownStyles =
+    "prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 " +
+    "[&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 " +
+    "[&_h2]:text-[13px] [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-1 [&_h2]:text-[var(--gold)] " +
+    "[&_h3]:text-[12px] [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-[var(--gold)] " +
+    "[&_strong]:font-semibold [&_strong]:text-[var(--gold)] [&_em]:text-[#ffb187]";
 
-  const renderAssistantBubble = (content: string, imageUrl?: string, timestamp?: string) => (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-sage-soft)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>
-        🌸
-      </div>
+  const renderAssistantBubble = (content: string, imageUrl?: string) => (
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+      <BellaOrb size={26} style={{ marginTop: 4 }} />
       <div className="mr-auto" style={{ maxWidth: "85%" }}>
-        <div className="px-4 py-3 text-[14px] leading-[1.65]"
-          style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderLeft: "3px solid var(--color-sage)", color: "var(--color-text-primary)", borderRadius: 18, fontFamily: "'Outfit', system-ui" }}>
+        <div
+          className="gh-glass-dark px-4 py-3 text-[14px] leading-[1.65]"
+          style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui" }}
+        >
           {imageUrl && (
             <img src={imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
           )}
-          <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:pl-0 [&>ul]:list-none [&>ul>li]:mb-1.5 [&>ul>li]:pl-0 [&>h3]:text-[12px] [&>h3]:font-semibold [&>h3]:mt-3 [&>h3]:mb-1 [&>h3]:text-[var(--color-accent-dark)] [&>h2]:text-[13px] [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>h2]:text-[var(--color-accent-dark)] [&>strong]:font-semibold [&>strong]:text-[var(--color-accent-dark)] [&>em]:text-[var(--color-accent-primary)]" style={{ color: "var(--color-text-primary)" }}>
+          <div className={markdownStyles} style={{ color: "var(--cream)" }}>
             <ReactMarkdown>{content}</ReactMarkdown>
           </div>
         </div>
-        {timestamp && (
-          <p style={{ fontFamily: "'Outfit', system-ui", fontWeight: 300, fontSize: 10, color: "var(--color-text-muted)", marginTop: 6, paddingLeft: 4 }}>
-            {timestamp}
-          </p>
-        )}
       </div>
     </div>
   );
 
   return (
-    <div className="page-enter" style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "var(--color-bg-base)" }}>
-      <style>{`
-        @keyframes livePulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
-        @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-7px); } }
-        .doula-input::placeholder { color: #bbb !important; font-style: normal !important; }
-        .chip-row::-webkit-scrollbar { display: none; }
-      `}</style>
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
-      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
-      <input ref={safetyCameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
+    <SceneBackground scene="ask">
+      <div style={{ display: "flex", flexDirection: "column", height: "100dvh", paddingBottom: "calc(64px + env(safe-area-inset-bottom))" }}>
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
+        <input ref={safetyCameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
 
-      {/* Minimal header */}
-      <div style={{ padding: "16px 20px 12px", flexShrink: 0 }}>
-        <div className="flex items-start justify-between mb-1">
-          <div className="flex items-center" style={{ gap: 12 }}>
-            <button
-              onClick={handleBack}
-              aria-label="Go back"
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                background: "var(--color-bg-card)",
-                border: "1px solid var(--color-border-default)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                flexShrink: 0,
-                padding: 0,
-              }}
-            >
-              <ChevronLeft size={18} color="var(--color-accent-primary)" />
-            </button>
-            <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 800, color: "var(--color-accent-dark)" }}>Ask <span style={{ color: "var(--color-accent-primary)", fontStyle: "italic" }}>Bella</span></h1>
-          </div>
-          <div style={{ position: "relative", width: 28, height: 28, marginTop: 6 }}>
-            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🌸</div>
-            <span style={{ position: "absolute", bottom: -1, right: -1, width: 6, height: 6, borderRadius: "50%", background: "#22C55E", animation: "livePulse 2s infinite", boxShadow: "0 0 0 2px var(--color-bg-base)" }} />
-          </div>
+        <div style={{ flexShrink: 0 }}>
+          <GhHeader
+            brand="Ask Bella"
+            tag="knows your whole history"
+            showOrb
+            weekPill={`wk ${currentWeek}`}
+            glowStyle={{ left: "50%", right: "auto", top: -70, transform: "translateX(-50%)" }}
+          />
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginLeft: 44, marginTop: 4 }}>
-          <span className="pill-base pill-sage" style={{ fontSize: 10, padding: "3px 10px" }}>Knows your history</span>
-          <span className="pill-base pill-sage" style={{ fontSize: 10, padding: "3px 10px" }}>Week {currentWeek}</span>
-          <span className="pill-base pill-sage" style={{ fontSize: 10, padding: "3px 10px" }}>{(profile?.pregnancy_number ?? 1) === 1 ? "1st" : (profile?.pregnancy_number ?? 1) === 2 ? "2nd" : `${profile?.pregnancy_number}th`} pregnancy</span>
-        </div>
-      </div>
 
-      {/* Chat area */}
-      <div className="flex-1 overflow-y-auto" style={{ padding: 16, paddingBottom: 80, display: "flex", flexDirection: "column", gap: 12 }}>
-        {messages.length === 0 && renderAssistantBubble(greetingText, undefined, "Just now")}
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto hide-scrollbar" style={{ padding: "4px 16px 16px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {messages.length === 0 && !isStreaming && (
+            <>
+              <div>
+                <div className="gh-section-label">what's going on right now</div>
+                <div style={{ display: "flex", gap: 13, fontSize: 10.5, color: "rgba(251,238,224,0.55)", marginBottom: 11 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <i style={{ width: 7, height: 7, borderRadius: "50%", background: "#ffb187", display: "inline-block" }} />physical
+                  </span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <i style={{ width: 7, height: 7, borderRadius: "50%", background: "#7fe0d3", display: "inline-block" }} />nutrition + rest
+                  </span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <i style={{ width: 7, height: 7, borderRadius: "50%", background: "#f79fc0", display: "inline-block" }} />big moments
+                  </span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+                  {CATEGORY_TILES.map((t) => (
+                    <button key={t.label} className={`gh-tile gh-tile-${t.tone}`} onClick={t.action}>
+                      {t.icon}
+                      <span style={{ fontSize: 11, color: "var(--cream)", fontWeight: 500, display: "block" }}>
+                        {t.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                {trendingCount != null && trendingCount > 0 && (
+                  <div style={{ fontSize: 11.5, color: "rgba(251,238,224,0.65)", margin: "11px 0 0", display: "flex", alignItems: "center", gap: 6 }}>
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#F2B647" strokeWidth="2">
+                      <path d="M4 16l5-5 4 4 7-8" />
+                    </svg>
+                    trending — <b style={{ color: "var(--gold)", fontWeight: 600 }}>{trendingCount} mamas</b> asked this week
+                  </div>
+                )}
+              </div>
 
-        {messages.map((msg, i) => (
-          <div key={i}>
-            {msg.role === "assistant" ? (
-              renderAssistantBubble(getTextContent(msg.content), msg.imageUrl)
-            ) : (
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 6, justifyContent: "flex-end" }}>
-                <div style={{ maxWidth: "78%" }}>
-                  <div className="px-[14px] py-3 text-[14px] leading-[1.55]"
-                    style={{ background: "var(--color-accent-light)", color: "var(--color-text-primary)", borderRadius: 18, fontFamily: "'Outfit', system-ui", fontWeight: 500 }}>
-                    {msg.imageUrl && (
-                      <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
-                    )}
-                    {getTextContent(msg.content)}
+              {/* Bella's week note */}
+              <div className="gh-glass-dark" style={{ padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
+                  <BellaOrb size={20} />
+                  <span className="font-gh-serif" style={{ fontStyle: "italic", fontWeight: 600, color: "var(--gold)", fontSize: 13.5 }}>
+                    Bella
+                  </span>
+                </div>
+                <p className="font-gh-serif" style={{ fontSize: 15, lineHeight: 1.55, margin: 0, fontStyle: "italic" }}>
+                  "{weekData.naturalTip}"
+                </p>
+              </div>
+            </>
+          )}
+
+          {messages.map((msg, i) => (
+            <div key={i}>
+              {msg.role === "assistant" ? (
+                renderAssistantBubble(getTextContent(msg.content), msg.imageUrl)
+              ) : (
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 8, justifyContent: "flex-end" }}>
+                  <div style={{ maxWidth: "78%" }}>
+                    <div
+                      className="px-[14px] py-3 text-[14px] leading-[1.55]"
+                      style={{
+                        background: "rgba(232,98,46,0.28)",
+                        border: "1px solid rgba(255,255,255,0.18)",
+                        color: "var(--cream)",
+                        borderRadius: 18,
+                        fontFamily: "'Inter', system-ui",
+                        fontWeight: 500,
+                        backdropFilter: "blur(10px)",
+                        WebkitBackdropFilter: "blur(10px)",
+                      }}
+                    >
+                      {msg.imageUrl && (
+                        <img src={msg.imageUrl} alt="Attached" className="w-full rounded-[12px] mb-2 max-h-[200px] object-cover" />
+                      )}
+                      {getTextContent(msg.content)}
+                    </div>
                   </div>
                 </div>
-                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", color: "var(--color-accent-dark)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 4, fontSize: 13, fontFamily: "'Outfit',system-ui", fontWeight: 700 }}>
-                  {(displayName?.[0] || "B").toUpperCase()}
+              )}
+            </div>
+          ))}
+
+          {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+              <BellaOrb size={26} style={{ marginTop: 4 }} />
+              <div className="gh-glass-dark" style={{ padding: "10px 14px", display: "inline-flex", gap: 5, alignItems: "center", alignSelf: "flex-start" }}>
+                {[0, 0.15, 0.3].map(d => (
+                  <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold)", animation: `typingBounce 1.2s infinite ${d}s`, display: "inline-block" }} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {quotaExhausted && (
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+              <BellaOrb size={26} style={{ marginTop: 4 }} />
+              <div style={{ maxWidth: "85%" }}>
+                <div className="gh-glass-dark px-4 py-3" style={{ fontFamily: "'Inter', system-ui" }}>
+                  <p style={{ fontSize: 14, color: "var(--cream)", lineHeight: 1.65, marginBottom: 10 }}>
+                    You've used your {freeLimit} free messages for today ✨ Upgrade to Premium for unlimited access.
+                  </p>
+                  <button
+                    onClick={() => setShowPremium(true)}
+                    style={{
+                      background: "linear-gradient(135deg, var(--gold), var(--ember))",
+                      color: "var(--night)", border: "none", borderRadius: 20,
+                      padding: "8px 18px", fontWeight: 700, fontSize: 12, cursor: "pointer",
+                      fontFamily: "'Inter', system-ui",
+                    }}
+                  >
+                    Go Premium →
+                  </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {showPhotoMenu && (
+          <div className="px-4 py-2 flex gap-2" style={{ background: "rgba(10,6,16,0.7)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.12)" }}>
+            <button
+              onClick={() => { cameraInputRef.current?.click(); setShowPhotoMenu(false); }}
+              className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold"
+              style={{ background: "rgba(255,255,255,0.1)", color: "var(--cream)", fontFamily: "'Inter', system-ui" }}
+            >
+              📸 Take a photo
+            </button>
+            <button
+              onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }}
+              className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold"
+              style={{ background: "rgba(255,255,255,0.1)", color: "var(--cream)", fontFamily: "'Inter', system-ui" }}
+            >
+              🖼️ Choose from library
+            </button>
+          </div>
+        )}
+
+        {attachedImage && (
+          <div className="px-4 py-2" style={{ background: "rgba(10,6,16,0.7)", borderTop: "1px solid rgba(255,255,255,0.12)" }}>
+            <div className="relative inline-block">
+              <img src={attachedImage.url} alt="Preview" className="w-[60px] h-[60px] rounded-[10px] object-cover" style={{ border: "1px solid rgba(255,255,255,0.2)" }} />
+              <button
+                onClick={() => setAttachedImage(null)}
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center"
+                style={{ background: "var(--night)", border: "1px solid rgba(255,255,255,0.3)" }}
+              >
+                <X size={10} style={{ color: "var(--cream)" }} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Input bar */}
+        <div style={{ flexShrink: 0, padding: "10px 16px 12px", background: "rgba(10,6,16,0.4)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+          {!profile?.is_premium && (
+            <>
+              <div className="font-gh-mono" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0 0 6px", fontSize: 10.5, color: "rgba(251,238,224,0.6)" }}>
+                <span>today's questions</span>
+                <span>{Math.min(messageCount, freeLimit)} of {freeLimit}</span>
+              </div>
+              <div className="gh-daily-track" style={{ marginBottom: 10 }}>
+                <div className="gh-daily-fill" style={{ width: `${Math.min(100, Math.round((messageCount / freeLimit) * 100))}%` }} />
+              </div>
+            </>
+          )}
+          <div
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: 18, padding: "6px 6px 6px 14px",
+            }}
+          >
+            {(() => {
+              const lastMsg = messages[messages.length - 1];
+              const showSpinner = isStreaming && (!!lastMsg?.imageUrl || (messages[messages.length - 2]?.imageUrl && lastMsg?.role === "assistant"));
+              return (
+                <button
+                  onClick={() => setShowPhotoMenu(!showPhotoMenu)}
+                  disabled={isStreaming}
+                  className="shrink-0 flex items-center justify-center"
+                  style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none" }}
+                >
+                  {showSpinner
+                    ? <Loader2 size={14} className="animate-spin" style={{ color: "var(--gold)" }} />
+                    : <Camera size={14} style={{ color: "var(--gold)" }} />}
+                </button>
+              );
+            })()}
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
+              placeholder="Ask anything, gently…"
+              disabled={quotaExhausted}
+              className="flex-1 outline-none bg-transparent"
+              style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui", fontSize: 14, border: "none" }}
+            />
+            {isStreaming ? (
+              <button onClick={cancelStream} className="shrink-0 flex items-center justify-center gh-arrow-btn" style={{ width: 36, height: 36 }}>
+                <Square size={14} />
+              </button>
+            ) : (
+              <button
+                onClick={() => sendMessage(input)}
+                disabled={(!input.trim() && !attachedImage) || quotaExhausted}
+                className="shrink-0 flex items-center justify-center gh-arrow-btn"
+                style={{
+                  width: 36, height: 36,
+                  opacity: ((!input.trim() && !attachedImage) || quotaExhausted) ? 0.5 : 1,
+                  cursor: ((!input.trim() && !attachedImage) || quotaExhausted) ? "not-allowed" : "pointer",
+                }}
+              >
+                <Send size={14} />
+              </button>
             )}
           </div>
-        ))}
-
-        {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>🌸</div>
-            <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: "12px 12px 12px 3px", padding: "10px 14px", display: "inline-flex", gap: 5, alignItems: "center", alignSelf: "flex-start" }}>
-              {[0, 0.15, 0.3].map(d => (
-                <span key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-accent-primary)", animation: `typingBounce 1.2s infinite ${d}s`, display: "inline-block" }} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Inline upsell when quota exhausted */}
-        {quotaExhausted && (
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start", marginTop: 4, fontSize: 14 }}>🌸</div>
-            <div style={{ maxWidth: "85%" }}>
-              <div className="px-4 py-3"
-                style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: "16px 16px 16px 4px", fontFamily: "'Outfit', system-ui" }}>
-                <p style={{ fontSize: 14, color: "var(--color-text-primary)", lineHeight: 1.65, marginBottom: 10 }}>
-                  You've used your 10 free messages for today 🌸 Upgrade to Premium for unlimited access.
-                </p>
-                <button onClick={() => setShowPremium(true)}
-                  style={{ background: "var(--color-accent-primary)", color: "#fff", border: "none", borderRadius: 20, padding: "8px 18px", fontFamily: "'Outfit', system-ui", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
-                  Go Premium →
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Suggestion chips — only when no conversation yet */}
-      {messages.length === 0 && (
-        <div className="chip-row" style={{ display: "flex", flexDirection: "row", gap: 8, overflowX: "auto", padding: "8px 16px", flexShrink: 0, scrollbarWidth: "none" }}>
-          <button
-            onClick={handleSafetyChipClick}
-            style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 20, padding: "8px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 12, color: "var(--color-accent-dark)", whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer", boxShadow: "0 0 0 1px rgba(255,255,255,0.08) inset" }}>
-            📸 Is this safe to use?
-          </button>
-          {QUICK_PROMPTS.map(prompt => (
-            <button key={prompt} onClick={() => sendMessage(prompt)}
-              style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 20, padding: "8px 16px", fontFamily: "'Outfit', system-ui", fontWeight: 500, fontSize: 12, color: "var(--color-accent-dark)", whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer" }}>
-              {prompt}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {showPhotoMenu && (
-        <div className="px-4 py-2 flex gap-2" style={{ background: "var(--color-bg-card)", backdropFilter: "blur(16px)", borderTop: "1px solid var(--color-border-default)" }}>
-          <button onClick={() => { cameraInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--color-bg-base)", color: "var(--color-accent-dark)", fontFamily: "'Outfit', system-ui" }}>
-            📸 Take a photo
-          </button>
-          <button onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }}
-            className="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--color-bg-base)", color: "var(--color-accent-dark)", fontFamily: "'Outfit', system-ui" }}>
-            🖼️ Choose from library
-          </button>
-        </div>
-      )}
-
-      {attachedImage && (
-        <div className="px-4 py-2" style={{ background: "var(--color-bg-card)", borderTop: "1px solid var(--color-border-default)" }}>
-          <div className="relative inline-block">
-            <img src={attachedImage.url} alt="Preview" className="w-[60px] h-[60px] rounded-[10px] object-cover" style={{ border: "1px solid var(--color-border-default)" }} />
-            <button onClick={() => setAttachedImage(null)}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)" }}>
-              <X size={10} style={{ color: "var(--color-text-primary)" }} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Sticky pill input bar */}
-      <div style={{ position: "sticky", bottom: 0, zIndex: 10, background: "var(--color-bg-base)", padding: "12px 16px 14px", borderTop: "2px solid var(--color-accent-primary)", boxShadow: "0 -8px 24px -12px rgba(255, 140, 66, 0.25)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, margin: "0 auto 8px" }}>
-          <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--color-accent-primary)", opacity: 0.7 }} />
-          <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", color: "var(--color-accent-primary)", textTransform: "uppercase" }}>Ask Bella anything</span>
-          <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--color-accent-primary)", opacity: 0.7 }} />
-        </div>
-        <div className="flex items-center" style={{ background: "var(--color-bg-card)", border: "1.5px solid rgba(255, 140, 66, 0.35)", borderRadius: 28, padding: "5px 5px 5px 16px", gap: 8, boxShadow: "0 6px 20px -6px rgba(255, 140, 66, 0.22), 0 2px 6px rgba(40, 20, 5, 0.06)" }}>
-          {(() => {
-            const lastMsg = messages[messages.length - 1];
-            const showSpinner = isStreaming && (!!lastMsg?.imageUrl || (messages[messages.length - 2]?.imageUrl && lastMsg?.role === "assistant"));
-            return (
-              <button onClick={() => setShowPhotoMenu(!showPhotoMenu)}
-                disabled={isStreaming}
-                className="shrink-0 flex items-center justify-center"
-                style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--color-bg-base)", border: "none" }}>
-                {showSpinner
-                  ? <Loader2 size={15} className="animate-spin" style={{ color: "var(--color-accent-primary)" }} />
-                  : <Camera size={15} style={{ color: "var(--color-accent-primary)" }} />}
-              </button>
-            );
-          })()}
-          <input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
-            placeholder="Ask anything..."
-            disabled={quotaExhausted}
-            className="flex-1 outline-none bg-transparent doula-input"
-            style={{ color: "var(--color-text-primary)", fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 14.5, border: "none" }}
-          />
-
-          {isStreaming ? (
-            <button onClick={cancelStream} className="shrink-0 flex items-center justify-center"
-              style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--color-bg-base)", border: "1px solid var(--color-border-default)" }}>
-              <Square size={16} style={{ color: "var(--color-accent-dark)" }} />
-            </button>
-          ) : (
-            <button onClick={() => sendMessage(input)}
-              disabled={(!input.trim() && !attachedImage) || quotaExhausted}
-              className="shrink-0 flex items-center justify-center"
-              style={{
-                width: 40, height: 40, borderRadius: "50%",
-                background: "var(--color-accent-primary)", border: "none",
-                boxShadow: "var(--shadow-warm)",
-                opacity: ((!input.trim() && !attachedImage) || quotaExhausted) ? 0.5 : 1,
-                cursor: ((!input.trim() && !attachedImage) || quotaExhausted) ? "not-allowed" : "pointer",
-              }}>
-              <Send size={16} style={{ color: "#fff" }} />
-            </button>
+          {profile?.is_premium && (
+            <p className="font-gh-mono" style={{ textAlign: "center", marginTop: 7, fontSize: 10, color: "rgba(251,238,224,0.5)" }}>
+              unlimited messages ✨
+            </p>
           )}
         </div>
-        <p style={{ textAlign: "center", marginTop: 8, fontFamily: "'Outfit', system-ui", fontWeight: 400, fontSize: 10, color: "var(--color-text-muted)" }}>
-          {profile?.is_premium
-            ? "Unlimited messages ✨"
-            : quotaExhausted
-              ? "You've used your 10 free messages for today"
-              : `${messageCount}/10 free messages today`}
-        </p>
       </div>
 
       <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
-    </div>
+    </SceneBackground>
   );
 };
 
