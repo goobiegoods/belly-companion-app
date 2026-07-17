@@ -99,7 +99,9 @@ const AskDoula = () => {
   ];
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -375,7 +377,7 @@ const AskDoula = () => {
 
   return (
     <SceneBackground scene="ask">
-      <div style={{ display: "flex", flexDirection: "column", height: "100dvh", paddingBottom: "calc(64px + env(safe-area-inset-bottom))" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100dvh", overflow: "hidden", paddingBottom: "calc(64px + env(safe-area-inset-bottom))" }}>
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
         <input ref={safetyCameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />

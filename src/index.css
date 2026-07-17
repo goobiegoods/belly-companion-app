@@ -520,7 +520,7 @@
 .gh-screen {
   position: relative;
   min-height: 100dvh;
-  overflow-x: hidden;
+  overflow: hidden; /* clip silhouette/glow overhangs so they can't create scrollable overflow */
   color: var(--cream);
   font-family: 'Inter', system-ui, sans-serif;
 }

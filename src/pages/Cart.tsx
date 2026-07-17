@@ -43,7 +43,7 @@ const Cart = () => {
   };
 
   return (
-    <div className="min-h-screen page-enter" style={{ background: "#FF8C42", minHeight: "100vh" }}>
+    <div className="min-h-screen page-enter gh-scene-shop" style={{ minHeight: "100vh", color: "var(--cream)" }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-5 pb-3">
         <button
@@ -70,8 +70,8 @@ const Cart = () => {
             <button
               onClick={() => navigate("/shop")}
               style={{
-                background: "#fff", color: "#FF8C42",
-                fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 14,
+                background: "linear-gradient(135deg, var(--gold), var(--ember))", color: "var(--night)",
+                fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 14,
                 borderRadius: 14, padding: "12px 24px", border: "none", cursor: "pointer",
               }}
             >Browse Remedies →</button>
@@ -140,7 +140,7 @@ const Cart = () => {
             {cartTotal < 40 ? (
               <div style={{ marginBottom: 14 }}>
                 <div style={{ height: 4, borderRadius: 4, background: "rgba(255,255,255,0.2)", overflow: "hidden" }}>
-                  <div style={{ height: 4, borderRadius: 4, background: "#fff", width: `${Math.min(100, (cartTotal / 40) * 100)}%`, transition: "width 0.3s ease" }} />
+                  <div style={{ height: 4, borderRadius: 4, background: "linear-gradient(90deg, var(--teal), var(--gold))", width: `${Math.min(100, (cartTotal / 40) * 100)}%`, transition: "width 0.3s ease" }} />
                 </div>
                 <p style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 400, fontSize: 11, color: "rgba(255,255,255,0.65)", marginTop: 6 }}>
                   Add ${(40 - cartTotal).toFixed(2)} more for free shipping 🚚
@@ -182,9 +182,9 @@ const Cart = () => {
           disabled={isEmpty || checkoutLoading}
           style={{
             width: "100%",
-            background: "#fff",
-            color: "#FF8C42",
-            fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 17,
+            background: "linear-gradient(135deg, var(--gold), var(--ember))",
+            color: "var(--night)",
+            fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 17,
             borderRadius: 16, padding: 16, border: "none",
             cursor: isEmpty || checkoutLoading ? "not-allowed" : "pointer",
             opacity: isEmpty ? 0.5 : (checkoutLoading ? 0.75 : 1),
@@ -195,7 +195,7 @@ const Cart = () => {
         >
           {checkoutLoading ? (
             <>
-              <span style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid #FF8C42", borderTopColor: "transparent", display: "inline-block", animation: "spin 700ms linear infinite" }} />
+              <span style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid var(--night)", borderTopColor: "transparent", display: "inline-block", animation: "spin 700ms linear infinite" }} />
               Redirecting…
             </>
           ) : (
