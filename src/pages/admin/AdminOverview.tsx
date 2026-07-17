@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useAdminRealtime } from "@/hooks/useAdminRealtime";
 import { C, Card, MetricCard, PageTitle, Label, StatusPill, ago, fmtUSD, fontUI, fontTitle } from "@/components/admin/ui";
 

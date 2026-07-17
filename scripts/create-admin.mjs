@@ -1,8 +1,14 @@
 import pg from 'pg';
 const { Client } = pg;
 
+if (!process.env.DATABASE_URL || !process.env.ADMIN_TEMP_PASSWORD) {
+  console.error('❌ DATABASE_URL and ADMIN_TEMP_PASSWORD env vars are required, e.g.:');
+  console.error('   DATABASE_URL=postgresql://... ADMIN_TEMP_PASSWORD=... node scripts/create-admin.mjs');
+  process.exit(1);
+}
+
 const client = new Client({
-  connectionString: 'postgresql://postgres:e2QrgD9bqE6D082h@db.wmomtsrqmfgdlyhopume.supabase.co:5432/postgres',
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
@@ -13,7 +19,7 @@ try {
     DO $$
     DECLARE
       v_user_id uuid;
-      v_temp_password text := 'BellyAdmin2024!';
+      v_temp_password text := '${process.env.ADMIN_TEMP_PASSWORD.replace(/'/g, "''")}';
     BEGIN
       -- Check if user already exists
       SELECT id INTO v_user_id FROM auth.users WHERE email = 'orelfitch@gmail.com';
@@ -68,7 +74,7 @@ try {
   `);
   console.log('✅ Admin user created/updated successfully.');
   console.log('   Email:    orelfitch@gmail.com');
-  console.log('   Password: BellyAdmin2024!');
+  console.log('   Password: (the ADMIN_TEMP_PASSWORD you provided)');
   console.log('   Role:     admin');
 } catch (err) {
   console.error('❌ Error:', err.message);
