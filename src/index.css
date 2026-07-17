@@ -31,6 +31,18 @@
     --shadow-warm:           0 4px 16px rgba(232,112,42,0.42);
     --shadow-card:           0 3px 16px rgba(232,112,42,0.10);
 
+    /* ---- Golden Hour palette (redesign reference) ---- */
+    --night:   #150A1F;
+    --plum:    #3A1A38;
+    --magenta: #B5386B;
+    --ember:   #E8622E;
+    --gold:    #F2B647;
+    --teal:    #2C9C8F;
+    --cream:   #FBEEE0;
+    --ink-soft: #7a6570;
+    --glass:        rgba(255,255,255,0.10);
+    --glass-border: rgba(255,255,255,0.22);
+
     /* Belly v4 specific */
     --belly-header-gradient: linear-gradient(135deg, #E8702A 0%, #D45810 100%);
     --belly-nav-bg:          #C85818;
@@ -493,3 +505,226 @@
   50% { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(201,98,47,0); }
 }
 .pulse-dot { animation: pulseDot 1.8s ease-in-out infinite; }
+
+/* =====================================================================
+   GOLDEN HOUR design system — dark plum/gold glassmorphism
+   Values from belly_redesign_final_complete.html, scaled ~1.15x for a
+   430px viewport (reference mock was 292px wide).
+   ===================================================================== */
+
+.font-gh-mono  { font-family: 'JetBrains Mono', 'SFMono-Regular', monospace; }
+.font-gh-ui    { font-family: 'Inter', system-ui, sans-serif; }
+.font-gh-serif { font-family: 'Fraunces', Georgia, serif; }
+
+/* Full-screen scene wrapper */
+.gh-screen {
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  color: var(--cream);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+/* film-grain overlay */
+.gh-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/></svg>");
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 5;
+}
+
+/* Per-screen scene gradients (verbatim from reference) */
+.gh-scene-today   { background: radial-gradient(circle at 85% 8%, rgba(242,182,71,0.55) 0%, transparent 40%), radial-gradient(circle at 5% 30%, rgba(181,56,107,0.4) 0%, transparent 45%), radial-gradient(circle at 60% 90%, rgba(44,156,143,0.28) 0%, transparent 50%), linear-gradient(165deg, #2c1330 0%, #4a1e3a 40%, #7a2f3e 75%, #a8481f 100%); }
+.gh-scene-ask     { background: radial-gradient(circle at 50% 0%, rgba(242,182,71,0.5) 0%, transparent 42%), radial-gradient(circle at 90% 55%, rgba(44,156,143,0.4) 0%, transparent 46%), radial-gradient(circle at 10% 85%, rgba(181,56,107,0.32) 0%, transparent 45%), linear-gradient(165deg, #26112c 0%, #402038 45%, #6e2c40 100%); }
+.gh-scene-mamas   { background: radial-gradient(circle at 88% 12%, rgba(181,56,107,0.5) 0%, transparent 42%), radial-gradient(circle at 8% 55%, rgba(44,156,143,0.32) 0%, transparent 46%), radial-gradient(circle at 60% 95%, rgba(242,182,71,0.3) 0%, transparent 48%), linear-gradient(165deg, #1f0f2a 0%, #3a1a38 45%, #5e2440 100%); }
+.gh-scene-journey { background: radial-gradient(circle at 12% 10%, rgba(44,156,143,0.45) 0%, transparent 42%), radial-gradient(circle at 85% 45%, rgba(181,56,107,0.4) 0%, transparent 46%), radial-gradient(circle at 60% 95%, rgba(242,182,71,0.5) 0%, transparent 50%), linear-gradient(165deg, #14232a 0%, #3a1a38 45%, #8a4420 100%); }
+.gh-scene-baby    { background: radial-gradient(circle at 20% 10%, rgba(44,156,143,0.5) 0%, transparent 42%), radial-gradient(circle at 85% 50%, rgba(242,182,71,0.4) 0%, transparent 46%), radial-gradient(circle at 50% 95%, rgba(181,56,107,0.28) 0%, transparent 48%), linear-gradient(165deg, #0f1e26 0%, #1e2e3a 40%, #3a2840 75%, #5e2a1a 100%); }
+.gh-scene-shop    { background: radial-gradient(circle at 80% 5%, rgba(242,182,71,0.6) 0%, transparent 38%), radial-gradient(circle at 10% 60%, rgba(44,156,143,0.38) 0%, transparent 46%), radial-gradient(circle at 55% 95%, rgba(181,56,107,0.3) 0%, transparent 48%), linear-gradient(165deg, #1e0e28 0%, #3c1c38 45%, #6a2e20 100%); }
+
+/* Glass surfaces */
+.gh-glass {
+  background: var(--glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 12px 30px -14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.gh-glass-subtle {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+}
+.gh-glass-dark {
+  background: rgba(0,0,0,0.16);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+}
+
+/* Type + labels */
+.gh-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
+  margin-bottom: 9px;
+}
+.gh-brand {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--cream);
+  line-height: 1;
+}
+.gh-brand-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: rgba(251,238,224,0.7);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+/* Header controls */
+.gh-week-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--night);
+  background: var(--cream);
+  padding: 7px 13px;
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 4px 14px -4px rgba(0,0,0,0.4);
+  white-space: nowrap;
+}
+.gh-post-pill {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--night);
+  background: var(--cream);
+  padding: 7px 14px 7px 11px;
+  border-radius: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 4px 14px -4px rgba(0,0,0,0.4);
+  border: none;
+  cursor: pointer;
+}
+.gh-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+  color: var(--cream);
+}
+
+/* Pills */
+.gh-pill {
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--cream);
+  font-weight: 500;
+  background: rgba(255,255,255,0.06);
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+.gh-pill-filled {
+  background: linear-gradient(135deg, var(--magenta), var(--ember));
+  border: 1px solid transparent;
+  color: #fff;
+}
+
+/* Fake-input row + arrow button */
+.gh-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 13px 14px;
+  font-size: 13px;
+  color: rgba(251,238,224,0.6);
+  cursor: pointer;
+}
+.gh-arrow-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--ember));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2a1305;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+}
+
+/* Progress bars */
+.gh-progress-track {
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.18);
+  overflow: hidden;
+}
+.gh-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--gold), var(--ember));
+  box-shadow: 0 0 10px rgba(242,182,71,0.7);
+}
+.gh-daily-track {
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.15);
+  overflow: hidden;
+}
+.gh-daily-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--gold));
+}
+
+/* Category tint tiles (ember = physical, teal = nutrition/rest, magenta = big moments) */
+.gh-tile {
+  border-radius: 15px;
+  padding: 14px 6px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.18);
+  cursor: pointer;
+}
+.gh-tile-ember   { background: rgba(232,98,46,0.22); }
+.gh-tile-teal    { background: rgba(44,156,143,0.24); }
+.gh-tile-magenta { background: rgba(181,56,107,0.24); }
+
+/* Animations */
+@keyframes bellaPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(242,182,71,0.55); }
+  50%      { box-shadow: 0 0 16px rgba(242,182,71,0.9); }
+}
+@keyframes ghOrbPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50%      { transform: scale(1.14); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gh-bella-orb, .gh-glow-orb { animation: none !important; }
+}
