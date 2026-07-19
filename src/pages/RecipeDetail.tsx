@@ -1,22 +1,36 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Heart, Clock, Share2, ChefHat } from "lucide-react";
 import { useSavedRecipes } from "@/contexts/SavedRecipesContext";
 import { getRecipeById, CATEGORY_GRADIENTS } from "@/data/recipesData";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
+import { SceneBackground, GlassCard } from "@/components/golden";
 
-// Readability tokens
-const SURFACE_WHITE = "#FFFFFF";
-const SURFACE_CREAM = "#FFF8F2";
-const SURFACE_PEACH = "#FDF6F0";
-const BORDER_PEACH = "#F1E2D2";
-const TEXT_DARK = "#1a1a1a";
-const TEXT_MID = "#555";
-const TEXT_HINT = "#777";
-const PILL_BG = "#FDE8D8";
-const PILL_BORDER = "#F6D2B6";
-const PILL_TEXT = "#B84A10";
-const ACCENT = "#E8601A";
+const CREAM_70 = "rgba(251,238,224,0.7)";
+const CREAM_55 = "rgba(251,238,224,0.55)";
+
+const BackArrow = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5" />
+    <path d="M12 19l-7-7 7-7" />
+  </svg>
+);
+
+/** Nutrient rating rendered as 1-3 gold dots (no glyphs). */
+const RatingDots = ({ rating }: { rating: number }) => (
+  <span style={{ display: "inline-flex", gap: 3, alignItems: "center", flexShrink: 0 }}>
+    {[1, 2, 3].map(i => (
+      <span
+        key={i}
+        style={{
+          width: 5, height: 5, borderRadius: "50%",
+          background: i <= rating ? "var(--gold)" : "rgba(251,238,224,0.2)",
+        }}
+      />
+    ))}
+  </span>
+);
 
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,104 +45,160 @@ const RecipeDetail = () => {
 
   if (!recipe) {
     return (
-      <div style={{ background: "transparent", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-        <p style={{ fontSize: 28, marginBottom: 8 }}>🍽️</p>
-        <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, color: "white", fontWeight: 600 }}>Recipe not found</p>
-        <button onClick={() => navigate("/recipes")} style={{ marginTop: 12, background: "white", border: "none", borderRadius: 10, padding: "8px 16px", fontSize: 11, fontWeight: 700, color: ACCENT, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>← Back to recipes</button>
-      </div>
+      <SceneBackground scene="baby">
+        <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", padding: "0 24px", textAlign: "center" }}>
+          <ChefHat size={32} strokeWidth={1.8} style={{ color: CREAM_55, marginBottom: 12 }} />
+          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--cream)" }}>Recipe not found</p>
+          <button
+            onClick={() => navigate("/recipes")}
+            className="belly-btn-press"
+            style={{
+              marginTop: 16,
+              background: "linear-gradient(135deg, var(--gold), var(--ember))",
+              color: "var(--night)",
+              border: "none", borderRadius: 14, padding: "11px 22px",
+              fontSize: 13, fontWeight: 700, cursor: "pointer",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            Back to recipes
+          </button>
+        </div>
+      </SceneBackground>
     );
   }
 
   const handleShare = async () => {
-    const text = `Week ${currentWeek} recipe from Belly 🌸\n\n${recipe.title}\n\nIngredients:\n${recipe.ingredients.map(i => '• ' + i.amount + ' ' + i.name).join('\n')}\n\nInstructions:\n${recipe.instructions.map((s, i) => (i + 1) + '. ' + s).join('\n')}`;
+    const text = `Week ${currentWeek} recipe from Belly\n\n${recipe.title}\n\nIngredients:\n${recipe.ingredients.map(i => '• ' + i.amount + ' ' + i.name).join('\n')}\n\nInstructions:\n${recipe.instructions.map((s, i) => (i + 1) + '. ' + s).join('\n')}`;
     try {
       await navigator.share({ title: recipe.title, text });
     } catch { /* cancelled */ }
   };
 
   return (
-    <div style={{ background: "transparent", height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "12px 14px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <button onClick={() => navigate("/recipes")} style={{ background: "none", border: "none", color: "white", fontSize: 9, fontWeight: 600, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>← Recipes</button>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button onClick={() => toggleSave(recipe.id)} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer" }}>
-            {isSaved ? "❤️" : "🤍"}
+    <SceneBackground scene="baby">
+      {/* Top bar */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 16px 4px" }}>
+        <button onClick={() => navigate("/recipes")} aria-label="Back to recipes" className="gh-icon-btn belly-btn-press" style={{ color: "var(--cream)" }}>
+          <BackArrow />
+        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            onClick={() => toggleSave(recipe.id)}
+            aria-label={isSaved ? "Unsave" : "Save"}
+            className="gh-icon-btn belly-btn-press"
+          >
+            <Heart
+              size={15}
+              strokeWidth={1.8}
+              style={{ color: isSaved ? "var(--magenta)" : CREAM_70, fill: isSaved ? "var(--magenta)" : "none" }}
+            />
           </button>
-          <button onClick={handleShare} style={{ background: "white", border: "none", borderRadius: 8, padding: "4px 10px", fontSize: 9, fontWeight: 700, color: ACCENT, cursor: "pointer", fontFamily: "'Outfit', system-ui" }}>Share ↗</button>
+          <button onClick={handleShare} aria-label="Share recipe" className="gh-icon-btn belly-btn-press" style={{ color: CREAM_70 }}>
+            <Share2 size={14} strokeWidth={1.8} />
+          </button>
         </div>
       </div>
 
-      {/* Hero — category gradient with dark overlay so meta pill stays legible */}
-      <div style={{ background: CATEGORY_GRADIENTS[recipe.category] || CATEGORY_GRADIENTS.Breakfast, height: 90, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", margin: "0 11px", borderRadius: "14px 14px 0 0", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.20), rgba(0,0,0,0.05))" }} />
-        <span style={{ fontSize: 44, position: "relative", zIndex: 1 }}>{recipe.emoji}</span>
-        <span style={{ position: "absolute", bottom: 8, left: 12, background: "rgba(0,0,0,0.4)", borderRadius: 8, padding: "3px 10px", fontSize: 8, color: "white", fontWeight: 600, zIndex: 1 }}>
-          {recipe.prepTime} min · {recipe.category} · Week {currentWeek}
-        </span>
-      </div>
+      <div style={{ padding: "10px 16px 40px" }}>
+        {/* Title + meta */}
+        <h1 className="gh-brand" style={{ fontSize: 24, lineHeight: 1.2, marginBottom: 9 }}>{recipe.title}</h1>
+        <div className="font-gh-mono" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: CREAM_55, marginBottom: 10 }}>
+          <Clock size={11.5} strokeWidth={1.8} />
+          <span>{recipe.prepTime} min</span>
+          <span style={{ opacity: 0.6 }}>·</span>
+          <span>{recipe.category.toLowerCase()}</span>
+          <span style={{ opacity: 0.6 }}>·</span>
+          <span>week {currentWeek}</span>
+        </div>
 
-      <div style={{ flex: 1, overflowY: "auto", margin: "0 11px 0", background: SURFACE_WHITE, borderRadius: "0 0 14px 14px", border: `1px solid ${BORDER_PEACH}`, borderTop: "none", boxShadow: "0 4px 14px rgba(120,60,10,0.08)", WebkitOverflowScrolling: "touch" as any }}>
-        <div style={{ padding: "10px 13px 32px" }}>
-          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 16, fontWeight: 700, color: TEXT_DARK, marginBottom: 3, lineHeight: 1.3 }}>{recipe.title}</h1>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, color: TEXT_MID, fontStyle: "italic", lineHeight: 1.55, marginBottom: 7 }}>{recipe.whyThisWeek.split(/(?<=\.)\s/)[0]}</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 14 }}>
+          {recipe.vitamins.map(v => (
+            <span
+              key={v.name}
+              className="font-gh-mono"
+              style={{
+                fontSize: 9.5, color: "var(--gold)",
+                background: "rgba(242,182,71,0.14)",
+                border: "1px solid rgba(242,182,71,0.3)",
+                borderRadius: 8, padding: "3px 8px",
+              }}
+            >
+              {v.name} {v.amount}
+            </span>
+          ))}
+        </div>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 7 }}>
-            {recipe.vitamins.map(v => (
-              <span key={v.name} style={{ background: PILL_BG, border: `1px solid ${PILL_BORDER}`, borderRadius: 7, padding: "3px 7px", fontSize: 8, color: PILL_TEXT, fontWeight: 600 }}>
-                {v.emoji} {v.name} {v.amount}
-              </span>
-            ))}
-          </div>
-
-          <div style={{ background: SURFACE_PEACH, border: `1px solid ${BORDER_PEACH}`, borderRadius: 10, padding: "8px 10px", marginBottom: 10 }}>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, color: PILL_TEXT, fontWeight: 700, marginBottom: 2, textTransform: "uppercase", letterSpacing: "0.06em" }}>Why your baby needs this in week {currentWeek} 🌿</p>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 9, color: TEXT_HINT, lineHeight: 1.55 }}>{recipe.whyThisWeek}</p>
-          </div>
-
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", color: PILL_TEXT, fontWeight: 700, marginBottom: 4 }}>
-            Ingredients <span style={{ textTransform: "none", fontSize: 8, color: TEXT_HINT, fontWeight: 500 }}>(tap any to see alternatives)</span>
+        {/* Why this week */}
+        <GlassCard>
+          <div className="gh-section-label">why this week</div>
+          <p className="font-gh-serif" style={{ fontSize: 13, fontStyle: "italic", lineHeight: 1.6, color: CREAM_70 }}>
+            {recipe.whyThisWeek}
           </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 10 }}>
+        </GlassCard>
+
+        {/* Ingredients */}
+        <GlassCard>
+          <div className="gh-section-label">
+            ingredients{" "}
+            <span style={{ textTransform: "none", letterSpacing: 0, color: CREAM_55, fontSize: 9.5 }}>— tap for alternatives</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {recipe.ingredients.map((ing, idx) => {
               const isOpen = expandedIngredient === idx;
               return (
-                <div key={idx} onClick={() => setExpandedIngredient(isOpen ? null : idx)} style={{
-                  background: isOpen ? SURFACE_PEACH : SURFACE_CREAM,
-                  border: `1px solid ${BORDER_PEACH}`,
-                  borderRadius: 9, padding: isOpen ? "7px 10px" : "6px 10px", cursor: "pointer",
-                  transition: "all 200ms ease",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 500, color: TEXT_DARK }}>{ing.amount} {ing.name}</span>
-                    <span style={{ background: PILL_BG, borderRadius: 4, padding: "1px 5px", fontSize: 8, color: PILL_TEXT, fontWeight: 700 }}>
-                      {"★".repeat(ing.nutrientRating)}
+                <div
+                  key={idx}
+                  onClick={() => setExpandedIngredient(isOpen ? null : idx)}
+                  className="belly-card-interactive"
+                  style={{
+                    background: isOpen ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: 12, padding: "9px 11px",
+                    transition: "background 200ms ease",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="var(--gold)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M8.5 12.2l2.4 2.4 4.6-5" />
+                    </svg>
+                    <span style={{ flex: 1, fontSize: 13, color: "var(--cream)", lineHeight: 1.4 }}>
+                      <span className="font-gh-mono" style={{ fontSize: 11, color: "var(--gold)", marginRight: 6 }}>{ing.amount}</span>
+                      {ing.name}
                     </span>
+                    <RatingDots rating={ing.nutrientRating} />
                   </div>
                   {isOpen && (
-                    <div style={{ marginTop: 4, background: SURFACE_WHITE, border: `1px solid ${BORDER_PEACH}`, borderRadius: 7, padding: "5px 8px" }}>
-                      <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, color: PILL_TEXT, fontWeight: 700, marginBottom: 1 }}>Natural alternatives 🌱</p>
-                      <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, color: TEXT_MID, lineHeight: 1.5 }}>{ing.alternatives}</p>
+                    <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+                      <p className="font-gh-mono" style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--teal)", marginBottom: 4 }}>
+                        natural alternatives
+                      </p>
+                      <p style={{ fontSize: 11.5, color: CREAM_70, lineHeight: 1.55 }}>{ing.alternatives}</p>
                     </div>
                   )}
                 </div>
               );
             })}
           </div>
+        </GlassCard>
 
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", color: PILL_TEXT, fontWeight: 700, marginBottom: 5 }}>How to make it</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {/* Steps */}
+        <GlassCard>
+          <div className="gh-section-label">steps</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
             {recipe.instructions.map((step, idx) => (
-              <div key={idx} style={{ background: SURFACE_CREAM, border: `1px solid ${BORDER_PEACH}`, borderRadius: 10, padding: "8px 10px", display: "flex", gap: 8, alignItems: "flex-start" }}>
-                <div style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: ACCENT, color: "white", fontSize: 9, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {idx + 1}
-                </div>
-                <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, color: TEXT_DARK, lineHeight: 1.55, fontWeight: 400 }}>{step}</p>
+              <div key={idx} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <span className="font-gh-mono" style={{ fontSize: 12, color: "var(--gold)", fontWeight: 600, flexShrink: 0, lineHeight: 1.55, minWidth: 20 }}>
+                  {String(idx + 1).padStart(2, "0")}
+                </span>
+                <p style={{ fontSize: 13, color: "var(--cream)", lineHeight: 1.55 }}>{step}</p>
               </div>
             ))}
           </div>
-        </div>
+        </GlassCard>
       </div>
-    </div>
+    </SceneBackground>
   );
 };
 

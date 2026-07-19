@@ -17,13 +17,13 @@ const NotificationBell = ({ onOpenNotifications, unreadCount }: Props) => {
   return (
     <button onClick={onOpenNotifications}
       className="relative w-9 h-9 rounded-full flex items-center justify-center"
-      style={{ background: "rgba(255,255,255,0.72)", border: "0.5px solid rgba(255,170,130,0.18)", backdropFilter: "blur(12px)" }}>
-      <Bell size={16} style={{ color: "#C4906A" }} />
+      style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(12px)" }}>
+      <Bell size={16} style={{ color: "var(--cream)" }} />
       {unreadCount > 0 && (
         <div style={{
           position: "absolute", top: -4, right: -4,
           width: 16, height: 16, borderRadius: "50%",
-          background: "#FF7840", color: "white",
+          background: "var(--ember)", color: "white",
           fontSize: 8, fontWeight: 700,
           display: "flex", alignItems: "center", justifyContent: "center",
           animation: "bellBadgePop 300ms ease",

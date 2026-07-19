@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { BellaOrb } from "@/components/golden";
 
 interface Props {
   open: boolean;
@@ -11,9 +12,21 @@ interface Props {
 
 const Check = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path d="M5 12l5 5L20 7" stroke="var(--color-accent-primary)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M5 12l5 5L20 7" stroke="var(--gold)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
+
+const sheetStyle: React.CSSProperties = {
+  background: "rgba(21,10,31,0.94)",
+  backdropFilter: "blur(20px)",
+  WebkitBackdropFilter: "blur(20px)",
+  borderTop: "1px solid var(--glass-border)",
+  borderRadius: "24px 24px 0 0",
+  maxWidth: 430,
+  margin: "0 auto",
+  color: "var(--cream)",
+  fontFamily: "'Inter', system-ui, sans-serif",
+};
 
 export function PremiumUpgradeSheet({ open, onClose }: Props) {
   const navigate = useNavigate();
@@ -36,13 +49,24 @@ export function PremiumUpgradeSheet({ open, onClose }: Props) {
 
   if (profile?.is_premium) {
     return (
-      <div className="fixed inset-0 z-[1000] flex items-end" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
+      <div className="fixed inset-0 z-[1000] flex items-end" style={{ background: "rgba(0,0,0,0.6)" }} onClick={onClose}>
         <div onClick={(e) => e.stopPropagation()} className="sheet-enter w-full"
-          style={{ background: "var(--color-bg-card)", borderRadius: "24px 24px 0 0", padding: "32px 24px calc(32px + env(safe-area-inset-bottom))", textAlign: "center", maxWidth: 430, margin: "0 auto" }}>
-          <div style={{ fontSize: 44, marginBottom: 8 }}>🌟</div>
-          <p className="font-display" style={{ fontSize: 22, fontWeight: 700, color: "var(--color-text-primary)" }}>You're already Premium</p>
-          <p className="belly-support" style={{ marginTop: 6, marginBottom: 22 }}>Enjoy unlimited Bella access and every milestone 🌸</p>
-          <button onClick={onClose} className="v2-btn-primary" style={{ width: "100%" }}>Got it</button>
+          style={{ ...sheetStyle, padding: "32px 24px calc(32px + env(safe-area-inset-bottom))", textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+            <BellaOrb size={44} />
+          </div>
+          <p className="gh-brand" style={{ fontSize: 22 }}>You're already Premium</p>
+          <p style={{ fontSize: 13, color: "rgba(251,238,224,0.75)", marginTop: 6, marginBottom: 22 }}>
+            Enjoy unlimited Bella access and every milestone
+          </p>
+          <button onClick={onClose}
+            style={{
+              width: "100%", height: 50, borderRadius: 14,
+              background: "linear-gradient(135deg, var(--gold), var(--ember))", color: "var(--night)",
+              fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer",
+            }}>
+            Got it
+          </button>
         </div>
       </div>
     );
@@ -54,25 +78,22 @@ export function PremiumUpgradeSheet({ open, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-end" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
+    <div className="fixed inset-0 z-[1000] flex items-end" style={{ background: "rgba(0,0,0,0.6)" }} onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="sheet-enter w-full"
         style={{
-          background: "var(--color-bg-card)",
-          borderRadius: "24px 24px 0 0",
+          ...sheetStyle,
           padding: "10px 24px calc(28px + env(safe-area-inset-bottom))",
-          maxWidth: 430,
-          margin: "0 auto",
           maxHeight: "92vh",
           overflowY: "auto",
         }}>
         <div className="flex justify-center" style={{ paddingTop: 6, paddingBottom: 14 }}>
-          <div style={{ width: 42, height: 5, borderRadius: 999, background: "var(--color-border-default)" }} />
+          <div style={{ width: 42, height: 5, borderRadius: 999, background: "rgba(255,255,255,0.25)" }} />
         </div>
 
-        <h2 className="font-display" style={{ fontSize: 28, fontWeight: 700, color: "var(--color-text-primary)", lineHeight: 1.15 }}>
-          Your full pregnancy, <em style={{ fontStyle: "italic", color: "var(--color-accent-primary)" }}>unlocked</em>
+        <h2 className="gh-brand" style={{ fontSize: 26, lineHeight: 1.2 }}>
+          Your full pregnancy, <em style={{ fontStyle: "italic", fontWeight: 300, background: "linear-gradient(90deg, var(--gold), var(--magenta))", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>unlocked</em>
         </h2>
-        <p className="belly-body" style={{ marginTop: 8, marginBottom: 20, color: "var(--color-text-secondary)" }}>
+        <p style={{ fontSize: 14, lineHeight: 1.6, marginTop: 8, marginBottom: 20, color: "rgba(251,238,224,0.75)" }}>
           Everything you need from week 1 to birth.
         </p>
 
@@ -85,27 +106,34 @@ export function PremiumUpgradeSheet({ open, onClose }: Props) {
             <li key={b} style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{
                 width: 24, height: 24, borderRadius: "50%",
-                background: "var(--color-accent-light)",
+                background: "rgba(242,182,71,0.16)",
+                border: "1px solid rgba(242,182,71,0.35)",
                 display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
               }}><Check /></span>
-              <span className="belly-body">{b}</span>
+              <span style={{ fontSize: 14, color: "var(--cream)" }}>{b}</span>
             </li>
           ))}
         </ul>
 
         <div style={{ marginBottom: 18 }}>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 28, fontWeight: 700, color: "var(--color-accent-primary)", lineHeight: 1.1 }}>
-            $9.99 <span style={{ fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)" }}>/ month</span>
+          <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 600, color: "var(--gold)", lineHeight: 1.1 }}>
+            $9.99 <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(251,238,224,0.6)", fontFamily: "'Inter', sans-serif" }}>/ month</span>
           </p>
-          <p className="belly-support" style={{ marginTop: 4 }}>or $59.99 / year — save 50%</p>
+          <p style={{ fontSize: 12, color: "rgba(251,238,224,0.6)", marginTop: 4 }}>or $59.99 / year — save 50%</p>
         </div>
 
-        <button onClick={handleStart} className="v2-btn-primary" style={{ width: "100%" }}>
+        <button onClick={handleStart}
+          style={{
+            width: "100%", height: 50, borderRadius: 14,
+            background: "linear-gradient(135deg, var(--gold), var(--ember))", color: "var(--night)",
+            fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer",
+            boxShadow: "0 8px 24px -8px rgba(242,182,71,0.5)",
+          }}>
           Start free 7-day trial
         </button>
         <button onClick={onClose} style={{
           width: "100%", marginTop: 10, padding: 10, background: "none", border: "none",
-          color: "var(--color-text-muted)", fontSize: 13, cursor: "pointer", fontFamily: "'Outfit', system-ui",
+          color: "rgba(251,238,224,0.6)", fontSize: 13, cursor: "pointer", fontFamily: "'Inter', sans-serif",
         }}>Maybe later</button>
       </div>
     </div>

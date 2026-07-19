@@ -510,6 +510,63 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          brand: string | null
+          category: string
+          contents: string[] | null
+          created_at: string
+          description: string
+          emoji: string
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          sort_order: number
+          stripe_price_id: string
+          tag: string | null
+          unit: string | null
+          updated_at: string
+          use_case: string | null
+        }
+        Insert: {
+          brand?: string | null
+          category: string
+          contents?: string[] | null
+          created_at?: string
+          description?: string
+          emoji?: string
+          id: string
+          is_active?: boolean
+          name: string
+          price: number
+          sort_order?: number
+          stripe_price_id?: string
+          tag?: string | null
+          unit?: string | null
+          updated_at?: string
+          use_case?: string | null
+        }
+        Update: {
+          brand?: string | null
+          category?: string
+          contents?: string[] | null
+          created_at?: string
+          description?: string
+          emoji?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          sort_order?: number
+          stripe_price_id?: string
+          tag?: string | null
+          unit?: string | null
+          updated_at?: string
+          use_case?: string | null
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           body: string
@@ -795,6 +852,54 @@ export type Database = {
           stripe_subscription_id?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          admin_reply: string | null
+          body: string
+          category: string
+          created_at: string
+          email: string | null
+          id: string
+          priority: string
+          replied_at: string | null
+          replied_by: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_reply?: string | null
+          body: string
+          category?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          priority?: string
+          replied_at?: string | null
+          replied_by?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_reply?: string | null
+          body?: string
+          category?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          priority?: string
+          replied_at?: string | null
+          replied_by?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

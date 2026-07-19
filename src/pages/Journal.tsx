@@ -4,13 +4,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { toast } from "sonner";
+import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
+import { Moon, Smile, Sparkles, Activity, CloudRain, Meh, BookOpen, type LucideIcon } from "lucide-react";
 
-const MOODS = [
-  { key: "tired", label: "TIRED", emoji: "😴" },
-  { key: "good", label: "GOOD", emoji: "😊" },
-  { key: "glowing", label: "GLOWING", emoji: "🥰" },
-  { key: "anxious", label: "ANXIOUS", emoji: "😰" },
-  { key: "unwell", label: "UNWELL", emoji: "😣" },
+const MOODS: { key: string; label: string; icon: LucideIcon }[] = [
+  { key: "tired", label: "TIRED", icon: Moon },
+  { key: "good", label: "GOOD", icon: Smile },
+  { key: "glowing", label: "GLOWING", icon: Sparkles },
+  { key: "anxious", label: "ANXIOUS", icon: Activity },
+  { key: "unwell", label: "UNWELL", icon: CloudRain },
 ];
 
 const SYMPTOMS = [
@@ -18,7 +20,8 @@ const SYMPTOMS = [
   "Headache", "Insomnia", "Mood changes", "Cravings", "Other",
 ];
 
-const moodEmojiFor = (m: string | null | undefined) => MOODS.find(x => x.key === m)?.emoji || "😐";
+const moodIconFor = (m: string | null | undefined): LucideIcon =>
+  MOODS.find(x => x.key === m)?.icon || Meh;
 const moodLabelFor = (m: string | null | undefined) => MOODS.find(x => x.key === m)?.label || (m || "—");
 
 const Journal = () => {
@@ -57,7 +60,7 @@ const Journal = () => {
     });
     setSaving(false);
     if (error) { toast.error("Something went wrong. Try again."); return; }
-    toast.success("✓ Entry saved for today!");
+    toast.success("Entry saved for today");
     setSelectedMood(null); setSelectedSymptoms([]); setNote("");
     fetchEntries();
   };
@@ -90,137 +93,221 @@ const Journal = () => {
   const canSave = !!selectedMood;
 
   return (
-    <div className="flex flex-col" style={{ minHeight: "100vh", background: "transparent" }}>
-      <div className="px-5 pt-5 pb-3 shrink-0" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button onClick={() => navigate("/me")} aria-label="Back"
-          style={{
-            width: 36, height: 36, borderRadius: 12, background: "#FFFFFF",
-            border: "1px solid #F0E4DA", color: "#E8601A", fontSize: 22, lineHeight: 1,
-            display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-            fontWeight: 700,
-          }}>‹</button>
-        <div>
-          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, fontWeight: 700, color: "white" }}>Journal</h1>
-          <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.7)", fontFamily: "'Outfit', system-ui" }}>Track how you feel each day</p>
-        </div>
-      </div>
+    <SceneBackground scene="journey">
+      <GhHeader
+        brand="Journal"
+        tag="mood · symptoms · notes"
+        brandSize={20}
+        weekPill={currentWeek ? `wk ${currentWeek}` : undefined}
+      />
 
-      <div className="px-4 pb-28">
+      <div style={{ padding: "12px 18px 110px" }}>
         {/* Today's entry form */}
-        <div className="rounded-[18px] p-5 mb-5" style={{ background: "#FFFFFF", border: "1px solid #F0E4DA", boxShadow: "0 2px 10px rgba(232,96,26,0.08)" }}>
-          <p style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 700, color: "#1A0E06", marginBottom: 14 }}>How are you feeling today?</p>
+        <GlassCard>
+          <div className="gh-section-label">how are you today</div>
 
+          {/* Mood picker */}
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
             {MOODS.map(mood => {
               const selected = selectedMood === mood.key;
+              const Icon = mood.icon;
               return (
-                <button key={mood.key} onClick={() => setSelectedMood(mood.key)}
+                <button
+                  key={mood.key}
+                  onClick={() => setSelectedMood(mood.key)}
+                  className="gh-tile belly-btn-press"
+                  aria-pressed={selected}
                   style={{
-                    flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
-                    padding: "10px 4px",
-                    background: selected ? "#FDE8D8" : "#FFFFFF",
-                    border: `${selected ? 2 : 1}px solid ${selected ? "#E8601A" : "#E8601A"}`,
-                    borderRadius: 14, cursor: "pointer",
-                    transform: selected ? "scale(1.05)" : "scale(1)",
+                    flex: 1, minWidth: 0,
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                    padding: "12px 2px 10px",
+                    background: selected ? "rgba(242,182,71,0.18)" : "rgba(255,255,255,0.06)",
+                    border: `1px solid ${selected ? "var(--gold)" : "rgba(255,255,255,0.18)"}`,
                     transition: "all 160ms ease",
-                  }}>
-                  <span style={{ fontSize: 22 }}>{mood.emoji}</span>
-                  <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 8, fontWeight: 700, color: selected ? "#A84818" : "#333333", textTransform: "uppercase", letterSpacing: 1, marginTop: 5 }}>{mood.label}</span>
+                  }}
+                >
+                  <Icon
+                    size={20}
+                    strokeWidth={1.8}
+                    style={{ stroke: selected ? "var(--gold)" : "rgba(251,238,224,0.7)" }}
+                  />
+                  <span
+                    className="font-gh-mono"
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 8, letterSpacing: "0.08em",
+                      color: selected ? "var(--gold)" : "rgba(251,238,224,0.7)",
+                    }}
+                  >
+                    {mood.label}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, color: "#9A7B66", fontWeight: 700 }}>SYMPTOMS</p>
+          {/* Symptoms */}
+          <div className="gh-section-label">symptoms</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
             {SYMPTOMS.map(s => {
               const on = selectedSymptoms.includes(s);
               return (
-                <button key={s} onClick={() => toggleSymptom(s)}
-                  style={{
-                    borderRadius: 20, padding: "6px 14px", fontSize: 12, fontWeight: 600,
-                    fontFamily: "'Outfit', system-ui",
-                    background: on ? "#E8601A" : "#FFFFFF",
-                    color: on ? "#FFFFFF" : "#333333",
-                    border: `1px solid ${on ? "#E8601A" : "#E0D5CC"}`,
-                    cursor: "pointer",
-                  }}>
+                <button
+                  key={s}
+                  onClick={() => toggleSymptom(s)}
+                  className={`gh-pill belly-btn-press${on ? " gh-pill-filled" : ""}`}
+                  aria-pressed={on}
+                  style={{ fontSize: 12, padding: "6px 13px" }}
+                >
                   {s}
                 </button>
               );
             })}
           </div>
 
-          <textarea value={note} onChange={e => setNote(e.target.value)}
+          {/* Note */}
+          <textarea
+            value={note}
+            onChange={e => setNote(e.target.value)}
             placeholder="Anything else on your mind today?"
             rows={3}
-            className="w-full text-sm resize-none"
             style={{
-              background: "#fff", border: "1px solid #E0D5CC", borderRadius: 12,
-              color: "#3A1A00", padding: 12, outline: "none",
-              fontFamily: "'Outfit', system-ui", fontStyle: "italic",
-            }} />
+              width: "100%", minHeight: 80, resize: "none",
+              background: "rgba(0,0,0,0.18)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: 14, padding: 12, outline: "none",
+              color: "var(--cream)",
+              fontFamily: "'Inter', sans-serif", fontSize: 13,
+            }}
+          />
 
-          <button onClick={saveEntry} disabled={!canSave || saving}
+          {/* Save CTA */}
+          <button
+            onClick={saveEntry}
+            disabled={!canSave || saving}
+            className="belly-btn-press"
             style={{
-              marginTop: 16, width: "100%",
-              background: "#E8601A", color: "#FFFFFF",
-              fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16,
-              borderRadius: 14, padding: 14, border: "none",
-              opacity: (!canSave || saving) ? 0.4 : 1,
+              marginTop: 14, width: "100%",
+              background: "linear-gradient(135deg, var(--gold), var(--ember))",
+              color: "var(--night)",
+              fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 14,
+              borderRadius: 14, padding: "13px 14px", border: "none",
+              opacity: (!canSave || saving) ? 0.5 : 1,
               cursor: (!canSave || saving) ? "default" : "pointer",
-              boxShadow: "0 4px 12px rgba(232,96,26,0.25)",
-            }}>
-            {saving ? "Saving..." : "Save today's entry ✓"}
+              boxShadow: "0 6px 18px -6px rgba(232,98,46,0.55)",
+            }}
+          >
+            {saving ? "Saving..." : "Save today's entry"}
           </button>
-        </div>
+        </GlassCard>
 
         {/* History */}
+        <div className="gh-section-label" style={{ marginTop: 6 }}>your entries</div>
+
         {entries.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
-              <span className="text-2xl">📔</span>
+          <div className="gh-glass-subtle" style={{ padding: "28px 16px", textAlign: "center" }}>
+            <div
+              style={{
+                width: 48, height: 48, borderRadius: "50%", margin: "0 auto 12px",
+                background: "rgba(242,182,71,0.14)", border: "1px solid rgba(242,182,71,0.35)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <BookOpen size={20} strokeWidth={1.8} style={{ stroke: "var(--gold)" }} />
             </div>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, fontWeight: 600, color: "white", marginBottom: 4 }}>Your entries will appear here</p>
-            <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>Save your first check-in above</p>
+            <p className="font-gh-serif" style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 15, color: "var(--cream)", marginBottom: 4 }}>
+              Your entries will appear here
+            </p>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: "rgba(251,238,224,0.55)" }}>
+              Save your first check-in above
+            </p>
           </div>
         ) : (
           weekKeys.map(weekKey => (
-            <div key={weekKey} className="mb-5">
-              <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8, color: "rgba(255,255,255,0.55)", fontWeight: 700 }}>{weekKey}</p>
-              <div className="space-y-2">
-                {grouped[weekKey].map((entry: any) => (
-                  <div key={entry.id} className="rounded-[14px] p-3" style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)" }}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg">{moodEmojiFor(entry.mood)}</span>
-                      <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 700, color: "white", textTransform: "capitalize" }}>{moodLabelFor(entry.mood).toLowerCase()}</span>
-                      <span className="text-[10px] ml-auto" style={{ color: "rgba(255,255,255,0.6)" }}>{new Date(entry.date).toLocaleDateString()}</span>
-                    </div>
-                    {entry.symptoms?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {entry.symptoms.map((s: string) => (
-                          <span key={s} className="text-[9px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.18)", color: "white" }}>{s}</span>
-                        ))}
+            <div key={weekKey} style={{ marginBottom: 18 }}>
+              <p
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
+                  letterSpacing: "0.14em", textTransform: "uppercase",
+                  color: "rgba(251,238,224,0.55)", marginBottom: 8,
+                }}
+              >
+                {weekKey}
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {grouped[weekKey].map((entry: any) => {
+                  const MoodIcon = moodIconFor(entry.mood);
+                  return (
+                    <div key={entry.id} className="gh-glass-subtle" style={{ padding: "13px 14px" }}>
+                      <div
+                        style={{
+                          fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+                          color: "rgba(251,238,224,0.55)", marginBottom: 7,
+                        }}
+                      >
+                        {new Date(entry.date).toLocaleDateString()}
                       </div>
-                    )}
-                    {entry.note && (
-                      <p className="text-[12px] italic mb-2" style={{ color: "rgba(255,255,255,0.75)", fontFamily: "'Outfit', system-ui" }}>{entry.note}</p>
-                    )}
-                    <button onClick={() => askDoulaAbout(entry)}
-                      style={{
-                        fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 500,
-                        color: "rgba(255,255,255,0.7)", background: "none", border: "none", padding: 0, cursor: "pointer",
-                      }}>
-                      Ask doula about this →
-                    </button>
-                  </div>
-                ))}
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: entry.symptoms?.length || entry.note ? 8 : 6 }}>
+                        <MoodIcon size={16} strokeWidth={1.8} style={{ stroke: "var(--gold)", flexShrink: 0 }} />
+                        <span
+                          style={{
+                            fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600,
+                            color: "var(--cream)", textTransform: "capitalize",
+                          }}
+                        >
+                          {moodLabelFor(entry.mood).toLowerCase()}
+                        </span>
+                      </div>
+                      {entry.symptoms?.length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: entry.note ? 8 : 6 }}>
+                          {entry.symptoms.map((s: string) => (
+                            <span
+                              key={s}
+                              style={{
+                                fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 500,
+                                padding: "3px 9px", borderRadius: 20,
+                                background: "rgba(255,255,255,0.08)",
+                                border: "1px solid rgba(255,255,255,0.15)",
+                                color: "rgba(251,238,224,0.8)",
+                              }}
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {entry.note && (
+                        <p
+                          className="font-gh-serif"
+                          style={{
+                            fontFamily: "'Fraunces', Georgia, serif", fontStyle: "italic",
+                            fontSize: 13, color: "var(--cream)", opacity: 0.9,
+                            marginBottom: 8, lineHeight: 1.45,
+                          }}
+                        >
+                          {entry.note}
+                        </p>
+                      )}
+                      <button
+                        onClick={() => askDoulaAbout(entry)}
+                        className="belly-btn-press"
+                        style={{
+                          fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 600,
+                          color: "var(--gold)", background: "none", border: "none",
+                          padding: 0, cursor: "pointer",
+                        }}
+                      >
+                        Ask doula about this →
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))
         )}
       </div>
-    </div>
+    </SceneBackground>
   );
 };
 

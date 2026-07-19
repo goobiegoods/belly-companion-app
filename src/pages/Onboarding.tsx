@@ -4,44 +4,81 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navigate, useNavigate } from "react-router-dom";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
 import { toast } from "sonner";
+import { SceneBackground, GlassCard, BellaOrb } from "@/components/golden";
 
-// page chrome — warm cream + radial terracotta wash on top + sage wave at bottom
-const PageBg = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden"
-    style={{ background: "var(--color-bg-base)" }}>
-    <div aria-hidden style={{
-      position: "absolute", inset: 0, pointerEvents: "none",
-      background: "radial-gradient(ellipse 90% 45% at 50% 0%, rgba(201,98,47,0.06), transparent 70%)",
-    }} />
-    <svg aria-hidden viewBox="0 0 430 120" preserveAspectRatio="none"
-      style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: 110, opacity: 0.35 }}>
-      <path d="M0,60 C90,20 180,100 270,60 C360,20 430,80 430,80 L430,120 L0,120 Z"
-        fill="var(--color-sage-soft)" />
-      <path d="M0,80 C100,40 200,110 300,75 C400,40 430,90 430,90 L430,120 L0,120 Z"
-        fill="none" stroke="var(--color-sage)" strokeOpacity="0.35" strokeWidth="1.5" />
-    </svg>
-    <div className="w-full max-w-sm relative z-10 fade-in-up">{children}</div>
-  </div>
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  background: "rgba(0,0,0,0.18)",
+  border: "1px solid rgba(255,255,255,0.15)",
+  borderRadius: 14,
+  padding: "13px 14px",
+  color: "var(--cream)",
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 14,
+  outline: "none",
+  colorScheme: "dark",
+};
+
+const ArrowRight = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M5 12h14" />
+    <path d="M13 6l6 6-6 6" />
+  </svg>
+);
+
+// Full-window Golden Hour chrome: scene gradient + centered 430px column.
+const PageBg = ({ step, children }: { step: number; children: React.ReactNode }) => (
+  <SceneBackground scene="today">
+    <style>{`
+      .gh-auth-input::placeholder { color: rgba(251,238,224,0.45); }
+      .gh-auth-input:focus { border-color: rgba(242,182,71,0.6); box-shadow: 0 0 0 3px rgba(242,182,71,0.15); }
+    `}</style>
+    <div
+      style={{
+        minHeight: "100dvh",
+        maxWidth: 430,
+        margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        padding: "48px 22px",
+      }}
+    >
+      {/* Step progress */}
+      <div className="gh-progress-track" style={{ width: 120, margin: "0 auto 26px" }}>
+        <div className="gh-progress-fill" style={{ width: `${(step / 3) * 100}%`, transition: "width 300ms ease" }} />
+      </div>
+      {children}
+    </div>
+  </SceneBackground>
 );
 
 const PrimaryCTA = ({ onClick, disabled, children }: { onClick: () => void; disabled?: boolean; children: React.ReactNode }) => (
   <button
     onClick={onClick}
     disabled={disabled}
-    className="w-full belly-btn-press group"
     style={{
-      height: 52, borderRadius: 999,
-      background: "var(--color-accent-primary)", color: "#fff",
-      fontFamily: "'Outfit', system-ui", fontWeight: 600, fontSize: 15,
-      border: "none", boxShadow: "var(--shadow-warm)",
-      opacity: disabled ? 0.5 : 1, cursor: disabled ? "not-allowed" : "pointer",
-      display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+      width: "100%",
+      height: 50,
+      borderRadius: 14,
+      border: "none",
+      background: "linear-gradient(135deg, var(--gold), var(--ember))",
+      color: "var(--night)",
+      fontFamily: "'Inter', sans-serif",
+      fontWeight: 700,
+      fontSize: 15,
+      boxShadow: "0 8px 20px -8px rgba(232,98,46,0.6)",
+      opacity: disabled ? 0.5 : 1,
+      cursor: disabled ? "not-allowed" : "pointer",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
     }}
   >
     {children}
   </button>
 );
-
 
 const Onboarding = () => {
   const { user, profile, loading, refreshProfile } = useAuth();
@@ -82,116 +119,178 @@ const Onboarding = () => {
   const currentWeek = dueDate ? getCurrentWeek(dueDate) : null;
   const weekData = currentWeek ? getWeekData(currentWeek) : null;
 
-  
-
-
   return (
-    <PageBg>
+    <PageBg step={step}>
       {step === 1 && (
-        <div className="text-center">
-          <div style={{ position: "relative", width: 110, height: 110, margin: "0 auto 18px" }}>
-            <span aria-hidden style={{
-              position: "absolute", inset: -10, borderRadius: "50%",
-              background: "var(--color-sage)", opacity: 0.12,
-            }} />
-            <div style={{
-              position: "relative", width: 110, height: 110, borderRadius: "50%",
-              background: "var(--color-accent-primary)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "var(--shadow-warm)",
-            }}>
-              <span style={{ fontSize: 44 }}>🤰</span>
-            </div>
-          </div>
+        <div style={{ textAlign: "center" }}>
+          <BellaOrb size={72} style={{ margin: "0 auto 20px" }} />
 
-          <span className="pill-base pill-sage-solid" style={{ marginBottom: 14 }}>Week 24 · second trimester</span>
+          <p className="gh-brand-tag" style={{ textAlign: "center", marginBottom: 12 }}>
+            Week 24 &middot; second trimester
+          </p>
 
-          <h1 className="font-serif-display" style={{
-            fontSize: 30, fontWeight: 700, color: "var(--color-text-primary)",
-            letterSpacing: -0.5, marginTop: 6, marginBottom: 8,
-          }}>Made for every mama</h1>
+          <h1
+            className="gh-brand"
+            style={{ fontSize: 30, letterSpacing: -0.5, marginBottom: 10 }}
+          >
+            Made for every mama
+          </h1>
 
-          <p style={{
-            fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 14,
-            color: "var(--color-accent-primary)", marginBottom: 14,
-          }}>Every heartbeat is a hello 🤍</p>
+          <p
+            style={{
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontStyle: "italic",
+              fontSize: 14,
+              color: "var(--gold)",
+              marginBottom: 14,
+            }}
+          >
+            Every heartbeat is a hello
+          </p>
 
-          <p style={{
-            fontFamily: "'Outfit', system-ui", fontSize: 14, lineHeight: 1.6,
-            color: "var(--color-text-secondary)", marginBottom: 18, padding: "0 6px",
-          }}>
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: "rgba(251,238,224,0.7)",
+              marginBottom: 18,
+              padding: "0 6px",
+            }}
+          >
             Track your journey, ask questions, and connect with mamas just like you — all in one warm place.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-2 mb-7">
-            <span className="pill-base pill-sage">Viability milestone</span>
-            <span className="pill-base pill-sage">Hearing begins</span>
-            <span className="pill-base pill-sage">Lungs forming</span>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: 28 }}>
+            <span className="gh-pill">Viability milestone</span>
+            <span className="gh-pill">Hearing begins</span>
+            <span className="gh-pill">Lungs forming</span>
           </div>
 
           <PrimaryCTA onClick={() => setStep(2)}>
-            Get started <span style={{ transition: "transform 200ms" }} className="group-active:translate-x-1">→</span>
+            Get started <ArrowRight />
           </PrimaryCTA>
         </div>
       )}
 
       {step === 2 && (
         <div>
-          <h2 className="font-serif-display" style={{ fontSize: 26, fontWeight: 700, color: "var(--color-text-primary)", textAlign: "center", marginBottom: 4 }}>Tell us about you</h2>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "var(--color-text-muted)", textAlign: "center", marginBottom: 22 }}>We'll personalise your experience</p>
+          <h2
+            className="gh-brand"
+            style={{ fontSize: 26, letterSpacing: -0.5, textAlign: "center", marginBottom: 6 }}
+          >
+            Tell us about you
+          </h2>
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 12,
+              color: "rgba(251,238,224,0.55)",
+              textAlign: "center",
+              marginBottom: 22,
+            }}
+          >
+            We'll personalise your experience
+          </p>
 
-          <div className="space-y-4">
-            {[
-              { label: "Your name", el: <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="First name" className="w-full h-12 px-4 text-sm belly-input-focus" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 14, color: "var(--color-text-primary)" }} /> },
-              { label: "Due date", el: <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full h-12 px-4 text-sm belly-input-focus" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 14, color: "var(--color-text-primary)" }} /> },
-              { label: "Pregnancy number", el: (
-                <select value={pregnancyNumber} onChange={e => setPregnancyNumber(Number(e.target.value))} className="w-full h-12 px-4 text-sm belly-input-focus" style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 14, color: "var(--color-text-primary)" }}>
-                  <option value={1}>1st pregnancy</option>
-                  <option value={2}>2nd pregnancy</option>
-                  <option value={3}>3rd or more</option>
-                </select>
-              ) },
-            ].map(({ label, el }) => (
-              <div key={label}>
-                <label className="section-label" style={{ marginBottom: 6, display: "block" }}>{label}</label>
-                {el}
+          <GlassCard style={{ padding: "20px 18px", marginBottom: 0 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {[
+                { label: "Your name", el: <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="First name" className="gh-auth-input" style={inputStyle} /> },
+                { label: "Due date", el: <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="gh-auth-input" style={inputStyle} /> },
+                { label: "Pregnancy number", el: (
+                  <select value={pregnancyNumber} onChange={e => setPregnancyNumber(Number(e.target.value))} className="gh-auth-input" style={inputStyle}>
+                    <option value={1}>1st pregnancy</option>
+                    <option value={2}>2nd pregnancy</option>
+                    <option value={3}>3rd or more</option>
+                  </select>
+                ) },
+              ].map(({ label, el }) => (
+                <div key={label}>
+                  <label className="gh-section-label" style={{ marginBottom: 6, display: "block" }}>{label}</label>
+                  {el}
+                </div>
+              ))}
+
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 0" }}>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: "var(--cream)" }}>
+                  Working with a midwife or OB?
+                </span>
+                <button
+                  onClick={() => setHasProvider(!hasProvider)}
+                  aria-pressed={hasProvider}
+                  style={{
+                    position: "relative",
+                    width: 48,
+                    height: 28,
+                    borderRadius: 999,
+                    background: hasProvider ? "var(--teal)" : "rgba(255,255,255,0.18)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    transition: "background 200ms",
+                    cursor: "pointer",
+                  }}
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: 2,
+                      left: hasProvider ? 22 : 2,
+                      width: 22,
+                      height: 22,
+                      borderRadius: "50%",
+                      background: "var(--cream)",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                      transition: "left 200ms",
+                    }}
+                  />
+                </button>
               </div>
-            ))}
 
-            <div className="flex items-center justify-between py-2">
-              <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, color: "var(--color-text-primary)" }}>Working with a midwife or OB?</span>
-              <button onClick={() => setHasProvider(!hasProvider)} className="relative" style={{ width: 48, height: 28, borderRadius: 999, background: hasProvider ? "var(--color-sage)" : "var(--color-border-default)", border: "none", transition: "background 200ms" }}>
-                <span style={{ position: "absolute", top: 3, left: hasProvider ? 23 : 3, width: 22, height: 22, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.15)", transition: "left 200ms" }} />
-              </button>
+              <PrimaryCTA onClick={handleSaveProfile} disabled={!firstName || !dueDate || saving}>
+                {saving ? "Saving…" : <>Continue <ArrowRight /></>}
+              </PrimaryCTA>
             </div>
-
-            <PrimaryCTA onClick={handleSaveProfile} disabled={!firstName || !dueDate || saving}>
-              {saving ? "Saving…" : <>Continue →</>}
-            </PrimaryCTA>
-          </div>
+          </GlassCard>
         </div>
       )}
 
       {step === 3 && currentWeek && weekData && (
-        <div className="text-center">
-          <div style={{ position: "relative", width: 110, height: 110, margin: "0 auto 18px" }}>
-            <span aria-hidden style={{ position: "absolute", inset: -10, borderRadius: "50%", background: "var(--color-sage)", opacity: 0.12 }} />
-            <div style={{ position: "relative", width: 110, height: 110, borderRadius: "50%", background: "var(--color-accent-primary)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-warm)" }}>
-              <span style={{ fontSize: 44 }}>🌸</span>
-            </div>
-          </div>
+        <div style={{ textAlign: "center" }}>
+          <BellaOrb size={72} style={{ margin: "0 auto 20px" }} />
 
-          <span className="pill-base pill-sage-solid" style={{ marginBottom: 14 }}>Week {currentWeek}</span>
-
-          <h1 className="font-serif-display" style={{ fontSize: 28, fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: -0.5, marginBottom: 6 }}>Your journey starts now</h1>
-          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 14, color: "var(--color-accent-primary)", marginBottom: 18 }}>
-            Every heartbeat is a hello 🤍
-          </p>
-          <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 14, color: "var(--color-text-secondary)", marginBottom: 22 }}>
-            Your baby is about the size of a <strong style={{ color: "var(--color-text-primary)" }}>{weekData.babySize.toLowerCase()}</strong>
+          <p className="gh-brand-tag" style={{ textAlign: "center", marginBottom: 12 }}>
+            Week {currentWeek}
           </p>
 
-          <PrimaryCTA onClick={handleComplete}>Take me to my home →</PrimaryCTA>
+          <h1
+            className="gh-brand"
+            style={{ fontSize: 28, letterSpacing: -0.5, marginBottom: 8 }}
+          >
+            Your journey starts now
+          </h1>
+          <p
+            style={{
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontStyle: "italic",
+              fontSize: 14,
+              color: "var(--gold)",
+              marginBottom: 18,
+            }}
+          >
+            Every heartbeat is a hello
+          </p>
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 14,
+              color: "rgba(251,238,224,0.7)",
+              marginBottom: 24,
+            }}
+          >
+            Your baby is about the size of a <strong style={{ color: "var(--gold)" }}>{weekData.babySize.toLowerCase()}</strong>
+          </p>
+
+          <PrimaryCTA onClick={handleComplete}>Take me to my home <ArrowRight /></PrimaryCTA>
         </div>
       )}
     </PageBg>

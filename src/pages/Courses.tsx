@@ -3,9 +3,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { coursesData, Course } from "@/data/coursesData";
 import { getLessonContent, LessonContent, getLessonDescription } from "@/data/lessonContent";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, ChevronRight, Check, ArrowLeft, Save } from "lucide-react";
+import { Lock, ChevronRight, Check, ArrowLeft, Save, BookOpen, Leaf, Baby, GraduationCap, Lightbulb, Sparkles, CheckCircle2, Play } from "lucide-react";
 import { toast } from "sonner";
 import { PremiumModal } from "@/components/PremiumModal";
+import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
 
 const FILTER_TABS = ["All", "Trimester", "Wellness", "Birth prep"];
 const CATEGORY_MAP: Record<string, string> = {
@@ -13,6 +14,18 @@ const CATEGORY_MAP: Record<string, string> = {
   Wellness: "Natural wellness",
   "Birth prep": "Birth preparation",
 };
+
+const CREAM_70 = "rgba(251,238,224,0.7)";
+const CREAM_55 = "rgba(251,238,224,0.55)";
+const CTA_GRADIENT = "linear-gradient(135deg, var(--gold), var(--ember))";
+
+function CategoryIcon({ category, size = 22 }: { category: string; size?: number }) {
+  const props = { size, strokeWidth: 1.8, style: { color: "var(--gold)" } };
+  if (category === "Your trimester") return <BookOpen {...props} />;
+  if (category === "Natural wellness") return <Leaf {...props} />;
+  if (category === "Birth preparation") return <Baby {...props} />;
+  return <GraduationCap {...props} />;
+}
 
 const Courses = () => {
   const { user, profile } = useAuth();
@@ -78,18 +91,19 @@ const Courses = () => {
   if (showCompletion && selectedCourse) {
     const course = coursesData.find(c => c.id === selectedCourse)!;
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "var(--color-bg-base)" }}>
-        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: "var(--color-accent-light)", boxShadow: "0 4px 20px rgba(244,123,32,0.18)" }}>
-          <Check size={36} style={{ color: "var(--color-accent-primary)" }} />
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 page-enter gh-scene-ask" style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui" }}>
+        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: "rgba(242,182,71,0.18)", border: "1px solid rgba(242,182,71,0.45)", boxShadow: "0 0 24px rgba(242,182,71,0.35)" }}>
+          <Check size={36} strokeWidth={1.8} style={{ color: "var(--gold)" }} />
         </div>
-        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 28, fontWeight: 800, color: "var(--color-accent-dark)", marginBottom: 8 }}>Course complete! 🌸</h1>
-        <p style={{ fontFamily: "'Fraunces', serif", fontSize: 15, color: "var(--color-text-primary)", marginBottom: 4 }}>{course.title}</p>
-        <p style={{ fontSize: 13, color: "var(--color-text-muted)", marginBottom: 8 }}>{course.lessonCount} lessons · {course.duration} min</p>
-        <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, fontStyle: "italic", color: "var(--color-text-secondary)", textAlign: "center", marginBottom: 32 }}>
-          You've taken a beautiful step on your pregnancy journey. Be proud of yourself, mama. 🌸
+        <h1 className="font-gh-serif" style={{ fontSize: 28, fontWeight: 600, color: "var(--cream)", marginBottom: 8, textAlign: "center" }}>Course complete</h1>
+        <p className="font-gh-serif" style={{ fontSize: 15, color: CREAM_70, marginBottom: 4, textAlign: "center" }}>{course.title}</p>
+        <p className="font-gh-mono" style={{ fontSize: 12, color: CREAM_55, marginBottom: 10 }}>{course.lessonCount} lessons · {course.duration} min</p>
+        <p className="font-gh-serif" style={{ fontSize: 15, fontStyle: "italic", color: CREAM_70, textAlign: "center", marginBottom: 32, lineHeight: 1.55 }}>
+          You've taken a beautiful step on your pregnancy journey. Be proud of yourself, mama.
         </p>
         <button onClick={() => { setShowCompletion(false); setSelectedCourse(null); setSelectedLesson(null); }}
-          className="w-full max-w-xs h-12 rounded-[14px] text-[14px] font-bold mb-3 belly-btn-primary" style={{ background: "var(--color-accent-primary)", color: "#fff" }}>
+          className="w-full max-w-xs h-12 text-[14px] font-bold mb-3 belly-btn-press"
+          style={{ borderRadius: 14, background: CTA_GRADIENT, color: "var(--night)", border: "none" }}>
           Back to courses
         </button>
       </div>
@@ -107,115 +121,131 @@ const Courses = () => {
     const handleComplete = async () => {
       await completeLesson(lessonId);
       if (isLast) { await completeCourse(course.id, course.lessonCount); setShowCompletion(true); }
-      else { toast.success("Lesson complete! ✓"); setSelectedLesson(selectedLesson + 1); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }
+      else { toast.success("Lesson complete"); setSelectedLesson(selectedLesson + 1); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }
     };
 
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: "var(--color-bg-base)" }}>
-        <div className="flex items-center justify-between px-4 py-3" style={{ background: "var(--color-bg-card)", borderBottom: "1px solid var(--color-border-default)" }}>
+      <div className="min-h-screen page-enter gh-scene-ask" style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui" }}>
+        <div className="flex items-center justify-between px-4 py-3" style={{ background: "rgba(10,6,16,0.55)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
           <button onClick={() => { setSelectedLesson(null); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
-            style={{ color: "var(--color-accent-primary)", fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: 13 }}>← Back</button>
-          <p className="truncate max-w-[180px]" style={{ color: "var(--color-text-primary)", fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: 16 }}>{course.title}</p>
-          <span style={{ background: "var(--color-accent-light)", border: "1px solid var(--color-border-default)", borderRadius: 20, padding: "4px 10px", color: "var(--color-accent-dark)", fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: 11 }}>
-            Lesson {selectedLesson + 1} of {course.lessonCount}
+            className="flex items-center gap-1 belly-btn-press" style={{ color: "rgba(251,238,224,0.85)", fontWeight: 500, fontSize: 13, background: "transparent", border: "none" }}>
+            <ArrowLeft size={15} strokeWidth={1.8} />Back
+          </button>
+          <p className="font-gh-serif truncate max-w-[170px]" style={{ fontWeight: 500, fontSize: 14 }}>{course.title}</p>
+          <span className="font-gh-mono" style={{ fontSize: 10, padding: "3px 9px", borderRadius: 999, background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.25)" }}>
+            {selectedLesson + 1}/{course.lessonCount}
           </span>
         </div>
-        <div className="px-5 pt-5 pb-6 relative">
-          <p style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--color-text-muted)", marginBottom: 4 }}>LESSON {selectedLesson + 1}</p>
-          <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 26, fontWeight: 800, color: "var(--color-accent-dark)", marginBottom: 12 }}>{lesson.title}</h1>
-          <span style={{ display: "inline-block", fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, padding: "5px 14px", borderRadius: 20, background: "var(--color-accent-light)", border: "1px solid var(--color-border-default)", color: "var(--color-accent-dark)", marginBottom: 12 }}>{lesson.duration} min read</span>
+        <div className="px-5 pt-5 pb-4">
+          <p className="gh-section-label" style={{ marginBottom: 6 }}>lesson {selectedLesson + 1}</p>
+          <h1 className="font-gh-serif" style={{ fontSize: 24, fontWeight: 500, lineHeight: 1.2, marginBottom: 10 }}>{lesson.title}</h1>
+          <span className="font-gh-mono" style={{ display: "inline-block", fontSize: 11, background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 20, padding: "4px 12px", marginBottom: 12 }}>{lesson.duration} min read</span>
           <div className="flex gap-1.5">
             {Array.from({ length: course.lessonCount }, (_, i) => (
               <div key={i} className="w-2 h-2 rounded-full" style={{
-                background: i < selectedLesson ? "var(--color-accent-primary)" : i === selectedLesson ? "var(--color-accent-dark)" : "transparent",
-                border: i > selectedLesson ? "1.5px solid var(--color-border-strong)" : "none"
+                background: i < selectedLesson ? "var(--ember)" : i === selectedLesson ? "var(--gold)" : "transparent",
+                border: i > selectedLesson ? "1.5px solid rgba(251,238,224,0.35)" : "none",
+                boxShadow: i === selectedLesson ? "0 0 8px rgba(242,182,71,0.7)" : "none",
               }} />
             ))}
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-5 pb-28 space-y-5">
-          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 15, lineHeight: 1.75, fontWeight: 400, color: "var(--color-text-primary)" }}>{lesson.intro}</p>
-          <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 18, padding: "16px 18px" }}>
-            <p style={{ fontSize: 10, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--color-text-muted)", marginBottom: 10 }}>What you'll learn</p>
+        <div className="px-5 py-3 space-y-5" style={{ paddingBottom: 130 }}>
+          <p style={{ fontSize: 15, lineHeight: 1.75 }}>{lesson.intro}</p>
+          <div className="rounded-[14px] p-4 gh-glass-subtle">
+            <p className="gh-section-label">what you'll learn</p>
             <div className="space-y-2">
               {lesson.whatYoullLearn.map((item, i) => (
                 <div key={i} className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--color-accent-primary)" }} />
-                  <p style={{ fontSize: 13, fontFamily: "'Outfit', sans-serif", fontWeight: 400, lineHeight: 1.6, color: "var(--color-text-primary)" }}>{item}</p>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", marginTop: 7, flexShrink: 0, background: "var(--gold)" }} />
+                  <p style={{ fontSize: 14, lineHeight: 1.55 }}>{item}</p>
                 </div>
               ))}
             </div>
           </div>
           {lesson.sections.map((section, i) => (
             <div key={i}>
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "var(--color-accent-dark)", margin: "20px 0 8px" }}>{section.heading}</h2>
-              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 14, lineHeight: 1.7, color: "var(--color-text-primary)", marginBottom: 12 }}>{section.body}</p>
+              <h2 className="font-gh-serif" style={{ fontSize: 20, fontWeight: 500, lineHeight: 1.25, margin: "20px 0 8px" }}>{section.heading}</h2>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: "rgba(251,238,224,0.85)", marginBottom: 12 }}>{section.body}</p>
               {section.tip && (
-                <div style={{ background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 16, padding: "14px 16px" }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 4 }}>💡 Tip:</p>
-                  <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "var(--color-text-secondary)" }}>{section.tip}</p>
+                <div className="rounded-[12px] p-3 gh-glass-subtle">
+                  <p className="flex items-center gap-1.5" style={{ fontWeight: 700, fontSize: 11, marginBottom: 4, color: "var(--gold)" }}>
+                    <Lightbulb size={12} strokeWidth={1.8} />Tip
+                  </p>
+                  <p style={{ fontSize: 13, color: "rgba(251,238,224,0.85)", lineHeight: 1.55 }}>{section.tip}</p>
                 </div>
               )}
             </div>
           ))}
-          <div style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 16, padding: "14px 16px" }}>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 13, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 4 }}>Did you know? 🌸</p>
-            <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "var(--color-text-secondary)" }}>{lesson.didYouKnow}</p>
+          <div className="rounded-[14px] p-4 gh-glass-subtle">
+            <p className="font-gh-serif flex items-center gap-1.5" style={{ fontWeight: 600, fontSize: 14, marginBottom: 6 }}>
+              <Sparkles size={13} strokeWidth={1.8} style={{ color: "var(--gold)" }} />Did you know?
+            </p>
+            <p style={{ fontSize: 13, color: "rgba(251,238,224,0.85)", lineHeight: 1.6 }}>{lesson.didYouKnow}</p>
           </div>
-          <div style={{ background: "var(--color-bg-card-subtle)", border: "1px solid var(--color-border-default)", borderRadius: 16, padding: "14px 16px" }}>
-            <p style={{ fontSize: 11, fontFamily: "'Outfit', sans-serif", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--color-text-muted)", marginBottom: 8 }}>Reflect 💭</p>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, fontStyle: "italic", color: "var(--color-text-primary)", marginBottom: 12 }}>{lesson.reflection}</p>
+          <div className="rounded-[14px] p-4 gh-glass-subtle">
+            <p className="gh-section-label">reflect</p>
+            <p className="font-gh-serif" style={{ fontStyle: "italic", fontSize: 14, marginBottom: 12, lineHeight: 1.5 }}>{lesson.reflection}</p>
             <textarea value={reflectionText} onChange={e => { setReflectionText(e.target.value); setReflectionSaved(false); }}
-              placeholder="Write your thoughts..." className="w-full resize-none min-h-[80px]"
-              style={{ background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 10, padding: 12, fontSize: 13, fontFamily: "'Outfit', sans-serif", fontStyle: "italic", color: "var(--color-text-primary)" }} />
+              placeholder="Write your thoughts..." className="w-full rounded-[10px] p-3 resize-none min-h-[80px] outline-none"
+              style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--cream)", fontSize: 13, fontStyle: "italic", lineHeight: 1.5 }} />
             <button disabled={!reflectionText.trim() || reflectionSaved}
               onClick={async () => { await saveReflection(lessonId, reflectionText); setReflectionSaved(true); }}
-              className="mt-2 disabled:opacity-50" style={{ borderRadius: 12, padding: "10px 20px", fontSize: 13, fontWeight: 700, background: "var(--color-accent-primary)", color: "#fff", border: "none" }}>
-              Save my reflection 💭
+              className="mt-2 belly-btn-press"
+              style={{ borderRadius: 12, padding: "10px 18px", fontSize: 13, fontWeight: 700, background: CTA_GRADIENT, color: "var(--night)", border: "none", opacity: !reflectionText.trim() || reflectionSaved ? 0.5 : 1 }}>
+              <Save size={14} strokeWidth={1.8} style={{ display: "inline", marginRight: 5, verticalAlign: "-2px" }} />Save my reflection
             </button>
-            {reflectionSaved && <p style={{ fontSize: 12, color: "var(--color-success)", marginTop: 6 }}>Saved 🌸</p>}
+            {reflectionSaved && <p style={{ fontSize: 12, color: "#7fe0d3", marginTop: 6 }}>Saved</p>}
           </div>
           <div>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 15, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 12 }}>Quick check ✓</p>
-            <p style={{ fontSize: 13, fontFamily: "'Outfit', sans-serif", color: "var(--color-text-primary)", marginBottom: 12 }}>{lesson.quiz.question}</p>
+            <p className="font-gh-serif flex items-center gap-1.5" style={{ fontWeight: 600, fontSize: 16, marginBottom: 10 }}>
+              <CheckCircle2 size={15} strokeWidth={1.8} style={{ color: "var(--teal)" }} />Quick check
+            </p>
+            <p style={{ fontSize: 14, marginBottom: 12, lineHeight: 1.5 }}>{lesson.quiz.question}</p>
             <div className="space-y-2">
               {lesson.quiz.options.map((opt, i) => {
                 const isSelected = quizAnswer === i;
                 const isCorrect = i === lesson.quiz.correctIndex;
-                let borderColor = "var(--color-border-default)", bg = "var(--color-bg-card)", textColor = "var(--color-text-primary)";
-                if (quizSubmitted && isSelected && isCorrect) { borderColor = "rgba(45,158,107,0.45)"; bg = "rgba(45,158,107,0.12)"; textColor = "var(--color-success)"; }
-                if (quizSubmitted && isSelected && !isCorrect) { borderColor = "rgba(217,79,61,0.45)"; bg = "rgba(217,79,61,0.10)"; textColor = "var(--color-danger)"; }
-                if (quizSubmitted && !isSelected && isCorrect) { borderColor = "rgba(45,158,107,0.45)"; bg = "rgba(45,158,107,0.12)"; textColor = "var(--color-success)"; }
+                let borderColor = "rgba(255,255,255,0.25)", bg = "rgba(255,255,255,0.12)";
+                if (quizSubmitted && isSelected && isCorrect) { borderColor = "rgba(127,224,211,0.7)"; bg = "rgba(44,156,143,0.3)"; }
+                if (quizSubmitted && isSelected && !isCorrect) { borderColor = "rgba(247,159,192,0.7)"; bg = "rgba(181,56,107,0.3)"; }
+                if (quizSubmitted && !isSelected && isCorrect) { borderColor = "rgba(127,224,211,0.7)"; bg = "rgba(44,156,143,0.2)"; }
                 return (
                   <button key={i} disabled={quizSubmitted}
                     onClick={() => { setQuizAnswer(i); setQuizSubmitted(true); saveQuizAttempt(lessonId, opt, isCorrect); }}
-                    className="w-full text-left transition-all"
-                    style={{ background: bg, border: `1.5px solid ${borderColor}`, borderRadius: 12, padding: 12, fontSize: 13, fontFamily: "'Outfit', sans-serif", color: textColor }}>
-                    {opt}{quizSubmitted && isCorrect && " ✓"}
+                    className="w-full text-left rounded-[12px] p-3 transition-all belly-card-interactive"
+                    style={{ background: bg, border: `1px solid ${borderColor}`, color: "var(--cream)", fontSize: 13 }}>
+                    {opt}{quizSubmitted && isCorrect && (
+                      <Check size={13} strokeWidth={2} style={{ display: "inline", marginLeft: 6, verticalAlign: "-2px", color: "#7fe0d3" }} />
+                    )}
                   </button>
                 );
               })}
             </div>
             {quizSubmitted && (
-              <div style={{ marginTop: 12, background: "var(--color-bg-card)", border: "1px solid var(--color-border-default)", borderRadius: 12, padding: 12 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--color-accent-dark)", marginBottom: 4 }}>{quizAnswer === lesson.quiz.correctIndex ? "Well done! 🌸" : "Almost! Here's why..."}</p>
-                <p style={{ fontSize: 12, fontFamily: "'Outfit', sans-serif", color: "var(--color-text-secondary)" }}>{lesson.quiz.explanation}</p>
+              <div className="mt-3 rounded-[12px] p-3 gh-glass-subtle">
+                <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{quizAnswer === lesson.quiz.correctIndex ? "Well done!" : "Almost! Here's why..."}</p>
+                <p style={{ fontSize: 12, color: "rgba(251,238,224,0.85)", lineHeight: 1.55 }}>{lesson.quiz.explanation}</p>
               </div>
             )}
           </div>
-          <div className="rounded-[14px] p-4" style={{ background: "var(--color-accent-light)", border: "1px solid var(--color-border-default)" }}>
-            <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: "var(--color-text-muted)" }}>Key takeaway</p>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 14, lineHeight: 1.6, color: "var(--color-accent-dark)" }}>{lesson.keyTakeaway}</p>
+          <div className="rounded-[14px] p-4" style={{ background: "linear-gradient(140deg, rgba(242,182,71,0.35), rgba(232,98,46,0.35))", border: "1px solid var(--glass-border)" }}>
+            <p className="gh-section-label">key takeaway</p>
+            <p className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.55 }}>{lesson.keyTakeaway}</p>
           </div>
         </div>
-        <div className="fixed bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3" style={{ background: "var(--color-bg-card)", borderTop: "1px solid var(--color-border-default)" }}>
+        <div className="fixed bottom-0 left-0 right-0 flex items-center gap-3 px-5 py-3" style={{ background: "rgba(10,6,16,0.7)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderTop: "1px solid rgba(255,255,255,0.12)", maxWidth: 430, margin: "0 auto", zIndex: 20 }}>
           {selectedLesson > 0 && (
             <button onClick={() => { setSelectedLesson(selectedLesson - 1); setReflectionText(""); setReflectionSaved(false); setQuizAnswer(null); setQuizSubmitted(false); }}
-              className="h-11 px-4 rounded-[12px] text-[13px] font-semibold" style={{ background: "var(--color-bg-card-subtle)", color: "var(--color-accent-dark)", border: "1px solid var(--color-border-default)" }}>← Previous</button>
+              className="h-11 px-4 flex items-center gap-1 belly-btn-press"
+              style={{ borderRadius: 12, fontSize: 13, fontWeight: 600, background: "rgba(255,255,255,0.14)", color: "var(--cream)", border: "1px solid rgba(255,255,255,0.25)" }}>
+              <ArrowLeft size={14} strokeWidth={1.8} />Previous
+            </button>
           )}
           <button onClick={handleComplete} disabled={isCompleted}
-            className="flex-1 h-11 rounded-[12px] text-[14px] font-bold disabled:opacity-50" style={{ background: "var(--color-accent-primary)", color: "#fff" }}>
-            {isCompleted ? "✓ Completed" : isLast ? "Complete course 🌸" : "Complete & continue →"}
+            className="flex-1 h-11 belly-btn-press"
+            style={{ borderRadius: 12, fontSize: 14, fontWeight: 700, background: CTA_GRADIENT, color: "var(--night)", border: "none", opacity: isCompleted ? 0.6 : 1 }}>
+            {isCompleted ? "Completed" : isLast ? "Complete course" : "Complete & continue"}
           </button>
         </div>
       </div>
@@ -235,82 +265,79 @@ const Courses = () => {
     const courseProgress = courseCompletions / course.lessonCount;
 
     return (
-      <div className="min-h-screen pb-20" style={{ background: "transparent" }}>
-        <div className="flex items-center gap-3 px-5 pt-5 pb-3" style={{ borderBottom: "1px solid rgba(255,228,212,0.6)" }}>
-          <button onClick={() => setSelectedCourse(null)} className="text-[12px] font-semibold" style={{ color: "#D4906A" }}>← Back</button>
+      <div className="min-h-screen page-enter gh-scene-ask" style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui", paddingBottom: 104 }}>
+        <div className="flex items-center gap-3 px-5 pt-5 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
+          <button onClick={() => setSelectedCourse(null)} className="flex items-center gap-1 belly-btn-press"
+            style={{ color: "rgba(251,238,224,0.85)", fontWeight: 500, fontSize: 13, background: "transparent", border: "none" }}>
+            <ArrowLeft size={15} strokeWidth={1.8} />Back
+          </button>
         </div>
 
-        {/* Course Hero Card */}
-        <div style={{
-          margin: "8px 16px 0", borderRadius: 18, padding: 16,
-          background: "linear-gradient(135deg, #FF7E48, #FFA070, #FFBE98)",
-          boxShadow: "0 8px 24px rgba(255,110,60,0.2)",
-          position: "relative", overflow: "hidden",
-        }}>
-          <div style={{ position: "absolute", right: -12, top: -12, width: 70, height: 70, borderRadius: "50%", background: "rgba(255,255,255,0.1)" }} />
-          <span style={{ fontSize: 28, marginBottom: 6, display: "block" }}>{course.emoji}</span>
-          <p style={{ fontSize: 14, fontWeight: 600, color: "white" }}>{course.title}</p>
-          <p style={{ fontSize: 7.5, color: "rgba(255,255,255,0.72)", lineHeight: 1.5, marginBottom: 8, maxWidth: "75%" }}>{course.description}</p>
-          <div className="flex gap-1.5">
+        {/* Course hero card */}
+        <div className="mx-4 mt-3 gh-glass" style={{ padding: "16px 16px 18px", position: "relative", overflow: "hidden" }}>
+          <div aria-hidden style={{ position: "absolute", right: -20, top: -20, width: 90, height: 90, borderRadius: "50%", background: "radial-gradient(circle, rgba(242,182,71,0.3), transparent 70%)", pointerEvents: "none" }} />
+          <div className="w-11 h-11 rounded-[13px] flex items-center justify-center mb-2.5" style={{ background: "rgba(242,182,71,0.16)", border: "1px solid rgba(242,182,71,0.35)" }}>
+            <CategoryIcon category={course.category} />
+          </div>
+          <p className="font-gh-serif" style={{ fontSize: 18, fontWeight: 500, lineHeight: 1.25, marginBottom: 4 }}>{course.title}</p>
+          <p style={{ fontSize: 12.5, color: CREAM_70, lineHeight: 1.55, marginBottom: 10 }}>{course.description}</p>
+          <div className="flex flex-wrap gap-1.5">
             {[`${course.lessonCount} lessons`, `${course.duration} min total`, course.isPremium ? "Premium" : "Free"].map(label => (
-              <span key={label} style={{
-                background: "rgba(255,255,255,0.2)", border: "0.5px solid rgba(255,255,255,0.3)",
-                borderRadius: 8, padding: "2px 8px", fontSize: 6.5, color: "white",
+              <span key={label} className="font-gh-mono" style={{
+                background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: 999, padding: "3px 10px", fontSize: 10, color: "rgba(251,238,224,0.85)",
               }}>{label}</span>
             ))}
           </div>
         </div>
 
-        {/* Progress bar */}
-        <div style={{ padding: "8px 16px 4px" }}>
-          <div className="flex items-center justify-between mb-1">
-            <p style={{ fontSize: 6.5, textTransform: "uppercase", letterSpacing: "0.11em", color: "rgba(200,88,40,0.45)", fontWeight: 600 }}>Your progress</p>
-            <p style={{ fontSize: 7, color: "#D4906A", fontWeight: 600 }}>{courseCompletions} of {course.lessonCount}</p>
+        {/* Progress */}
+        <div className="px-5 pt-4 pb-1">
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="gh-section-label" style={{ marginBottom: 0 }}>your progress</p>
+            <p className="font-gh-mono" style={{ fontSize: 11, color: CREAM_70 }}>{courseCompletions} of {course.lessonCount} lessons</p>
           </div>
-          <div style={{ height: 3, borderRadius: 2, background: "rgba(255,170,130,0.2)" }}>
-            <div style={{ height: "100%", borderRadius: 2, width: `${courseProgress * 100}%`, background: "linear-gradient(90deg, #FF7840, #FFBA90)", transition: "width 300ms ease" }} />
+          <div className="gh-progress-track">
+            <div className="gh-progress-fill" style={{ width: `${courseProgress * 100}%`, transition: "width 300ms ease" }} />
           </div>
         </div>
 
         {/* Lesson rows */}
-        <div className="px-4 py-3 space-y-[6px]">
+        <div className="px-4 py-3 space-y-2">
           {lessons.map((lesson, i) => {
             const completed = completions.includes(lesson.id);
             const isNext = !completed && i === courseCompletions;
-            const cardBg = completed
-              ? "rgba(235,252,240,0.8)" : isNext
-              ? "rgba(255,242,234,0.9)" : "rgba(255,255,255,0.72)";
-            const cardBorder = completed
-              ? "rgba(140,210,160,0.25)" : isNext
-              ? "rgba(255,140,90,0.3)" : "rgba(255,170,130,0.2)";
-            const cardShadow = isNext ? "0 2px 12px rgba(255,120,64,0.1)" : "none";
-
             return (
               <button key={lesson.id}
                 onClick={() => { setSelectedLesson(i); setReflectionText(""); setQuizAnswer(null); setQuizSubmitted(false); }}
-                className="w-full text-left"
-                style={{ borderRadius: 14, padding: "10px 12px", display: "flex", alignItems: "flex-start", gap: 10, background: cardBg, border: `0.5px solid ${cardBorder}`, boxShadow: cardShadow }}>
-                <div style={{
-                  width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 11, fontWeight: 700, flexShrink: 0,
-                  background: completed ? "linear-gradient(135deg, #60C080, #40A060)" : isNext ? "linear-gradient(135deg, #FF7840, #FFA070)" : "rgba(255,200,170,0.3)",
-                  color: completed || isNext ? "white" : "#D4906A",
-                  boxShadow: completed ? "0 2px 8px rgba(60,160,80,0.3)" : isNext ? "0 2px 8px rgba(255,120,64,0.3)" : "none",
+                className="w-full text-left gh-glass-subtle belly-card-interactive"
+                style={{
+                  padding: "12px 14px", display: "flex", alignItems: "flex-start", gap: 12,
+                  border: isNext ? "1px solid rgba(242,182,71,0.6)" : undefined,
+                  boxShadow: isNext ? "0 0 14px rgba(242,182,71,0.22)" : undefined,
                 }}>
-                  {completed ? <Check size={13} /> : lesson.number}
+                <div style={{
+                  width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                  background: completed ? "rgba(44,156,143,0.25)" : isNext ? "rgba(242,182,71,0.2)" : "rgba(255,255,255,0.1)",
+                  border: completed ? "1px solid rgba(127,224,211,0.5)" : isNext ? "1px solid rgba(242,182,71,0.6)" : "1px solid rgba(255,255,255,0.18)",
+                }}>
+                  {completed
+                    ? <Check size={14} strokeWidth={2} style={{ color: "#7fe0d3" }} />
+                    : isNext
+                    ? <Play size={12} strokeWidth={1.8} style={{ color: "var(--gold)", marginLeft: 2 }} />
+                    : <span className="font-gh-mono" style={{ fontSize: 11, color: CREAM_55 }}>{lesson.number}</span>}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 9.5, fontWeight: 600, color: "#A84E28", lineHeight: 1.3 }}>{lesson.title}</p>
-                  <p style={{ fontSize: 7.5, color: "#C4906A", lineHeight: 1.45, fontWeight: 400, marginTop: 2 }} className="line-clamp-2">{lesson.description}</p>
-                  <div className="flex gap-1.5 mt-1.5">
-                    <span style={{ fontSize: 6, textTransform: "uppercase", color: "#D4906A", fontWeight: 500 }}>{lesson.duration} min</span>
-                    <span style={{
-                      fontSize: 6, textTransform: "uppercase", fontWeight: 600,
-                      color: completed ? "#40A060" : isNext ? "#FF7840" : "rgba(180,100,60,0.38)",
-                    }}>{completed ? "✓ Complete" : isNext ? "Up next" : ""}</span>
+                  <p className="font-gh-serif" style={{ fontSize: 14, fontWeight: 500, lineHeight: 1.3, color: "var(--cream)" }}>{lesson.title}</p>
+                  <p className="line-clamp-2" style={{ fontSize: 11.5, color: CREAM_55, lineHeight: 1.5, marginTop: 2 }}>{lesson.description}</p>
+                  <div className="flex items-center gap-2.5 mt-1.5">
+                    <span className="font-gh-mono" style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", color: CREAM_55 }}>{lesson.duration} min</span>
+                    {completed && <span className="font-gh-mono" style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", color: "#7fe0d3" }}>Complete</span>}
+                    {isNext && <span className="font-gh-mono" style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--gold)" }}>Up next</span>}
                   </div>
                 </div>
-                <ChevronRight size={14} style={{ color: "#D4B0A0", flexShrink: 0, marginTop: 4 }} />
+                <ChevronRight size={15} strokeWidth={1.8} style={{ color: CREAM_55, flexShrink: 0, marginTop: 6 }} />
               </button>
             );
           })}
@@ -321,58 +348,60 @@ const Courses = () => {
 
   // --- MAIN COURSE LIST ---
   return (
-    <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
-      <div className="px-5 pt-5 pb-1">
-        <h1 className="font-display text-[26px] font-bold" style={{ color: "#2A1200" }}>Your courses</h1>
-        <p className="text-[12px]" style={{ color: "#D4B0A0" }}>Learn at your own pace · {coursesData.length} courses</p>
-      </div>
-      <div className="mx-4 mt-3 mb-4 p-[18px_20px] rounded-[20px] relative overflow-hidden belly-hero-gradient">
-        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }} />
-        <p className="text-[9.5px] uppercase tracking-widest mb-1" style={{ color: "rgba(42,18,0,0.5)" }}>YOUR PROGRESS</p>
-        <p className="font-display text-[18px] font-bold mb-2" style={{ color: "#2A1200" }}>{completedCount} of {totalLessons} lessons completed</p>
-        <div className="h-1.5 rounded-[4px] mb-3" style={{ background: "rgba(42,18,0,0.12)" }}>
-          <div className="h-full rounded-[4px] transition-all" style={{ width: `${progressPercent}%`, background: "rgba(42,18,0,0.35)" }} />
-        </div>
-        <div className="flex gap-2">
-          {[`${progressPercent}% complete`, `~${hoursLeft}h left`].map(label => (
-            <span key={label} className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.35)", color: "#2A1200" }}>{label}</span>
-          ))}
-        </div>
-      </div>
-      <div className="flex gap-2 px-5 mb-4 overflow-x-auto hide-scrollbar">
-        {FILTER_TABS.map(tab => (
-          <button key={tab} onClick={() => setActiveFilter(tab)}
-            className="rounded-full px-3.5 py-1.5 text-[11px] font-medium whitespace-nowrap transition-all belly-btn-press"
-            style={{
-              background: activeFilter === tab ? "#FFB899" : "rgba(255,240,232,0.8)",
-              color: activeFilter === tab ? "#2A1200" : "#D4906A",
-              fontWeight: activeFilter === tab ? 600 : 500,
-              border: activeFilter === tab ? "none" : "1px solid rgba(255,228,212,0.6)"
-            }}>
-            {tab}
-          </button>
-        ))}
-      </div>
-      {activeFilter === "All" && continueCourses.length > 0 && (
-        <div className="mb-2">
-          <p className="px-5 pt-2 pb-2 text-[10px] uppercase tracking-[0.1em]" style={{ color: "#D4B0A0" }}>Continue learning</p>
-          <div className="px-5 space-y-2">
-            {continueCourses.map(course => <CourseCard key={course.id} course={course} completions={completions} profile={profile} onSelect={handleSelectCourse} />)}
+    <SceneBackground scene="ask">
+      <div className="page-enter" style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui", paddingBottom: 104 }}>
+        <GhHeader brand="Courses" tag="learn with bella" brandSize={20} />
+
+        {/* Overall progress hero */}
+        <div className="mx-4 mb-4 gh-glass" style={{ padding: "16px 16px 18px", position: "relative", overflow: "hidden" }}>
+          <div aria-hidden style={{ position: "absolute", right: -24, top: -24, width: 100, height: 100, borderRadius: "50%", background: "radial-gradient(circle, rgba(242,182,71,0.28), transparent 70%)", pointerEvents: "none" }} />
+          <div className="flex items-center gap-2 mb-1">
+            <GraduationCap size={14} strokeWidth={1.8} style={{ color: "var(--gold)" }} />
+            <p className="gh-section-label" style={{ marginBottom: 0 }}>your progress</p>
           </div>
-        </div>
-      )}
-      {categories.map(category => (
-        <div key={category} className="mb-2">
-          <p className="px-5 pt-4 pb-2 text-[10px] uppercase tracking-[0.1em]" style={{ color: "#D4B0A0" }}>{category}</p>
-          <div className="px-5 space-y-2">
-            {filteredCourses.filter(c => c.category === category).map(course => (
-              <CourseCard key={course.id} course={course} completions={completions} profile={profile} onSelect={handleSelectCourse} />
+          <p className="font-gh-serif" style={{ fontSize: 18, fontWeight: 500, marginBottom: 10 }}>{completedCount} of {totalLessons} lessons completed</p>
+          <div className="gh-progress-track mb-3">
+            <div className="gh-progress-fill" style={{ width: `${progressPercent}%`, transition: "width 300ms ease" }} />
+          </div>
+          <div className="flex gap-2">
+            {[`${progressPercent}% complete`, `~${hoursLeft}h left`].map(label => (
+              <span key={label} className="font-gh-mono" style={{ fontSize: 10, padding: "3px 10px", borderRadius: 999, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", color: "rgba(251,238,224,0.85)" }}>{label}</span>
             ))}
           </div>
         </div>
-      ))}
-      <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
-    </div>
+
+        {/* Filter pills */}
+        <div className="flex gap-2 px-5 mb-4 overflow-x-auto hide-scrollbar">
+          {FILTER_TABS.map(tab => (
+            <button key={tab} onClick={() => setActiveFilter(tab)}
+              className={`gh-pill whitespace-nowrap belly-btn-press ${activeFilter === tab ? "gh-pill-filled" : ""}`}
+              style={{ fontSize: 12, padding: "7px 14px", background: activeFilter === tab ? undefined : "rgba(255,255,255,0.08)" }}>
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {activeFilter === "All" && continueCourses.length > 0 && (
+          <div className="mb-2">
+            <p className="gh-section-label px-5 pt-2 pb-2" style={{ marginBottom: 0 }}>continue learning</p>
+            <div className="px-4 space-y-2">
+              {continueCourses.map(course => <CourseCard key={course.id} course={course} completions={completions} profile={profile} onSelect={handleSelectCourse} />)}
+            </div>
+          </div>
+        )}
+        {categories.map(category => (
+          <div key={category} className="mb-2">
+            <p className="gh-section-label px-5 pt-4 pb-2" style={{ marginBottom: 0 }}>{category.toLowerCase()}</p>
+            <div className="px-4 space-y-2">
+              {filteredCourses.filter(c => c.category === category).map(course => (
+                <CourseCard key={course.id} course={course} completions={completions} profile={profile} onSelect={handleSelectCourse} />
+              ))}
+            </div>
+          </div>
+        ))}
+        <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
+      </div>
+    </SceneBackground>
   );
 };
 
@@ -383,39 +412,49 @@ function CourseCard({ course, completions, profile, onSelect }: { course: Course
 
   return (
     <button onClick={() => onSelect(course.id)}
-      className="w-full belly-glass-card rounded-[18px] text-left belly-card-interactive relative">
-      {isLocked && (
-        <div style={{ position: "absolute", inset: 0, borderRadius: 18, background: "rgba(255,200,170,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 6, zIndex: 2, pointerEvents: "none" }}>
-          <span style={{ fontSize: 22 }}>🔒</span>
-          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 12, background: "#fff", color: "#FF8C42", fontWeight: 700, fontFamily: "'Outfit', system-ui" }}>Premium</span>
-        </div>
-      )}
-      <div className="flex items-start gap-3 p-[14px_16px_10px]" style={{ filter: isLocked ? "blur(2px)" : "none" }}>
-        <div className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center shrink-0 text-[22px]" style={{ background: "rgba(255,240,232,0.8)" }}>
-          {course.emoji}
+      className="w-full text-left gh-glass belly-card-interactive"
+      style={{
+        padding: 0,
+        border: isLocked ? "1px solid rgba(242,182,71,0.35)" : undefined,
+        background: isLocked ? "linear-gradient(140deg, rgba(242,182,71,0.1), rgba(255,255,255,0.06))" : undefined,
+      }}>
+      <div className="flex items-start gap-3" style={{ padding: "14px 16px 10px" }}>
+        <div className="w-[46px] h-[46px] rounded-[13px] flex items-center justify-center shrink-0" style={{
+          background: isLocked ? "rgba(242,182,71,0.14)" : "rgba(255,255,255,0.1)",
+          border: isLocked ? "1px solid rgba(242,182,71,0.4)" : "1px solid rgba(255,255,255,0.16)",
+        }}>
+          {isLocked
+            ? <Lock size={20} strokeWidth={1.8} style={{ color: "var(--gold)" }} />
+            : <CategoryIcon category={course.category} size={20} />}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[9.5px] uppercase" style={{ color: "#D4906A" }}>{course.category}</p>
-          <p className="font-display text-[14px] font-bold" style={{ color: "#2A1200" }}>{course.title}</p>
-          <p className="text-[10.5px]" style={{ color: "#D4B0A0" }}>{course.lessonCount} lessons · {course.duration} min</p>
+          <p className="font-gh-mono" style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(251,238,224,0.55)" }}>{course.category}</p>
+          <p className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.3, color: "var(--cream)" }}>{course.title}</p>
+          <p style={{ fontSize: 11, color: "rgba(251,238,224,0.55)", marginTop: 2 }}>{course.lessonCount} lessons · {course.duration} min</p>
         </div>
-        <span className="text-[12px] font-bold shrink-0 mt-2" style={{ color: "#D4906A" }}>
+        <span className="shrink-0 mt-1.5">
           {isLocked ? (
-            <span className="text-[10px] px-2 py-1 rounded-full belly-badge-glass" style={{ background: "rgba(255,244,238,0.9)", border: "1px solid #FFCDB4", color: "#D4906A" }}>🔒 Premium</span>
-          ) : courseCompletions > 0 ? "Continue →" : "Start →"}
+            <span className="flex items-center gap-1 font-gh-mono" style={{ fontSize: 10, padding: "4px 10px", borderRadius: 999, background: "rgba(242,182,71,0.16)", border: "1px solid rgba(242,182,71,0.45)", color: "var(--gold)" }}>
+              <Lock size={10} strokeWidth={1.8} />Premium
+            </span>
+          ) : (
+            <span className="flex items-center gap-1" style={{ fontSize: 12, fontWeight: 600, color: "var(--gold)" }}>
+              {courseCompletions > 0 ? "Continue" : "Start"}<ChevronRight size={13} strokeWidth={1.8} />
+            </span>
+          )}
         </span>
       </div>
       {courseCompletions > 0 && !isLocked && (
         <div className="px-4 pb-2">
-          <div className="h-1 rounded-full" style={{ background: "rgba(255,240,232,0.8)" }}>
-            <div className="h-full rounded-full transition-all" style={{ width: `${progress * 100}%`, background: "#FFB899" }} />
+          <div className="gh-progress-track">
+            <div className="gh-progress-fill" style={{ width: `${progress * 100}%`, transition: "width 300ms ease" }} />
           </div>
-          <p className="text-[10px] mt-1" style={{ color: "#D4B0A0" }}>{courseCompletions} of {course.lessonCount} lessons · {Math.round(progress * 100)}% complete</p>
+          <p className="font-gh-mono" style={{ fontSize: 10, marginTop: 5, color: "rgba(251,238,224,0.55)" }}>{courseCompletions} of {course.lessonCount} lessons · {Math.round(progress * 100)}% complete</p>
         </div>
       )}
-      <div className="flex flex-wrap gap-1.5 px-4 pb-3">
+      <div className="flex flex-wrap gap-1.5 px-4 pb-3.5" style={{ opacity: isLocked ? 0.55 : 1 }}>
         {course.tags.map(tag => (
-          <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full belly-badge-glass" style={{ background: "rgba(255,244,238,0.9)", border: "1px solid rgba(255,205,180,0.6)", color: "#D4906A" }}>{tag}</span>
+          <span key={tag} style={{ fontSize: 10, padding: "2px 9px", borderRadius: 999, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.16)", color: "rgba(251,238,224,0.7)" }}>{tag}</span>
         ))}
       </div>
     </button>

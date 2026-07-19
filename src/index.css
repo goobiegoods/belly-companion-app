@@ -164,8 +164,8 @@
   * { @apply border-border; }
 
   html, body, #root {
-    background: var(--color-bg-base);
-    color: var(--color-text-primary);
+    background: linear-gradient(180deg, var(--night) 0%, #0d0713 100%);
+    color: var(--cream);
   }
   body {
     font-family: 'Nunito', 'Outfit', system-ui, sans-serif;
@@ -176,13 +176,14 @@
   }
 }
 
-/* Desktop framing — give the 430px app column a shadow on wide screens */
+/* Desktop framing — night backdrop with a soft glow around the 430px column */
 @media (min-width: 431px) {
   html, body, #root {
-    background: #C8B8A4;
+    background: radial-gradient(ellipse 110% 70% at 50% -8%, #2a1430 0%, transparent 55%),
+      linear-gradient(180deg, var(--night) 0%, #0d0713 100%);
   }
   .app-layout {
-    box-shadow: 0 0 80px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 0 90px rgba(242, 182, 71, 0.10), 0 0 44px rgba(0, 0, 0, 0.6);
   }
 }
 

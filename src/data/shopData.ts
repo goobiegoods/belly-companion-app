@@ -11,6 +11,7 @@ export interface Product {
   type: "kit" | "remedy" | "tea";
   contents?: string[];
   safe?: boolean;
+  stripePriceId?: string;
 }
 
 export const kits: Product[] = [

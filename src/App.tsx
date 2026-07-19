@@ -92,7 +92,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, profile, loading } = useAuth();
   const Spinner = (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#FF7840", borderTopColor: "transparent" }} />
+      <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--gold)", borderTopColor: "transparent" }} />
     </div>
   );
   if (loading) return Spinner;
@@ -103,14 +103,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "var(--color-bg-base)" }}>
+  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, var(--night) 0%, #0d0713 100%)" }}>
     {children}
     <BottomNav />
   </div>
 );
 
 const FullScreenLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "var(--color-bg-base)" }}>
+  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, var(--night) 0%, #0d0713 100%)" }}>
     {children}
   </div>
 );
@@ -180,14 +180,14 @@ const App = () => (
         position="bottom-center"
         toastOptions={{
           style: {
-            background: "#ffffff",
-            color: "#1a1a1a",
+            background: "#FBEEE0",
+            color: "#150A1F",
             borderRadius: 30,
             padding: "10px 22px",
-            fontFamily: "'Outfit', system-ui, sans-serif",
+            fontFamily: "'Inter', system-ui, sans-serif",
             fontSize: 13,
-            fontWeight: 500,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+            fontWeight: 600,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.45)",
             border: "none",
             whiteSpace: "nowrap",
           },

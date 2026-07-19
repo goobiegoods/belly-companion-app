@@ -3,8 +3,46 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { SceneBackground, GlassCard } from "@/components/golden";
 
 type Mode = "signin" | "signup" | "forgot";
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  background: "rgba(0,0,0,0.18)",
+  border: "1px solid rgba(255,255,255,0.15)",
+  borderRadius: 14,
+  padding: "13px 14px",
+  color: "var(--cream)",
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 14,
+  outline: "none",
+};
+
+const primaryBtnStyle: React.CSSProperties = {
+  width: "100%",
+  height: 50,
+  borderRadius: 14,
+  border: "none",
+  background: "linear-gradient(135deg, var(--gold), var(--ember))",
+  color: "var(--night)",
+  fontFamily: "'Inter', sans-serif",
+  fontWeight: 700,
+  fontSize: 15,
+  cursor: "pointer",
+  boxShadow: "0 8px 20px -8px rgba(232,98,46,0.6)",
+};
+
+const linkBtnStyle: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  padding: 0,
+  color: "var(--gold)",
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 12,
+  fontWeight: 600,
+  cursor: "pointer",
+};
 
 const Auth = () => {
   const { session, loading } = useAuth();
@@ -15,7 +53,18 @@ const Auth = () => {
   const [submitting, setSubmitting] = useState(false);
   const { signUp, signIn } = useAuth();
 
-  if (loading) return <div className="min-h-screen bg-belly-bg flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-belly-hero border-t-transparent animate-spin" /></div>;
+  if (loading)
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "linear-gradient(180deg, #150A1F 0%, #0d0713 100%)" }}
+      >
+        <div
+          className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+          style={{ borderColor: "var(--gold)", borderTopColor: "transparent" }}
+        />
+      </div>
+    );
   if (session) {
     const from = (location.state as any)?.from?.pathname ?? "/";
     return <Navigate to={from} replace />;
@@ -31,7 +80,7 @@ const Auth = () => {
       });
       setSubmitting(false);
       if (error) return toast.error(error.message);
-      toast.success("Check your email for a reset link 🌸");
+      toast.success("Check your email for a reset link");
       setMode("signin");
       return;
     }
@@ -46,77 +95,106 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-belly-bg flex flex-col items-center justify-center px-6">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-icon bg-belly-upsell-border mx-auto mb-3 flex items-center justify-center">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-belly-text-primary">
-              <ellipse cx="12" cy="14" rx="7" ry="8" stroke="currentColor" strokeWidth="1.5" fill="none" />
-              <circle cx="12" cy="8" r="3" stroke="currentColor" strokeWidth="1.5" fill="none" />
-            </svg>
-          </div>
-          <h1 className="font-display text-[22px] font-bold text-foreground tracking-[-0.5px]">BELLY</h1>
-          <p className="text-belly-text-muted font-display italic text-xs mt-1">
+    <SceneBackground scene="today">
+      <style>{`
+        .gh-auth-input::placeholder { color: rgba(251,238,224,0.45); }
+        .gh-auth-input:focus { border-color: rgba(242,182,71,0.6); box-shadow: 0 0 0 3px rgba(242,182,71,0.15); }
+      `}</style>
+      <div
+        style={{
+          minHeight: "100dvh",
+          maxWidth: 430,
+          margin: "0 auto",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          padding: "48px 22px",
+        }}
+      >
+        {/* Brand block */}
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
+          <h1 className="gh-brand" style={{ fontSize: 34 }}>belly</h1>
+          <p className="gh-brand-tag" style={{ marginTop: 6, textAlign: "center" }}>virtual doula</p>
+          <p
+            style={{
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontStyle: "italic",
+              fontSize: 14,
+              color: "rgba(251,238,224,0.7)",
+              marginTop: 14,
+            }}
+          >
             {mode === "signup" ? "Join thousands of mamas on their journey" :
               mode === "forgot" ? "We'll email you a reset link" :
                 "Welcome back, mama"}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full h-12 rounded-input border border-belly-card-border bg-card px-4 text-sm belly-input-focus placeholder:text-belly-text-hint"
-          />
-          {mode !== "forgot" && (
+        <GlassCard style={{ padding: "22px 20px", marginBottom: 0 }}>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              minLength={6}
-              className="w-full h-12 rounded-input border border-belly-card-border bg-card px-4 text-sm belly-input-focus placeholder:text-belly-text-hint"
+              className="gh-auth-input"
+              style={inputStyle}
             />
-          )}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full h-12 rounded-input bg-primary text-primary-foreground font-semibold text-sm belly-btn-press disabled:opacity-50"
-          >
-            {submitting ? "..." :
-              mode === "signup" ? "Create my account" :
-                mode === "forgot" ? "Send reset link" :
-                  "Sign in"}
-          </button>
-        </form>
+            {mode !== "forgot" && (
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="gh-auth-input"
+                style={inputStyle}
+              />
+            )}
+            <button
+              type="submit"
+              disabled={submitting}
+              style={{ ...primaryBtnStyle, opacity: submitting ? 0.5 : 1, cursor: submitting ? "not-allowed" : "pointer" }}
+            >
+              {submitting ? "..." :
+                mode === "signup" ? "Create my account" :
+                  mode === "forgot" ? "Send reset link" :
+                    "Sign in"}
+            </button>
+          </form>
+        </GlassCard>
 
         {mode === "signin" && (
-          <p className="text-center text-xs text-belly-text-muted mt-4">
-            <button onClick={() => setMode("forgot")} className="text-belly-accent font-medium underline">
+          <p style={{ textAlign: "center", marginTop: 16 }}>
+            <button onClick={() => setMode("forgot")} style={linkBtnStyle}>
               Forgot password?
             </button>
           </p>
         )}
 
-        <p className="text-center text-xs text-belly-text-muted mt-6">
+        <p
+          style={{
+            textAlign: "center",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 12,
+            color: "rgba(251,238,224,0.55)",
+            marginTop: mode === "signin" ? 12 : 20,
+          }}
+        >
           {mode === "signup" ? "Already have an account?" :
             mode === "forgot" ? "Remembered it?" :
               "Don't have an account?"}{" "}
           <button
             onClick={() => setMode(mode === "signup" ? "signin" : mode === "forgot" ? "signin" : "signup")}
-            className="text-belly-accent font-semibold underline"
+            style={linkBtnStyle}
           >
             {mode === "signup" || mode === "forgot" ? "Sign in" : "Sign up"}
           </button>
         </p>
       </div>
-    </div>
+    </SceneBackground>
   );
 };
 

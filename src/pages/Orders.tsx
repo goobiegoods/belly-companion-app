@@ -2,15 +2,39 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
+
+const TEAL_PILL = { bg: "rgba(44,156,143,0.24)", color: "#7fe0d3" };
+const GOLD_PILL = { bg: "rgba(242,182,71,0.22)", color: "var(--gold)" };
 
 const STATUS_STYLES: Record<string, { bg: string; color: string; label?: string }> = {
-  pending_payment: { bg: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.7)", label: "Awaiting payment" },
-  paid: { bg: "rgba(80,200,120,0.30)", color: "white", label: "Paid" },
-  pending: { bg: "rgba(255,255,255,0.15)", color: "white" },
-  processing: { bg: "rgba(255,255,255,0.2)", color: "white" },
-  shipped: { bg: "rgba(255,255,255,0.25)", color: "white" },
-  delivered: { bg: "rgba(255,255,255,0.3)", color: "white" },
+  pending_payment: { ...GOLD_PILL, label: "Awaiting payment" },
+  paid: { ...TEAL_PILL, label: "Paid" },
+  pending: { ...GOLD_PILL },
+  processing: { ...TEAL_PILL },
+  shipped: { ...TEAL_PILL },
+  delivered: { ...TEAL_PILL },
 };
+
+/** Package line icon for the empty state. */
+const PackageIcon = ({ size = 34 }: { size?: number }) => (
+  <svg
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    fill="none"
+    stroke="var(--gold)"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M21 8.5 12 3.5 3 8.5v8l9 5 9-5v-8Z" />
+    <path d="M3 8.5l9 5 9-5" />
+    <path d="M12 13.5v8" />
+    <path d="M7.5 6l9 5" />
+  </svg>
+);
 
 const Orders = () => {
   const { user } = useAuth();
@@ -34,66 +58,116 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "transparent" }}>
-        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "white", borderTopColor: "transparent" }} />
-      </div>
+      <SceneBackground scene="shop">
+        <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div
+            className="w-8 h-8 rounded-full border-2 animate-spin"
+            style={{ borderColor: "var(--gold)", borderTopColor: "transparent" }}
+          />
+        </div>
+      </SceneBackground>
     );
   }
 
   return (
-    <div className="min-h-screen pb-20 page-enter" style={{ background: "transparent" }}>
-      <div className="px-5 pt-5 pb-3">
-        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 700, color: "white" }}>My Orders</h1>
-        <p className="text-[11px]" style={{ color: "var(--w50)", fontFamily: "'Outfit', system-ui" }}>Your Belly Shop history</p>
-      </div>
+    <SceneBackground scene="shop" className="page-enter">
+      <GhHeader brand="My orders" tag="bella's apothecary" brandSize={20} />
 
-      <div className="px-5">
+      <div style={{ padding: "4px 16px 110px" }}>
         {orders.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
-              <span className="text-3xl">🛍️</span>
+          <GlassCard style={{ textAlign: "center", padding: "36px 20px", marginTop: 24 }}>
+            <div
+              style={{
+                width: 64, height: 64, borderRadius: "50%", margin: "0 auto 14px",
+                background: "rgba(242,182,71,0.14)", border: "1px solid rgba(242,182,71,0.35)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <PackageIcon />
             </div>
-            <p style={{ fontFamily: "'Outfit', system-ui", fontSize: 16, fontWeight: 600, color: "white", marginBottom: 4 }}>No orders yet</p>
-            <p className="text-[13px] italic mb-4" style={{ color: "var(--w50)" }}>Your natural remedies will appear here</p>
-            <button onClick={() => navigate("/shop")}
-              className="rounded-full px-5 py-2.5 text-[13px] font-semibold"
-              style={{ background: "white", color: "#FF6520", fontFamily: "'Outfit', system-ui", fontWeight: 700 }}>
+            <p className="font-gh-serif" style={{ fontSize: 18, fontWeight: 600, color: "var(--cream)", marginBottom: 5 }}>
+              No orders yet
+            </p>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "rgba(251,238,224,0.55)", marginBottom: 20 }}>
+              Your natural remedies will appear here
+            </p>
+            <button
+              onClick={() => navigate("/shop")}
+              className="belly-btn-press"
+              style={{
+                background: "linear-gradient(135deg, var(--gold), var(--ember))",
+                color: "var(--night)",
+                fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 13,
+                borderRadius: 13, padding: "12px 24px", border: "none", cursor: "pointer",
+              }}
+            >
               Shop remedies →
             </button>
-          </div>
+          </GlassCard>
         ) : (
-          <div className="space-y-3">
+          <div>
             {orders.map((order: any) => {
               const ss = getStatusStyle(order.status);
               const items = Array.isArray(order.items) ? order.items : [];
               return (
-                <div key={order.id} className="rounded-[16px] p-4" style={{ background: "var(--c1)", border: "1px solid var(--c1-border)", backdropFilter: "blur(14px)" }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, fontWeight: 500, color: "white" }}>{formatDate(order.created_at)}</span>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize" style={{ background: ss.bg, color: ss.color }}>{ss.label || order.status}</span>
+                <GlassCard key={order.id} style={{ padding: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                    <span className="font-gh-mono" style={{ fontSize: 11, color: "rgba(251,238,224,0.7)" }}>
+                      {formatDate(order.created_at)}
+                    </span>
+                    <span
+                      className="capitalize"
+                      style={{
+                        fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 600,
+                        letterSpacing: "0.04em",
+                        padding: "3px 10px", borderRadius: 20,
+                        background: ss.bg, color: ss.color,
+                      }}
+                    >
+                      {ss.label || order.status}
+                    </span>
                   </div>
                   {items.length > 0 && (
-                    <div className="mb-2">
+                    <div style={{ marginBottom: 10 }}>
                       {items.map((item: any, i: number) => (
-                        <p key={i} style={{ fontFamily: "'Outfit', system-ui", fontSize: 12, color: "var(--w70)" }}>
-                          {item.name || item.title || "Item"} {item.qty ? `× ${item.qty}` : ""}
-                        </p>
+                        <div key={i} style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
+                          <span className="font-gh-serif" style={{ fontSize: 13, color: "var(--cream)", lineHeight: 1.35 }}>
+                            {item.name || item.title || "Item"} {item.qty ? `× ${item.qty}` : ""}
+                          </span>
+                          {item.price != null && (
+                            <span className="font-gh-mono" style={{ fontSize: 12, color: "var(--gold)", flexShrink: 0 }}>
+                              ${(Number(item.price) * (item.qty || 1)).toFixed(2)}
+                            </span>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}
-                  <div className="flex items-center justify-between" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 8 }}>
-                    <span style={{ fontFamily: "'Fraunces', serif", fontSize: 13, fontWeight: 700, color: "white" }}>${Number(order.total).toFixed(2)}</span>
-                    {order.status === "shipped" && (
-                      <span style={{ fontFamily: "'Outfit', system-ui", fontSize: 11, fontWeight: 600, color: "white" }}>Track order →</span>
-                    )}
+                  <div
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: 10,
+                    }}
+                  >
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 600, color: "rgba(251,238,224,0.7)" }}>
+                      Total
+                    </span>
+                    <span className="font-gh-mono" style={{ fontSize: 14, fontWeight: 600, color: "var(--gold)" }}>
+                      ${Number(order.total).toFixed(2)}
+                    </span>
                   </div>
-                </div>
+                  {order.status === "shipped" && (
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 600, color: "#7fe0d3", marginTop: 8 }}>
+                      Track order →
+                    </div>
+                  )}
+                </GlassCard>
               );
             })}
           </div>
         )}
       </div>
-    </div>
+    </SceneBackground>
   );
 };
 

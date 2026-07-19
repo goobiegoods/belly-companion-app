@@ -4,22 +4,29 @@ import { getCurrentWeek, getDaysToGo } from "@/data/pregnancyWeeks";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Pencil, BookOpen, Baby, Wind, GraduationCap, ShoppingBag } from "lucide-react";
+import {
+  Pencil, BookOpen, Baby, Wind, GraduationCap, ShoppingBag,
+  Sprout, MessageCircle, Flame, Flower2, ChevronRight, Sparkles, Lock,
+} from "lucide-react";
 import { PremiumModal } from "@/components/PremiumModal";
 import { getStreak } from "@/lib/streak";
 import { getDisplayName } from "@/lib/community";
+import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
 
 const BADGES = [
-  { emoji: "🌱", label: "First check-in", earned: true },
-  { emoji: "📚", label: "First lesson", earned: true },
-  { emoji: "💬", label: "Community", earned: true },
-  { emoji: "🔥", label: "7-day streak", earned: false },
-  { emoji: "🌸", label: "Week 20", earned: false },
-  { emoji: "👶", label: "Birth ready", earned: false },
+  { Icon: Sprout, label: "First check-in", earned: true },
+  { Icon: BookOpen, label: "First lesson", earned: true },
+  { Icon: MessageCircle, label: "Community", earned: true },
+  { Icon: Flame, label: "7-day streak", earned: false },
+  { Icon: Flower2, label: "Week 20", earned: false },
+  { Icon: Baby, label: "Birth ready", earned: false },
 ];
 
 const formatName = (name: string) =>
   name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
+const CREAM_70 = "rgba(251,238,224,0.7)";
+const CREAM_55 = "rgba(251,238,224,0.55)";
 
 const Profile = () => {
   const { profile, user, signOut, refreshProfile } = useAuth();
@@ -44,7 +51,7 @@ const Profile = () => {
     await supabase.from("profiles").update({ first_name: editName, due_date: editDueDate }).eq("user_id", user.id);
     await refreshProfile();
     setEditing(false);
-    toast.success("Profile updated! 🌸");
+    toast.success("Profile updated");
   };
 
   const handleSignOut = async () => {
@@ -66,285 +73,286 @@ const Profile = () => {
     { Icon: ShoppingBag, label: "My Orders", action: () => navigate("/orders") },
   ];
 
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    background: "rgba(0,0,0,0.18)",
+    border: "1px solid rgba(255,255,255,0.15)",
+    borderRadius: 14,
+    color: "var(--cream)",
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 14,
+    padding: "12px 14px",
+    outline: "none",
+    colorScheme: "dark",
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    marginBottom: 6,
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 10,
+    letterSpacing: "0.14em",
+    textTransform: "uppercase",
+    color: "var(--gold)",
+    opacity: 0.85,
+  };
+
+  const stats = [
+    { val: String(currentWeek), label: "week", color: "var(--gold)" },
+    { val: String(streak.current), label: "day streak", color: "var(--cream)" },
+    { val: String(daysToGo), label: "days to go", color: "var(--gold)" },
+  ];
+
   return (
-    <div className="min-h-screen pb-24 page-enter" style={{ backgroundColor: "var(--color-bg-base)" }}>
-      {/* Pulse ring keyframes (scoped) */}
-      <style>{`
-        @keyframes belly-pulse-ring {
-          0% { box-shadow: 0 0 0 0 rgba(232,96,26,0.45); }
-          70% { box-shadow: 0 0 0 10px rgba(232,96,26,0); }
-          100% { box-shadow: 0 0 0 0 rgba(232,96,26,0); }
-        }
-      `}</style>
-
-      {/* Topbar */}
-      <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 20px 0" }}>
-        <button onClick={() => setEditing(true)} style={{
-          fontFamily: "'Outfit', system-ui", fontSize: 13, fontWeight: 500,
-          color: "var(--color-text-primary)", background: "none", border: "none", cursor: "pointer"
-        }}>Settings</button>
-      </div>
-
-      {/* 1. Profile header */}
-      <div style={{ padding: "16px 20px 18px", textAlign: "center", position: "relative" }}>
-        <span aria-hidden style={{
-          position: "absolute", top: 28, left: "50%", transform: "translateX(-50%)",
-          fontSize: 68, fontFamily: "'Fraunces', serif", fontStyle: "italic", fontWeight: 800,
-          color: "#E8601A", opacity: 0.08, pointerEvents: "none", letterSpacing: "-0.04em", zIndex: 0,
-        }}>journey</span>
-        <div style={{
-          width: 64, height: 64, borderRadius: "50%", background: "#E8601A",
-          margin: "0 auto 10px", display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 6px 18px rgba(232,96,26,0.32)", position: "relative", zIndex: 1,
-        }}>
-          <span style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontWeight: 800, fontSize: 28, color: "#FFFFFF" }}>B</span>
+    <SceneBackground scene="mamas" className="page-enter">
+      <GhHeader
+        brand="Your profile"
+        tag={`week ${currentWeek} · ${daysToGo} days to go`}
+        brandSize={20}
+        showOrb
+        weekPill={`wk ${currentWeek}`}
+      >
+        <div style={{ position: "relative", zIndex: 2, marginTop: 16 }}>
+          <div className="font-gh-serif" style={{ fontFamily: "'Fraunces', serif", fontSize: 24, fontWeight: 500, color: "var(--cream)", lineHeight: 1.15 }}>
+            {formatName(getDisplayName({ first_name: profile?.first_name }))}
+          </div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, letterSpacing: "0.1em", color: CREAM_70, marginTop: 6 }}>
+            due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
+          </div>
+          {profile?.pregnancy_number && (
+            <span
+              style={{
+                display: "inline-block", marginTop: 10, padding: "5px 12px",
+                background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)",
+                color: "var(--cream)", borderRadius: 999,
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.08em",
+              }}
+            >
+              {profile.pregnancy_number === 1 ? "1st" : profile.pregnancy_number === 2 ? "2nd" : "3rd+"} pregnancy
+            </span>
+          )}
         </div>
-        <h1 style={{ fontFamily: "'Nunito',system-ui", fontSize: 16, fontWeight: 800, color: "#1A0E06", position: "relative", zIndex: 1 }}>
-          {formatName(getDisplayName({ first_name: profile?.first_name }))}
-        </h1>
-        <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 11, color: "#9A7B66", marginTop: 4, position: "relative", zIndex: 1 }}>
-          Week {currentWeek} · Due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
-        </p>
-        {profile?.pregnancy_number && (
-          <span style={{
-            display: "inline-block", marginTop: 10, padding: "4px 10px",
-            background: "#FFFFFF", border: "1px solid #E8601A", color: "#E8601A",
-            borderRadius: 999, fontSize: 10, fontWeight: 700,
-            fontFamily: "'Outfit',system-ui", position: "relative", zIndex: 1,
-          }}>
-            {profile.pregnancy_number === 1 ? "1st" : profile.pregnancy_number === 2 ? "2nd" : "3rd+"} pregnancy
-          </span>
-        )}
-      </div>
+      </GhHeader>
 
-      {/* 2. Upgrade to Pro banner */}
-      <div className="px-3 mb-3">
+      <div style={{ padding: "12px 18px 110px" }}>
+        {/* Premium banner */}
         {profile?.is_premium ? (
-          <div style={{
-            background: "linear-gradient(135deg, #E8601A, #f07840)", borderRadius: 18,
-            padding: "14px 16px", textAlign: "center",
-            boxShadow: "0 6px 18px rgba(232,96,26,0.25)",
-          }}>
-            <p style={{ fontFamily: "'Fraunces', serif", fontSize: 15, fontWeight: 700, color: "#FFFFFF" }}>
-              You're a Premium mama! 🌟
+          <div
+            className="gh-glass"
+            style={{
+              borderRadius: 18, padding: "14px 16px", marginBottom: 12,
+              display: "flex", alignItems: "center", gap: 12,
+              border: "1px solid rgba(242,182,71,0.4)",
+            }}
+          >
+            <Sparkles size={20} color="var(--gold)" strokeWidth={1.8} />
+            <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 15, fontWeight: 600, color: "var(--gold)" }}>
+              You're a Premium mama
             </p>
           </div>
         ) : (
-          <button onClick={() => setShowPremium(true)} style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 12,
-            background: "linear-gradient(135deg, #E8601A, #f07840)", borderRadius: 18,
-            padding: "14px 16px", border: "none", cursor: "pointer", textAlign: "left",
-            boxShadow: "0 6px 18px rgba(232,96,26,0.25)",
-          }}>
-            <span style={{ fontSize: 24, lineHeight: 1 }}>⭐</span>
+          <button
+            className="belly-btn-press"
+            onClick={() => setShowPremium(true)}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 12,
+              background: "linear-gradient(135deg, var(--gold), var(--ember))",
+              borderRadius: 18, padding: "14px 16px", border: "none", cursor: "pointer",
+              textAlign: "left", marginBottom: 12,
+              boxShadow: "0 10px 26px -10px rgba(232,98,46,0.6)",
+            }}
+          >
+            <Sparkles size={22} color="var(--night)" strokeWidth={1.8} style={{ flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 15, fontWeight: 700, color: "#FFFFFF", lineHeight: 1.2 }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, fontWeight: 700, color: "var(--night)", lineHeight: 1.2 }}>
                 Upgrade to Pro
               </p>
-              <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 11, color: "#FFFFFF", opacity: 0.9, marginTop: 2 }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 11.5, color: "rgba(21,10,31,0.75)", marginTop: 2 }}>
                 Unlimited doula access + all courses
               </p>
             </div>
-            <span style={{
-              background: "#FFFFFF", color: "#E8601A", fontFamily: "'Outfit',system-ui",
-              fontSize: 12, fontWeight: 700, padding: "8px 14px", borderRadius: 20,
-              flexShrink: 0, whiteSpace: "nowrap",
-            }}>Go Pro →</span>
+            <span
+              style={{
+                background: "var(--night)", color: "var(--gold)",
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600,
+                padding: "8px 13px", borderRadius: 20, flexShrink: 0, whiteSpace: "nowrap",
+              }}
+            >
+              go pro
+            </span>
           </button>
         )}
-      </div>
 
-      {/* 3. My Journey progress bar */}
-      <div className="px-3 mb-3">
-        <div style={{ background: "#FFFFFF", border: "1px solid #FFD4B8", borderRadius: 16, padding: 14 }}>
-          <p style={{
-            fontFamily: "'Outfit',system-ui", fontSize: 10, fontWeight: 700,
-            color: "#E8601A", letterSpacing: "0.12em", marginBottom: 12,
-          }}>MY JOURNEY</p>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
-            {[1, 12, currentWeek, 40].map((w, i, arr) => {
-              const isCurrent = w === currentWeek;
-              const isPast = w <= currentWeek;
-              return (
-                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, position: "relative" }}>
-                  {i < arr.length - 1 && (
-                    <span style={{
-                      position: "absolute", top: 6, left: "50%", right: "-50%", height: 2,
-                      background: arr[i + 1] <= currentWeek ? "#E8601A" : "#F0E4DA",
-                    }} />
-                  )}
-                  <span style={{
-                    width: isCurrent ? 13 : 8, height: isCurrent ? 13 : 8, borderRadius: "50%",
-                    background: isPast ? "#E8601A" : "#F0E4DA",
-                    position: "relative", zIndex: 1,
-                    animation: isCurrent ? "belly-pulse-ring 1.8s ease-out infinite" : "none",
-                  }} />
-                  <p style={{
-                    fontFamily: "'Outfit',system-ui", fontSize: 9.5, fontWeight: isCurrent ? 800 : 600,
-                    color: isCurrent ? "#E8601A" : "#C0A888", marginTop: 8,
-                  }}>Wk {w}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Motivational message */}
-      <div className="px-3 mb-3">
-        <div style={{
-          background: "#FDE8D8", border: "1px solid rgba(232,112,42,0.22)",
-          borderRadius: 14, padding: "12px 14px",
-        }}>
-          <p style={{
-            fontFamily: "'Fraunces', serif", fontStyle: "italic", fontWeight: 400,
-            fontSize: 13, color: "#A84818", lineHeight: 1.55, textAlign: "left",
-          }}>
-            You're doing amazing, mama. {daysToGo} days left — every one counts. 🌸
-          </p>
-        </div>
-      </div>
-
-      {/* 5. Combined Stats + Streak gradient card */}
-      <div className="px-3 mb-4">
-        <div style={{
-          background: "linear-gradient(135deg, #E8601A, #f07840)", borderRadius: 20,
-          boxShadow: "0 8px 22px rgba(232,96,26,0.25)", overflow: "hidden", color: "#FFFFFF",
-        }}>
-          {/* Top: 3 stats */}
-          <div style={{ display: "flex", padding: "16px 8px" }}>
-            {[
-              { val: String(currentWeek), label: "WEEK" },
-              { val: String(daysToGo), label: "DAYS TO GO" },
-              { val: `🔥${streak.current}`, label: "DAY STREAK" },
-            ].map((s, i) => (
-              <div key={s.label} style={{
-                flex: 1, textAlign: "center", padding: "0 4px",
-                borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.25)" : "none",
-              }}>
-                <p style={{ fontFamily: "'Fraunces', serif", fontSize: 26, fontWeight: 800, lineHeight: 1.1, letterSpacing: -0.5 }}>
+        {/* Stats + streak */}
+        <GlassCard>
+          <div className="gh-section-label">where you are</div>
+          <div style={{ display: "flex" }}>
+            {stats.map((s, i) => (
+              <div
+                key={s.label}
+                style={{
+                  flex: 1, textAlign: "center", padding: "2px 4px 4px",
+                  borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.12)" : "none",
+                }}
+              >
+                <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 600, lineHeight: 1.1, color: s.color }}>
                   {s.val}
                 </p>
-                <p style={{
-                  fontFamily: "'Outfit',system-ui", fontSize: 9.5, fontWeight: 700,
-                  letterSpacing: "0.14em", opacity: 0.9, marginTop: 4,
-                }}>{s.label}</p>
+                <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: CREAM_55, marginTop: 6 }}>
+                  {s.label}
+                </p>
               </div>
             ))}
           </div>
-          {/* Bottom: streak progress */}
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.25)", padding: "14px 16px" }}>
-            <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 14, fontWeight: 700, color: "#FFFFFF" }}>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", marginTop: 14, paddingTop: 13 }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13.5, fontWeight: 600, color: "var(--cream)" }}>
               {streak.current === 0 ? "Start your streak today" : `${streak.current}-day streak going`}
             </p>
-            <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 11, color: "#FFFFFF", opacity: 0.9, marginTop: 2 }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 11.5, color: CREAM_70, marginTop: 2 }}>
               Check in tomorrow to keep it going
             </p>
-            <div style={{ height: 6, borderRadius: 50, background: "rgba(255,255,255,0.25)", marginTop: 10, overflow: "hidden" }}>
-              <div style={{
-                height: "100%", width: `${Math.min(100, (streak.current / 7) * 100)}%`,
-                background: "#FFFFFF", borderRadius: 50, transition: "width 300ms",
-              }} />
+            <div className="gh-progress-track" style={{ marginTop: 10 }}>
+              <div
+                className="gh-progress-fill"
+                style={{ width: `${Math.min(100, (streak.current / 7) * 100)}%`, transition: "width 300ms" }}
+              />
             </div>
           </div>
-        </div>
-      </div>
+        </GlassCard>
 
-      {/* 6. Achievements */}
-      <div className="px-3 mb-4">
-        <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
-          <p style={{ fontFamily: "'Outfit',system-ui", fontSize: 10, fontWeight: 700, color: "#E8601A", letterSpacing: "0.12em" }}>
-            MY ACHIEVEMENTS
-          </p>
-          <span style={{ fontFamily: "'Outfit',system-ui", fontSize: 11, color: "#9A7B66" }}>
-            {earnedCount} of {BADGES.length} unlocked
-          </span>
-        </div>
-        <div style={{ height: 5, borderRadius: 50, background: "#FDE8D8", marginBottom: 10, overflow: "hidden" }}>
-          <div style={{ height: "100%", width: `${(earnedCount / BADGES.length) * 100}%`, background: "#E8601A", borderRadius: 50 }} />
-        </div>
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar">
-          {BADGES.map(badge => (
-            <div key={badge.label} className="flex flex-col items-center relative" style={{
-              minWidth: 64, borderRadius: 14, padding: "10px 8px",
-              background: badge.earned ? "#FDE8D8" : "#FFFFFF",
-              border: badge.earned ? "1px solid #FFD4B8" : "1px solid #F0E4DA",
-              boxShadow: badge.earned ? "0 0 0 2px #FFE0C7, 0 4px 14px rgba(232,96,26,0.18)" : "none",
-              opacity: badge.earned ? 1 : 0.45,
-            }}>
-              <span style={{ fontSize: 22, marginBottom: 4, filter: badge.earned ? "none" : "grayscale(100%)" }}>{badge.emoji}</span>
-              <span style={{ fontFamily: "'Outfit',system-ui", fontSize: 9, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "#1A0E06" }}>{badge.label}</span>
-              {!badge.earned && (
-                <span style={{
-                  position: "absolute", top: 4, right: 4,
-                  width: 14, height: 14, borderRadius: "50%", background: "#FFFFFF",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 8, lineHeight: 1, boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-                }}>🔒</span>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Edit form (inline above menu when editing) */}
-      {editing && (
-        <div className="px-3 mb-3">
-          <div className="rounded-[16px] p-4 space-y-3" style={{ background: "#FFFFFF", border: "1px solid #F0E4DA" }}>
-            <div>
-              <label style={{ display: "block", marginBottom: 4, fontFamily: "'Outfit',system-ui", fontSize: 10, fontWeight: 700, color: "#9A7B66", letterSpacing: "0.1em", textTransform: "uppercase" }}>Name</label>
-              <input value={editName} onChange={e => setEditName(e.target.value)} className="w-full h-10 rounded-[10px] px-3 text-sm" style={{ background: "var(--input-bg)", border: "none", fontFamily: "'Outfit',system-ui" }} />
-            </div>
-            <div>
-              <label style={{ display: "block", marginBottom: 4, fontFamily: "'Outfit',system-ui", fontSize: 10, fontWeight: 700, color: "#9A7B66", letterSpacing: "0.1em", textTransform: "uppercase" }}>Due date</label>
-              <input type="date" value={editDueDate} onChange={e => setEditDueDate(e.target.value)} className="w-full h-10 rounded-[10px] px-3 text-sm" style={{ background: "var(--input-bg)", border: "none", fontFamily: "'Outfit',system-ui" }} />
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => setEditing(false)} className="flex-1 h-10 rounded-[10px] text-sm" style={{ background: "#FFFFFF", border: "1px solid #F0E4DA", color: "#9A7B66", fontFamily: "'Outfit',system-ui" }}>Cancel</button>
-              <button onClick={handleSave} className="flex-1 h-10 rounded-[20px] text-sm" style={{ background: "#E8601A", color: "#FFFFFF", fontFamily: "'Outfit',system-ui", fontWeight: 700, border: "none" }}>Save</button>
-            </div>
+        {/* Achievements */}
+        <GlassCard>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+            <div className="gh-section-label" style={{ marginBottom: 0 }}>achievements</div>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: CREAM_55 }}>
+              {earnedCount} of {BADGES.length}
+            </span>
           </div>
-        </div>
-      )}
-
-      {/* 7. Menu list */}
-      <div className="px-3 mb-5">
-        <div style={{ background: "#FFFFFF", border: "1px solid #F0E4DA", borderRadius: 18, overflow: "hidden" }}>
-          {menuItems.map((row, idx, arr) => (
-            <button key={row.label} onClick={row.action} style={{
-              width: "100%", display: "flex", alignItems: "center", gap: 12,
-              padding: "12px 14px", background: "transparent", border: "none",
-              borderBottom: idx === arr.length - 1 ? "none" : "1px solid #F5EBE0",
-              cursor: "pointer",
-            }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: 10, background: "#FDE8D8",
-                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-              }}>
-                <row.Icon size={16} color="#E8601A" strokeWidth={2.2} />
+          <div className="gh-progress-track" style={{ margin: "10px 0 14px" }}>
+            <div className="gh-progress-fill" style={{ width: `${(earnedCount / BADGES.length) * 100}%` }} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+            {BADGES.map(badge => (
+              <div
+                key={badge.label}
+                className="gh-glass-subtle"
+                style={{
+                  position: "relative", padding: "12px 6px 10px",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 7,
+                  opacity: badge.earned ? 1 : 0.4,
+                  border: badge.earned ? "1px solid rgba(242,182,71,0.35)" : undefined,
+                }}
+              >
+                <badge.Icon
+                  size={22}
+                  color={badge.earned ? "var(--gold)" : "var(--cream)"}
+                  strokeWidth={1.8}
+                />
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 9.5, fontWeight: 500, textAlign: "center", lineHeight: 1.25, color: "var(--cream)" }}>
+                  {badge.label}
+                </span>
+                {!badge.earned && (
+                  <Lock
+                    size={10}
+                    color={CREAM_55}
+                    strokeWidth={1.8}
+                    style={{ position: "absolute", top: 6, right: 6 }}
+                  />
+                )}
               </div>
-              <span style={{ flex: 1, textAlign: "left", fontFamily: "'Outfit',system-ui", fontSize: 14, fontWeight: 500, color: "#1A0E06" }}>
+            ))}
+          </div>
+        </GlassCard>
+
+        {/* Edit form (inline above menu when editing) */}
+        {editing && (
+          <GlassCard>
+            <div className="gh-section-label">edit details</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={labelStyle}>Name</label>
+                <input value={editName} onChange={e => setEditName(e.target.value)} style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Due date</label>
+                <input type="date" value={editDueDate} onChange={e => setEditDueDate(e.target.value)} style={inputStyle} />
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  onClick={() => setEditing(false)}
+                  className="belly-btn-press"
+                  style={{
+                    flex: 1, padding: "12px 0", borderRadius: 14,
+                    background: "transparent", border: "1px solid rgba(255,255,255,0.2)",
+                    color: CREAM_70, fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 500, cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="belly-btn-press"
+                  style={{
+                    flex: 1, padding: "12px 0", borderRadius: 14,
+                    background: "linear-gradient(135deg, var(--gold), var(--ember))",
+                    color: "var(--night)", fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 700,
+                    border: "none", cursor: "pointer",
+                  }}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </GlassCard>
+        )}
+
+        {/* Menu list */}
+        <div className="gh-section-label" style={{ margin: "4px 2px 9px" }}>your tools</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+          {menuItems.map((row) => (
+            <button
+              key={row.label}
+              onClick={row.action}
+              className="gh-glass-subtle belly-btn-press"
+              style={{
+                width: "100%", display: "flex", alignItems: "center", gap: 12,
+                padding: "12px 14px", cursor: "pointer", textAlign: "left",
+              }}
+            >
+              <div
+                style={{
+                  width: 34, height: 34, borderRadius: 11,
+                  background: "rgba(242,182,71,0.14)", border: "1px solid rgba(242,182,71,0.25)",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                }}
+              >
+                <row.Icon size={16} color="var(--gold)" strokeWidth={1.8} />
+              </div>
+              <span style={{ flex: 1, fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 500, color: "var(--cream)" }}>
                 {row.label}
               </span>
-              <span style={{ fontFamily: "'Outfit',system-ui", fontSize: 18, color: "#C0907A" }}>›</span>
+              <ChevronRight size={16} color={CREAM_55} strokeWidth={1.8} style={{ flexShrink: 0 }} />
             </button>
           ))}
         </div>
-      </div>
 
-      {/* 8. Subtle sign out */}
-      <div style={{ textAlign: "center", padding: "8px 20px 12px" }}>
-        <button onClick={handleSignOut} style={{
-          background: "none", border: "none", cursor: "pointer",
-          fontFamily: "'Outfit',system-ui", fontSize: 12, color: "#9A7B66",
-          textDecoration: "underline", textUnderlineOffset: 3,
-        }}>
+        {/* Sign out */}
+        <button
+          onClick={handleSignOut}
+          className="belly-btn-press"
+          style={{
+            width: "100%", padding: "13px 0", borderRadius: 14,
+            background: "transparent", border: "1px solid rgba(255,255,255,0.2)",
+            color: "var(--cream)", fontFamily: "'Inter', sans-serif", fontSize: 13.5, fontWeight: 500,
+            cursor: "pointer",
+          }}
+        >
           Sign out
         </button>
       </div>
 
       <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
-    </div>
+    </SceneBackground>
   );
 };
 
