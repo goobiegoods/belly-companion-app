@@ -103,15 +103,18 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// overflow: clip (not hidden) — hidden boxes are programmatically scrollable, so
+// mobile browsers scroll them when focusing an input and the content gets stuck
+// off-screen; clip clips identically but can never scroll.
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, var(--night) 0%, #0d0713 100%)" }}>
+  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "clip", background: "linear-gradient(180deg, var(--night) 0%, #0d0713 100%)" }}>
     {children}
     <BottomNav />
   </div>
 );
 
 const FullScreenLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, var(--night) 0%, #0d0713 100%)" }}>
+  <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "clip", background: "linear-gradient(180deg, var(--night) 0%, #0d0713 100%)" }}>
     {children}
   </div>
 );

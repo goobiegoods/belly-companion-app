@@ -245,7 +245,7 @@ const Community = () => {
     const sensitive = isSensitiveStory(selectedPost.category, selectedPost.title, selectedPost.body);
     const bodyRevealed = !sensitive || revealedSensitive.has(selectedPost.id);
     return (
-      <div className="fixed inset-0 z-[100] gh-scene-mamas" style={{ maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", color: "var(--cream)", fontFamily: "'Inter', system-ui" }}>
+      <div className="fixed top-0 inset-x-0 z-[100] gh-scene-mamas" style={{ maxWidth: 430, margin: "0 auto", height: "var(--vvh, 100dvh)", display: "flex", flexDirection: "column", color: "var(--cream)", fontFamily: "'Inter', system-ui" }}>
         <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
           <button onClick={() => { setSelectedPost(null); fetchPosts(); }} style={{ fontSize: 12, fontWeight: 600, color: "rgba(251,238,224,0.7)" }}>← Back</button>
           <span className="font-gh-mono capitalize" style={{ fontSize: 10, padding: "3px 10px", borderRadius: 10, background: "rgba(255,255,255,0.14)", color: "var(--cream)" }}>

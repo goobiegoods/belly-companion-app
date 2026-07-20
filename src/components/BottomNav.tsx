@@ -49,7 +49,7 @@ const BottomNav = () => {
 
   return (
     <nav
-      className="fixed bottom-0 z-50"
+      className="gh-bottom-nav fixed bottom-0 z-50"
       style={{
         width: "min(430px, 100%)",
         left: "50%",

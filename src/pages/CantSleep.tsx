@@ -32,7 +32,7 @@ const CantSleep = () => {
       color: "var(--cream)",
       fontFamily: BODY_FONT,
       position: "relative",
-      overflow: "hidden",
+      overflow: "clip",
     }}>
       <div style={{ position: "relative", zIndex: 2 }}>
         {/* Topbar */}

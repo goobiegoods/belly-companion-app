@@ -396,7 +396,7 @@ const AskDoula = () => {
 
   return (
     <SceneBackground scene="ask">
-      <div style={{ display: "flex", flexDirection: "column", height: "100dvh", overflow: "hidden", paddingBottom: "calc(64px + env(safe-area-inset-bottom))" }}>
+      <div className="gh-chat-screen" style={{ display: "flex", flexDirection: "column", height: "var(--vvh, 100dvh)", overflow: "clip" }}>
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />
         <input ref={safetyCameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect} />

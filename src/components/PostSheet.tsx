@@ -86,7 +86,7 @@ export const PostSheetProvider = ({ children }: { children: ReactNode }) => {
               width: "100%", maxWidth: 430,
               background: "#F0E8DC",
               borderTopLeftRadius: 26, borderTopRightRadius: 26,
-              height: "85vh",
+              height: "min(85vh, calc(var(--vvh, 100dvh) - 40px))",
               transform: visible ? "translateY(0)" : "translateY(100%)",
               transition: "transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)",
               display: "flex", flexDirection: "column", position: "relative",

@@ -336,7 +336,7 @@ const Shop = () => {
         brand="Belly shop"
         tag="natural remedies · delivered"
         brandSize={20}
-        showMenu={false}
+        showLearn={false}
         glowStyle={{ right: -30, top: -55 }}
         right={
           <button onClick={() => navigate("/cart")} aria-label="Open cart" className="gh-icon-btn" style={{ position: "relative" }}>

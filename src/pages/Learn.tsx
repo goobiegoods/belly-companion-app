@@ -94,7 +94,7 @@ const Learn = () => {
   return (
     <SceneBackground scene="ask">
       <div className="page-enter" style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui", paddingBottom: 104 }}>
-        <GhHeader brand="Learn" tag="bite-size lessons" brandSize={20} weekPill={`week ${currentWeek}`} />
+        <GhHeader brand="Learn" tag="bite-size lessons" brandSize={20} showLearn={false} weekPill={`week ${currentWeek}`} />
 
         {/* Overall stats strip */}
         <div className="mx-4 mb-4 flex items-center gap-2 px-1">

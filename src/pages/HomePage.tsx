@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
 import { recipes } from "@/data/recipesData";
 import { getBreathingStreak } from "@/lib/breathingStreak";
-import { SceneBackground, GhHeader, GlassCard, BellaOrb } from "@/components/golden";
+import { SceneBackground, GhHeader, GlassCard, BellaOrb, SlideToNight } from "@/components/golden";
 import {
   Baby,
   ChevronRight,
@@ -442,6 +442,11 @@ export default function HomePage() {
               <span style={{ fontSize: 11, fontWeight: 500, display: "block" }}>{m.label}</span>
             </div>
           ))}
+        </div>
+
+        {/* 9. Can't sleep — slide to unlock night mode */}
+        <div style={{ marginTop: 18 }}>
+          <SlideToNight />
         </div>
       </div>
     </SceneBackground>

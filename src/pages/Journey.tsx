@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { getStreak } from "@/lib/streak";
 import { SceneBackground, GhHeader, GlassCard, BellaOrb } from "@/components/golden";
-import { Check, Lock, Flame, Sparkles, Plus, X } from "lucide-react";
+import { Check, ChevronRight, Lock, Flame, NotebookPen, Package, Plus, Sparkles, User, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface Milestone {
@@ -32,7 +33,23 @@ type TimelineItem = {
 
 const dayMs = 24 * 60 * 60 * 1000;
 
+const YOURS_LINKS = [
+  {
+    to: "/me", label: "My profile", sub: "due date, name, premium",
+    icon: User, rgb: "242,182,71",
+  },
+  {
+    to: "/journal", label: "Journal", sub: "mood, symptoms, notes",
+    icon: NotebookPen, rgb: "44,156,143",
+  },
+  {
+    to: "/orders", label: "My orders", sub: "bella's apothecary deliveries",
+    icon: Package, rgb: "181,56,107",
+  },
+];
+
 const Journey = () => {
+  const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const weeksLeft = Math.max(0, 40 - currentWeek);
@@ -142,7 +159,10 @@ const Journey = () => {
     if (!user || !momentTitle.trim() || !momentDate) return;
     setSaving(true);
     const next = [...customMilestones, { id: crypto.randomUUID(), title: momentTitle.trim(), date: momentDate }];
-    const { error } = await supabase.from("profiles").update({ custom_milestones: next }).eq("user_id", user.id);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ custom_milestones: next as unknown as import("@/integrations/supabase/types").Json })
+      .eq("user_id", user.id);
     setSaving(false);
     if (error) {
       toast.error("Couldn't save that moment — try again.");
@@ -281,6 +301,43 @@ const Journey = () => {
           </div>
         </GlassCard>
 
+        {/* Your space: profile / journal / orders (moved here from the old header menu) */}
+        <GlassCard>
+          <div className="gh-section-label">your space</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
+            {YOURS_LINKS.map(({ to, label, sub, icon: Icon, rgb }) => (
+              <button
+                key={to}
+                onClick={() => navigate(to)}
+                className="belly-btn-press"
+                style={{
+                  display: "flex", alignItems: "center", gap: 12, width: "100%",
+                  textAlign: "left", background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14,
+                  padding: "11px 12px", cursor: "pointer", color: "var(--cream)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
+                    background: `rgba(${rgb},0.2)`, border: `1px solid rgba(${rgb},0.4)`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  <Icon size={17} strokeWidth={1.8} style={{ color: `rgb(${rgb})` }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span className="font-gh-serif" style={{ fontSize: 14.5, fontWeight: 500, display: "block" }}>
+                    {label}
+                  </span>
+                  <span style={{ fontSize: 11.5, color: "rgba(251,238,224,0.6)" }}>{sub}</span>
+                </div>
+                <ChevronRight size={16} strokeWidth={1.8} style={{ opacity: 0.6, flexShrink: 0 }} />
+              </button>
+            ))}
+          </div>
+        </GlassCard>
+
         <GlassCard>
           <div className="gh-section-label">your timeline</div>
           <div style={{ position: "relative", paddingLeft: 24 }}>
@@ -355,7 +412,7 @@ const Journey = () => {
               border: "1px solid rgba(255,255,255,0.14)",
               borderBottom: "none",
               borderTopLeftRadius: 24, borderTopRightRadius: 24,
-              maxHeight: "70dvh", maxWidth: 430, margin: "0 auto",
+              maxHeight: "min(70dvh, calc(var(--vvh, 100dvh) - 40px))", maxWidth: 430, margin: "0 auto",
               color: "var(--cream)", fontFamily: "'Inter', system-ui",
             }}
             onClick={(e) => e.stopPropagation()}

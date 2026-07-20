@@ -521,7 +521,7 @@
 .gh-screen {
   position: relative;
   min-height: 100dvh;
-  overflow: hidden; /* clip silhouette/glow overhangs so they can't create scrollable overflow */
+  overflow: clip; /* clip silhouette/glow overhangs; `clip` (not `hidden`) so the browser can't scroll this box when the keyboard focuses an input */
   color: var(--cream);
   font-family: 'Inter', system-ui, sans-serif;
 }
@@ -728,4 +728,83 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .gh-bella-orb, .gh-glow-orb { animation: none !important; }
+}
+
+/* ── Keyboard-aware layout ──
+   `kb-open` is set on <html> by src/lib/viewport.ts when the visual viewport
+   shrinks enough to indicate the on-screen keyboard. */
+.kb-open .gh-bottom-nav { display: none; }
+
+/* Chat screens reserve space for the bottom nav; the keyboard replaces it. */
+.gh-chat-screen { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+.kb-open .gh-chat-screen { padding-bottom: 0; }
+
+/* ── Slide-to-night strip (Today) ── */
+.gh-slide-track {
+  position: relative;
+  height: 56px;
+  border-radius: 28px;
+  background: linear-gradient(140deg, #1d0f28, var(--plum) 70%);
+  border: 1px solid rgba(242,182,71,0.28);
+  box-shadow: 0 0 22px -8px rgba(242,182,71,0.35), inset 0 2px 8px rgba(0,0,0,0.35);
+  overflow: clip;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.gh-slide-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  background: linear-gradient(90deg, rgba(181,56,107,0.35), rgba(242,182,71,0.22));
+  pointer-events: none;
+}
+.gh-slide-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 34px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: rgba(251,238,224,0.6);
+  pointer-events: none;
+  background: linear-gradient(100deg, rgba(251,238,224,0.55) 40%, #FBEEE0 50%, rgba(251,238,224,0.55) 60%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ghSlideShimmer 2.8s linear infinite;
+}
+.gh-slide-thumb {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--ember));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px -4px rgba(242,182,71,0.6);
+  cursor: grab;
+  touch-action: pan-y; /* vertical page scroll still works over the thumb */
+}
+.gh-slide-thumb:active { cursor: grabbing; }
+.gh-slide-thumb.gh-slide-hint { animation: ghSlideNudge 2.6s ease-in-out infinite; }
+@keyframes ghSlideShimmer {
+  0%   { background-position: 120% 0; }
+  100% { background-position: -120% 0; }
+}
+@keyframes ghSlideNudge {
+  0%, 70%, 100% { transform: translateX(0); }
+  80% { transform: translateX(9px); }
+  90% { transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gh-slide-label { animation: none; -webkit-text-fill-color: rgba(251,238,224,0.6); background: none; }
+  .gh-slide-thumb.gh-slide-hint { animation: none; }
 }
