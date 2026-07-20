@@ -15,6 +15,7 @@ import Community from "./pages/Community";
 import Profile from "./pages/Profile";
 import Journal from "./pages/Journal";
 import Courses from "./pages/Courses";
+import Learn from "./pages/Learn";
 import Shop from "./pages/Shop";
 import CantSleep from "./pages/CantSleep";
 import Orders from "./pages/Orders";
@@ -144,6 +145,7 @@ const AppContent = () => {
       <Route path="/cart" element={<ProtectedRoute><AppLayout><Cart /></AppLayout></ProtectedRoute>} />
       <Route path="/me" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
       <Route path="/journal" element={<ProtectedRoute><AppLayout><Journal /></AppLayout></ProtectedRoute>} />
+      <Route path="/learn" element={<ProtectedRoute><AppLayout><Learn /></AppLayout></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><AppLayout><Courses /></AppLayout></ProtectedRoute>} />
       <Route path="/cant-sleep" element={<ProtectedRoute><FullScreenLayout><CantSleep /></FullScreenLayout></ProtectedRoute>} />
       <Route path="/orders" element={<ProtectedRoute><AppLayout><Orders /></AppLayout></ProtectedRoute>} />

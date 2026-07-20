@@ -31,7 +31,7 @@ const MENU_ITEMS: { label: string; to: string }[] = [
   { label: "My profile", to: "/me" },
   { label: "Journal", to: "/journal" },
   { label: "My orders", to: "/orders" },
-  { label: "Courses", to: "/courses" },
+  { label: "Learn", to: "/learn" },
   { label: "Can't sleep", to: "/cant-sleep" },
 ];
 

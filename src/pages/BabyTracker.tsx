@@ -1,16 +1,20 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
 import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
 import PremiumUpgradeSheet from "@/components/PremiumUpgradeSheet";
+import { toast } from "sonner";
+import { Lock, Sparkles, Baby, ChevronRight, Leaf } from "lucide-react";
 
-interface Contraction {
-  startTime: Date;
-  endTime: Date;
-  duration: number;
-  interval: number;
-}
+// Same symptom vocabulary as Journal so quick-logged entries look native there.
+const SYMPTOMS = [
+  "Nausea", "Fatigue", "Back pain", "Heartburn", "Swelling",
+  "Headache", "Insomnia", "Mood changes", "Cravings", "Other",
+];
+
+const KICKS_UNLOCK_WEEK = 16;
 
 const getFruitName = (babySize: string) =>
   babySize.replace(/\s*\(.*?\)\s*/g, "").trim().toLowerCase();
@@ -26,6 +30,7 @@ const Stat = ({ value, unit, label }: { value: string; unit: string; label: stri
 );
 
 const BabyTracker = () => {
+  const navigate = useNavigate();
   const { profile, user } = useAuth();
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const [selectedWeek, setSelectedWeek] = useState(currentWeek);
@@ -33,11 +38,12 @@ const BabyTracker = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [kickCount, setKickCount] = useState(0);
-  const [contractions, setContractions] = useState<Contraction[]>([]);
-  const [isTimingContraction, setIsTimingContraction] = useState(false);
-  const [contractionStart, setContractionStart] = useState<Date | null>(null);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [showWeekLock, setShowWeekLock] = useState(false);
+
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [savingSymptoms, setSavingSymptoms] = useState(false);
+
+  const kicksUnlocked = currentWeek >= KICKS_UNLOCK_WEEK;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -56,19 +62,11 @@ const BabyTracker = () => {
       .from("kick_counts")
       .select("count")
       .eq("user_id", user.id)
-      .gte("created_at", todayStart.toISOString())
+      .gte("recorded_at", todayStart.toISOString())
       .then(({ data }) => {
         if (data) setKickCount(data.reduce((sum, row) => sum + (row.count ?? 1), 0));
       });
   }, [user?.id]);
-
-  useEffect(() => {
-    if (!isTimingContraction || !contractionStart) return;
-    const iv = setInterval(() => {
-      setElapsedSeconds(Math.floor((Date.now() - contractionStart.getTime()) / 1000));
-    }, 1000);
-    return () => clearInterval(iv);
-  }, [isTimingContraction, contractionStart]);
 
   const addKick = async () => {
     setKickCount((k) => k + 1);
@@ -78,35 +76,31 @@ const BabyTracker = () => {
     }
   };
 
-  const toggleContraction = () => {
-    if (!isTimingContraction) {
-      setContractionStart(new Date());
-      setIsTimingContraction(true);
-      setElapsedSeconds(0);
-      navigator.vibrate?.([20, 50, 20]);
+  const toggleSymptom = (s: string) =>
+    setSelectedSymptoms((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+
+  // Quick-log writes the exact shape Journal saves/reads (mood is nullable in journal_entries).
+  const logSymptoms = async () => {
+    if (!user || selectedSymptoms.length === 0) return;
+    setSavingSymptoms(true);
+    navigator.vibrate?.(8);
+    const today = new Date().toISOString().split("T")[0];
+    const { error } = await supabase.from("journal_entries").insert({
+      user_id: user.id,
+      date: today,
+      mood: null,
+      symptoms: selectedSymptoms,
+      note: null,
+      week_number: currentWeek,
+    });
+    setSavingSymptoms(false);
+    if (error) {
+      toast.error("Something went wrong. Try again.");
       return;
     }
-    if (!contractionStart) return;
-    const endTime = new Date();
-    const duration = Math.floor((endTime.getTime() - contractionStart.getTime()) / 1000);
-    const lastStart = contractions.length > 0 ? contractions[contractions.length - 1].startTime : null;
-    const interval = lastStart ? Math.floor((contractionStart.getTime() - lastStart.getTime()) / 1000) : 0;
-    setContractions((prev) => [...prev, { startTime: contractionStart, endTime, duration, interval }]);
-    setIsTimingContraction(false);
-    setContractionStart(null);
-    navigator.vibrate?.(15);
+    toast.success("Symptoms logged in your journal");
+    setSelectedSymptoms([]);
   };
-
-  const avgInterval = (() => {
-    const last3 = contractions.slice(-3).filter((c) => c.interval > 0);
-    if (last3.length === 0) return 0;
-    return Math.round(last3.reduce((a, c) => a + c.interval, 0) / last3.length);
-  })();
-  const shouldAlert =
-    contractions.length >= 3 && avgInterval > 0 && avgInterval <= 300 &&
-    contractions.slice(-3).every((c) => c.duration >= 60);
-
-  const formatTimer = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   const fruitName = getFruitName(weekData.babySize);
   const currentData = getWeekData(currentWeek);
@@ -118,6 +112,11 @@ const BabyTracker = () => {
     }
     setSelectedWeek(w);
   };
+
+  const askBella = () =>
+    navigate("/ask", {
+      state: { prefill: `What should I know about week ${selectedWeek} of pregnancy?` },
+    });
 
   return (
     <SceneBackground scene="baby">
@@ -202,12 +201,47 @@ const BabyTracker = () => {
           </div>
         </GlassCard>
 
-        {/* Counters */}
-        <div style={{ display: "flex", gap: 9, marginTop: 3 }}>
+        {/* Your body this week — real maternal data from pregnancyWeeks */}
+        <GlassCard>
+          <div className="gh-section-label">
+            {selectedWeek === currentWeek ? "your body this week" : `your body · week ${selectedWeek}`}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4, marginBottom: 12 }}>
+            {weekData.momSymptoms.map((s) => (
+              <span
+                key={s}
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 11,
+                  fontWeight: 500,
+                  padding: "5px 11px",
+                  borderRadius: 20,
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  color: "rgba(251,238,224,0.85)",
+                }}
+              >
+                {s}
+              </span>
+            ))}
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+            <Leaf size={15} strokeWidth={1.8} style={{ stroke: "var(--teal)", flexShrink: 0, marginTop: 2 }} />
+            <div
+              className="font-gh-serif"
+              style={{ fontStyle: "italic", fontSize: 13, lineHeight: 1.55, color: "var(--cream)", opacity: 0.9 }}
+            >
+              {weekData.naturalTip}
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Kick counter — locked before ~week 16, persisted to kick_counts after */}
+        {kicksUnlocked ? (
           <button
             onClick={addKick}
-            className="gh-glass-subtle"
-            style={{ flex: 1, padding: "14px 8px", textAlign: "center", cursor: "pointer" }}
+            className="gh-glass-subtle belly-btn-press"
+            style={{ width: "100%", padding: "16px 8px", textAlign: "center", cursor: "pointer", marginBottom: 12 }}
           >
             <div className="font-gh-mono" style={{ fontSize: 24, fontWeight: 600, color: "var(--gold)" }}>
               {kickCount}
@@ -223,40 +257,134 @@ const BabyTracker = () => {
               + Kick
             </div>
           </button>
-          <button
-            onClick={toggleContraction}
-            className="gh-glass-subtle"
-            style={{
-              flex: 1, padding: "14px 8px", textAlign: "center", cursor: "pointer",
-              ...(isTimingContraction ? { borderColor: "rgba(181,56,107,0.7)" } : {}),
-            }}
-          >
-            <div className="font-gh-mono" style={{ fontSize: 24, fontWeight: 600, color: "var(--magenta)" }}>
-              {isTimingContraction ? formatTimer(elapsedSeconds) : contractions.length}
-            </div>
-            <div style={{ fontSize: 10, color: "rgba(251,238,224,0.6)", marginTop: 3 }}>
-              {isTimingContraction ? "timing…" : "contractions"}
-            </div>
-            <div style={{ fontSize: 10, marginTop: 9, color: "rgba(251,238,224,0.5)" }}>
-              {isTimingContraction ? "tap to stop" : "tap to time"}
-            </div>
-          </button>
-        </div>
-
-        {shouldAlert && (
+        ) : (
           <div
-            className="gh-glass-dark"
-            style={{ marginTop: 10, padding: "12px 14px", borderColor: "rgba(232,98,46,0.6)" }}
+            className="gh-glass-subtle"
+            style={{ padding: "18px 16px", textAlign: "center", marginBottom: 12 }}
           >
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--gold)", marginBottom: 3 }}>
-              Your contractions are close together
+            <div
+              style={{
+                width: 40, height: 40, borderRadius: "50%", margin: "0 auto 10px",
+                background: "rgba(242,182,71,0.14)", border: "1px solid rgba(242,182,71,0.35)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <Lock size={17} strokeWidth={1.8} style={{ stroke: "var(--gold)" }} />
             </div>
-            <div style={{ fontSize: 11.5, color: "rgba(251,238,224,0.75)", lineHeight: 1.5 }}>
-              3+ contractions lasting a minute, about {Math.round(avgInterval / 60)} min apart — it may be
-              time to call your provider.
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: "var(--cream)", marginBottom: 4 }}>
+              Kick counting starts around week 16
+            </div>
+            <div style={{ fontSize: 11.5, color: "rgba(251,238,224,0.65)", lineHeight: 1.5 }}>
+              Most mamas feel the first flutters between 16 and 22 weeks — the counter will open up then.
             </div>
           </div>
         )}
+
+        {/* Log a symptom — quick-log into journal_entries (replaces the old local-only contraction timer) */}
+        <GlassCard>
+          <div className="gh-section-label">log a symptom</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4, marginBottom: 12 }}>
+            {SYMPTOMS.map((s) => {
+              const on = selectedSymptoms.includes(s);
+              return (
+                <button
+                  key={s}
+                  onClick={() => toggleSymptom(s)}
+                  className={`gh-pill belly-btn-press${on ? " gh-pill-filled" : ""}`}
+                  aria-pressed={on}
+                  style={{ fontSize: 12, padding: "6px 13px" }}
+                >
+                  {s}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            onClick={logSymptoms}
+            disabled={selectedSymptoms.length === 0 || savingSymptoms}
+            className="belly-btn-press"
+            style={{
+              width: "100%",
+              background: "linear-gradient(135deg, var(--gold), var(--ember))",
+              color: "var(--night)",
+              fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 13,
+              borderRadius: 14, padding: "12px 14px", border: "none",
+              opacity: selectedSymptoms.length === 0 || savingSymptoms ? 0.5 : 1,
+              cursor: selectedSymptoms.length === 0 || savingSymptoms ? "default" : "pointer",
+              boxShadow: "0 6px 18px -6px rgba(232,98,46,0.55)",
+            }}
+          >
+            {savingSymptoms ? "Saving..." : "Save to journal"}
+          </button>
+          <button
+            onClick={() => navigate("/journal")}
+            className="belly-btn-press"
+            style={{
+              marginTop: 10, background: "none", border: "none", padding: 0, cursor: "pointer",
+              fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 600, color: "var(--gold)",
+            }}
+          >
+            Add mood or a note in Journal →
+          </button>
+        </GlassCard>
+
+        {/* Ask Bella shortcut */}
+        <button
+          onClick={askBella}
+          className="gh-glass-subtle belly-btn-press"
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 12,
+            padding: "13px 14px", cursor: "pointer", textAlign: "left", marginBottom: 10,
+          }}
+        >
+          <div
+            style={{
+              width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+              background: "rgba(181,56,107,0.22)", border: "1px solid rgba(181,56,107,0.45)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <Sparkles size={16} strokeWidth={1.8} style={{ stroke: "var(--gold)" }} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: "var(--cream)" }}>
+              Ask Bella about week {selectedWeek}
+            </div>
+            <div style={{ fontSize: 11, color: "rgba(251,238,224,0.6)", marginTop: 2 }}>
+              What should I know right now?
+            </div>
+          </div>
+          <ChevronRight size={16} strokeWidth={1.8} style={{ stroke: "rgba(251,238,224,0.5)", flexShrink: 0 }} />
+        </button>
+
+        {/* How your baby feels inside → /learn */}
+        <button
+          onClick={() => navigate("/learn")}
+          className="gh-glass-subtle belly-btn-press"
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 12,
+            padding: "13px 14px", cursor: "pointer", textAlign: "left",
+          }}
+        >
+          <div
+            style={{
+              width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+              background: "rgba(44,156,143,0.22)", border: "1px solid rgba(44,156,143,0.45)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <Baby size={16} strokeWidth={1.8} style={{ stroke: "var(--teal)" }} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: "var(--cream)" }}>
+              How your baby feels inside
+            </div>
+            <div style={{ fontSize: 11, color: "rgba(251,238,224,0.6)", marginTop: 2 }}>
+              Step into their world — warmth, sound, and your heartbeat
+            </div>
+          </div>
+          <ChevronRight size={16} strokeWidth={1.8} style={{ stroke: "rgba(251,238,224,0.5)", flexShrink: 0 }} />
+        </button>
       </div>
 
       <PremiumUpgradeSheet open={showWeekLock} onClose={() => setShowWeekLock(false)} />

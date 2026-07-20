@@ -1,34 +1,77 @@
 import { useState, useEffect, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { coursesData, Course } from "@/data/coursesData";
+import { homeopathyCourses } from "@/data/shopData";
 import { getLessonContent, LessonContent, getLessonDescription } from "@/data/lessonContent";
+import { getHomeopathyLessonContent } from "@/data/homeopathyLessons";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, ChevronRight, Check, ArrowLeft, Save, BookOpen, Leaf, Baby, GraduationCap, Lightbulb, Sparkles, CheckCircle2, Play } from "lucide-react";
+import { Lock, ChevronRight, Check, ArrowLeft, Save, BookOpen, Leaf, Baby, GraduationCap, Lightbulb, Sparkles, CheckCircle2, Play, Droplets } from "lucide-react";
 import { toast } from "sonner";
 import { PremiumModal } from "@/components/PremiumModal";
 import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
 
-const FILTER_TABS = ["All", "Trimester", "Wellness", "Birth prep"];
+const FILTER_TABS = ["All", "Trimester", "Wellness", "Birth prep", "Homeopathy"];
 const CATEGORY_MAP: Record<string, string> = {
   Trimester: "Your trimester",
   Wellness: "Natural wellness",
   "Birth prep": "Birth preparation",
+  Homeopathy: "Homeopathy",
 };
+
+// --- Unified course library: pregnancy courses + homeopathy courses ---
+export const allCourses: Course[] = [
+  ...coursesData,
+  ...homeopathyCourses.map((h): Course => ({
+    id: h.id,
+    title: h.title,
+    category: "Homeopathy",
+    lessonCount: h.lessonCount,
+    isPremium: h.isPremium,
+    description: h.description,
+    emoji: h.emoji,
+    duration: h.duration,
+    tags: h.tags,
+  })),
+];
+
+const isHomeopathyCourse = (courseId: string) => courseId.startsWith("h");
+
+export function getCourseLessonContent(courseId: string, lessonIndex: number): LessonContent {
+  return isHomeopathyCourse(courseId)
+    ? getHomeopathyLessonContent(courseId, lessonIndex)
+    : getLessonContent(courseId, lessonIndex);
+}
+
+export function getCourseLessonDescription(courseId: string, lessonIndex: number): string {
+  if (isHomeopathyCourse(courseId)) {
+    const content = getHomeopathyLessonContent(courseId, lessonIndex);
+    return content.description || content.intro.split(".").slice(0, 2).join(".") + ".";
+  }
+  return getLessonDescription(courseId, lessonIndex);
+}
+
+/** Count a course's completed lessons ("c1-" prefix match avoids c1 matching c11 ids). */
+export const courseCompletionCount = (completions: string[], courseId: string) =>
+  completions.filter(id => id.startsWith(`${courseId}-`)).length;
 
 const CREAM_70 = "rgba(251,238,224,0.7)";
 const CREAM_55 = "rgba(251,238,224,0.55)";
 const CTA_GRADIENT = "linear-gradient(135deg, var(--gold), var(--ember))";
 
-function CategoryIcon({ category, size = 22 }: { category: string; size?: number }) {
+export function CategoryIcon({ category, size = 22 }: { category: string; size?: number }) {
   const props = { size, strokeWidth: 1.8, style: { color: "var(--gold)" } };
   if (category === "Your trimester") return <BookOpen {...props} />;
   if (category === "Natural wellness") return <Leaf {...props} />;
   if (category === "Birth preparation") return <Baby {...props} />;
+  if (category === "Homeopathy") return <Droplets {...props} />;
   return <GraduationCap {...props} />;
 }
 
 const Courses = () => {
   const { user, profile } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [completions, setCompletions] = useState<string[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<number | null>(null);
@@ -41,9 +84,29 @@ const Courses = () => {
   const [showPremium, setShowPremium] = useState(false);
 
   const handleSelectCourse = (id: string) => {
-    const c = coursesData.find(x => x.id === id);
+    const c = allCourses.find(x => x.id === id);
     if (c?.isPremium && !profile?.is_premium) { setShowPremium(true); return; }
     setSelectedCourse(id);
+  };
+
+  // Open a course/lesson passed via navigation state (e.g. from the /learn hub).
+  const navState = location.state as { courseId?: string; lessonIndex?: number; from?: string } | null;
+  const cameFromLearn = navState?.from === "learn";
+  useEffect(() => {
+    if (!navState?.courseId) return;
+    const c = allCourses.find(x => x.id === navState.courseId);
+    if (!c) return;
+    if (c.isPremium && !profile?.is_premium) { setShowPremium(true); return; }
+    setSelectedCourse(c.id);
+    if (typeof navState.lessonIndex === "number") {
+      setSelectedLesson(Math.max(0, Math.min(c.lessonCount - 1, navState.lessonIndex)));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
+
+  const exitCourseList = () => {
+    if (cameFromLearn) navigate("/learn");
+    else setSelectedCourse(null);
   };
 
   useEffect(() => {
@@ -52,10 +115,10 @@ const Courses = () => {
       .then(({ data }) => setCompletions(data?.map(d => d.lesson_id) || []));
   }, [user?.id]);
 
-  const totalLessons = coursesData.reduce((s, c) => s + c.lessonCount, 0);
+  const totalLessons = allCourses.reduce((s, c) => s + c.lessonCount, 0);
   const completedCount = completions.length;
   const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-  const totalHours = Math.round(coursesData.reduce((s, c) => s + c.duration, 0) / 60);
+  const totalHours = Math.round(allCourses.reduce((s, c) => s + c.duration, 0) / 60);
   const completedHours = totalHours > 0 ? Math.max(0, totalHours - Math.round((totalLessons - completedCount) * 7 / 60)) : 0;
   const hoursLeft = totalHours - completedHours;
 
@@ -80,16 +143,16 @@ const Courses = () => {
     await supabase.from("course_completions" as any).insert({ user_id: user.id, course_id: courseId, lessons_count: lessonsCount } as any);
   };
 
-  const filteredCourses = activeFilter === "All" ? coursesData : coursesData.filter(c => c.category === CATEGORY_MAP[activeFilter]);
+  const filteredCourses = activeFilter === "All" ? allCourses : allCourses.filter(c => c.category === CATEGORY_MAP[activeFilter]);
   const categories = [...new Set(filteredCourses.map(c => c.category))];
-  const continueCourses = coursesData.filter(c => {
-    const count = completions.filter(id => id.startsWith(c.id)).length;
+  const continueCourses = allCourses.filter(c => {
+    const count = courseCompletionCount(completions, c.id);
     return count > 0 && count < c.lessonCount;
   });
 
   // --- COURSE COMPLETION ---
   if (showCompletion && selectedCourse) {
-    const course = coursesData.find(c => c.id === selectedCourse)!;
+    const course = allCourses.find(c => c.id === selectedCourse)!;
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 page-enter gh-scene-ask" style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui" }}>
         <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: "rgba(242,182,71,0.18)", border: "1px solid rgba(242,182,71,0.45)", boxShadow: "0 0 24px rgba(242,182,71,0.35)" }}>
@@ -101,10 +164,10 @@ const Courses = () => {
         <p className="font-gh-serif" style={{ fontSize: 15, fontStyle: "italic", color: CREAM_70, textAlign: "center", marginBottom: 32, lineHeight: 1.55 }}>
           You've taken a beautiful step on your pregnancy journey. Be proud of yourself, mama.
         </p>
-        <button onClick={() => { setShowCompletion(false); setSelectedCourse(null); setSelectedLesson(null); }}
+        <button onClick={() => { setShowCompletion(false); setSelectedCourse(null); setSelectedLesson(null); if (cameFromLearn) navigate("/learn"); }}
           className="w-full max-w-xs h-12 text-[14px] font-bold mb-3 belly-btn-press"
           style={{ borderRadius: 14, background: CTA_GRADIENT, color: "var(--night)", border: "none" }}>
-          Back to courses
+          {cameFromLearn ? "Back to Learn" : "Back to courses"}
         </button>
       </div>
     );
@@ -112,8 +175,8 @@ const Courses = () => {
 
   // --- LESSON READER ---
   if (selectedCourse && selectedLesson !== null) {
-    const course = coursesData.find(c => c.id === selectedCourse)!;
-    const lesson: LessonContent = getLessonContent(course.id, selectedLesson);
+    const course = allCourses.find(c => c.id === selectedCourse)!;
+    const lesson: LessonContent = getCourseLessonContent(course.id, selectedLesson);
     const lessonId = `${course.id}-L${selectedLesson + 1}`;
     const isCompleted = completions.includes(lessonId);
     const isLast = selectedLesson === course.lessonCount - 1;
@@ -254,20 +317,20 @@ const Courses = () => {
 
   // --- LESSON LIST ---
   if (selectedCourse) {
-    const course = coursesData.find(c => c.id === selectedCourse)!;
+    const course = allCourses.find(c => c.id === selectedCourse)!;
     const lessons = Array.from({ length: course.lessonCount }, (_, i) => ({
       id: `${course.id}-L${i + 1}`, number: i + 1,
-      title: getLessonContent(course.id, i).title,
-      duration: getLessonContent(course.id, i).duration,
-      description: getLessonDescription(course.id, i),
+      title: getCourseLessonContent(course.id, i).title,
+      duration: getCourseLessonContent(course.id, i).duration,
+      description: getCourseLessonDescription(course.id, i),
     }));
-    const courseCompletions = completions.filter(id => id.startsWith(course.id)).length;
+    const courseCompletions = courseCompletionCount(completions, course.id);
     const courseProgress = courseCompletions / course.lessonCount;
 
     return (
       <div className="min-h-screen page-enter gh-scene-ask" style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui", paddingBottom: 104 }}>
         <div className="flex items-center gap-3 px-5 pt-5 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
-          <button onClick={() => setSelectedCourse(null)} className="flex items-center gap-1 belly-btn-press"
+          <button onClick={exitCourseList} className="flex items-center gap-1 belly-btn-press"
             style={{ color: "rgba(251,238,224,0.85)", fontWeight: 500, fontSize: 13, background: "transparent", border: "none" }}>
             <ArrowLeft size={15} strokeWidth={1.8} />Back
           </button>
@@ -407,7 +470,7 @@ const Courses = () => {
 
 function CourseCard({ course, completions, profile, onSelect }: { course: Course; completions: string[]; profile: any; onSelect: (id: string) => void }) {
   const isLocked = course.isPremium && !profile?.is_premium;
-  const courseCompletions = completions.filter(id => id.startsWith(course.id)).length;
+  const courseCompletions = courseCompletionCount(completions, course.id);
   const progress = courseCompletions / course.lessonCount;
 
   return (

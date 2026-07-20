@@ -19,6 +19,38 @@ const inputStyle: React.CSSProperties = {
   colorScheme: "dark",
 };
 
+// Format a Date as YYYY-MM-DD using local calendar fields (matches <input type="date"> values).
+const toISODate = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+// Inverse of getCurrentWeek(): due date such that today falls in the given week.
+// getCurrentWeek subtracts 280 days (40 weeks) from the due date to find conception,
+// so due = today + (40 - week) * 7 days round-trips back to the same week.
+const dueDateFromWeek = (week: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + (40 - week) * 7);
+  return toISODate(d);
+};
+
+const FieldError = ({ children }: { children: React.ReactNode }) => (
+  <p
+    role="alert"
+    style={{
+      fontFamily: "'Inter', sans-serif",
+      fontSize: 12,
+      color: "var(--ember)",
+      margin: "6px 2px 0",
+      lineHeight: 1.4,
+    }}
+  >
+    {children}
+  </p>
+);
+
 const ArrowRight = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
     <path d="M5 12h14" />
@@ -86,6 +118,8 @@ const Onboarding = () => {
   const [step, setStep] = useState(1);
   const [firstName, setFirstName] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [dateMode, setDateMode] = useState<"due" | "week">("due");
+  const [weekInput, setWeekInput] = useState("");
   const [pregnancyNumber, setPregnancyNumber] = useState(1);
   const [hasProvider, setHasProvider] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -94,19 +128,52 @@ const Onboarding = () => {
   if (!user) return <Navigate to="/auth" replace />;
   if (profile?.onboarding_completed) return <Navigate to="/" replace />;
 
+  // --- Due date / current week validation ---
+  const weekNum = parseInt(weekInput, 10);
+  const weekValid = weekInput.trim() !== "" && Number.isInteger(weekNum) && weekNum >= 1 && weekNum <= 40;
+  const weekError =
+    dateMode === "week" && weekInput.trim() !== "" && !weekValid
+      ? "Enter a week between 1 and 40"
+      : null;
+
+  let dueError: string | null = null;
+  if (dateMode === "due" && dueDate) {
+    const due = new Date(`${dueDate}T00:00:00`);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const maxDue = new Date(today);
+    maxDue.setDate(maxDue.getDate() + 280); // 40 weeks out
+    if (Number.isNaN(due.getTime())) {
+      dueError = "That date doesn't look right";
+    } else if (due < today) {
+      dueError = "That date has already passed — try entering your current week instead";
+    } else if (due > maxDue) {
+      dueError = "That's more than 40 weeks away — double-check the date";
+    }
+  }
+
+  // The due date everything downstream is computed from: either entered
+  // directly, or derived from the current pregnancy week.
+  const resolvedDueDate =
+    dateMode === "due"
+      ? (dueDate && !dueError ? dueDate : "")
+      : (weekValid ? dueDateFromWeek(weekNum) : "");
+
   const handleSaveProfile = async () => {
+    if (!firstName || !resolvedDueDate) return;
     setSaving(true);
     const { error } = await supabase
       .from("profiles")
       .update({
         first_name: firstName,
-        due_date: dueDate,
+        due_date: resolvedDueDate,
         pregnancy_number: pregnancyNumber,
         has_provider: hasProvider,
       })
       .eq("user_id", user.id);
     setSaving(false);
     if (error) { toast.error("Failed to save"); return; }
+    if (dateMode === "week") setDueDate(resolvedDueDate);
     setStep(3);
   };
 
@@ -126,7 +193,7 @@ const Onboarding = () => {
           <BellaOrb size={72} style={{ margin: "0 auto 20px" }} />
 
           <p className="gh-brand-tag" style={{ textAlign: "center", marginBottom: 12 }}>
-            Week 24 &middot; second trimester
+            Your pregnancy companion
           </p>
 
           <h1
@@ -162,9 +229,9 @@ const Onboarding = () => {
           </p>
 
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: 28 }}>
-            <span className="gh-pill">Viability milestone</span>
-            <span className="gh-pill">Hearing begins</span>
-            <span className="gh-pill">Lungs forming</span>
+            <span className="gh-pill">Weekly guidance</span>
+            <span className="gh-pill">Ask Bella anytime</span>
+            <span className="gh-pill">Mama community</span>
           </div>
 
           <PrimaryCTA onClick={() => setStep(2)}>
@@ -195,22 +262,109 @@ const Onboarding = () => {
 
           <GlassCard style={{ padding: "20px 18px", marginBottom: 0 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {[
-                { label: "Your name", el: <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="First name" className="gh-auth-input" style={inputStyle} /> },
-                { label: "Due date", el: <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="gh-auth-input" style={inputStyle} /> },
-                { label: "Pregnancy number", el: (
-                  <select value={pregnancyNumber} onChange={e => setPregnancyNumber(Number(e.target.value))} className="gh-auth-input" style={inputStyle}>
-                    <option value={1}>1st pregnancy</option>
-                    <option value={2}>2nd pregnancy</option>
-                    <option value={3}>3rd or more</option>
-                  </select>
-                ) },
-              ].map(({ label, el }) => (
-                <div key={label}>
-                  <label className="gh-section-label" style={{ marginBottom: 6, display: "block" }}>{label}</label>
-                  {el}
+              <div>
+                <label className="gh-section-label" style={{ marginBottom: 6, display: "block" }}>Your name</label>
+                <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="First name" className="gh-auth-input" style={inputStyle} />
+              </div>
+
+              <div>
+                <label className="gh-section-label" style={{ marginBottom: 6, display: "block" }}>Where are you in your journey?</label>
+
+                {/* Segmented toggle: due date vs current week */}
+                <div
+                  role="tablist"
+                  aria-label="How would you like to tell us?"
+                  style={{
+                    display: "flex",
+                    gap: 4,
+                    background: "rgba(0,0,0,0.18)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: 14,
+                    padding: 4,
+                    marginBottom: 10,
+                  }}
+                >
+                  {([
+                    { mode: "due" as const, label: "I know my due date" },
+                    { mode: "week" as const, label: "I know my week" },
+                  ]).map(({ mode, label }) => (
+                    <button
+                      key={mode}
+                      role="tab"
+                      aria-selected={dateMode === mode}
+                      onClick={() => setDateMode(mode)}
+                      style={{
+                        flex: 1,
+                        height: 38,
+                        borderRadius: 11,
+                        border: "none",
+                        cursor: "pointer",
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: 12.5,
+                        fontWeight: dateMode === mode ? 700 : 500,
+                        background: dateMode === mode ? "linear-gradient(135deg, var(--gold), var(--ember))" : "transparent",
+                        color: dateMode === mode ? "var(--night)" : "rgba(251,238,224,0.65)",
+                        transition: "background 200ms, color 200ms",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
-              ))}
+
+                {dateMode === "due" ? (
+                  <>
+                    <input
+                      type="date"
+                      value={dueDate}
+                      onChange={e => setDueDate(e.target.value)}
+                      aria-invalid={!!dueError}
+                      className="gh-auth-input"
+                      style={{ ...inputStyle, borderColor: dueError ? "rgba(232,98,46,0.6)" : undefined }}
+                    />
+                    {dueError && <FieldError>{dueError}</FieldError>}
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={40}
+                      value={weekInput}
+                      onChange={e => setWeekInput(e.target.value)}
+                      placeholder="Current week (1–40)"
+                      aria-invalid={!!weekError}
+                      className="gh-auth-input"
+                      style={{ ...inputStyle, borderColor: weekError ? "rgba(232,98,46,0.6)" : undefined }}
+                    />
+                    {weekError && <FieldError>{weekError}</FieldError>}
+                    {!weekError && weekValid && resolvedDueDate && (
+                      <p
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: 12,
+                          color: "var(--gold)",
+                          margin: "6px 2px 0",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        That puts your due date around{" "}
+                        {new Date(`${resolvedDueDate}T00:00:00`).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <div>
+                <label className="gh-section-label" style={{ marginBottom: 6, display: "block" }}>Pregnancy number</label>
+                <select value={pregnancyNumber} onChange={e => setPregnancyNumber(Number(e.target.value))} className="gh-auth-input" style={inputStyle}>
+                  <option value={1}>1st pregnancy</option>
+                  <option value={2}>2nd pregnancy</option>
+                  <option value={3}>3rd or more</option>
+                </select>
+              </div>
 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 0" }}>
                 <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: "var(--cream)" }}>
@@ -246,7 +400,7 @@ const Onboarding = () => {
                 </button>
               </div>
 
-              <PrimaryCTA onClick={handleSaveProfile} disabled={!firstName || !dueDate || saving}>
+              <PrimaryCTA onClick={handleSaveProfile} disabled={!firstName || !resolvedDueDate || saving}>
                 {saving ? "Saving…" : <>Continue <ArrowRight /></>}
               </PrimaryCTA>
             </div>

@@ -69,7 +69,7 @@ const Profile = () => {
     { Icon: BookOpen, label: "Journal & Symptom Tracker", action: () => navigate("/journal") },
     { Icon: Baby, label: "Feeding tracker", action: () => navigate("/feeding") },
     { Icon: Wind, label: "Belly breathe & rest", action: () => navigate("/breathe") },
-    { Icon: GraduationCap, label: "My Courses", action: () => navigate("/courses") },
+    { Icon: GraduationCap, label: "Learn", action: () => navigate("/learn") },
     { Icon: ShoppingBag, label: "My Orders", action: () => navigate("/orders") },
   ];
 

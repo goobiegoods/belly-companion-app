@@ -1,7 +1,21 @@
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
+import { recipes } from "@/data/recipesData";
+import { getBreathingStreak } from "@/lib/breathingStreak";
 import { SceneBackground, GhHeader, GlassCard, BellaOrb } from "@/components/golden";
+import {
+  Baby,
+  ChevronRight,
+  Clock,
+  Flame,
+  GraduationCap,
+  MessageCircle,
+  UtensilsCrossed,
+  Wind,
+} from "lucide-react";
 
 const SUGGESTIONS = ["Round ligament?", "Foods to avoid"];
 
@@ -10,6 +24,37 @@ function greetingWord(): string {
   if (h >= 5 && h < 12) return "morning";
   if (h >= 12 && h < 18) return "afternoon";
   return "evening";
+}
+
+/** Subtle accent glow: soft box-shadow + faint 1px border tint. */
+const glow = (r: number, g: number, b: number): React.CSSProperties => ({
+  boxShadow: `0 0 24px -6px rgba(${r},${g},${b},0.35)`,
+  border: `1px solid rgba(${r},${g},${b},0.38)`,
+});
+
+const TEAL_GLOW = glow(44, 156, 143);
+const EMBER_GLOW = glow(232, 98, 46);
+const MAGENTA_GLOW = glow(181, 56, 107);
+const GOLD_GLOW = glow(242, 182, 71);
+
+function relativeTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  return `${weeks}w ago`;
+}
+
+interface FeedPost {
+  id: string;
+  title: string;
+  category: string;
+  created_at: string;
 }
 
 /** Three week-appropriate milestone tiles (hearing / lungs / viability style). */
@@ -59,7 +104,7 @@ function milestonesForWeek(week: number): { icon: JSX.Element; label: string }[]
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const weekData = getWeekData(currentWeek);
@@ -67,8 +112,50 @@ export default function HomePage() {
   const titleCase = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "");
   const name = titleCase((profile?.first_name || "").split(" ")[0]) || "mama";
 
+  // Breathing streak — same source BellyBreathe/Profile use (breathing_streak table).
+  const [breathStreak, setBreathStreak] = useState<number | null>(null);
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    getBreathingStreak(user.id).then(({ current }) => {
+      if (!cancelled) setBreathStreak(current);
+    });
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
+  // Deterministic daily recipe pick from this week's matched recipes.
+  const todaysRecipe = useMemo(() => {
+    const matched = recipes.filter(
+      (r) => currentWeek >= r.weekRange[0] && currentWeek <= r.weekRange[1]
+    );
+    const pool = matched.length > 0 ? matched : recipes;
+    const now = new Date();
+    const dayOfYear = Math.floor(
+      (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000
+    );
+    return pool[dayOfYear % pool.length];
+  }, [currentWeek]);
+
+  // Recent community posts.
+  const [posts, setPosts] = useState<FeedPost[] | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("posts")
+      .select("id, title, category, created_at")
+      .order("created_at", { ascending: false })
+      .limit(3)
+      .then(({ data }) => {
+        if (!cancelled) setPosts((data as FeedPost[]) ?? []);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   const goToAsk = (prefill?: string) =>
     navigate("/ask", { state: prefill ? { prefill } : undefined });
+
+  const cardTitle: React.CSSProperties = { fontSize: 16, fontWeight: 500, margin: 0 };
+  const subText: React.CSSProperties = { fontSize: 12.5, color: "rgba(251,238,224,0.72)" };
 
   return (
     <SceneBackground scene="today">
@@ -103,7 +190,7 @@ export default function HomePage() {
       </GhHeader>
 
       <div style={{ padding: "12px 16px 110px" }}>
-        {/* Ask your doula */}
+        {/* 2. Ask your doula */}
         <GlassCard>
           <div
             style={{
@@ -137,38 +224,208 @@ export default function HomePage() {
           </div>
         </GlassCard>
 
-        {/* Belly breathe */}
-        <div
-          onClick={() => navigate("/breathe")}
-          role="button"
-          style={{
-            borderRadius: 18, padding: 16,
-            background: "linear-gradient(135deg, rgba(44,156,143,0.35), rgba(181,56,107,0.35))",
-            border: "1px solid var(--glass-border)",
-            display: "flex", alignItems: "center", gap: 13,
-            backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
-            marginBottom: 12, cursor: "pointer",
-          }}
-        >
-          <div
-            className="font-gh-mono"
-            style={{
-              fontSize: 15, fontWeight: 600, background: "rgba(255,255,255,0.16)",
-              width: 50, height: 50, borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}
-          >
-            4·7·8
+        {/* 3. Your baby this week — teal */}
+        <GlassCard onClick={() => navigate("/baby")} style={{ ...TEAL_GLOW, cursor: "pointer" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 44, height: 44, borderRadius: "50%", flexShrink: 0,
+                background: "rgba(44,156,143,0.24)", border: "1px solid rgba(44,156,143,0.4)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <Baby size={22} strokeWidth={1.8} color="var(--teal)" />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="gh-section-label" style={{ marginBottom: 3 }}>your baby this week</div>
+              <p className="font-gh-serif" style={cardTitle}>
+                Size of a {weekData.babySize.toLowerCase()}
+              </p>
+            </div>
+            <ChevronRight size={18} strokeWidth={1.8} style={{ opacity: 0.6, flexShrink: 0 }} />
           </div>
-          <div>
-            <b className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, display: "block" }}>
-              Belly breathe
-            </b>
-            <span style={{ fontSize: 12, opacity: 0.85 }}>Calm your body in 60 seconds</span>
+          <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+            {weekData.babyLength !== "N/A" && (
+              <span className="gh-pill" style={{ fontSize: 11.5, padding: "5px 11px", cursor: "default" }}>
+                {weekData.babyLength} long
+              </span>
+            )}
+            {weekData.babyWeight !== "N/A" && (
+              <span className="gh-pill" style={{ fontSize: 11.5, padding: "5px 11px", cursor: "default" }}>
+                {weekData.babyWeight}
+              </span>
+            )}
+            <span className="gh-pill" style={{ fontSize: 11.5, padding: "5px 11px", cursor: "default" }}>
+              week {currentWeek}
+            </span>
           </div>
-        </div>
+          <p style={{ ...subText, margin: "11px 0 0", lineHeight: 1.5 }}>
+            {weekData.developmentHighlight}
+          </p>
+        </GlassCard>
 
-        {/* This week's milestones */}
+        {/* 4. Belly breathe — ember */}
+        <GlassCard onClick={() => navigate("/breathe")} style={{ ...EMBER_GLOW, cursor: "pointer" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+            <div
+              className="font-gh-mono"
+              style={{
+                fontSize: 15, fontWeight: 600, background: "rgba(232,98,46,0.22)",
+                border: "1px solid rgba(232,98,46,0.4)",
+                width: 50, height: 50, borderRadius: "50%",
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              }}
+            >
+              4·7·8
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <b className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, display: "block" }}>
+                Belly breathe
+              </b>
+              <span style={{ fontSize: 12, opacity: 0.85 }}>Calm your body in 60 seconds</span>
+            </div>
+            <div
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 5, flexShrink: 0,
+                fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 20,
+                background: "rgba(232,98,46,0.2)", border: "1px solid rgba(232,98,46,0.4)",
+              }}
+            >
+              {breathStreak !== null && breathStreak > 0 ? (
+                <>
+                  <Flame size={13} strokeWidth={1.8} color="var(--ember)" />
+                  {breathStreak}-day
+                </>
+              ) : (
+                <>
+                  <Wind size={13} strokeWidth={1.8} color="var(--ember)" />
+                  start
+                </>
+              )}
+            </div>
+          </div>
+          {breathStreak !== null && breathStreak > 0 && (
+            <p style={{ ...subText, margin: "10px 0 0" }}>
+              {breathStreak === 1 ? "1 day in a row — keep the calm going." : `${breathStreak} days in a row — keep the calm going.`}
+            </p>
+          )}
+        </GlassCard>
+
+        {/* 5. Today's nourishment — magenta/rose */}
+        {todaysRecipe && (
+          <GlassCard
+            onClick={() => navigate(`/recipes/${todaysRecipe.id}`)}
+            style={{ ...MAGENTA_GLOW, cursor: "pointer" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div
+                style={{
+                  width: 44, height: 44, borderRadius: "50%", flexShrink: 0,
+                  background: "rgba(181,56,107,0.24)", border: "1px solid rgba(181,56,107,0.42)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                <UtensilsCrossed size={20} strokeWidth={1.8} color="var(--magenta)" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="gh-section-label" style={{ marginBottom: 3 }}>today's nourishment</div>
+                <p className="font-gh-serif" style={cardTitle}>{todaysRecipe.title}</p>
+              </div>
+              <ChevronRight size={18} strokeWidth={1.8} style={{ opacity: 0.6, flexShrink: 0 }} />
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap", alignItems: "center" }}>
+              <span
+                className="gh-pill"
+                style={{
+                  fontSize: 11.5, padding: "5px 11px", cursor: "default",
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                }}
+              >
+                <Clock size={12} strokeWidth={1.8} /> {todaysRecipe.prepTime} min
+              </span>
+              {todaysRecipe.vitamins.slice(0, 2).map((v) => (
+                <span
+                  key={v.name}
+                  className="gh-pill"
+                  style={{
+                    fontSize: 11.5, padding: "5px 11px", cursor: "default",
+                    background: "rgba(181,56,107,0.18)", border: "1px solid rgba(181,56,107,0.4)",
+                  }}
+                >
+                  {v.name} {v.amount}
+                </span>
+              ))}
+            </div>
+          </GlassCard>
+        )}
+
+        {/* 6. What's happening — community */}
+        <GlassCard onClick={() => navigate("/community")} style={{ cursor: "pointer" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: posts && posts.length > 0 ? 12 : 0 }}>
+            <MessageCircle size={18} strokeWidth={1.8} color="var(--gold)" style={{ flexShrink: 0 }} />
+            <div className="gh-section-label" style={{ marginBottom: 0, flex: 1 }}>what's happening</div>
+            <ChevronRight size={18} strokeWidth={1.8} style={{ opacity: 0.6, flexShrink: 0 }} />
+          </div>
+          {posts === null ? (
+            <p style={{ ...subText, margin: "10px 0 0" }}>Checking in with the mamas…</p>
+          ) : posts.length === 0 ? (
+            <p style={{ ...subText, margin: "10px 0 0" }}>
+              It's quiet right now — be the first to share with the mamas.
+            </p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {posts.map((p) => (
+                <div
+                  key={p.id}
+                  className="gh-glass-subtle"
+                  style={{ padding: "10px 12px", display: "flex", alignItems: "center", gap: 10 }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p
+                      style={{
+                        fontSize: 13.5, fontWeight: 500, margin: 0,
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      }}
+                    >
+                      {p.title}
+                    </p>
+                    <span
+                      className="font-gh-mono"
+                      style={{ fontSize: 10.5, color: "rgba(251,238,224,0.6)", textTransform: "capitalize" }}
+                    >
+                      {p.category} · {relativeTime(p.created_at)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </GlassCard>
+
+        {/* 7. Learn — gold */}
+        <GlassCard onClick={() => navigate("/learn")} style={{ ...GOLD_GLOW, cursor: "pointer" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 44, height: 44, borderRadius: "50%", flexShrink: 0,
+                background: "rgba(242,182,71,0.2)", border: "1px solid rgba(242,182,71,0.4)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <GraduationCap size={21} strokeWidth={1.8} color="var(--gold)" />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="gh-section-label" style={{ marginBottom: 3 }}>learn</div>
+              <p className="font-gh-serif" style={cardTitle}>Bite-size lessons for week {currentWeek}</p>
+              <p style={{ ...subText, margin: "3px 0 0" }}>
+                Two minutes a day, from birth prep to baby care.
+              </p>
+            </div>
+            <ChevronRight size={18} strokeWidth={1.8} style={{ opacity: 0.6, flexShrink: 0 }} />
+          </div>
+        </GlassCard>
+
+        {/* 8. This week's milestones */}
         <div className="gh-section-label">this week's milestones</div>
         <div style={{ display: "flex", gap: 9 }}>
           {milestonesForWeek(currentWeek).map((m) => (
