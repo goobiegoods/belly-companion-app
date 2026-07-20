@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -46,16 +47,20 @@ const Cart = () => {
     <div className="min-h-screen page-enter gh-scene-shop" style={{ minHeight: "100vh", color: "var(--cream)" }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-5 pb-3">
+        {/* Explicit /shop target: navigate(-1) is dead when /cart is the first
+            history entry (fresh load, return from the Stripe redirect). */}
         <button
-          onClick={() => navigate(-1)}
-          aria-label="Back"
+          onClick={() => navigate("/shop")}
+          aria-label="Close cart"
           style={{
             width: 38, height: 38, borderRadius: "50%",
             background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.25)",
-            color: "#fff", fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer",
           }}
-        >←</button>
+        >
+          <X size={18} strokeWidth={1.8} />
+        </button>
         <h1 style={{ fontFamily: "'Fraunces', serif", fontWeight: 800, fontSize: 20, color: "#fff" }}>Your cart</h1>
         <div style={{ width: 38 }} />
       </div>

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, ReactNode 
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
+import { useVvLock } from "@/lib/viewport";
 import { toast } from "sonner";
 
 interface PostSheetCtx {
@@ -28,6 +29,7 @@ export const PostSheetProvider = ({ children }: { children: ReactNode }) => {
 
   const { user, profile } = useAuth();
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
+  useVvLock(mounted);
 
   const open = useCallback(() => {
     setMounted(true);

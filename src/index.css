@@ -736,8 +736,23 @@
 .kb-open .gh-bottom-nav { display: none; }
 
 /* Chat screens reserve space for the bottom nav; the keyboard replaces it. */
-.gh-chat-screen { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+.gh-chat-screen {
+  padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  transition: height 180ms ease-out;
+}
 .kb-open .gh-chat-screen { padding-bottom: 0; }
+
+/* ── vv-lock: keyboard-owning full-screen surfaces (chat, sheets) ──
+   Set on <html> by useVvLock. Locks the document to exactly the visual
+   viewport so iOS Safari has zero scrollable overflow to pan when the
+   keyboard opens; internal lists keep their own overflow-y scrolling. */
+.vv-lock, .vv-lock body {
+  height: var(--vvh, 100dvh);
+  min-height: 0;
+  overflow: hidden;
+}
+.vv-lock .app-layout { height: 100%; min-height: 0 !important; }
+.vv-lock .gh-screen { height: 100%; min-height: 0; }
 
 /* ── Slide-to-night strip (Today) ── */
 .gh-slide-track {

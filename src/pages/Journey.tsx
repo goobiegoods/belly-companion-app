@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { getStreak } from "@/lib/streak";
 import { SceneBackground, GhHeader, GlassCard, BellaOrb } from "@/components/golden";
+import { useVvLock } from "@/lib/viewport";
 import { Check, ChevronRight, Lock, Flame, NotebookPen, Package, Plus, Sparkles, User, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -94,6 +95,7 @@ const Journey = () => {
   const [momentTitle, setMomentTitle] = useState("");
   const [momentDate, setMomentDate] = useState("");
   const [saving, setSaving] = useState(false);
+  useVvLock(showAdd);
 
   const customMilestones = profile?.custom_milestones ?? [];
 

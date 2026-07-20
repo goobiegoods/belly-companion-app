@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { PremiumModal } from "@/components/PremiumModal";
 import { SceneBackground, GhHeader, BellaOrb } from "@/components/golden";
+import { useVvLock } from "@/lib/viewport";
 
 interface Message {
   role: "user" | "assistant";
@@ -36,6 +37,7 @@ const TONE_STROKE: Record<CategoryTone, string> = {
 const AskDoula = () => {
   const location = useLocation();
   const { user, profile } = useAuth();
+  useVvLock(true);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");

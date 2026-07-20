@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import NotificationBell, { useNotifications } from "@/components/NotificationBell";
 import { getDisplayName, isSensitiveStory, BELLY_HOST_USER_ID } from "@/lib/community";
 import { SceneBackground, GhHeader } from "@/components/golden";
+import { useVvLock } from "@/lib/viewport";
 
 interface Post {
   id: string;
@@ -27,6 +28,9 @@ interface Post {
 
 const CATEGORIES = ["All", "Questions", "Stories", "Tips", "Support"];
 const CATEGORY_KEYS: Record<string, string> = { Questions: "question", Stories: "story", Tips: "tip", Support: "support" };
+const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
+  Object.entries(CATEGORY_KEYS).map(([label, key]) => [key, label])
+);
 
 const AVATAR_GRADIENTS = [
   "linear-gradient(135deg, #ffb187, var(--ember))",
@@ -64,6 +68,15 @@ const Community = () => {
 
   const { notifications, unreadCount, markAsRead, markAllRead } = useNotifications();
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
+  useVvLock(!!selectedPost);
+
+  // Close the detail view and land on the feed filtered to this category.
+  const filterByCategory = (categoryKey: string) => {
+    setSelectedPost(null);
+    const label = CATEGORY_LABELS[categoryKey] ?? "All";
+    if (label !== activeCategory) setActiveCategory(label);
+    else fetchPosts();
+  };
 
   const handleNotifTap = async (notif: { id: string; post_id: string | null; is_read: boolean; title: string; body: string | null; created_at: string }) => {
     await markAsRead(notif.id);
@@ -248,9 +261,14 @@ const Community = () => {
       <div className="fixed top-0 inset-x-0 z-[100] gh-scene-mamas" style={{ maxWidth: 430, margin: "0 auto", height: "var(--vvh, 100dvh)", display: "flex", flexDirection: "column", color: "var(--cream)", fontFamily: "'Inter', system-ui" }}>
         <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
           <button onClick={() => { setSelectedPost(null); fetchPosts(); }} style={{ fontSize: 12, fontWeight: 600, color: "rgba(251,238,224,0.7)" }}>← Back</button>
-          <span className="font-gh-mono capitalize" style={{ fontSize: 10, padding: "3px 10px", borderRadius: 10, background: "rgba(255,255,255,0.14)", color: "var(--cream)" }}>
+          <button
+            onClick={() => filterByCategory(selectedPost.category)}
+            aria-label={`See all ${CATEGORY_LABELS[selectedPost.category] ?? "posts"}`}
+            className="font-gh-mono capitalize belly-btn-press"
+            style={{ fontSize: 10, padding: "3px 10px", borderRadius: 10, background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.18)", color: "var(--cream)", cursor: "pointer" }}
+          >
             {selectedPost.category}
-          </span>
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4">
           <div className="flex items-center gap-2 mb-4">
