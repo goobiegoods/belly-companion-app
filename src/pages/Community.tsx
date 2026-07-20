@@ -3,16 +3,30 @@ import { createPortal } from "react-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
-import { Heart, MessageCircle, Send } from "lucide-react";
+import { Heart, MessageCircle, Send, Sparkles, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import NotificationBell, { useNotifications } from "@/components/NotificationBell";
-import { getDisplayName } from "@/lib/community";
-import { SEEDED_POSTS, type Post } from "@/data/seededPosts";
+import { getDisplayName, isSensitiveStory, BELLY_HOST_USER_ID } from "@/lib/community";
 import { SceneBackground, GhHeader } from "@/components/golden";
 
-const CATEGORIES = ["All", "Questions", "Stories"];
-// Tab label → stored category value ("Stories".slice(0,-1) gave "storie", never matching "story").
-const CATEGORY_KEYS: Record<string, string> = { Questions: "question", Stories: "story" };
+interface Post {
+  id: string;
+  user_id: string;
+  title: string;
+  body: string;
+  category: string;
+  week_posted: number | null;
+  likes: number;
+  created_at: string;
+  is_pinned?: boolean;
+  display_name?: string | null;
+  author_name?: string;
+  comment_count?: number;
+  is_liked?: boolean;
+}
+
+const CATEGORIES = ["All", "Questions", "Stories", "Tips", "Support"];
+const CATEGORY_KEYS: Record<string, string> = { Questions: "question", Stories: "story", Tips: "tip", Support: "support" };
 
 const AVATAR_GRADIENTS = [
   "linear-gradient(135deg, #ffb187, var(--ember))",
@@ -46,6 +60,7 @@ const Community = () => {
   const [sendingReply, setSendingReply] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [likeAnimating, setLikeAnimating] = useState<string | null>(null);
+  const [revealedSensitive, setRevealedSensitive] = useState<Set<string>>(new Set());
 
   const { notifications, unreadCount, markAsRead, markAllRead } = useNotifications();
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
@@ -57,7 +72,7 @@ const Community = () => {
       const { data } = await supabase.from("posts").select("*").eq("id", notif.post_id).single();
       if (data) {
         const { data: prof } = await supabase.from("profiles").select("first_name").eq("user_id", data.user_id).single();
-        openPost({ ...data, author_name: prof?.first_name || "Mama", comment_count: 0, is_liked: false });
+        openPost({ ...data, author_name: data.display_name || prof?.first_name || "Mama", comment_count: 0, is_liked: false });
       }
     }
   };
@@ -88,22 +103,10 @@ const Community = () => {
         const { data: likes } = await supabase.from("post_likes").select("post_id").eq("user_id", user.id).in("post_id", postIds);
         likes?.forEach(l => { likeMap[l.post_id] = true; });
       }
-      const dbPosts = data.map(p => ({ ...p, author_name: nameMap[p.user_id] || "Mama", comment_count: countMap[p.id] || 0, is_liked: !!likeMap[p.id] }));
-      const realTitles = new Set(dbPosts.map(p => p.title));
-      const filtered = SEEDED_POSTS.filter(s => !realTitles.has(s.title));
-      if (activeCategory !== "All") {
-        const catKey = CATEGORY_KEYS[activeCategory];
-        setPosts([...dbPosts, ...filtered.filter(s => s.category === catKey)].filter(p => p.title && p.title.trim().length >= 4));
-      } else {
-        setPosts([...dbPosts, ...filtered].filter(p => p.title && p.title.trim().length >= 4));
-      }
+      const dbPosts = data.map(p => ({ ...p, author_name: p.display_name || nameMap[p.user_id] || "Mama", comment_count: countMap[p.id] || 0, is_liked: !!likeMap[p.id] }));
+      setPosts(dbPosts);
     } else {
-      if (activeCategory !== "All") {
-        const catKey = CATEGORY_KEYS[activeCategory];
-        setPosts(SEEDED_POSTS.filter(s => s.category === catKey));
-      } else {
-        setPosts(SEEDED_POSTS);
-      }
+      setPosts([]);
     }
     setLoading(false);
   };
@@ -115,7 +118,7 @@ const Community = () => {
     setPosting(true); setPostError("");
     const { data: inserted, error } = await supabase
       .from("posts")
-      .insert({ user_id: user.id, title: newTitle.trim(), body: newBody.trim(), category: newCategory, week_posted: currentWeek })
+      .insert({ user_id: user.id, title: newTitle.trim(), body: newBody.trim(), category: newCategory, week_posted: currentWeek, display_name: profile?.first_name || "Mama" })
       .select()
       .single();
     if (error || !inserted) { setPostError("Something went wrong. Please try again."); setPosting(false); return; }
@@ -140,9 +143,6 @@ const Community = () => {
     setPosts(prev => prev.map(p => p.id === post.id ? { ...p, is_liked: nextLiked, likes: nextLikes } : p));
     setSelectedPost(prev => prev && prev.id === post.id ? { ...prev, is_liked: nextLiked, likes: nextLikes } : prev);
 
-    // Seeded posts are local-only — don't hit the database
-    if (post.id.startsWith("seed-")) return;
-
     if (post.is_liked) {
       await supabase.from("post_likes").delete().eq("post_id", post.id).eq("user_id", user.id);
       await supabase.from("posts").update({ likes: nextLikes }).eq("id", post.id);
@@ -154,7 +154,6 @@ const Community = () => {
 
   const openPost = async (post: Post) => {
     setSelectedPost(post); setReplyError("");
-    if (post.id.startsWith("seed-")) { setComments([]); return; }
     const { data } = await supabase.from("comments").select("*").eq("post_id", post.id).order("created_at", { ascending: true });
     if (data && data.length > 0) {
       const userIds = [...new Set(data.map(c => c.user_id))];
@@ -166,7 +165,7 @@ const Community = () => {
   };
 
   const addComment = async () => {
-    if (!commentText.trim() || !user || !selectedPost || selectedPost.id.startsWith("seed-")) return;
+    if (!commentText.trim() || !user || !selectedPost) return;
     setSendingReply(true); setReplyError("");
     const body = commentText.trim();
     const optimisticComment = { id: "temp-" + Date.now(), post_id: selectedPost.id, user_id: user.id, body, created_at: new Date().toISOString(), author_name: profile?.first_name || "Mama" };
@@ -190,7 +189,7 @@ const Community = () => {
   const initials = (name: string) => name?.charAt(0).toUpperCase() || "M";
   const userName = profile?.first_name || "Mama";
 
-  const pinnedPost = posts.length > 0 ? [...posts].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0] : null;
+  const pinnedPost = posts.find(p => p.is_pinned) ?? (posts.length > 0 ? [...posts].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0] : null);
   const remainingPosts = pinnedPost ? posts.filter(p => p.id !== pinnedPost.id) : posts;
 
   const Avatar = ({ name, size = 28 }: { name: string; size?: number }) => (
@@ -242,7 +241,9 @@ const Community = () => {
 
   // --- POST DETAIL ---
   if (selectedPost) {
-    const isSeeded = selectedPost.id.startsWith("seed-");
+    const isHostPost = selectedPost.user_id === BELLY_HOST_USER_ID;
+    const sensitive = isSensitiveStory(selectedPost.category, selectedPost.title, selectedPost.body);
+    const bodyRevealed = !sensitive || revealedSensitive.has(selectedPost.id);
     return (
       <div className="fixed inset-0 z-[100] gh-scene-mamas" style={{ maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", color: "var(--cream)", fontFamily: "'Inter', system-ui" }}>
         <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
@@ -254,9 +255,17 @@ const Community = () => {
         <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4">
           <div className="flex items-center gap-2 mb-4">
             <Avatar name={selectedPost.author_name || ""} size={34} />
-            <div>
+            <div className="flex items-center gap-2 flex-wrap">
               <span style={{ fontSize: 14, fontWeight: 600, color: "var(--cream)" }}>{titleCase(selectedPost.author_name || "")}</span>
-              <span className="text-[11px] ml-2" style={{ color: "rgba(251,238,224,0.55)" }}>{timeAgo(selectedPost.created_at)}</span>
+              {isHostPost && (
+                <span className="flex items-center gap-1" style={{
+                  background: "rgba(44,156,143,0.18)", color: "var(--teal)", border: "1px solid rgba(44,156,143,0.4)",
+                  borderRadius: 10, padding: "2px 8px", fontWeight: 700, fontSize: 9.5, letterSpacing: "0.04em",
+                }}>
+                  <Sparkles size={9} /> belly team
+                </span>
+              )}
+              <span className="text-[11px]" style={{ color: "rgba(251,238,224,0.55)" }}>{timeAgo(selectedPost.created_at)}</span>
             </div>
             {selectedPost.week_posted && (
               <span className="font-gh-mono ml-auto" style={{ fontSize: 10, padding: "3px 8px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.2)", color: "rgba(251,238,224,0.7)" }}>
@@ -265,7 +274,18 @@ const Community = () => {
             )}
           </div>
           <h2 className="font-gh-serif" style={{ fontSize: 22, fontWeight: 500, color: "var(--cream)", marginBottom: 12, lineHeight: 1.3 }}>{selectedPost.title}</h2>
-          <p className="text-[14px] leading-[1.75] mb-4" style={{ color: "rgba(251,238,224,0.8)" }}>{selectedPost.body}</p>
+          {bodyRevealed ? (
+            <p className="text-[14px] leading-[1.75] mb-4" style={{ color: "rgba(251,238,224,0.8)" }}>{selectedPost.body}</p>
+          ) : (
+            <button
+              onClick={() => setRevealedSensitive(prev => new Set(prev).add(selectedPost.id))}
+              className="w-full flex items-center gap-2 justify-center gh-glass-subtle mb-4"
+              style={{ padding: "16px 14px", fontSize: 13, color: "rgba(251,238,224,0.75)" }}
+            >
+              <EyeOff size={15} />
+              This post discusses a sensitive topic — tap to read
+            </button>
+          )}
           <button onClick={() => toggleLike(selectedPost)}
             className={`flex items-center gap-1.5 text-[12px] mb-4 ${likeAnimating === selectedPost.id ? "heart-liked" : ""}`}
             style={{ color: selectedPost.is_liked ? "var(--gold)" : "rgba(251,238,224,0.55)" }}>
@@ -276,7 +296,7 @@ const Community = () => {
           <p className="gh-section-label" style={{ marginTop: 16, marginBottom: 12 }}>replies</p>
           {comments.length === 0 ? (
             <p style={{ fontSize: 13, fontStyle: "italic", textAlign: "center", padding: "20px 0", color: "rgba(251,238,224,0.6)" }}>
-              {isSeeded ? "Replies are closed on featured posts 💛" : "No replies yet. Be the first to respond! 💛"}
+              No replies yet. Be the first to respond.
             </p>
           ) : comments.map((c: any) => (
             <div key={c.id} className="gh-glass-subtle p-[12px_14px] mb-2">
@@ -296,11 +316,11 @@ const Community = () => {
             <Avatar name={userName} size={30} />
             <input value={commentText} onChange={e => setCommentText(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
-              placeholder={isSeeded ? "Replies closed on this post" : `Reply to ${titleCase(selectedPost.author_name || "")}...`}
-              disabled={isSeeded || !user}
+              placeholder={`Reply to ${titleCase(selectedPost.author_name || "")}...`}
+              disabled={!user}
               className="flex-1 h-10 rounded-full px-4 text-[13px] outline-none disabled:opacity-50"
               style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--cream)" }} />
-            <button onClick={addComment} disabled={!commentText.trim() || sendingReply || isSeeded || !user}
+            <button onClick={addComment} disabled={!commentText.trim() || sendingReply || !user}
               className="gh-arrow-btn shrink-0 disabled:opacity-40" style={{ width: 36, height: 36 }}>
               <Send size={14} />
             </button>
@@ -311,7 +331,10 @@ const Community = () => {
   }
 
   // --- Render a post card ---
-  const renderPostCard = (post: Post, isPinned: boolean) => (
+  const renderPostCard = (post: Post, isPinned: boolean) => {
+    const isHostPost = post.user_id === BELLY_HOST_USER_ID;
+    const sensitive = isSensitiveStory(post.category, post.title, post.body);
+    return (
     <button key={post.id} onClick={() => openPost(post)}
       className="w-full text-left gh-glass-subtle belly-card-interactive"
       style={{
@@ -325,6 +348,14 @@ const Community = () => {
         <span style={{ fontSize: 11.5, color: "rgba(251,238,224,0.65)", flex: 1 }}>
           {titleCase(post.author_name || "")}{post.week_posted ? ` · wk ${post.week_posted}` : ""}
         </span>
+        {isHostPost && (
+          <span className="flex items-center gap-1" style={{
+            background: "rgba(44,156,143,0.18)", color: "var(--teal)", border: "1px solid rgba(44,156,143,0.4)",
+            borderRadius: 10, padding: "3px 9px", fontWeight: 700, fontSize: 9.5, letterSpacing: "0.04em",
+          }}>
+            <Sparkles size={9} /> belly team
+          </span>
+        )}
         {isPinned && (
           <span style={{
             background: "var(--gold)", color: "#2a1305",
@@ -334,7 +365,13 @@ const Community = () => {
         )}
       </div>
       <p className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--cream)", margin: "0 0 6px", lineHeight: 1.35 }}>{post.title}</p>
-      <p className="line-clamp-2" style={{ color: "rgba(251,238,224,0.6)", fontSize: 12.5, lineHeight: 1.5, marginBottom: 9 }}>{post.body}</p>
+      {sensitive ? (
+        <p className="flex items-center gap-1.5" style={{ color: "rgba(251,238,224,0.55)", fontSize: 12.5, lineHeight: 1.5, marginBottom: 9, fontStyle: "italic" }}>
+          <EyeOff size={12} /> Sensitive topic — tap to read
+        </p>
+      ) : (
+        <p className="line-clamp-2" style={{ color: "rgba(251,238,224,0.6)", fontSize: 12.5, lineHeight: 1.5, marginBottom: 9 }}>{post.body}</p>
+      )}
       <div className="flex items-center gap-[14px]" style={{ fontSize: 11.5, color: "rgba(251,238,224,0.6)" }}>
         <button onClick={(e) => { e.stopPropagation(); toggleLike(post); }}
           className={`flex items-center gap-1.5 ${likeAnimating === post.id ? "heart-liked" : ""}`}
@@ -347,7 +384,8 @@ const Community = () => {
         </span>
       </div>
     </button>
-  );
+    );
+  };
 
   // --- FEED ---
   return (
@@ -387,7 +425,7 @@ const Community = () => {
           [1, 2, 3].map(i => <div key={i} className="gh-glass-subtle animate-pulse h-32" style={{ marginBottom: 9 }} />)
         ) : posts.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center gh-glass-subtle"><span className="text-2xl">💛</span></div>
+            <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center gh-glass-subtle"><MessageCircle size={22} style={{ color: "var(--gold)" }} /></div>
             <p className="font-gh-serif" style={{ fontSize: 16, fontWeight: 500, color: "var(--cream)" }}>Be the first to share your story</p>
             <p className="text-[11px]" style={{ color: "rgba(251,238,224,0.6)" }}>Start a conversation with other mamas</p>
           </div>

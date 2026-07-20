@@ -33,10 +33,17 @@ export function titleCaseName(name: unknown): string {
 const SENSITIVE_KEYWORDS = [
   "premature", "preemie", "nicu", "loss", "miscarriage", "miscarry",
   "stillbirth", "stillborn", "complication", "preeclampsia", "ectopic", "grief",
+  "trauma", "hyperemesis",
 ];
 
+const SENSITIVE_CATEGORIES = new Set(["story", "support"]);
+
 export function isSensitiveStory(category: string, title: string, body: string): boolean {
-  if ((category || "").toLowerCase() !== "story") return false;
+  if (!SENSITIVE_CATEGORIES.has((category || "").toLowerCase())) return false;
   const text = `${title} ${body}`.toLowerCase();
   return SENSITIVE_KEYWORDS.some(k => text.includes(k));
 }
+
+// Real user_id of the official "Belly" host account, created by scripts/seed-community.mjs.
+// Filled in once that script has run against the target Supabase project.
+export const BELLY_HOST_USER_ID = "6489120d-d655-4543-8a95-744b2d4efc8d";
