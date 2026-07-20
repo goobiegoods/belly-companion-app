@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Clock, ChefHat, Leaf } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSavedRecipes } from "@/contexts/SavedRecipesContext";
-import { getRecipesForWeek, getUniqueVitaminsForWeek, CATEGORY_GRADIENTS } from "@/data/recipesData";
+import { recipes, getRecipesForWeek, getUniqueVitaminsForWeek, type Recipe } from "@/data/recipesData";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
 
 const CATEGORIES = ["All", "Breakfast", "Smoothie", "Snack", "Dinner", "Tea"] as const;
+const SCOPES = [
+  { key: "week", label: "This week" },
+  { key: "all", label: "All recipes" },
+] as const;
+
+type Scope = (typeof SCOPES)[number]["key"];
 
 const CREAM_70 = "rgba(251,238,224,0.7)";
 const CREAM_55 = "rgba(251,238,224,0.55)";
@@ -17,12 +23,88 @@ const Recipes = () => {
   const navigate = useNavigate();
   const { savedIds, toggleSave } = useSavedRecipes();
   const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [scope, setScope] = useState<Scope>("week");
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
-  const weekRecipes = getRecipesForWeek(currentWeek);
+  const weekRecipes = useMemo(() => getRecipesForWeek(currentWeek), [currentWeek]);
   const vitamins = getUniqueVitaminsForWeek(currentWeek);
-  const filtered = activeCategory === "All" ? weekRecipes : weekRecipes.filter(r => r.category === activeCategory);
   const whyQuote = weekRecipes[0]?.whyThisWeek?.split(/(?<=\.)\s/)[0] || "";
+
+  const byCategory = (list: Recipe[]) =>
+    activeCategory === "All" ? list : list.filter(r => r.category === activeCategory);
+
+  // "This week" scope: current-week recipes only.
+  // "All" scope: week-relevant recipes first, then the rest of the library.
+  const relevantFiltered = byCategory(weekRecipes);
+  const restFiltered = useMemo(
+    () => byCategory(recipes.filter(r => currentWeek < r.weekRange[0] || currentWeek > r.weekRange[1])),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentWeek, activeCategory]
+  );
+  const shownCount = scope === "week" ? relevantFiltered.length : relevantFiltered.length + restFiltered.length;
+
+  const renderCard = (recipe: Recipe) => {
+    const isSaved = savedIds.has(recipe.id);
+    const firstSentence = recipe.whyThisWeek.split(/(?<=\.)\s/)[0] || recipe.whyThisWeek;
+    return (
+      <div
+        key={recipe.id}
+        onClick={() => navigate(`/recipes/${recipe.id}`)}
+        className="gh-glass-subtle belly-card-interactive"
+        style={{ padding: "14px 14px 13px", position: "relative" }}
+      >
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleSave(recipe.id); }}
+          aria-label={isSaved ? "Unsave" : "Save"}
+          className="gh-icon-btn belly-btn-press"
+          style={{ position: "absolute", top: 10, right: 10, background: "rgba(255,255,255,0.1)" }}
+        >
+          <Heart
+            size={15}
+            strokeWidth={1.8}
+            style={{
+              color: isSaved ? "var(--magenta)" : CREAM_70,
+              fill: isSaved ? "var(--magenta)" : "none",
+            }}
+          />
+        </button>
+
+        <h3 className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--cream)", lineHeight: 1.3, paddingRight: 40, marginBottom: 5 }}>
+          {recipe.title}
+        </h3>
+
+        <div className="font-gh-mono" style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, color: CREAM_55, marginBottom: 9 }}>
+          <Clock size={11} strokeWidth={1.8} />
+          <span>{recipe.prepTime} min</span>
+          <span style={{ opacity: 0.6 }}>·</span>
+          <span>{recipe.category.toLowerCase()}</span>
+          <span style={{ opacity: 0.6 }}>·</span>
+          <span>wk {recipe.weekRange[0]}–{recipe.weekRange[1]}</span>
+        </div>
+
+        <p style={{ fontSize: 12, color: CREAM_70, lineHeight: 1.5, marginBottom: 10, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          {firstSentence}
+        </p>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
+          {recipe.vitamins.map(v => (
+            <span
+              key={v.name}
+              className="font-gh-mono"
+              style={{
+                fontSize: 9.5, color: "var(--gold)",
+                background: "rgba(242,182,71,0.14)",
+                border: "1px solid rgba(242,182,71,0.3)",
+                borderRadius: 8, padding: "3px 8px",
+              }}
+            >
+              {v.name} {v.amount}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <SceneBackground scene="baby">
@@ -57,6 +139,28 @@ const Recipes = () => {
           </p>
         </GlassCard>
 
+        {/* Scope toggle + count */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "2px 0 8px" }}>
+          <div style={{ display: "flex", gap: 7 }}>
+            {SCOPES.map(s => {
+              const active = scope === s.key;
+              return (
+                <button
+                  key={s.key}
+                  onClick={() => setScope(s.key)}
+                  className={`belly-btn-press ${active ? "gh-pill gh-pill-filled" : "gh-pill"}`}
+                  style={{ flexShrink: 0 }}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+          <span className="font-gh-mono" style={{ fontSize: 10, letterSpacing: "0.04em", color: CREAM_55, flexShrink: 0 }}>
+            {shownCount} of {recipes.length} recipes
+          </span>
+        </div>
+
         {/* Category filter */}
         <div className="hide-scrollbar" style={{ display: "flex", gap: 7, overflowX: "auto", padding: "2px 0 12px" }}>
           {CATEGORIES.map(cat => {
@@ -76,73 +180,29 @@ const Recipes = () => {
 
         {/* Recipe cards */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {filtered.map(recipe => {
-            const isSaved = savedIds.has(recipe.id);
-            const firstSentence = recipe.whyThisWeek.split(/(?<=\.)\s/)[0] || recipe.whyThisWeek;
-            return (
-              <div
-                key={recipe.id}
-                onClick={() => navigate(`/recipes/${recipe.id}`)}
-                className="gh-glass-subtle belly-card-interactive"
-                style={{ padding: "14px 14px 13px", position: "relative" }}
-              >
-                <button
-                  onClick={(e) => { e.stopPropagation(); toggleSave(recipe.id); }}
-                  aria-label={isSaved ? "Unsave" : "Save"}
-                  className="gh-icon-btn belly-btn-press"
-                  style={{ position: "absolute", top: 10, right: 10, background: "rgba(255,255,255,0.1)" }}
-                >
-                  <Heart
-                    size={15}
-                    strokeWidth={1.8}
-                    style={{
-                      color: isSaved ? "var(--magenta)" : CREAM_70,
-                      fill: isSaved ? "var(--magenta)" : "none",
-                    }}
-                  />
-                </button>
-
-                <h3 className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--cream)", lineHeight: 1.3, paddingRight: 40, marginBottom: 5 }}>
-                  {recipe.title}
-                </h3>
-
-                <div className="font-gh-mono" style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, color: CREAM_55, marginBottom: 9 }}>
-                  <Clock size={11} strokeWidth={1.8} />
-                  <span>{recipe.prepTime} min</span>
-                  <span style={{ opacity: 0.6 }}>·</span>
-                  <span>{recipe.category.toLowerCase()}</span>
+          {scope === "week" ? (
+            relevantFiltered.map(renderCard)
+          ) : (
+            <>
+              {relevantFiltered.length > 0 && (
+                <div className="gh-section-label" style={{ marginBottom: -2 }}>for week {currentWeek}</div>
+              )}
+              {relevantFiltered.map(renderCard)}
+              {restFiltered.length > 0 && (
+                <div className="gh-section-label" style={{ marginTop: relevantFiltered.length > 0 ? 8 : 0, marginBottom: -2 }}>
+                  more from the library
                 </div>
+              )}
+              {restFiltered.map(renderCard)}
+            </>
+          )}
 
-                <p style={{ fontSize: 12, color: CREAM_70, lineHeight: 1.5, marginBottom: 10, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                  {firstSentence}
-                </p>
-
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
-                  {recipe.vitamins.map(v => (
-                    <span
-                      key={v.name}
-                      className="font-gh-mono"
-                      style={{
-                        fontSize: 9.5, color: "var(--gold)",
-                        background: "rgba(242,182,71,0.14)",
-                        border: "1px solid rgba(242,182,71,0.3)",
-                        borderRadius: 8, padding: "3px 8px",
-                      }}
-                    >
-                      {v.name} {v.amount}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-
-          {filtered.length === 0 && (
+          {shownCount === 0 && (
             <div style={{ textAlign: "center", padding: "44px 16px" }}>
               <ChefHat size={30} strokeWidth={1.8} style={{ color: CREAM_55, marginBottom: 10 }} />
               <p style={{ fontSize: 13, fontWeight: 600, color: "var(--cream)" }}>No recipes in this category</p>
               <p className="font-gh-serif" style={{ fontSize: 12, fontStyle: "italic", color: CREAM_55, marginTop: 4 }}>
-                Try another category or check next week
+                {scope === "week" ? "Try another category or browse all recipes" : "Try another category"}
               </p>
             </div>
           )}

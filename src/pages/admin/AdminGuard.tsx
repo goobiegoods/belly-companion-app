@@ -45,11 +45,14 @@ export const AdminGuard = ({ children }: { children: ReactNode }) => {
 
   if (!user) return <Navigate to="/auth" state={{ from: location }} replace />;
 
-  if (!isAdmin) {
+  // Email check is client-side defense-in-depth only — RLS (has_role) remains the real enforcement.
+  const isAllowedEmail = user.email?.toLowerCase() === "orelfitch@gmail.com";
+
+  if (!isAdmin || !isAllowedEmail) {
     return (
       <div style={S.page}>
         <p style={S.h1}>Access denied</p>
-        <p style={S.sub}>Logged in as <strong style={{ color: "#fff" }}>{user.email}</strong> — no admin role found.</p>
+        <p style={S.sub}>Logged in as <strong style={{ color: "#fff" }}>{user.email}</strong> — {!isAdmin ? "no admin role found." : "this account is not authorized for admin."}</p>
         <p style={{ ...S.sub, fontSize: 12 }}>User ID: {user.id}</p>
         <a href="/" style={S.link}>← Back to app</a>
       </div>
