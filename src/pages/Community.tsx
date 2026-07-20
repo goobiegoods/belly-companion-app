@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
@@ -10,6 +11,8 @@ import { SEEDED_POSTS, type Post } from "@/data/seededPosts";
 import { SceneBackground, GhHeader } from "@/components/golden";
 
 const CATEGORIES = ["All", "Questions", "Stories"];
+// Tab label → stored category value ("Stories".slice(0,-1) gave "storie", never matching "story").
+const CATEGORY_KEYS: Record<string, string> = { Questions: "question", Stories: "story" };
 
 const AVATAR_GRADIENTS = [
   "linear-gradient(135deg, #ffb187, var(--ember))",
@@ -69,7 +72,7 @@ const Community = () => {
 
   const fetchPosts = async () => {
     let query = supabase.from("posts").select("*").order("created_at", { ascending: false });
-    if (activeCategory !== "All") query = query.eq("category", activeCategory.toLowerCase().slice(0, -1));
+    if (activeCategory !== "All") query = query.eq("category", CATEGORY_KEYS[activeCategory]);
     const { data } = await query;
     if (data && data.length > 0) {
       const userIds = [...new Set(data.map(p => p.user_id))];
@@ -89,14 +92,14 @@ const Community = () => {
       const realTitles = new Set(dbPosts.map(p => p.title));
       const filtered = SEEDED_POSTS.filter(s => !realTitles.has(s.title));
       if (activeCategory !== "All") {
-        const catKey = activeCategory.toLowerCase().slice(0, -1);
+        const catKey = CATEGORY_KEYS[activeCategory];
         setPosts([...dbPosts, ...filtered.filter(s => s.category === catKey)].filter(p => p.title && p.title.trim().length >= 4));
       } else {
         setPosts([...dbPosts, ...filtered].filter(p => p.title && p.title.trim().length >= 4));
       }
     } else {
       if (activeCategory !== "All") {
-        const catKey = activeCategory.toLowerCase().slice(0, -1);
+        const catKey = CATEGORY_KEYS[activeCategory];
         setPosts(SEEDED_POSTS.filter(s => s.category === catKey));
       } else {
         setPosts(SEEDED_POSTS);
@@ -396,8 +399,9 @@ const Community = () => {
         )}
       </div>
 
-      {/* Create post sheet */}
-      {showCreate && (
+      {/* Create post sheet — portaled to <body>: SceneBackground wraps children in a
+          z-index:2 stacking context, which would trap this overlay under the z-50 nav */}
+      {showCreate && createPortal(
         <div
           className="fixed inset-0 z-[200] flex items-end"
           style={{ background: "rgba(10,6,16,0.6)" }}
@@ -454,9 +458,19 @@ const Community = () => {
 
               <p className="gh-section-label" style={{ marginBottom: 8 }}>your message</p>
               <textarea value={newBody} onChange={e => setNewBody(e.target.value)} placeholder="What's on your mind, mama?" rows={6}
-                className="w-full text-[14px] outline-none resize-none mb-5"
+                className="w-full text-[14px] outline-none resize-none mb-2"
                 style={{ background: "rgba(0,0,0,0.25)", color: "var(--cream)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 16px", minHeight: 140 }} />
+            </div>
 
+            {/* Pinned footer: the Post button must stay reachable even with the keyboard up */}
+            <div className="shrink-0 px-5"
+              style={{
+                paddingTop: 12,
+                paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+                borderTop: "1px solid rgba(255,255,255,0.1)",
+                background: "#1c0e24",
+                borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
+              }}>
               <button onClick={createPost} disabled={!newTitle.trim() || !newBody.trim() || posting}
                 className="w-full belly-btn-press"
                 style={{
@@ -472,7 +486,8 @@ const Community = () => {
               {postError && <p className="text-[12px] text-center mt-2" style={{ color: "#ffb187" }}>{postError}</p>}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </SceneBackground>
   );

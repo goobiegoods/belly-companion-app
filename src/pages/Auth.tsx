@@ -85,12 +85,37 @@ const Auth = () => {
       return;
     }
 
-    const { error } = mode === "signup" ? await signUp(email, password) : await signIn(email, password);
+    if (mode === "signup") {
+      const { data, error } = await signUp(email, password);
+      setSubmitting(false);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      // With email-enumeration protection, signing up an email that already has an
+      // account returns a fake "success" whose user has no identities — no account
+      // is created. Send the mama to sign in instead of pretending it worked.
+      if (data?.user && (data.user.identities?.length ?? 0) === 0) {
+        toast.error("An account with this email already exists — sign in below.");
+        setMode("signin");
+        return;
+      }
+      // Autoconfirm is on, so a real signup returns a session and redirects;
+      // only mention a confirmation email if one is actually required.
+      if (!data?.session) toast.success("Account created! Check your email to confirm.");
+      return;
+    }
+
+    const { error } = await signIn(email, password);
     setSubmitting(false);
     if (error) {
-      toast.error(error.message);
-    } else if (mode === "signup") {
-      toast.success("Account created! Check your email to confirm.");
+      toast.error(
+        /invalid login credentials/i.test(error.message)
+          ? "That email and password don't match an account — double-check them, or use Forgot password."
+          : /email not confirmed/i.test(error.message)
+            ? "Please confirm your email first — check your inbox for the link."
+            : error.message
+      );
     }
   };
 

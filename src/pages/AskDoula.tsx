@@ -48,6 +48,9 @@ const AskDoula = () => {
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const [showPremium, setShowPremium] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+  // Force the next messages-update to scroll (set when the user sends a message).
+  const forceScrollRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
   const streamBufferRef = useRef("");
   const displayIndexRef = useRef(0);
@@ -98,9 +101,22 @@ const AskDoula = () => {
     },
   ];
 
+  // Follow the stream only while the user is at (or near) the bottom. If they
+  // scroll up to reread something mid-stream, leave them alone; following
+  // resumes when they scroll back down or send a new message.
   useEffect(() => {
-    if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (messages.length === 0) return;
+    const el = chatScrollRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (forceScrollRef.current || distanceFromBottom < 100) {
+      forceScrollRef.current = false;
+      // Instant while streaming: chunks arrive faster than a smooth animation
+      // finishes, which would leave us "behind" and falsely read as scrolled-up.
+      messagesEndRef.current?.scrollIntoView({
+        behavior: isStreamingRef.current ? "auto" : "smooth",
+        block: "nearest",
+      });
     }
   }, [messages]);
 
@@ -189,6 +205,9 @@ const AskDoula = () => {
       toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
       return;
     }
+
+    // Sending always snaps the view back to the bottom, even if scrolled up.
+    forceScrollRef.current = true;
 
     const hasImage = !!activeImage;
     const imageUrl = activeImage?.url;
@@ -393,7 +412,7 @@ const AskDoula = () => {
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto hide-scrollbar" style={{ padding: "4px 16px 16px", display: "flex", flexDirection: "column", gap: 12 }}>
+        <div ref={chatScrollRef} className="flex-1 overflow-y-auto hide-scrollbar" style={{ padding: "4px 16px 16px", display: "flex", flexDirection: "column", gap: 12 }}>
           {messages.length === 0 && !isStreaming && (
             <>
               <div>
