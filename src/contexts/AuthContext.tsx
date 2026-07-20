@@ -2,6 +2,12 @@ import React, { createContext, useContext, useEffect, useMemo, useRef, useState 
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface CustomMilestone {
+  id: string;
+  title: string;
+  date: string;
+}
+
 interface Profile {
   id: string;
   user_id: string;
@@ -11,6 +17,7 @@ interface Profile {
   has_provider: boolean;
   is_premium: boolean;
   onboarding_completed: boolean;
+  custom_milestones: CustomMilestone[];
 }
 
 interface AuthContextType {

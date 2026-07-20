@@ -624,6 +624,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          custom_milestones: Json
           due_date: string | null
           first_name: string | null
           has_provider: boolean | null
@@ -638,6 +639,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_milestones?: Json
           due_date?: string | null
           first_name?: string | null
           has_provider?: boolean | null
@@ -652,6 +654,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_milestones?: Json
           due_date?: string | null
           first_name?: string | null
           has_provider?: boolean | null

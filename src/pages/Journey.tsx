@@ -1,6 +1,12 @@
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
+import { getStreak } from "@/lib/streak";
 import { SceneBackground, GhHeader, GlassCard, BellaOrb } from "@/components/golden";
+import { Check, Lock, Flame, Sparkles, Plus, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface Milestone {
   week: number;
@@ -15,8 +21,19 @@ const MILESTONES: Milestone[] = [
   { week: 28, title: "Third trimester begins", tone: "magenta" },
 ];
 
+type TimelineItem = {
+  key: string;
+  date: Date;
+  title: string;
+  state: "done" | "now" | "future";
+  tone?: "teal" | "magenta";
+  isCustom?: boolean;
+};
+
+const dayMs = 24 * 60 * 60 * 1000;
+
 const Journey = () => {
-  const { profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const weeksLeft = Math.max(0, 40 - currentWeek);
   const dueDateLabel = profile?.due_date
@@ -29,30 +46,140 @@ const Journey = () => {
     : currentWeek >= 14 ? "the golden middle"
     : "the first flicker of the glow";
 
-  // Timeline: past milestones, "you are here", then the due date.
-  const items: { week: number; title: string; state: "done" | "now" | "future"; tone?: "teal" | "magenta" }[] = [
-    ...MILESTONES.filter(m => m.week < currentWeek).map(m => ({ week: m.week, title: m.title, state: "done" as const, tone: m.tone })),
-    { week: currentWeek, title: "You are here, mama", state: "now" as const },
-    ...MILESTONES.filter(m => m.week > currentWeek).map(m => ({ week: m.week, title: m.title, state: "future" as const })),
-    ...(currentWeek < 40 ? [{ week: 40, title: dueDateLabel ? `Due date · ${dueDateLabel}` : "Due date", state: "future" as const }] : []),
-  ];
+  // Back-date the due date by 40 weeks to estimate a real calendar date for each
+  // system milestone's week number, so it can sort/count down alongside custom moments.
+  const conceptionDate = useMemo(() => {
+    if (!profile?.due_date) return null;
+    const d = new Date(profile.due_date);
+    d.setDate(d.getDate() - 280);
+    return d;
+  }, [profile?.due_date]);
 
-  const dotStyle = (item: (typeof items)[number]): React.CSSProperties => {
-    if (item.state === "now") {
+  const weekDate = (week: number): Date | null => {
+    if (!conceptionDate) return null;
+    const d = new Date(conceptionDate);
+    d.setDate(d.getDate() + week * 7);
+    return d;
+  };
+
+  const [streak, setStreak] = useState<{ current: number; longest: number } | null>(null);
+  useEffect(() => {
+    if (user?.id) getStreak(user.id).then(setStreak);
+  }, [user?.id]);
+
+  const [tick, setTick] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setTick(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const [showAdd, setShowAdd] = useState(false);
+  const [momentTitle, setMomentTitle] = useState("");
+  const [momentDate, setMomentDate] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const customMilestones = profile?.custom_milestones ?? [];
+
+  const timelineItems: TimelineItem[] = useMemo(() => {
+    const today = new Date();
+    const items: TimelineItem[] = [];
+
+    MILESTONES.forEach((m) => {
+      const d = weekDate(m.week) ?? today;
+      items.push({
+        key: `system-${m.week}`,
+        date: d,
+        title: m.title,
+        state: m.week < currentWeek ? "done" : m.week > currentWeek ? "future" : "now",
+        tone: m.tone,
+      });
+    });
+
+    customMilestones.forEach((cm) => {
+      const d = new Date(cm.date);
+      items.push({
+        key: `custom-${cm.id}`,
+        date: d,
+        title: cm.title,
+        state: d.getTime() <= today.getTime() ? "done" : "future",
+        isCustom: true,
+      });
+    });
+
+    items.push({ key: "now", date: today, title: "You are here, mama", state: "now" });
+
+    if (profile?.due_date && currentWeek < 40) {
+      items.push({
+        key: "due",
+        date: new Date(profile.due_date),
+        title: dueDateLabel ? `Due date · ${dueDateLabel}` : "Due date",
+        state: "future",
+      });
+    }
+
+    return items.sort((a, b) => a.date.getTime() - b.date.getTime());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentWeek, JSON.stringify(customMilestones), profile?.due_date, conceptionDate]);
+
+  const nextUp = useMemo(
+    () => timelineItems.filter((it) => it.state === "future").sort((a, b) => a.date.getTime() - b.date.getTime())[0],
+    [timelineItems]
+  );
+
+  const countdown = useMemo(() => {
+    if (!nextUp) return null;
+    const remaining = Math.max(0, nextUp.date.getTime() - tick);
+    const days = Math.floor(remaining / dayMs);
+    const hours = Math.floor((remaining % dayMs) / (60 * 60 * 1000));
+    const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
+    return { days, hours, minutes, seconds };
+  }, [nextUp, tick]);
+
+  const doneCount = timelineItems.filter((it) => it.state === "done").length;
+
+  const saveMoment = async () => {
+    if (!user || !momentTitle.trim() || !momentDate) return;
+    setSaving(true);
+    const next = [...customMilestones, { id: crypto.randomUUID(), title: momentTitle.trim(), date: momentDate }];
+    const { error } = await supabase.from("profiles").update({ custom_milestones: next }).eq("user_id", user.id);
+    setSaving(false);
+    if (error) {
+      toast.error("Couldn't save that moment — try again.");
+      return;
+    }
+    await refreshProfile();
+    toast.success("Moment added to your journey.");
+    setShowAdd(false);
+    setMomentTitle("");
+    setMomentDate("");
+  };
+
+  const dotVisual = (item: TimelineItem) => {
+    if (item.key === "now") {
       return {
-        background: "var(--gold)",
-        border: "2px solid rgba(21,10,31,0.8)",
-        boxShadow: "0 0 0 4px rgba(242,182,71,0.35)",
-        animation: "bellaPulse 2.4s ease-in-out infinite",
+        style: {
+          background: "var(--gold)",
+          border: "2px solid rgba(21,10,31,0.8)",
+          boxShadow: "0 0 0 4px rgba(242,182,71,0.35)",
+          animation: "bellaPulse 2.4s ease-in-out infinite",
+        } as React.CSSProperties,
+        icon: null,
       };
     }
     if (item.state === "done") {
       return {
-        background: item.tone === "magenta" ? "var(--magenta)" : "var(--teal)",
-        border: "2px solid rgba(21,10,31,0.8)",
+        style: {
+          background: item.tone === "magenta" ? "var(--magenta)" : "var(--teal)",
+          border: "2px solid rgba(21,10,31,0.8)",
+        } as React.CSSProperties,
+        icon: <Check size={8} strokeWidth={3} color="var(--night)" />,
       };
     }
-    return { background: "transparent", border: "2px dashed rgba(255,255,255,0.4)" };
+    return {
+      style: { background: "transparent", border: "2px dashed rgba(255,255,255,0.4)" } as React.CSSProperties,
+      icon: <Lock size={7} strokeWidth={2.5} color="rgba(251,238,224,0.55)" />,
+    };
   };
 
   return (
@@ -96,38 +223,111 @@ const Journey = () => {
       </GhHeader>
 
       <div style={{ padding: "12px 16px 110px" }}>
+        {/* Next up: live countdown to the nearest milestone */}
+        <GlassCard>
+          <div className="gh-section-label">next up</div>
+          {nextUp && countdown ? (
+            <>
+              <div className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--cream)", marginTop: 4 }}>
+                {nextUp.title}
+              </div>
+              <div className="font-gh-mono" style={{ display: "flex", gap: 10, marginTop: 10 }}>
+                {[
+                  { label: "days", value: countdown.days },
+                  { label: "hrs", value: countdown.hours },
+                  { label: "min", value: countdown.minutes },
+                  { label: "sec", value: countdown.seconds },
+                ].map((seg) => (
+                  <div key={seg.label} style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 20, color: "var(--gold)", lineHeight: 1 }}>
+                      {String(seg.value).padStart(2, "0")}
+                    </div>
+                    <div style={{ fontSize: 8.5, color: "rgba(251,238,224,0.5)", marginTop: 3, letterSpacing: "0.06em" }}>
+                      {seg.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="font-gh-serif" style={{ fontSize: 14, marginTop: 4, opacity: 0.85 }}>
+              Every moment so far is yours, mama.
+            </div>
+          )}
+        </GlassCard>
+
+        {/* Moments earned: real streak + unlocked milestone count */}
+        <GlassCard>
+          <div className="gh-section-label">moments earned</div>
+          <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, flex: 1, background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "9px 12px" }}>
+              <Flame size={16} color="var(--ember)" />
+              <div>
+                <div className="font-gh-mono" style={{ fontSize: 15, color: "var(--cream)", lineHeight: 1.1 }}>
+                  {streak?.current ?? 0}
+                </div>
+                <div style={{ fontSize: 9.5, color: "rgba(251,238,224,0.55)" }}>day streak</div>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, flex: 1, background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "9px 12px" }}>
+              <Sparkles size={16} color="var(--gold)" />
+              <div>
+                <div className="font-gh-mono" style={{ fontSize: 15, color: "var(--cream)", lineHeight: 1.1 }}>
+                  {doneCount}
+                </div>
+                <div style={{ fontSize: 9.5, color: "rgba(251,238,224,0.55)" }}>moments unlocked</div>
+              </div>
+            </div>
+          </div>
+        </GlassCard>
+
         <GlassCard>
           <div className="gh-section-label">your timeline</div>
           <div style={{ position: "relative", paddingLeft: 24 }}>
             <div style={{ content: '""', position: "absolute", left: 5, top: 4, bottom: 4, width: 2, background: "rgba(255,255,255,0.2)" }} />
-            {items.map((item) => (
-              <div key={`${item.week}-${item.title}`} style={{ position: "relative", marginBottom: 17, opacity: item.state === "future" ? 0.55 : 1 }}>
-                <div style={{ position: "absolute", left: -24, top: 3, width: 12, height: 12, borderRadius: "50%", ...dotStyle(item) }} />
-                <div className="font-gh-mono" style={{ fontSize: 10, color: "rgba(251,238,224,0.55)" }}>week {item.week}</div>
-                <div
-                  className="font-gh-serif"
-                  style={{
-                    fontSize: 14, marginTop: 2,
-                    color: item.state === "now" ? "var(--gold)" : "var(--cream)",
-                    fontWeight: item.state === "now" ? 500 : 400,
-                  }}
-                >
-                  {item.title}
+            {timelineItems.map((item) => {
+              const { style, icon } = dotVisual(item);
+              return (
+                <div key={item.key} style={{ position: "relative", marginBottom: 17, opacity: item.state === "future" ? 0.55 : 1 }}>
+                  <div style={{ position: "absolute", left: -24, top: 3, width: 12, height: 12, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", ...style }}>
+                    {icon}
+                  </div>
+                  <div className="font-gh-mono" style={{ fontSize: 10, color: "rgba(251,238,224,0.55)" }}>
+                    {item.key === "now" || item.key === "due" ? "" : item.date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  </div>
+                  <div
+                    className="font-gh-serif"
+                    style={{
+                      fontSize: 14, marginTop: 2,
+                      color: item.state === "now" ? "var(--gold)" : "var(--cream)",
+                      fontWeight: item.state === "now" ? 500 : 400,
+                    }}
+                  >
+                    {item.title}
+                    {item.isCustom && (
+                      <span style={{ fontSize: 10, color: "var(--gold)", opacity: 0.7, marginLeft: 6 }}>· your moment</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
+
+          <button
+            onClick={() => setShowAdd(true)}
+            className="gh-pill"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 4 }}
+          >
+            <Plus size={13} />
+            <span>Add your own moment</span>
+          </button>
         </GlassCard>
 
         {/* Bella's note */}
-        <div
+        <GlassCard
           style={{
-            borderRadius: 18, padding: 16,
             background: "linear-gradient(135deg, rgba(44,156,143,0.35), rgba(181,56,107,0.35))",
-            border: "1px solid var(--glass-border)",
             display: "flex", alignItems: "center", gap: 13,
-            backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
-            marginTop: 2,
           }}
         >
           <BellaOrb size={44} />
@@ -139,8 +339,95 @@ const Journey = () => {
                 : "You made it to the threshold, mama — the glow is yours now."}
             </span>
           </div>
-        </div>
+        </GlassCard>
       </div>
+
+      {showAdd && createPortal(
+        <div
+          className="fixed inset-0 z-[200] flex items-end"
+          style={{ background: "rgba(10,6,16,0.6)" }}
+          onClick={() => setShowAdd(false)}
+        >
+          <div
+            className="w-full flex flex-col sheet-enter relative"
+            style={{
+              background: "linear-gradient(180deg, #2a1430 0%, #1c0e24 100%)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              borderBottom: "none",
+              borderTopLeftRadius: 24, borderTopRightRadius: 24,
+              maxHeight: "70dvh", maxWidth: 430, margin: "0 auto",
+              color: "var(--cream)", fontFamily: "'Inter', system-ui",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="pt-3 pb-1 flex justify-center shrink-0">
+              <div style={{ width: 44, height: 5, borderRadius: 5, background: "rgba(255,255,255,0.25)" }} />
+            </div>
+            <button
+              onClick={() => setShowAdd(false)}
+              aria-label="Close"
+              className="gh-icon-btn"
+              style={{ position: "absolute", top: 14, right: 14 }}
+            >
+              <X size={15} />
+            </button>
+
+            <div className="px-5 pt-3 pb-2 shrink-0">
+              <h2 className="font-gh-serif" style={{ fontSize: 20, fontWeight: 500, fontStyle: "italic" }}>Add your own moment</h2>
+              <p style={{ fontSize: 12, color: "rgba(251,238,224,0.6)", marginTop: 2 }}>
+                First kick, baby shower, a name you finally agreed on — it belongs on your timeline.
+              </p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto min-h-0 px-5" style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}>
+              <p className="gh-section-label" style={{ marginBottom: 8 }}>moment</p>
+              <input
+                value={momentTitle}
+                onChange={(e) => setMomentTitle(e.target.value)}
+                placeholder="First kick..."
+                className="w-full text-[15px] outline-none mb-4"
+                style={{ background: "rgba(0,0,0,0.25)", color: "var(--cream)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 16px" }}
+              />
+
+              <p className="gh-section-label" style={{ marginBottom: 8 }}>date</p>
+              <input
+                type="date"
+                value={momentDate}
+                onChange={(e) => setMomentDate(e.target.value)}
+                className="w-full text-[15px] outline-none mb-2"
+                style={{ background: "rgba(0,0,0,0.25)", color: "var(--cream)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 16px", colorScheme: "dark" }}
+              />
+            </div>
+
+            <div
+              className="shrink-0 px-5"
+              style={{
+                paddingTop: 12,
+                paddingBottom: "max(20px, env(safe-area-inset-bottom))",
+                borderTop: "1px solid rgba(255,255,255,0.1)",
+                background: "#1c0e24",
+              }}
+            >
+              <button
+                onClick={saveMoment}
+                disabled={!momentTitle.trim() || !momentDate || saving}
+                className="w-full belly-btn-press"
+                style={{
+                  background: "linear-gradient(135deg, var(--gold), var(--ember))",
+                  color: "var(--night)",
+                  fontWeight: 700, fontSize: 15,
+                  borderRadius: 999, height: 52, border: "none",
+                  opacity: (!momentTitle.trim() || !momentDate || saving) ? 0.4 : 1,
+                  cursor: (!momentTitle.trim() || !momentDate || saving) ? "not-allowed" : "pointer",
+                }}
+              >
+                {saving ? "Saving…" : "Save to my journey"}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </SceneBackground>
   );
 };
