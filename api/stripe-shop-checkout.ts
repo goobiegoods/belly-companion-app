@@ -11,7 +11,6 @@ interface ProductRow {
   name: string;
   price: number | string;
   is_active: boolean;
-  in_stock: boolean | null;
 }
 
 export default async function handler(req: Request) {
@@ -42,7 +41,7 @@ export default async function handler(req: Request) {
     const ids = [...wanted.keys()];
     const inList = `(${ids.map((i) => `"${i.replace(/"/g, '')}"`).join(',')})`;
     const products = await dbSelect<ProductRow>(
-      `products?select=id,name,price,is_active,in_stock&id=in.${encodeURIComponent(inList)}`,
+      `products?select=id,name,price,is_active&id=in.${encodeURIComponent(inList)}`,
     );
     const byId = new Map(products.map((p) => [p.id, p]));
 
@@ -55,7 +54,6 @@ export default async function handler(req: Request) {
     for (const [id, qty] of wanted) {
       const p = byId.get(id);
       if (!p || !p.is_active) return json({ error: 'An item in your cart is no longer available' }, 400);
-      if (p.in_stock === false) return json({ error: `${p.name} is out of stock` }, 400);
       const price = Number(p.price);
       if (!Number.isFinite(price) || price < 0) return json({ error: 'Invalid product price' }, 400);
       subtotal += price * qty;
