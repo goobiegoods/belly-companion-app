@@ -27,8 +27,8 @@ const Check = () => (
 );
 
 export function PremiumModal({ open, onClose }: Props) {
-  const { user, profile } = useAuth();
-  const [plan, setPlan] = useState<"premium_monthly" | "premium_annual">("premium_annual");
+  const { profile } = useAuth();
+  const [plan, setPlan] = useState<"monthly" | "yearly">("yearly");
   const [showCheckout, setShowCheckout] = useState(false);
 
   if (!open) return null;
@@ -85,12 +85,7 @@ export function PremiumModal({ open, onClose }: Props) {
             </button>
             {/* Stripe's embedded checkout renders a light iframe — keep a white card behind it */}
             <div style={{ background: "#fff", borderRadius: 16, padding: 12 }}>
-              <StripeEmbeddedCheckoutForm
-                priceId={plan}
-                customerEmail={user?.email}
-                userId={user?.id}
-                returnUrl={`${window.location.origin}/premium-success?session_id={CHECKOUT_SESSION_ID}`}
-              />
+              <StripeEmbeddedCheckoutForm plan={plan} />
             </div>
           </div>
         ) : (
@@ -122,28 +117,28 @@ export function PremiumModal({ open, onClose }: Props) {
               </ul>
 
               <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-                <button onClick={() => setPlan("premium_monthly")}
+                <button onClick={() => setPlan("monthly")}
                   style={{
                     flex: 1, padding: 16, textAlign: "center", borderRadius: 14, cursor: "pointer",
-                    background: plan === "premium_monthly" ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.06)",
-                    border: `2px solid ${plan === "premium_monthly" ? "var(--gold)" : "rgba(255,255,255,0.18)"}`,
+                    background: plan === "monthly" ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.06)",
+                    border: `2px solid ${plan === "monthly" ? "var(--gold)" : "rgba(255,255,255,0.18)"}`,
                   }}>
                   <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: "var(--cream)" }}>$9.99</p>
                   <p style={{ fontSize: 11, color: "rgba(251,238,224,0.6)" }}>/month</p>
                 </button>
-                <button onClick={() => setPlan("premium_annual")}
+                <button onClick={() => setPlan("yearly")}
                   style={{
                     flex: 1, padding: 16, textAlign: "center", borderRadius: 14, cursor: "pointer", position: "relative",
-                    background: plan === "premium_annual" ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.06)",
-                    border: `2px solid ${plan === "premium_annual" ? "var(--gold)" : "rgba(255,255,255,0.18)"}`,
+                    background: plan === "yearly" ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.06)",
+                    border: `2px solid ${plan === "yearly" ? "var(--gold)" : "rgba(255,255,255,0.18)"}`,
                   }}>
                   <span style={{
                     position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)",
                     fontSize: 9, padding: "3px 10px", borderRadius: 20, fontWeight: 700,
                     background: "var(--gold)", color: "var(--night)", fontFamily: "'Inter', sans-serif",
                     whiteSpace: "nowrap", letterSpacing: "0.04em",
-                  }}>SAVE 50%</span>
-                  <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: "var(--cream)" }}>$59.99</p>
+                  }}>SAVE 33%</span>
+                  <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: "var(--cream)" }}>$79.99</p>
                   <p style={{ fontSize: 11, color: "rgba(251,238,224,0.6)" }}>/year</p>
                 </button>
               </div>
@@ -156,7 +151,7 @@ export function PremiumModal({ open, onClose }: Props) {
                   border: "none", cursor: "pointer",
                   boxShadow: "0 8px 24px -8px rgba(242,182,71,0.5)",
                 }}>
-                Start 7-day free trial →
+                Upgrade to Pro →
               </button>
 
               <button onClick={onClose}

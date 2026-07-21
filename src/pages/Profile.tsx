@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Pencil, BookOpen, Baby, Wind, GraduationCap, ShoppingBag,
-  Sprout, MessageCircle, Flame, Flower2, ChevronRight, Sparkles, Lock,
+  Sprout, MessageCircle, Flame, Flower2, ChevronRight, Sparkles, Lock, CreditCard,
 } from "lucide-react";
 import { PremiumModal } from "@/components/PremiumModal";
 import { getStreak } from "@/lib/streak";
@@ -36,6 +36,27 @@ const Profile = () => {
   const [editDueDate, setEditDueDate] = useState(profile?.due_date || "");
   const [editName, setEditName] = useState(profile?.first_name || "");
   const [streak, setStreak] = useState({ current: 0, longest: 0 });
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  // Stripe-hosted billing portal — cancel / update card, no custom billing UI.
+  const openBillingPortal = async () => {
+    if (portalLoading) return;
+    setPortalLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Please sign in again");
+      const resp = await fetch("/api/stripe-portal", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data?.url) throw new Error(data?.error || "Could not open billing portal");
+      window.location.href = data.url;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not open billing portal");
+      setPortalLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!user?.id) return;
@@ -145,10 +166,28 @@ const Profile = () => {
               border: "1px solid rgba(242,182,71,0.4)",
             }}
           >
-            <Sparkles size={20} color="var(--gold)" strokeWidth={1.8} />
-            <p style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 15, fontWeight: 600, color: "var(--gold)" }}>
+            <Sparkles size={20} color="var(--gold)" strokeWidth={1.8} style={{ flexShrink: 0 }} />
+            <p style={{ flex: 1, minWidth: 0, fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 15, fontWeight: 600, color: "var(--gold)" }}>
               You're a Premium mama
             </p>
+            <button
+              onClick={openBillingPortal}
+              disabled={portalLoading}
+              className="belly-btn-press"
+              style={{
+                display: "flex", alignItems: "center", gap: 7, flexShrink: 0,
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(242,182,71,0.35)",
+                borderRadius: 20, padding: "8px 13px",
+                color: "var(--gold)", fontFamily: "'Inter', sans-serif",
+                fontSize: 12, fontWeight: 600, whiteSpace: "nowrap",
+                cursor: portalLoading ? "wait" : "pointer",
+                opacity: portalLoading ? 0.6 : 1,
+              }}
+            >
+              <CreditCard size={14} strokeWidth={1.8} />
+              {portalLoading ? "Opening…" : "Manage"}
+            </button>
           </div>
         ) : (
           <button

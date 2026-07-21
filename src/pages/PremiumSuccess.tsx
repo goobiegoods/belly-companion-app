@@ -24,7 +24,7 @@ const GoldCheck = ({ size = 14 }: { size?: number }) => (
 const BENEFITS = [
   "Unlimited doula access with Bella",
   "Every premium course, unlocked",
-  "7-day free trial — cancel anytime",
+  "Cancel anytime from your profile",
 ];
 
 const PremiumSuccess = () => {
@@ -76,7 +76,7 @@ const PremiumSuccess = () => {
               maxWidth: 300, margin: "0 auto 18px",
             }}
           >
-            Your 7-day free trial has started. Enjoy unlimited doula access, all premium courses, and more.
+            Payment confirmed. Enjoy unlimited doula access, all premium courses, and more.
           </p>
 
           <div style={{ textAlign: "left", margin: "0 auto 18px", maxWidth: 270 }}>

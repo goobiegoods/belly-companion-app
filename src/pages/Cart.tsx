@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
-import { getStripeEnvironment } from "@/lib/stripe";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -22,16 +21,19 @@ const Cart = () => {
     setCheckoutLoading(true);
     try {
       console.log('[checkout] requesting session…');
-      const { data, error } = await supabase.functions.invoke('create-shop-checkout', {
-        body: {
-          items: items.map(i => ({ id: i.product.id, name: i.product.name, price: i.product.price, qty: i.qty })),
-          userId: user.id,
-          customerEmail: user.email,
-          shippingFee,
-          environment: getStripeEnvironment(),
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not signed in');
+      // Server re-validates prices against the products table — only ids + quantities go up.
+      const resp = await fetch('/api/stripe-shop-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
         },
+        body: JSON.stringify({ items: items.map(i => ({ id: i.product.id, qty: i.qty })) }),
       });
-      if (error) throw error;
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data?.error || `Checkout failed (${resp.status})`);
       if (!data?.url) throw new Error('No checkout URL returned from Stripe');
       console.log('[checkout] redirecting to', data.url);
       await new Promise(r => setTimeout(r, 50));

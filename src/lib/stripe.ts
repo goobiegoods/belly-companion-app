@@ -1,7 +1,6 @@
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 
 const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN;
-const environment = clientToken?.startsWith("pk_test_") ? "sandbox" : "live";
 
 let stripePromise: Promise<Stripe | null> | null = null;
 
@@ -11,8 +10,4 @@ export function getStripe(): Promise<Stripe | null> {
     stripePromise = loadStripe(clientToken);
   }
   return stripePromise;
-}
-
-export function getStripeEnvironment(): "sandbox" | "live" {
-  return environment as "sandbox" | "live";
 }
