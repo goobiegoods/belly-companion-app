@@ -23,6 +23,13 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const PAGE = 1000; // PostgREST per-request row cap
 const MAX_PAGES = 10;
 
+// Pro price IDs (api/stripe-checkout.ts) mapped to their monthly-equivalent
+// dollar amount, for computing MRR from raw subscription rows.
+const MONTHLY_EQUIVALENT: Record<string, number> = {
+  price_1TvRZH3aGROnSTkwA5AGLshP: 9.99, // monthly
+  price_1TvRZH3aGROnSTkwcIdEonLx: 79.99 / 12, // yearly
+};
+
 /** Local-midnight timestamp for N days ago (0 = today). */
 const dayStart = (daysAgo: number) => {
   const d = new Date();
@@ -65,10 +72,18 @@ interface DashData {
   flaggedPosts: number;
   flaggedChats: number;
   unshippedPaid: number;
+  subscriptionRows: { user_id: string; price_id: string; status: string; updated_at: string }[];
 }
 
 async function loadDashboard(): Promise<DashData> {
   const sevenDaysAgo = new Date(dayStart(6)).toISOString();
+
+  // Seed personas + QA/test accounts (is_test_account) are excluded from
+  // every metric below so growth numbers reflect real users only.
+  const { data: testProfiles } = await supabase.from("profiles").select("user_id").eq("is_test_account", true);
+  const testIds = (testProfiles ?? []).map((p: { user_id: string }) => p.user_id);
+  const excludeTest = (q: any) => (testIds.length ? q.not("user_id", "in", `(${testIds.join(",")})`) : q);
+
   const [
     profiles,
     chatRows,
@@ -81,23 +96,27 @@ async function loadDashboard(): Promise<DashData> {
     flaggedPosts,
     flaggedChats,
     unshippedPaid,
+    subscriptions,
   ] = await Promise.all([
-    fetchAllPages("profiles", "user_id, first_name, created_at, onboarding_completed"),
-    fetchAllPages("chat_messages", "user_id, created_at", (q) => q.eq("role", "user")),
-    supabase.from("posts").select("user_id, created_at").gte("created_at", sevenDaysAgo).limit(PAGE),
-    supabase.from("comments").select("user_id, created_at").gte("created_at", sevenDaysAgo).limit(PAGE),
-    supabase.from("orders").select("id, total, status, created_at, items").order("created_at", { ascending: false }).limit(5),
-    supabase.from("posts").select("id, user_id, title, category, display_name, created_at").order("created_at", { ascending: false }).limit(5),
-    supabase.from("orders").select("total").eq("status", "paid").gte("created_at", sevenDaysAgo),
-    supabase
-      .from("support_tickets")
-      .select("id, subject, status, priority, created_at", { count: "exact" })
-      .in("status", ["open", "in_progress"])
-      .order("created_at", { ascending: false })
-      .limit(3),
-    supabase.from("posts").select("id", { count: "exact", head: true }).eq("is_flagged", true),
-    supabase.from("chat_messages").select("id", { count: "exact", head: true }).eq("is_flagged", true).is("reviewed_at", null),
-    supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "paid").is("shipped_at", null),
+    fetchAllPages("profiles", "user_id, first_name, created_at, onboarding_completed", (q) => q.eq("is_test_account", false)),
+    fetchAllPages("chat_messages", "user_id, created_at", (q) => excludeTest(q.eq("role", "user"))),
+    excludeTest(supabase.from("posts").select("user_id, created_at").gte("created_at", sevenDaysAgo).limit(PAGE)),
+    excludeTest(supabase.from("comments").select("user_id, created_at").gte("created_at", sevenDaysAgo).limit(PAGE)),
+    excludeTest(supabase.from("orders").select("id, total, status, created_at, items").order("created_at", { ascending: false }).limit(5)),
+    excludeTest(supabase.from("posts").select("id, user_id, title, category, display_name, created_at").order("created_at", { ascending: false }).limit(5)),
+    excludeTest(supabase.from("orders").select("total").eq("status", "paid").gte("created_at", sevenDaysAgo)),
+    excludeTest(
+      supabase
+        .from("support_tickets")
+        .select("id, subject, status, priority, created_at", { count: "exact" })
+        .in("status", ["open", "in_progress"])
+        .order("created_at", { ascending: false })
+        .limit(3)
+    ),
+    excludeTest(supabase.from("posts").select("id", { count: "exact", head: true }).eq("is_flagged", true)),
+    excludeTest(supabase.from("chat_messages").select("id", { count: "exact", head: true }).eq("is_flagged", true).is("reviewed_at", null)),
+    excludeTest(supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "paid").is("shipped_at", null)),
+    excludeTest(supabase.from("subscriptions").select("user_id, price_id, status, updated_at").in("status", ["active", "trialing"])),
   ]);
 
   const chat7d = chatRows.filter((r) => new Date(r.created_at).getTime() >= dayStart(6));
@@ -113,6 +132,7 @@ async function loadDashboard(): Promise<DashData> {
     flaggedPosts: flaggedPosts.count ?? 0,
     flaggedChats: flaggedChats.count ?? 0,
     unshippedPaid: unshippedPaid.count ?? 0,
+    subscriptionRows: (subscriptions.data ?? []) as DashData["subscriptionRows"],
   };
 }
 
@@ -223,6 +243,19 @@ const AdminDashboard = () => {
     const signupBars = dailyBuckets(data.profiles.filter((p) => created(p) >= week));
     const shopRevenue7d = data.paid7dTotals.reduce((s, t) => s + t, 0);
 
+    // Dedupe to the latest row per user (a resubscribe after a cancel can
+    // leave more than one active/trialing row across the account's history).
+    const latestSubByUser = new Map<string, DashData["subscriptionRows"][number]>();
+    for (const s of data.subscriptionRows) {
+      const prev = latestSubByUser.get(s.user_id);
+      if (!prev || new Date(s.updated_at).getTime() > new Date(prev.updated_at).getTime()) {
+        latestSubByUser.set(s.user_id, s);
+      }
+    }
+    const activeSubs = [...latestSubByUser.values()];
+    const proSubscribers = activeSubs.length;
+    const proMRR = activeSubs.reduce((s, r) => s + (MONTHLY_EQUIVALENT[r.price_id] ?? 0), 0);
+
     const nameOf = new Map(data.profiles.map((p) => [p.user_id, p.first_name || "Mama"]));
     const feed = [
       ...data.profiles.slice(0, 5).map((p) => ({
@@ -241,7 +274,7 @@ const AdminDashboard = () => {
       .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
       .slice(0, 10);
 
-    return { signupsToday, signups7d, signupsPrev7d, activationPct, activated, messages7d, dauBars, dauToday, signupBars, shopRevenue7d, feed, totalUsers: data.profiles.length };
+    return { signupsToday, signups7d, signupsPrev7d, activationPct, activated, messages7d, dauBars, dauToday, signupBars, shopRevenue7d, proSubscribers, proMRR, feed, totalUsers: data.profiles.length };
   }, [data]);
 
   const needsYou = data
@@ -382,19 +415,18 @@ const AdminDashboard = () => {
                     <CreditCard size={17} strokeWidth={1.8} color="var(--magenta)" />
                   </div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 600 }}>Pro revenue</div>
-                    <div style={{ fontSize: 11.5, color: cream60 }}>Stripe connects next session</div>
+                    <div className="font-gh-serif" style={{ fontSize: 26, fontWeight: 600, color: "var(--cream)", lineHeight: 1.1 }}>
+                      {m.proSubscribers}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: cream60 }}>
+                      active Pro {m.proSubscribers === 1 ? "subscriber" : "subscribers"}
+                    </div>
                   </div>
                 </div>
-                <span
-                  className="font-gh-mono"
-                  style={{
-                    display: "inline-block", marginTop: 10, fontSize: 10, padding: "3px 10px",
-                    borderRadius: 10, border: "1px dashed rgba(251,238,224,0.35)", color: cream60,
-                  }}
-                >
-                  connect Stripe
-                </span>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 10 }}>
+                  <span className="font-gh-mono" style={{ fontSize: 15, color: "var(--cream)" }}>${m.proMRR.toFixed(2)}</span>
+                  <span style={{ fontSize: 11.5, color: cream60 }}>MRR</span>
+                </div>
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", marginTop: 14, paddingTop: 12, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                   <span style={{ fontSize: 12.5, color: cream75 }}>Shop orders paid · 7d</span>
                   <span className="font-gh-mono" style={{ fontSize: 16, color: "var(--cream)" }}>${m.shopRevenue7d.toFixed(2)}</span>
