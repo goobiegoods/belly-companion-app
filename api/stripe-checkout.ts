@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { CORS, json, getStripe, requireUser } from './_lib/stripe';
+import { CORS, json, getStripe, requireUser } from './_lib/stripe.js';
 
 // Stripe test-mode price IDs for Pro (not secrets). The client only ever
 // sends a plan name, so it can never inject an arbitrary price.
@@ -17,8 +17,8 @@ export default async function handler(req: Request) {
     const auth = await requireUser(req);
     if (auth instanceof Response) return auth;
 
-    const { plan } = await req.json().catch(() => ({}));
-    const priceId = PRICE_IDS[String(plan)];
+    const body = (await req.json().catch(() => ({}))) as { plan?: unknown };
+    const priceId = PRICE_IDS[String(body.plan)];
     if (!priceId) return json({ error: 'Invalid plan' }, 400);
 
     const origin = req.headers.get('origin') || 'https://belly-companion-app.vercel.app';

@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { CORS, json, getStripe, requireUser, dbSelect } from './_lib/stripe';
+import { CORS, json, getStripe, requireUser, dbSelect } from './_lib/stripe.js';
 
 export default async function handler(req: Request) {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS });

@@ -1,7 +1,7 @@
 export const config = { runtime: 'edge' };
 
 import Stripe from 'stripe';
-import { getStripe, dbSelect, dbUpdate, dbUpsert } from './_lib/stripe';
+import { getStripe, dbSelect, dbUpdate, dbUpsert } from './_lib/stripe.js';
 
 // WebCrypto-based signature verification for the edge runtime.
 const cryptoProvider = Stripe.createSubtleCryptoProvider();

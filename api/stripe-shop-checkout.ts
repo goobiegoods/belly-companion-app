@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { CORS, json, getStripe, requireUser, dbSelect, dbInsert, dbUpdate } from './_lib/stripe';
+import { CORS, json, getStripe, requireUser, dbSelect, dbInsert, dbUpdate } from './_lib/stripe.js';
 
 // Must match the thresholds shown in Cart.tsx.
 const FREE_SHIPPING_MIN = 40;
@@ -22,13 +22,15 @@ export default async function handler(req: Request) {
     const auth = await requireUser(req);
     if (auth instanceof Response) return auth;
 
-    const { items } = await req.json().catch(() => ({}));
+    const body = (await req.json().catch(() => ({}))) as { items?: unknown };
+    const items = body.items;
     if (!Array.isArray(items) || items.length === 0) return json({ error: 'Cart is empty' }, 400);
 
     // Only ids + quantities come from the client; names and prices are
     // re-read from the products table so totals can't be tampered with.
     const wanted = new Map<string, number>();
-    for (const it of items) {
+    for (const raw of items) {
+      const it = raw as { id?: unknown; qty?: unknown };
       const id = String(it?.id ?? '').trim();
       const qty = Math.floor(Number(it?.qty));
       if (!id || !Number.isFinite(qty) || qty < 1 || qty > 99) {

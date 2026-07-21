@@ -48,7 +48,7 @@ export async function requireUser(req: Request): Promise<AuthedUser | Response> 
   });
   if (!resp.ok) return json({ error: 'Session expired. Please sign in again.' }, 401);
 
-  const user = await resp.json().catch(() => null);
+  const user = (await resp.json().catch(() => null)) as { id?: string; email?: string } | null;
   if (!user?.id) return json({ error: 'Invalid session.' }, 401);
   return { id: user.id, email: user.email || undefined };
 }
@@ -78,7 +78,7 @@ async function assertOk(resp: Response, action: string): Promise<Response> {
 
 export async function dbSelect<T = Record<string, unknown>>(pathWithQuery: string): Promise<T[]> {
   const resp = await assertOk(await dbFetch(pathWithQuery), `select ${pathWithQuery}`);
-  return resp.json();
+  return (await resp.json()) as T[];
 }
 
 export async function dbInsert<T = Record<string, unknown>>(table: string, row: object): Promise<T> {
@@ -90,7 +90,7 @@ export async function dbInsert<T = Record<string, unknown>>(table: string, row: 
     }),
     `insert into ${table}`,
   );
-  const rows = await resp.json();
+  const rows = (await resp.json()) as T[];
   return rows[0];
 }
 
