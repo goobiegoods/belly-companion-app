@@ -33,7 +33,8 @@ import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
 import { CartProvider } from "./contexts/CartContext";
 import { PostSheetProvider } from "./components/PostSheet";
 import AdminLayout from "./pages/admin/AdminLayout";
-import AdminOverview from "./pages/admin/AdminOverview";
+import AdminGuard from "./pages/admin/AdminGuard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminPromoCodes from "./pages/admin/AdminPromoCodes";
@@ -158,8 +159,10 @@ const AppContent = () => {
       <Route path="/recipes/:id" element={<ProtectedRoute><FullScreenLayout><RecipeDetail /></FullScreenLayout></ProtectedRoute>} />
       <Route path="/breathe" element={<ProtectedRoute><FullScreenLayout><BellyBreathe /></FullScreenLayout></ProtectedRoute>} />
       <Route path="/feeding" element={<ProtectedRoute><AppLayout><FeedingTracker /></AppLayout></ProtectedRoute>} />
+      {/* Founder dashboard: standalone mobile-first home at exact /admin (no
+          sidebar shell); the console keeps every deeper /admin/* page below. */}
+      <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
       <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminOverview />} />
         <Route path="analytics" element={<AdminAnalytics />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="promo-codes" element={<AdminPromoCodes />} />

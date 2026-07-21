@@ -10,7 +10,7 @@ type NavItem = { to: string; label: string; icon: string; end?: boolean };
 const NAV: { section: string; items: NavItem[] }[] = [
   {
     section: "Live",
-    items: [{ to: "/admin", label: "Mission Control", icon: "⚡", end: true }],
+    items: [{ to: "/admin", label: "Founder Home", icon: "⚡", end: true }],
   },
   {
     section: "Commerce",
