@@ -176,14 +176,47 @@
   }
 }
 
-/* Desktop framing — night backdrop with a soft glow around the 430px column */
+/* Desktop framing — rich Golden Hour ambience behind the 430px column, plus a
+   soft device-style frame around it. The column keeps its own strong per-screen
+   gradients (see .gh-scene-*), so this stays quieter — ambient, not competing. */
 @media (min-width: 431px) {
   html, body, #root {
-    background: radial-gradient(ellipse 110% 70% at 50% -8%, #2a1430 0%, transparent 55%),
+    background:
+      radial-gradient(ellipse 46% 38% at 6% 12%, rgba(232, 98, 46, 0.16) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 42% at 96% 88%, rgba(44, 156, 143, 0.14) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 6%, rgba(181, 56, 107, 0.14) 0%, transparent 55%),
+      radial-gradient(ellipse 40% 34% at 2% 92%, rgba(242, 182, 71, 0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 110% 70% at 50% -8%, #2a1430 0%, transparent 55%),
       linear-gradient(180deg, var(--night) 0%, #0d0713 100%);
+    background-attachment: fixed;
   }
   .app-layout {
-    box-shadow: 0 0 90px rgba(242, 182, 71, 0.10), 0 0 44px rgba(0, 0, 0, 0.6);
+    z-index: 1;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 90px rgba(242, 182, 71, 0.10), 0 40px 100px rgba(0, 0, 0, 0.55), 0 0 44px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Faint rotated wordmark in the left gutter — only once there's real gutter room
+   (≥900px keeps ≥235px of clearance so it can never touch the phone column). */
+@media (min-width: 900px) {
+  body::before {
+    content: "belly";
+    position: fixed;
+    top: 50%;
+    left: 40px;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+    opacity: 0.10;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 0;
   }
 }
 
