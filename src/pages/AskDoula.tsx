@@ -307,8 +307,14 @@ const AskDoula = () => {
         } else if (resp.status === 402) {
           toast.error("AI credits exhausted. Please try again later.");
         } else if (resp.status === 403) {
-          setServerBlocked(true);
-          toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
+          let errBody: any = null;
+          try { errBody = await resp.json(); } catch {}
+          if (errBody?.error === "pro_daily_limit") {
+            toast.error("You've hit today's message cap — it resets tomorrow.");
+          } else {
+            setServerBlocked(true);
+            toast.error("You've reached your daily limit. Upgrade to Premium for unlimited messages.");
+          }
         } else {
           try {
             const errBody = await resp.json();

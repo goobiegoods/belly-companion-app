@@ -118,12 +118,28 @@ const ordinal = (n: number): string => {
 const jsonResponse = (body: object, status: number) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
 
+// Free tier is further capped by app_config.free_message_limit (admin-configurable).
+const FREE_DAILY_LIMIT_DEFAULT = 10;
+// Not a paywall — Pro is "unlimited" in the marketing sense, but every account
+// still gets a hard backstop so a single compromised/scripted account can't
+// run up the Anthropic bill indefinitely.
+const PRO_DAILY_LIMIT = 150;
+// Rolling-window burst guard, independent of tier: protects against a runaway
+// loop or script hammering the endpoint within a single minute.
+const BURST_LIMIT = 12;
+const BURST_WINDOW_MS = 60_000;
+// Cost/abuse guard on a single message — enforced again below in the handler.
+const MAX_MESSAGE_LENGTH = 4000;
+
 /**
- * Server-side daily-message quota. Uses the caller's own Supabase JWT against
- * PostgREST (RLS-scoped), so no service key is needed. The client inserts the
- * user message into chat_messages BEFORE calling this API, so today's count
- * already includes the current message — block only when count > limit.
- * Returns a Response to short-circuit with, or null to proceed.
+ * Server-side rate limiting: a rolling burst limit (all tiers) plus a daily
+ * ceiling (free-tier paywall, and a hard safety cap for Pro). Uses the
+ * caller's own Supabase JWT against PostgREST (RLS-scoped), so no service key
+ * is needed and one user can never see another user's message counts. The
+ * client inserts the user message into chat_messages BEFORE calling this
+ * API, so counts already include the current message — block only when
+ * count > limit. Returns a Response to short-circuit with, or null to
+ * proceed. Never trusts anything from the client for these checks.
  */
 async function enforceQuota(req: Request): Promise<Response | null> {
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -146,15 +162,45 @@ async function enforceQuota(req: Request): Promise<Response | null> {
   const headers = { apikey: anonKey, Authorization: `Bearer ${token}` };
 
   try {
+    // Burst check first — cheapest way to shed a runaway client fast, and
+    // applies before we even look up tier.
+    const windowStart = new Date(Date.now() - BURST_WINDOW_MS).toISOString();
+    const burstResp = await fetch(
+      `${supabaseUrl}/rest/v1/chat_messages?select=id&user_id=eq.${uid}&role=eq.user&created_at=gte.${windowStart}`,
+      { headers: { ...headers, Prefer: 'count=exact', Range: '0-0' } },
+    );
+    if (burstResp.status === 401) return jsonResponse({ error: 'Session expired. Please sign in again.' }, 401);
+    const burstTotal = parseInt((burstResp.headers.get('content-range') || '').split('/')[1] || '0', 10);
+    if (Number.isFinite(burstTotal) && burstTotal > BURST_LIMIT) {
+      return jsonResponse(
+        { error: 'rate_limited', message: "You're sending messages faster than Bella can keep up — take a breath and try again in a minute." },
+        429,
+      );
+    }
+
     const profResp = await fetch(
       `${supabaseUrl}/rest/v1/profiles?select=is_premium&user_id=eq.${uid}`,
       { headers },
     );
     if (profResp.status === 401) return jsonResponse({ error: 'Session expired. Please sign in again.' }, 401);
     const prof = await profResp.json().catch(() => []);
-    if (Array.isArray(prof) && prof[0]?.is_premium) return null;
+    const isPremium = Array.isArray(prof) && !!prof[0]?.is_premium;
 
-    let limit = 10;
+    const today = new Date().toISOString().split('T')[0];
+    const countResp = await fetch(
+      `${supabaseUrl}/rest/v1/chat_messages?select=id&user_id=eq.${uid}&role=eq.user&created_at=gte.${today}T00:00:00Z`,
+      { headers: { ...headers, Prefer: 'count=exact', Range: '0-0' } },
+    );
+    const total = parseInt((countResp.headers.get('content-range') || '').split('/')[1] || '0', 10);
+
+    if (isPremium) {
+      if (Number.isFinite(total) && total > PRO_DAILY_LIMIT) {
+        return jsonResponse({ error: 'pro_daily_limit', limit: PRO_DAILY_LIMIT }, 403);
+      }
+      return null;
+    }
+
+    let limit = FREE_DAILY_LIMIT_DEFAULT;
     try {
       const cfgResp = await fetch(
         `${supabaseUrl}/rest/v1/app_config?select=free_message_limit&id=eq.1`,
@@ -166,12 +212,6 @@ async function enforceQuota(req: Request): Promise<Response | null> {
       }
     } catch {}
 
-    const today = new Date().toISOString().split('T')[0];
-    const countResp = await fetch(
-      `${supabaseUrl}/rest/v1/chat_messages?select=id&user_id=eq.${uid}&role=eq.user&created_at=gte.${today}T00:00:00Z`,
-      { headers: { ...headers, Prefer: 'count=exact', Range: '0-0' } },
-    );
-    const total = parseInt((countResp.headers.get('content-range') || '').split('/')[1] || '0', 10);
     if (Number.isFinite(total) && total > limit) {
       return jsonResponse({ error: 'daily_limit', limit }, 403);
     }
@@ -215,6 +255,31 @@ export default async function handler(req: Request) {
     if (quotaBlock) return quotaBlock;
 
     const { messages, userContext } = await req.json();
+
+    // Input validation — never trust message shape/size from the client.
+    // Caps both a single oversized message and a hand-crafted request that
+    // skips the UI and posts a huge conversation array directly to this API.
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return jsonResponse({ error: 'messages must be a non-empty array' }, 400);
+    }
+    if (messages.length > 60) {
+      return jsonResponse({ error: 'Conversation too long for a single request.' }, 400);
+    }
+    const textLengthOf = (content: unknown): number => {
+      if (typeof content === 'string') return content.length;
+      if (Array.isArray(content)) {
+        return content.reduce((sum, item) => sum + (typeof item?.text === 'string' ? item.text.length : 0), 0);
+      }
+      return 0;
+    };
+    const lastMessage = messages[messages.length - 1];
+    if (textLengthOf(lastMessage?.content) > MAX_MESSAGE_LENGTH) {
+      return jsonResponse({ error: `Message too long (max ${MAX_MESSAGE_LENGTH} characters).` }, 400);
+    }
+    const totalTextLength = messages.reduce((sum: number, m: any) => sum + textLengthOf(m?.content), 0);
+    if (totalTextLength > 30000) {
+      return jsonResponse({ error: 'Conversation too long for a single request.' }, 400);
+    }
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not configured');
