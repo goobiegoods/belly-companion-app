@@ -8,6 +8,7 @@ import { initTheme } from "@/lib/theme";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
+import Welcome from "./pages/Welcome";
 import HomePage from "./pages/HomePage";
 import BabyTracker from "./pages/BabyTracker";
 import AskDoula from "./pages/AskDoula";
@@ -140,6 +141,7 @@ const AppContent = () => {
       <Route path="/auth" element={<Auth />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/welcome" element={<Welcome />} />
       <Route path="/" element={<ProtectedRoute><AppLayout><HomePage /></AppLayout></ProtectedRoute>} />
       <Route path="/baby" element={<ProtectedRoute><AppLayout><BabyTracker /></AppLayout></ProtectedRoute>} />
       <Route path="/ask" element={<ProtectedRoute><AppLayout><AskDoula /></AppLayout></ProtectedRoute>} />

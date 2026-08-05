@@ -630,10 +630,12 @@ export type Database = {
           has_provider: boolean | null
           id: string
           is_premium: boolean | null
+          onboarding_answers: Json
           onboarding_completed: boolean | null
           pregnancy_number: number | null
           premium_expires_at: string | null
           premium_since: string | null
+          season: string | null
           updated_at: string
           user_id: string
         }
@@ -645,10 +647,12 @@ export type Database = {
           has_provider?: boolean | null
           id?: string
           is_premium?: boolean | null
+          onboarding_answers?: Json
           onboarding_completed?: boolean | null
           pregnancy_number?: number | null
           premium_expires_at?: string | null
           premium_since?: string | null
+          season?: string | null
           updated_at?: string
           user_id: string
         }
@@ -660,10 +664,12 @@ export type Database = {
           has_provider?: boolean | null
           id?: string
           is_premium?: boolean | null
+          onboarding_answers?: Json
           onboarding_completed?: boolean | null
           pregnancy_number?: number | null
           premium_expires_at?: string | null
           premium_since?: string | null
+          season?: string | null
           updated_at?: string
           user_id?: string
         }

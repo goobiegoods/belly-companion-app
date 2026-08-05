@@ -117,9 +117,9 @@ export function PremiumUpgradeSheet({ open, onClose }: Props) {
 
         <div style={{ marginBottom: 18 }}>
           <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 600, color: "var(--gold)", lineHeight: 1.1 }}>
-            $9.99 <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(251,238,224,0.6)", fontFamily: "'Inter', sans-serif" }}>/ month</span>
+            $14.99 <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(251,238,224,0.6)", fontFamily: "'Inter', sans-serif" }}>/ month</span>
           </p>
-          <p style={{ fontSize: 12, color: "rgba(251,238,224,0.6)", marginTop: 4 }}>or $59.99 / year — save 50%</p>
+          <p style={{ fontSize: 12, color: "rgba(251,238,224,0.6)", marginTop: 4 }}>or $99 / year — just $8.25 / month</p>
         </div>
 
         <button onClick={handleStart}

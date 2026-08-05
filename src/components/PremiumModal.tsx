@@ -123,7 +123,7 @@ export function PremiumModal({ open, onClose }: Props) {
                     background: plan === "monthly" ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.06)",
                     border: `2px solid ${plan === "monthly" ? "var(--gold)" : "rgba(255,255,255,0.18)"}`,
                   }}>
-                  <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: "var(--cream)" }}>$9.99</p>
+                  <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: "var(--cream)" }}>$14.99</p>
                   <p style={{ fontSize: 11, color: "rgba(251,238,224,0.6)" }}>/month</p>
                 </button>
                 <button onClick={() => setPlan("yearly")}
@@ -137,8 +137,8 @@ export function PremiumModal({ open, onClose }: Props) {
                     fontSize: 9, padding: "3px 10px", borderRadius: 20, fontWeight: 700,
                     background: "var(--gold)", color: "var(--night)", fontFamily: "'Inter', sans-serif",
                     whiteSpace: "nowrap", letterSpacing: "0.04em",
-                  }}>SAVE 33%</span>
-                  <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: "var(--cream)" }}>$79.99</p>
+                  }}>BEST VALUE</span>
+                  <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: "var(--cream)" }}>$99</p>
                   <p style={{ fontSize: 11, color: "rgba(251,238,224,0.6)" }}>/year</p>
                 </button>
               </div>

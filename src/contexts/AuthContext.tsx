@@ -18,6 +18,9 @@ interface Profile {
   is_premium: boolean;
   onboarding_completed: boolean;
   custom_milestones: CustomMilestone[];
+  // Null on accounts onboarded before seasons existed.
+  season: string | null;
+  onboarding_answers: Record<string, string | string[]>;
 }
 
 interface AuthContextType {
