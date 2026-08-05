@@ -132,8 +132,10 @@ const Welcome = () => {
         messages: apiMessages,
         userContext: {
           userName: displayName,
+          season: profile?.season ?? null,
           currentWeek,
-          pregnancyNumber: profile?.pregnancy_number ?? 1,
+          pregnancyNumber:
+            !profile?.season || profile.season === "pregnant" ? (profile?.pregnancy_number ?? 1) : null,
           todaysMood: null,
           recentSymptoms: null,
         },

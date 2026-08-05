@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { isPregnantSeason } from "@/lib/season";
 import { coursesData, Course } from "@/data/coursesData";
 import { homeopathyCourses } from "@/data/shopData";
 import { getLessonContent, LessonContent, getLessonDescription } from "@/data/lessonContent";
@@ -162,7 +163,7 @@ const Courses = () => {
         <p className="font-gh-serif" style={{ fontSize: 15, color: CREAM_70, marginBottom: 4, textAlign: "center" }}>{course.title}</p>
         <p className="font-gh-mono" style={{ fontSize: 12, color: CREAM_55, marginBottom: 10 }}>{course.lessonCount} lessons · {course.duration} min</p>
         <p className="font-gh-serif" style={{ fontSize: 15, fontStyle: "italic", color: CREAM_70, textAlign: "center", marginBottom: 32, lineHeight: 1.55 }}>
-          You've taken a beautiful step on your pregnancy journey. Be proud of yourself, mama.
+          You've taken a beautiful step on your {isPregnantSeason(profile) ? "pregnancy" : "motherhood"} journey. Be proud of yourself, mama.
         </p>
         <button onClick={() => { setShowCompletion(false); setSelectedCourse(null); setSelectedLesson(null); if (cameFromLearn) navigate("/learn"); }}
           className="w-full max-w-xs h-12 text-[14px] font-bold mb-3 belly-btn-press"

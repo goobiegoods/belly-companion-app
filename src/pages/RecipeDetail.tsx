@@ -5,6 +5,7 @@ import { useSavedRecipes } from "@/contexts/SavedRecipesContext";
 import { getRecipeById, CATEGORY_GRADIENTS } from "@/data/recipesData";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
+import { isPregnantSeason } from "@/lib/season";
 import { SceneBackground, GlassCard } from "@/components/golden";
 
 const CREAM_70 = "rgba(251,238,224,0.7)";
@@ -40,6 +41,7 @@ const RecipeDetail = () => {
   const [expandedIngredient, setExpandedIngredient] = useState<number | null>(null);
 
   const recipe = getRecipeById(id || "");
+  const isPregnant = isPregnantSeason(profile);
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const isSaved = recipe ? savedIds.has(recipe.id) : false;
 
@@ -69,7 +71,7 @@ const RecipeDetail = () => {
   }
 
   const handleShare = async () => {
-    const text = `Week ${currentWeek} recipe from Belly\n\n${recipe.title}\n\nIngredients:\n${recipe.ingredients.map(i => '• ' + i.amount + ' ' + i.name).join('\n')}\n\nInstructions:\n${recipe.instructions.map((s, i) => (i + 1) + '. ' + s).join('\n')}`;
+    const text = `${isPregnant ? `Week ${currentWeek} recipe from Belly` : `A recipe from Belly`}\n\n${recipe.title}\n\nIngredients:\n${recipe.ingredients.map(i => '• ' + i.amount + ' ' + i.name).join('\n')}\n\nInstructions:\n${recipe.instructions.map((s, i) => (i + 1) + '. ' + s).join('\n')}`;
     try {
       await navigator.share({ title: recipe.title, text });
     } catch { /* cancelled */ }
@@ -108,8 +110,12 @@ const RecipeDetail = () => {
           <span>{recipe.prepTime} min</span>
           <span style={{ opacity: 0.6 }}>·</span>
           <span>{recipe.category.toLowerCase()}</span>
-          <span style={{ opacity: 0.6 }}>·</span>
-          <span>week {currentWeek}</span>
+          {isPregnant && (
+            <>
+              <span style={{ opacity: 0.6 }}>·</span>
+              <span>week {currentWeek}</span>
+            </>
+          )}
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 14 }}>
@@ -129,13 +135,15 @@ const RecipeDetail = () => {
           ))}
         </div>
 
-        {/* Why this week */}
-        <GlassCard>
-          <div className="gh-section-label">why this week</div>
-          <p className="font-gh-serif" style={{ fontSize: 13, fontStyle: "italic", lineHeight: 1.6, color: CREAM_70 }}>
-            {recipe.whyThisWeek}
-          </p>
-        </GlassCard>
+        {/* Why this week — week-framed prose, pregnancy track only */}
+        {isPregnant && (
+          <GlassCard>
+            <div className="gh-section-label">why this week</div>
+            <p className="font-gh-serif" style={{ fontSize: 13, fontStyle: "italic", lineHeight: 1.6, color: CREAM_70 }}>
+              {recipe.whyThisWeek}
+            </p>
+          </GlassCard>
+        )}
 
         {/* Ingredients */}
         <GlassCard>

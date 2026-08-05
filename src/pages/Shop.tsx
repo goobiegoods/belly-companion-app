@@ -5,6 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { kits as staticKits, remedies as staticRemedies, teas as staticTeas, homeopathyCourses, SHOP_DISCLAIMER, Product } from "@/data/shopData";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
+import { isPregnantSeason } from "@/lib/season";
 import { getHomeopathyLessonContent } from "@/data/homeopathyLessons";
 import { LessonContent } from "@/data/lessonContent";
 import { Check, ChevronRight, Lock, Save } from "lucide-react";
@@ -55,6 +56,7 @@ const Shop = () => {
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
 
+  const isPregnant = isPregnantSeason(profile);
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const trimester = getWeekData(currentWeek).trimester;
 
@@ -77,9 +79,10 @@ const Shop = () => {
     setCompletions(prev => [...prev, lessonId]);
   };
 
-  // Featured kit: prefer one matching the mama's trimester, else the tagged/first one.
+  // Featured kit: prefer one matching the mama's trimester (pregnancy track
+  // only), else the tagged/first one.
   const featuredKit =
-    kits.find(k => k.name.toLowerCase().includes(TRIMESTER_WORDS[trimester])) ||
+    (isPregnant ? kits.find(k => k.name.toLowerCase().includes(TRIMESTER_WORDS[trimester])) : undefined) ||
     kits.find(k => k.tag) ||
     kits[0];
 
@@ -363,8 +366,14 @@ const Shop = () => {
 
         {category === "Remedies" && (
           <>
-            <div className="gh-section-label">bella recommends for week {currentWeek}</div>
-            {featuredKit && <KitCard kit={featuredKit} recommended />}
+            {/* Every kit is trimester-framed, so Bella only "recommends" one
+                on the pregnancy track; the Kits tab still lists the catalog. */}
+            {isPregnant && (
+              <>
+                <div className="gh-section-label">bella recommends for week {currentWeek}</div>
+                {featuredKit && <KitCard kit={featuredKit} recommended />}
+              </>
+            )}
             <div className="gh-section-label">individual remedies</div>
             {remedies.map(r => <ProductRow key={r.id} p={r} />)}
           </>

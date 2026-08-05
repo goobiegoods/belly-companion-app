@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
+import { isPregnantSeason, seasonTip } from "@/lib/season";
 import { Send, Square, Camera, X, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -63,8 +64,9 @@ const AskDoula = () => {
   const safetyScanRef = useRef(false);
   const safetyCameraInputRef = useRef<HTMLInputElement>(null);
 
-  const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
-  const weekData = getWeekData(currentWeek);
+  const isPregnant = isPregnantSeason(profile);
+  const currentWeek = isPregnant ? (profile?.due_date ? getCurrentWeek(profile.due_date) : 20) : null;
+  const weekData = getWeekData(currentWeek ?? 20);
   const titleCase = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "");
   const displayName = titleCase(profile?.first_name || "") || "mama";
 
@@ -89,18 +91,24 @@ const AskDoula = () => {
     {
       label: "What to eat", tone: "teal",
       icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.teal}><path d="M4 13c4 0 6-3 8-3s4 3 8 3M6 17c3 0 5-2 6-2s3 2 6 2" /></svg>,
-      action: () => sendMessage(`What should I be eating at week ${currentWeek}?`),
+      action: () => sendMessage(isPregnant ? `What should I be eating at week ${currentWeek}?` : "What should I be eating right now?"),
     },
     {
       label: "Herbal", tone: "teal",
       icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.teal}><path d="M12 21V9M12 9c0-4-3-6-7-6 0 4 3 6 7 6zm0 0c0-4 3-6 7-6 0 4-3 6-7 6z" /></svg>,
       action: () => sendMessage("Which herbs are safe for me right now?"),
     },
-    {
-      label: "Labor prep", tone: "magenta",
-      icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.magenta}><path d="M12 3c-1 3-3 4-3 7a3 3 0 0 0 6 0c0-3-2-4-3-7z" /><path d="M8 21h8" /></svg>,
-      action: () => sendMessage("How can I start preparing for labor?"),
-    },
+    isPregnant
+      ? {
+          label: "Labor prep", tone: "magenta" as CategoryTone,
+          icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.magenta}><path d="M12 3c-1 3-3 4-3 7a3 3 0 0 0 6 0c0-3-2-4-3-7z" /><path d="M8 21h8" /></svg>,
+          action: () => sendMessage("How can I start preparing for labor?"),
+        }
+      : {
+          label: "Energy", tone: "magenta" as CategoryTone,
+          icon: <svg {...TILE_ICON_PROPS} stroke={TONE_STROKE.magenta}><path d="M12 3c-1 3-3 4-3 7a3 3 0 0 0 6 0c0-3-2-4-3-7z" /><path d="M8 21h8" /></svg>,
+          action: () => sendMessage("How can I rebuild my energy in this season of motherhood?"),
+        },
   ];
 
   // Follow the stream only while the user is at (or near) the bottom. If they
@@ -187,7 +195,7 @@ const AskDoula = () => {
       const img = { base64, url: result };
       setAttachedImage(img);
       if (wasSafetyScan) {
-        const prompt = `Is this product safe for me at week ${currentWeek}?`;
+        const prompt = isPregnant ? `Is this product safe for me at week ${currentWeek}?` : "Is this product safe for me right now?";
         setTimeout(() => sendMessage(prompt, img), 50);
       }
     };
@@ -213,17 +221,18 @@ const AskDoula = () => {
 
     const hasImage = !!activeImage;
     const imageUrl = activeImage?.url;
-    let apiContent: any = text.trim() || (hasImage ? "Is this product safe to use during pregnancy?" : "");
+    const defaultImageText = isPregnant ? "Is this product safe to use during pregnancy?" : "Is this product safe for me?";
+    let apiContent: any = text.trim() || (hasImage ? defaultImageText : "");
     if (hasImage) {
       apiContent = [
         { type: "image_url", image_url: { url: activeImage!.url } },
-        { type: "text", text: text.trim() || "Is this product safe to use during pregnancy?" },
+        { type: "text", text: text.trim() || defaultImageText },
       ];
     }
 
     const userMsg: Message = {
       role: "user",
-      content: typeof apiContent === "string" ? apiContent : text.trim() || "Is this product safe to use during pregnancy?",
+      content: typeof apiContent === "string" ? apiContent : text.trim() || defaultImageText,
       imageUrl: hasImage ? imageUrl : undefined,
     };
     const apiMsg = { role: "user" as const, content: apiContent };
@@ -292,8 +301,9 @@ const AskDoula = () => {
           messages: apiMessages,
           userContext: {
             userName: displayName,
+            season: profile?.season ?? null,
             currentWeek,
-            pregnancyNumber: profile?.pregnancy_number ?? 1,
+            pregnancyNumber: isPregnant ? (profile?.pregnancy_number ?? 1) : null,
             todaysMood: null,
             recentSymptoms: null,
           },
@@ -414,7 +424,7 @@ const AskDoula = () => {
             brand="Ask Bella"
             tag="knows your whole history"
             showOrb
-            weekPill={`wk ${currentWeek}`}
+            weekPill={isPregnant ? `wk ${currentWeek}` : undefined}
             glowStyle={{ left: "50%", right: "auto", top: -70, transform: "translateX(-50%)" }}
           />
         </div>
@@ -465,7 +475,7 @@ const AskDoula = () => {
                   </span>
                 </div>
                 <p className="font-gh-serif" style={{ fontSize: 15, lineHeight: 1.55, margin: 0, fontStyle: "italic" }}>
-                  "{weekData.naturalTip}"
+                  "{isPregnant ? weekData.naturalTip : seasonTip(profile?.season)}"
                 </p>
               </div>
             </>

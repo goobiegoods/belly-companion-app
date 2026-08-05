@@ -1,7 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { isPregnantSeason } from "@/lib/season";
 
-type IconName = "today" | "baby" | "ask" | "mamas" | "shop" | "journey";
+type IconName = "today" | "baby" | "nourish" | "ask" | "mamas" | "shop" | "journey";
 
 const Icon = ({ name, active }: { name: IconName; active: boolean }) => {
   const stroke = active ? "var(--gold)" : "rgba(251,238,224,0.55)";
@@ -22,6 +24,8 @@ const Icon = ({ name, active }: { name: IconName; active: boolean }) => {
       return <svg {...common}><path d="M3 11l9-7 9 7M5 10v9h14v-9" /></svg>;
     case "baby":
       return <svg {...common}><circle cx="12" cy="8" r="3" /><path d="M6 20c0-4 3-6 6-6s6 2 6 6" /></svg>;
+    case "nourish":
+      return <svg {...common}><path d="M5 19C5 10 12 4 20 4c0 8-6 15-15 15z" /><path d="M5 19c3-5 7-9 11-11" /></svg>;
     case "ask":
       return <svg {...common}><path d="M4 5h16v11H8l-4 4V5z" /></svg>;
     case "mamas":
@@ -33,7 +37,7 @@ const Icon = ({ name, active }: { name: IconName; active: boolean }) => {
   }
 };
 
-const tabs: { path: string; icon: IconName; label: string }[] = [
+const baseTabs: { path: string; icon: IconName; label: string }[] = [
   { path: "/", icon: "today", label: "Today" },
   { path: "/baby", icon: "baby", label: "Baby" },
   { path: "/ask", icon: "ask", label: "Ask Bella" },
@@ -46,6 +50,14 @@ const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { cartCount } = useCart();
+  const { profile } = useAuth();
+
+  // Non-pregnant seasons have no fetal tracker — their slot goes to Recipes.
+  const tabs = isPregnantSeason(profile)
+    ? baseTabs
+    : baseTabs.map((t) =>
+        t.path === "/baby" ? { path: "/recipes", icon: "nourish" as IconName, label: "Recipes" } : t,
+      );
 
   return (
     <nav

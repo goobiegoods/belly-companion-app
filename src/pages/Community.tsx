@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
+import { isPregnantSeason } from "@/lib/season";
 import { Heart, MessageCircle, Send, Sparkles, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import NotificationBell, { useNotifications } from "@/components/NotificationBell";
@@ -67,6 +68,7 @@ const Community = () => {
   const [revealedSensitive, setRevealedSensitive] = useState<Set<string>>(new Set());
 
   const { notifications, unreadCount, markAsRead, markAllRead } = useNotifications();
+  const isPregnant = isPregnantSeason(profile);
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : null;
   useVvLock(!!selectedPost);
 
@@ -410,7 +412,7 @@ const Community = () => {
     <SceneBackground scene="mamas">
       <GhHeader
         brand="Mama community"
-        tag={`week ${currentWeek ?? "—"} · ${mamasCount ?? posts.length} mamas tonight`}
+        tag={`${isPregnant && currentWeek != null ? `week ${currentWeek} · ` : ""}${mamasCount ?? posts.length} mamas tonight`}
         brandSize={20}
         glowStyle={{ right: 10, top: -70 }}
         right={

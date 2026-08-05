@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
+import { isPregnantSeason, seasonTip } from "@/lib/season";
 import { getStreak } from "@/lib/streak";
 import { SceneBackground, GhHeader, GlassCard, BellaOrb } from "@/components/golden";
 import { useVvLock } from "@/lib/viewport";
@@ -50,6 +51,7 @@ const YOURS_LINKS = [
 const Journey = () => {
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
+  const isPregnant = isPregnantSeason(profile);
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const weeksLeft = Math.max(0, 40 - currentWeek);
   const dueDateLabel = profile?.due_date
@@ -95,16 +97,20 @@ const Journey = () => {
     const today = new Date();
     const items: TimelineItem[] = [];
 
-    MILESTONES.forEach((m) => {
-      const d = weekDate(m.week) ?? today;
-      items.push({
-        key: `system-${m.week}`,
-        date: d,
-        title: m.title,
-        state: m.week < currentWeek ? "done" : m.week > currentWeek ? "future" : "now",
-        tone: m.tone,
+    // Pregnancy milestones only exist on the pregnancy track; other seasons'
+    // timelines are their own moments plus "you are here".
+    if (isPregnant) {
+      MILESTONES.forEach((m) => {
+        const d = weekDate(m.week) ?? today;
+        items.push({
+          key: `system-${m.week}`,
+          date: d,
+          title: m.title,
+          state: m.week < currentWeek ? "done" : m.week > currentWeek ? "future" : "now",
+          tone: m.tone,
+        });
       });
-    });
+    }
 
     customMilestones.forEach((cm) => {
       const d = new Date(cm.date);
@@ -119,7 +125,7 @@ const Journey = () => {
 
     items.push({ key: "now", date: today, title: "You are here, mama", state: "now" });
 
-    if (profile?.due_date && currentWeek < 40) {
+    if (isPregnant && profile?.due_date && currentWeek < 40) {
       items.push({
         key: "due",
         date: new Date(profile.due_date),
@@ -130,7 +136,7 @@ const Journey = () => {
 
     return items.sort((a, b) => a.date.getTime() - b.date.getTime());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentWeek, JSON.stringify(customMilestones), profile?.due_date, conceptionDate]);
+  }, [currentWeek, JSON.stringify(customMilestones), profile?.due_date, conceptionDate, isPregnant]);
 
   const doneCount = timelineItems.filter((it) => it.state === "done").length;
 
@@ -184,14 +190,15 @@ const Journey = () => {
   return (
     <SceneBackground scene="journey">
       <GhHeader
-        brand="Your journey"
-        tag="40 weeks, one glow"
+        brand={isPregnant ? "Your journey" : "Your Motherhood"}
+        tag={isPregnant ? "40 weeks, one glow" : "your story, your pace"}
         brandSize={20}
         showOrb
-        weekPill={`wk ${currentWeek}`}
+        weekPill={isPregnant ? `wk ${currentWeek}` : undefined}
         glowStyle={{ right: -40, top: -60 }}
       >
         {/* 40-week arc */}
+        {isPregnant && (
         <div style={{ position: "relative", zIndex: 2, marginTop: 18 }}>
           <div
             style={{
@@ -219,6 +226,7 @@ const Journey = () => {
             week {currentWeek} of 40 — {arcLabel}
           </div>
         </div>
+        )}
       </GhHeader>
 
       <div style={{ padding: "12px 16px 110px" }}>
@@ -276,7 +284,9 @@ const Journey = () => {
                   <span className="font-gh-serif" style={{ fontSize: 14.5, fontWeight: 500, display: "block" }}>
                     {label}
                   </span>
-                  <span style={{ fontSize: 11.5, color: "rgba(251,238,224,0.6)" }}>{sub}</span>
+                  <span style={{ fontSize: 11.5, color: "rgba(251,238,224,0.6)" }}>
+                    {to === "/me" && !isPregnant ? "your details, premium" : sub}
+                  </span>
                 </div>
                 <ChevronRight size={16} strokeWidth={1.8} style={{ opacity: 0.6, flexShrink: 0 }} />
               </button>
@@ -337,9 +347,11 @@ const Journey = () => {
           <div>
             <b className="font-gh-serif" style={{ fontSize: 14.5, fontWeight: 500, display: "block" }}>Bella's note</b>
             <span style={{ fontSize: 12, opacity: 0.85 }}>
-              {weeksLeft > 0
-                ? `${weeksLeft === 1 ? "One week" : `${weeksLeft} weeks`} left — the glow gets warmer from here.`
-                : "You made it to the threshold, mama — the glow is yours now."}
+              {!isPregnant
+                ? seasonTip(profile?.season)
+                : weeksLeft > 0
+                  ? `${weeksLeft === 1 ? "One week" : `${weeksLeft} weeks`} left — the glow gets warmer from here.`
+                  : "You made it to the threshold, mama — the glow is yours now."}
             </span>
           </div>
         </GlassCard>
@@ -378,7 +390,9 @@ const Journey = () => {
             <div className="px-5 pt-3 pb-2 shrink-0">
               <h2 className="font-gh-serif" style={{ fontSize: 20, fontWeight: 500, fontStyle: "italic" }}>Add your own moment</h2>
               <p style={{ fontSize: 12, color: "rgba(251,238,224,0.6)", marginTop: 2 }}>
-                First kick, baby shower, a name you finally agreed on — it belongs on your timeline.
+                {isPregnant
+                  ? "First kick, baby shower, a name you finally agreed on — it belongs on your timeline."
+                  : "A first word, a small win, a day you want to remember — it belongs on your timeline."}
               </p>
             </div>
 
@@ -387,7 +401,7 @@ const Journey = () => {
               <input
                 value={momentTitle}
                 onChange={(e) => setMomentTitle(e.target.value)}
-                placeholder="First kick..."
+                placeholder={isPregnant ? "First kick..." : "A moment worth keeping..."}
                 className="w-full text-[15px] outline-none mb-4"
                 style={{ background: "rgba(0,0,0,0.25)", color: "var(--cream)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 16px" }}
               />

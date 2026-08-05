@@ -12,12 +12,17 @@ import { PremiumModal } from "@/components/PremiumModal";
 import { getStreak } from "@/lib/streak";
 import { getDisplayName } from "@/lib/community";
 import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
+import { isPregnantSeason, seasonLabel } from "@/lib/season";
 
-const BADGES = [
+// Universal + pregnancy-only badges; spread order preserves the original
+// six-badge layout for the pregnancy track.
+const UNIVERSAL_BADGES = [
   { Icon: Sprout, label: "First check-in", earned: true },
   { Icon: BookOpen, label: "First lesson", earned: true },
   { Icon: MessageCircle, label: "Community", earned: true },
   { Icon: Flame, label: "7-day streak", earned: false },
+];
+const PREGNANCY_BADGES = [
   { Icon: Flower2, label: "Week 20", earned: false },
   { Icon: Baby, label: "Birth ready", earned: false },
 ];
@@ -63,13 +68,17 @@ const Profile = () => {
     getStreak(user.id).then((s) => s && setStreak(s));
   }, [user?.id]);
 
+  const isPregnant = isPregnantSeason(profile);
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 0;
   const daysToGo = profile?.due_date ? getDaysToGo(profile.due_date) : 0;
-  const earnedCount = BADGES.filter(b => b.earned).length;
+  const badges = isPregnant ? [...UNIVERSAL_BADGES, ...PREGNANCY_BADGES] : UNIVERSAL_BADGES;
+  const earnedCount = badges.filter(b => b.earned).length;
 
   const handleSave = async () => {
     if (!user) return;
-    await supabase.from("profiles").update({ first_name: editName, due_date: editDueDate }).eq("user_id", user.id);
+    // Non-pregnant seasons have no due date — never let this form write one.
+    const update = isPregnant ? { first_name: editName, due_date: editDueDate } : { first_name: editName };
+    await supabase.from("profiles").update(update).eq("user_id", user.id);
     await refreshProfile();
     setEditing(false);
     toast.success("Profile updated");
@@ -86,7 +95,7 @@ const Profile = () => {
   };
 
   const menuItems = [
-    { Icon: Pencil, label: "Edit pregnancy details", action: () => setEditing(true) },
+    { Icon: Pencil, label: isPregnant ? "Edit pregnancy details" : "Edit details", action: () => setEditing(true) },
     { Icon: BookOpen, label: "Journal & Symptom Tracker", action: () => navigate("/journal") },
     { Icon: Baby, label: "Feeding tracker", action: () => navigate("/feeding") },
     { Icon: Wind, label: "Belly breathe & rest", action: () => navigate("/breathe") },
@@ -118,29 +127,37 @@ const Profile = () => {
     opacity: 0.85,
   };
 
-  const stats = [
-    { val: String(currentWeek), label: "week", color: "var(--gold)" },
-    { val: String(streak.current), label: "day streak", color: "var(--cream)" },
-    { val: String(daysToGo), label: "days to go", color: "var(--gold)" },
-  ];
+  const stats = isPregnant
+    ? [
+        { val: String(currentWeek), label: "week", color: "var(--gold)" },
+        { val: String(streak.current), label: "day streak", color: "var(--cream)" },
+        { val: String(daysToGo), label: "days to go", color: "var(--gold)" },
+      ]
+    : [
+        { val: String(streak.current), label: "day streak", color: "var(--gold)" },
+        { val: String(streak.longest), label: "longest streak", color: "var(--cream)" },
+        { val: String(earnedCount), label: "badges", color: "var(--gold)" },
+      ];
 
   return (
     <SceneBackground scene="mamas" className="page-enter">
       <GhHeader
         brand="Your profile"
-        tag={`week ${currentWeek} · ${daysToGo} days to go`}
+        tag={isPregnant ? `week ${currentWeek} · ${daysToGo} days to go` : `Motherhood · ${seasonLabel(profile?.season)}`}
         brandSize={20}
         showOrb
-        weekPill={`wk ${currentWeek}`}
+        weekPill={isPregnant ? `wk ${currentWeek}` : undefined}
       >
         <div style={{ position: "relative", zIndex: 2, marginTop: 16 }}>
           <div className="font-gh-serif" style={{ fontFamily: "'Fraunces', serif", fontSize: 24, fontWeight: 500, color: "var(--cream)", lineHeight: 1.15 }}>
             {formatName(getDisplayName({ first_name: profile?.first_name }))}
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, letterSpacing: "0.1em", color: CREAM_70, marginTop: 6 }}>
-            due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
-          </div>
-          {profile?.pregnancy_number && (
+          {isPregnant && (
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, letterSpacing: "0.1em", color: CREAM_70, marginTop: 6 }}>
+              due {profile?.due_date ? formatDueDate(profile.due_date) : "—"}
+            </div>
+          )}
+          {isPregnant && profile?.pregnancy_number && (
             <span
               style={{
                 display: "inline-block", marginTop: 10, padding: "5px 12px",
@@ -264,14 +281,14 @@ const Profile = () => {
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
             <div className="gh-section-label" style={{ marginBottom: 0 }}>achievements</div>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: CREAM_55 }}>
-              {earnedCount} of {BADGES.length}
+              {earnedCount} of {badges.length}
             </span>
           </div>
           <div className="gh-progress-track" style={{ margin: "10px 0 14px" }}>
-            <div className="gh-progress-fill" style={{ width: `${(earnedCount / BADGES.length) * 100}%` }} />
+            <div className="gh-progress-fill" style={{ width: `${(earnedCount / badges.length) * 100}%` }} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-            {BADGES.map(badge => (
+            {badges.map(badge => (
               <div
                 key={badge.label}
                 className="gh-glass-subtle"
@@ -312,10 +329,12 @@ const Profile = () => {
                 <label style={labelStyle}>Name</label>
                 <input value={editName} onChange={e => setEditName(e.target.value)} style={inputStyle} />
               </div>
-              <div>
-                <label style={labelStyle}>Due date</label>
-                <input type="date" value={editDueDate} onChange={e => setEditDueDate(e.target.value)} style={inputStyle} />
-              </div>
+              {isPregnant && (
+                <div>
+                  <label style={labelStyle}>Due date</label>
+                  <input type="date" value={editDueDate} onChange={e => setEditDueDate(e.target.value)} style={inputStyle} />
+                </div>
+              )}
               <div style={{ display: "flex", gap: 10 }}>
                 <button
                   onClick={() => setEditing(false)}

@@ -29,6 +29,7 @@ import BellyBreathe from "./pages/BellyBreathe";
 import FeedingTracker from "./pages/FeedingTracker";
 import Journey from "./pages/Journey";
 import { Terms, Privacy, Disclaimer } from "./pages/Legal";
+import { isPregnantSeason } from "./lib/season";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
@@ -116,6 +117,14 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+// The fetal tracker only makes sense on the pregnancy track; other seasons'
+// nav slot points at /recipes, and deep links/bookmarks land there too.
+const BabyRoute = () => {
+  const { profile } = useAuth();
+  if (!isPregnantSeason(profile)) return <Navigate to="/recipes" replace />;
+  return <AppLayout><BabyTracker /></AppLayout>;
+};
+
 const FullScreenLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="app-layout" style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", position: "relative", overflow: "clip", background: "linear-gradient(180deg, var(--night) 0%, #0d0713 100%)" }}>
     {children}
@@ -148,7 +157,7 @@ const AppContent = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/disclaimer" element={<Disclaimer />} />
       <Route path="/" element={<ProtectedRoute><AppLayout><HomePage /></AppLayout></ProtectedRoute>} />
-      <Route path="/baby" element={<ProtectedRoute><AppLayout><BabyTracker /></AppLayout></ProtectedRoute>} />
+      <Route path="/baby" element={<ProtectedRoute><BabyRoute /></ProtectedRoute>} />
       <Route path="/ask" element={<ProtectedRoute><AppLayout><AskDoula /></AppLayout></ProtectedRoute>} />
       <Route path="/journey" element={<ProtectedRoute><AppLayout><Journey /></AppLayout></ProtectedRoute>} />
       <Route path="/community" element={<ProtectedRoute><AppLayout><Community /></AppLayout></ProtectedRoute>} />

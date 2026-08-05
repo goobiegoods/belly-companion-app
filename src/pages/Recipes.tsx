@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSavedRecipes } from "@/contexts/SavedRecipesContext";
 import { recipes, getRecipesForWeek, getUniqueVitaminsForWeek, type Recipe } from "@/data/recipesData";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
+import { isPregnantSeason } from "@/lib/season";
 import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
 
 const CATEGORIES = ["All", "Breakfast", "Smoothie", "Snack", "Dinner", "Tea"] as const;
@@ -22,24 +23,37 @@ const Recipes = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { savedIds, toggleSave } = useSavedRecipes();
+  const isPregnant = isPregnantSeason(profile);
   const [activeCategory, setActiveCategory] = useState<string>("All");
-  const [scope, setScope] = useState<Scope>("week");
+  // Weeks mean nothing outside the pregnancy track — those mamas get the
+  // whole library with no week scoping (profile is loaded before mount).
+  const [scope, setScope] = useState<Scope>(isPregnant ? "week" : "all");
 
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
-  const weekRecipes = useMemo(() => getRecipesForWeek(currentWeek), [currentWeek]);
+  const weekRecipes = useMemo(
+    () => (isPregnant ? getRecipesForWeek(currentWeek) : []),
+    [currentWeek, isPregnant]
+  );
   const vitamins = getUniqueVitaminsForWeek(currentWeek);
   const whyQuote = weekRecipes[0]?.whyThisWeek?.split(/(?<=\.)\s/)[0] || "";
 
   const byCategory = (list: Recipe[]) =>
     activeCategory === "All" ? list : list.filter(r => r.category === activeCategory);
 
+  // Off the pregnancy track the library drops the handful of recipes whose
+  // *titles* are pregnancy-framed; everything else is just food.
+  const library = useMemo(
+    () => (isPregnant ? recipes : recipes.filter(r => !/pregnan|trimester/i.test(r.title))),
+    [isPregnant]
+  );
+
   // "This week" scope: current-week recipes only.
   // "All" scope: week-relevant recipes first, then the rest of the library.
   const relevantFiltered = byCategory(weekRecipes);
   const restFiltered = useMemo(
-    () => byCategory(recipes.filter(r => currentWeek < r.weekRange[0] || currentWeek > r.weekRange[1])),
+    () => byCategory(isPregnant ? library.filter(r => currentWeek < r.weekRange[0] || currentWeek > r.weekRange[1]) : library),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentWeek, activeCategory]
+    [currentWeek, activeCategory, isPregnant, library]
   );
   const shownCount = scope === "week" ? relevantFiltered.length : relevantFiltered.length + restFiltered.length;
 
@@ -78,13 +92,19 @@ const Recipes = () => {
           <span>{recipe.prepTime} min</span>
           <span style={{ opacity: 0.6 }}>·</span>
           <span>{recipe.category.toLowerCase()}</span>
-          <span style={{ opacity: 0.6 }}>·</span>
-          <span>wk {recipe.weekRange[0]}–{recipe.weekRange[1]}</span>
+          {isPregnant && (
+            <>
+              <span style={{ opacity: 0.6 }}>·</span>
+              <span>wk {recipe.weekRange[0]}–{recipe.weekRange[1]}</span>
+            </>
+          )}
         </div>
 
-        <p style={{ fontSize: 12, color: CREAM_70, lineHeight: 1.5, marginBottom: 10, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-          {firstSentence}
-        </p>
+        {isPregnant && (
+          <p style={{ fontSize: 12, color: CREAM_70, lineHeight: 1.5, marginBottom: 10, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            {firstSentence}
+          </p>
+        )}
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
           {recipe.vitamins.map(v => (
@@ -108,10 +128,16 @@ const Recipes = () => {
 
   return (
     <SceneBackground scene="baby">
-      <GhHeader brand="Nourish" tag="recipes for two" brandSize={20} weekPill={`wk ${currentWeek}`} />
+      <GhHeader
+        brand="Nourish"
+        tag={isPregnant ? "recipes for two" : "nourishing recipes"}
+        brandSize={20}
+        weekPill={isPregnant ? `wk ${currentWeek}` : undefined}
+      />
 
       <div style={{ padding: "4px 16px 110px" }}>
         {/* This week's nutrients */}
+        {isPregnant && (
         <GlassCard>
           <div className="gh-section-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <Leaf size={12} strokeWidth={1.8} style={{ color: "var(--teal)" }} />
@@ -138,11 +164,12 @@ const Recipes = () => {
             {whyQuote}
           </p>
         </GlassCard>
+        )}
 
         {/* Scope toggle + count */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "2px 0 8px" }}>
           <div style={{ display: "flex", gap: 7 }}>
-            {SCOPES.map(s => {
+            {isPregnant && SCOPES.map(s => {
               const active = scope === s.key;
               return (
                 <button
@@ -157,7 +184,7 @@ const Recipes = () => {
             })}
           </div>
           <span className="font-gh-mono" style={{ fontSize: 10, letterSpacing: "0.04em", color: CREAM_55, flexShrink: 0 }}>
-            {shownCount} of {recipes.length} recipes
+            {shownCount} of {library.length} recipes
           </span>
         </div>
 

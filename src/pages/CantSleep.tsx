@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
+import { isPregnantSeason } from "@/lib/season";
 import { AFFIRMATIONS, AFFIRMATION_CATEGORIES, BABY_QUIZ_QUESTIONS } from "@/data/cantSleepData";
 import { supabase } from "@/integrations/supabase/client";
 import { Moon, Flower2, Star, Flame, Leaf, Wind, Brain, ChevronRight, type LucideIcon } from "lucide-react";
@@ -22,8 +23,11 @@ const ctaStyle: React.CSSProperties = {
 const CantSleep = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const isPregnant = isPregnantSeason(profile);
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const [activeTab, setActiveTab] = useState<typeof TABS[number]>("Affirmations");
+  // The Baby Brain Quiz is pregnancy trivia — pregnancy track only.
+  const visibleTabs = isPregnant ? TABS : TABS.filter(t => t !== "Baby Quiz");
 
   return (
     <div className="page-enter gh-grain" style={{
@@ -57,9 +61,11 @@ const CantSleep = () => {
           </div>
           <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.14em", color: "rgba(242,182,71,0.85)", marginBottom: 6 }}>3am mode</p>
           <h1 className="font-display" style={{ fontStyle: "italic", fontSize: 21, fontWeight: 600, color: "var(--cream)", lineHeight: 1.25, marginBottom: 4 }}>You're awake.<br />That's okay.</h1>
-          <p style={{ fontSize: 10, color: "rgba(251,238,224,0.6)", marginBottom: 12 }}>Gentle things for restless nights in week {currentWeek}.</p>
+          <p style={{ fontSize: 10, color: "rgba(251,238,224,0.6)", marginBottom: 12 }}>
+            {isPregnant ? `Gentle things for restless nights in week ${currentWeek}.` : "Gentle things for restless nights."}
+          </p>
           <div className="flex gap-2">
-            {TABS.map(tab => (
+            {visibleTabs.map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className="rounded-full px-3 py-1.5 transition-all"
                 style={{
@@ -77,8 +83,8 @@ const CantSleep = () => {
 
         {/* Tab content */}
         <div style={{ paddingBottom: 100 }}>
-          {activeTab === "Affirmations" && <AffirmationsTab userId={user?.id} onSwitchTab={setActiveTab} />}
-          {activeTab === "Baby Quiz" && <QuizTab userId={user?.id} />}
+          {activeTab === "Affirmations" && <AffirmationsTab userId={user?.id} onSwitchTab={setActiveTab} showQuiz={isPregnant} />}
+          {activeTab === "Baby Quiz" && isPregnant && <QuizTab userId={user?.id} />}
           {activeTab === "Breathe" && <BreatheTab />}
         </div>
       </div>
@@ -94,7 +100,7 @@ const CATEGORY_STYLES: { gradient: [string, string]; border: string; icon: Lucid
   { gradient: ["rgba(44,156,143,0.35)", "rgba(58,26,56,0.85)"], border: "rgba(44,156,143,0.40)", icon: Leaf },
 ];
 
-const AffirmationsTab = ({ userId, onSwitchTab }: { userId?: string; onSwitchTab: (tab: typeof TABS[number]) => void }) => {
+const AffirmationsTab = ({ userId, onSwitchTab, showQuiz }: { userId?: string; onSwitchTab: (tab: typeof TABS[number]) => void; showQuiz: boolean }) => {
   const [fullscreen, setFullscreen] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [shuffled, setShuffled] = useState<number[]>([]);
@@ -214,7 +220,8 @@ const AffirmationsTab = ({ userId, onSwitchTab }: { userId?: string; onSwitchTab
         <ChevronRight size={16} strokeWidth={1.8} color="rgba(251,238,224,0.4)" style={{ flexShrink: 0 }} />
       </button>
 
-      {/* Quiz preview card */}
+      {/* Quiz preview card — pregnancy track only */}
+      {showQuiz && (
       <button onClick={() => onSwitchTab("Baby Quiz")} className="w-full text-left gh-glass-dark" style={{ margin: "8px 16px 0", width: "calc(100% - 32px)", borderRadius: 16, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
         <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(181,56,107,0.22)", border: "1px solid rgba(181,56,107,0.38)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <Brain size={17} strokeWidth={1.8} color="var(--cream)" />
@@ -225,6 +232,7 @@ const AffirmationsTab = ({ userId, onSwitchTab }: { userId?: string; onSwitchTab
         </div>
         <ChevronRight size={16} strokeWidth={1.8} color="rgba(251,238,224,0.4)" style={{ flexShrink: 0 }} />
       </button>
+      )}
     </div>
   );
 };

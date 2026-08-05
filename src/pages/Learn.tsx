@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
+import { isPregnantSeason } from "@/lib/season";
 import { Course } from "@/data/coursesData";
 import { allCourses, getCourseLessonContent, courseCompletionCount, CategoryIcon } from "./Courses";
 import { SceneBackground, GhHeader, GlassCard } from "@/components/golden";
@@ -50,6 +51,7 @@ const Learn = () => {
 
   const completions = useMemo(() => completionRows.map(r => r.lesson_id), [completionRows]);
 
+  const isPregnant = isPregnantSeason(profile);
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const trimester = getWeekData(currentWeek).trimester;
 
@@ -76,12 +78,15 @@ const Learn = () => {
     return null;
   }, [completionRows, completions]);
 
+  // Trimester recommendations are meaningless off the pregnancy track — the
+  // section self-hides on an empty list.
   const recommended = useMemo(() => {
+    if (!isPregnant) return [];
     return allCourses
       .filter(c => COURSE_TRIMESTERS[c.id]?.includes(trimester))
       .filter(c => courseCompletionCount(completions, c.id) < c.lessonCount)
       .slice(0, 4);
-  }, [trimester, completions]);
+  }, [trimester, completions, isPregnant]);
 
   // Same premium gating as Courses.tsx: Lock icons + PremiumModal, nothing more.
   const openCourse = (course: Course, lessonIndex?: number) => {
@@ -94,7 +99,7 @@ const Learn = () => {
   return (
     <SceneBackground scene="ask">
       <div className="page-enter" style={{ color: "var(--cream)", fontFamily: "'Inter', system-ui", paddingBottom: 104 }}>
-        <GhHeader brand="Learn" tag="bite-size lessons" brandSize={20} showLearn={false} weekPill={`week ${currentWeek}`} />
+        <GhHeader brand="Learn" tag="bite-size lessons" brandSize={20} showLearn={false} weekPill={isPregnant ? `week ${currentWeek}` : undefined} />
 
         {/* Overall stats strip */}
         <div className="mx-4 mb-4 flex items-center gap-2 px-1">

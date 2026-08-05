@@ -109,6 +109,47 @@ Structure your reply EXACTLY like this:
 7. End with one specific follow-up question about her use of this product.
 Never hedge with "it depends." Give a clear, actionable verdict.`;
 
+// Season handling. Pregnant (or legacy null-season / old clients that don't
+// send a season) users get SYSTEM_PROMPT verbatim — buildSystemPrompt must
+// stay byte-identical for them (enforced by src/test/belly-chat-prompt.test.ts
+// against golden fixtures). Non-pregnant seasons get the same prompt with the
+// pregnancy context lines swapped for a season line plus a trailing override.
+// Keep these labels in sync with SEASON_LABELS in src/lib/season.ts.
+const SERVER_SEASON_LABELS: Record<string, string> = {
+  trying_to_conceive: 'trying to conceive',
+  postpartum: 'postpartum (recently gave birth)',
+  raising_little_ones: 'raising little ones',
+  general_wellness: 'her own wellness',
+};
+
+// Must byte-match the two lines inside SYSTEM_PROMPT's USER CONTEXT block.
+const PREGNANT_CONTEXT_LINES = `- Current week: {currentWeek}
+- Pregnancy number: {pregnancyNumber}`;
+const SEASON_CONTEXT_LINE = `- Life season: {seasonLabel}`;
+
+const SEASON_OVERRIDE = `
+
+## SEASON OVERRIDE — HIGHEST PRIORITY:
+
+This user is NOT currently pregnant. Her life season: {seasonLabel}.
+- Never assume, imply, or ask about a current pregnancy, pregnancy week, trimester, due date, bump, baby movement, or birth preparation.
+- Reinterpret all pregnancy-framed knowledge and style guidance above through her actual season. You are still Bella — the same warm, wise natural-wellness guide — for mothers in every season.
+- Your follow-up questions must be about HER actual season and situation, never about a pregnancy.
+- Season-specific care: if she is trying to conceive, support fertility and cycle health and avoid anything contraindicated in early pregnancy (she may conceive at any time). If she is postpartum, prioritise recovery, rest, and breastfeeding-safe remedies (assume she may be nursing unless she says otherwise). Otherwise give general adult natural-wellness guidance.`;
+
+export function buildSystemPrompt(opts: { isPregnant: boolean; hasImage: boolean }): string {
+  if (opts.isPregnant) {
+    return SYSTEM_PROMPT + (opts.hasImage ? SAFETY_PROMPT_ADDITION : '');
+  }
+  const base = SYSTEM_PROMPT.replace(PREGNANT_CONTEXT_LINES, SEASON_CONTEXT_LINE);
+  const safety = opts.hasImage
+    ? SAFETY_PROMPT_ADDITION
+        .replace('specific reasoning for pregnancy, referencing the actual week', 'specific reasoning for her current life season')
+        .replace('one natural pregnancy-safe alternative', 'one natural alternative appropriate to her season')
+    : '';
+  return base + safety + SEASON_OVERRIDE;
+}
+
 const ordinal = (n: number): string => {
   const s = ['th', 'st', 'nd', 'rd'];
   const v = n % 100;
@@ -285,6 +326,11 @@ export default async function handler(req: Request) {
     if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not configured');
 
     const ctx = userContext ?? {};
+    // Absent/empty season (old clients, legacy accounts) or "pregnant" →
+    // today's exact pregnancy prompt; anything else gets the season variant.
+    const season = typeof ctx.season === 'string' ? ctx.season.trim() : '';
+    const isPregnantCtx = !season || season === 'pregnant';
+    const seasonLabelStr = SERVER_SEASON_LABELS[season] ?? 'motherhood';
     const userName = String(ctx.userName ?? '').trim() || 'mama';
     const currentWeek = ctx.currentWeek ? String(ctx.currentWeek) : 'this week';
     const pregnancyNumber = ctx.pregnancyNumber ? ordinal(Number(ctx.pregnancyNumber)) : 'first';
@@ -295,14 +341,15 @@ export default async function handler(req: Request) {
     const hasImage = !!(lastMsg && Array.isArray(lastMsg.content) &&
       lastMsg.content.some((c: any) => c?.type === 'image_url'));
 
-    const systemPrompt = (SYSTEM_PROMPT + (hasImage ? SAFETY_PROMPT_ADDITION : ''))
+    const systemPrompt = buildSystemPrompt({ isPregnant: isPregnantCtx, hasImage })
       .replaceAll('{userName}', userName)
       .replaceAll('{name}', userName)
       .replaceAll('{currentWeek}', currentWeek)
       .replaceAll('{week}', currentWeek)
       .replaceAll('{pregnancyNumber}', pregnancyNumber)
       .replaceAll('{todaysMood}', todaysMood)
-      .replaceAll('{recentSymptoms}', recentSymptoms);
+      .replaceAll('{recentSymptoms}', recentSymptoms)
+      .replaceAll('{seasonLabel}', seasonLabelStr);
 
     const anthropicMessages = toAnthropicMessages(messages);
 

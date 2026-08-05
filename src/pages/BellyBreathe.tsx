@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { recordBreathingSession, getBreathingStreak } from "@/lib/breathingStreak";
+import { isPregnantSeason } from "@/lib/season";
 import { Wind, Moon, Waves, Feather, Flower2, Flame, Play, Pause, type LucideIcon } from "lucide-react";
 
 type Step = "intention" | "technique" | "duration" | "session" | "complete";
@@ -29,6 +30,13 @@ const INTENTIONS: Intention[] = [
   { id: "breathe", icon: Flower2, label: "Just breathe", benefit: "A moment of stillness for me",
     sessionSub: "A moment just for you", completionSub: "You showed up for yourself today.", recommended: "44" },
 ];
+
+// Swapped in for the labor entry off the pregnancy track; same id so
+// breathing_sessions logging stays consistent.
+const NEUTRAL_LABOR_INTENTION: Intention = {
+  id: "labor", icon: Waves, label: "Ride the hard moments", benefit: "Steady breathing when it all feels like a lot",
+  sessionSub: "Riding the wave, mama", completionSub: "You're building strength, breath by breath.", recommended: "box",
+};
 
 type Technique = {
   id: TechId;
@@ -117,6 +125,10 @@ const TopBar = ({ onBack, rightSlot, stepIndicator }: { onBack: () => void; righ
 /* ------------------------------- STEP 1 ------------------------------- */
 const IntentionStep = ({ onBack, onPick }: { onBack: () => void; onPick: (i: Intention) => void }) => {
   const [picked, setPicked] = useState<string | null>(null);
+  const { profile } = useAuth();
+  const intentions = isPregnantSeason(profile)
+    ? INTENTIONS
+    : INTENTIONS.map(i => (i.id === "labor" ? NEUTRAL_LABOR_INTENTION : i));
   const select = (i: Intention) => {
     if (picked) return;
     setPicked(i.id);
@@ -133,7 +145,7 @@ const IntentionStep = ({ onBack, onPick }: { onBack: () => void; onPick: (i: Int
           We'll personalize your session
         </p>
         <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 10, paddingBottom: 24 }}>
-          {INTENTIONS.map(i => {
+          {intentions.map(i => {
             const sel = picked === i.id;
             const Icon = i.icon;
             return (
@@ -180,6 +192,8 @@ const IntentionStep = ({ onBack, onPick }: { onBack: () => void; onPick: (i: Int
 const TechniqueStep = ({ intention, onBack, onContinue }: { intention: Intention; onBack: () => void; onContinue: (t: Technique) => void }) => {
   const [pick, setPick] = useState<TechId>(intention.recommended);
   const IntentionIcon = intention.icon;
+  const { profile } = useAuth();
+  const isPregnant = isPregnantSeason(profile);
   return (
     <SessionBackground>
       <TopBar onBack={onBack} stepIndicator="2 of 3" />
@@ -215,7 +229,9 @@ const TechniqueStep = ({ intention, onBack, onContinue }: { intention: Intention
                     {t.patternLabel}
                   </span>
                 </div>
-                <p style={{ fontFamily: BODY_FONT, fontSize: 10, color: "rgba(251,238,224,0.6)", marginTop: 6 }}>{t.benefit}</p>
+                <p style={{ fontFamily: BODY_FONT, fontSize: 10, color: "rgba(251,238,224,0.6)", marginTop: 6 }}>
+                  {t.id === "box" && !isPregnant ? "Perfect for steadiness and focus" : t.benefit}
+                </p>
                 <div style={{ display: "flex", gap: 3, marginTop: 8, alignItems: "center" }}>
                   {t.phases.map((p, idx) => (
                     <span key={idx} style={{
