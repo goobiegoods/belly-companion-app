@@ -50,6 +50,7 @@ const Auth = () => {
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { signUp, signIn } = useAuth();
 
@@ -178,10 +179,41 @@ const Auth = () => {
                 style={inputStyle}
               />
             )}
+            {mode === "signup" && (
+              <label
+                style={{
+                  display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer",
+                  fontFamily: "'Inter', sans-serif", fontSize: 12,
+                  color: "rgba(251,238,224,0.75)", lineHeight: 1.5,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  required
+                  style={{ width: 16, height: 16, marginTop: 1, flexShrink: 0, accentColor: "var(--gold)", cursor: "pointer" }}
+                />
+                <span>
+                  I agree to the{" "}
+                  <a href="/terms" target="_blank" rel="noopener" style={{ color: "var(--gold)", textDecoration: "underline", textUnderlineOffset: 2 }}>
+                    Terms
+                  </a>{" "}
+                  and{" "}
+                  <a href="/privacy" target="_blank" rel="noopener" style={{ color: "var(--gold)", textDecoration: "underline", textUnderlineOffset: 2 }}>
+                    Privacy Policy
+                  </a>
+                </span>
+              </label>
+            )}
             <button
               type="submit"
-              disabled={submitting}
-              style={{ ...primaryBtnStyle, opacity: submitting ? 0.5 : 1, cursor: submitting ? "not-allowed" : "pointer" }}
+              disabled={submitting || (mode === "signup" && !agreed)}
+              style={{
+                ...primaryBtnStyle,
+                opacity: submitting || (mode === "signup" && !agreed) ? 0.5 : 1,
+                cursor: submitting || (mode === "signup" && !agreed) ? "not-allowed" : "pointer",
+              }}
             >
               {submitting ? "..." :
                 mode === "signup" ? "Create my account" :
@@ -217,6 +249,26 @@ const Auth = () => {
           >
             {mode === "signup" || mode === "forgot" ? "Sign in" : "Sign up"}
           </button>
+        </p>
+
+        {/* Legal footer */}
+        <p
+          style={{
+            textAlign: "center",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 11,
+            color: "rgba(251,238,224,0.45)",
+            marginTop: 22,
+            display: "flex",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          <a href="/terms" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 2 }}>Terms</a>
+          <span aria-hidden>·</span>
+          <a href="/privacy" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 2 }}>Privacy</a>
+          <span aria-hidden>·</span>
+          <a href="/disclaimer" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 2 }}>Disclaimer</a>
         </p>
       </div>
     </SceneBackground>

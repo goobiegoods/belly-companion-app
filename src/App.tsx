@@ -28,6 +28,7 @@ import Cart from "./pages/Cart";
 import BellyBreathe from "./pages/BellyBreathe";
 import FeedingTracker from "./pages/FeedingTracker";
 import Journey from "./pages/Journey";
+import { Terms, Privacy, Disclaimer } from "./pages/Legal";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
@@ -142,6 +143,10 @@ const AppContent = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/welcome" element={<Welcome />} />
+      {/* Legal pages are public — reachable from the signup screen pre-login. */}
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/disclaimer" element={<Disclaimer />} />
       <Route path="/" element={<ProtectedRoute><AppLayout><HomePage /></AppLayout></ProtectedRoute>} />
       <Route path="/baby" element={<ProtectedRoute><AppLayout><BabyTracker /></AppLayout></ProtectedRoute>} />
       <Route path="/ask" element={<ProtectedRoute><AppLayout><AskDoula /></AppLayout></ProtectedRoute>} />

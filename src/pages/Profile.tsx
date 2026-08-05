@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCurrentWeek, getDaysToGo } from "@/data/pregnancyWeeks";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Pencil, BookOpen, Baby, Wind, GraduationCap, ShoppingBag,
@@ -388,6 +388,20 @@ const Profile = () => {
         >
           Sign out
         </button>
+
+        {/* Legal links */}
+        <div
+          style={{
+            display: "flex", justifyContent: "center", gap: 8, marginTop: 18,
+            fontFamily: "'Inter', sans-serif", fontSize: 11, color: CREAM_55,
+          }}
+        >
+          <Link to="/terms" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 2 }}>Terms of Service</Link>
+          <span aria-hidden>·</span>
+          <Link to="/privacy" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 2 }}>Privacy Policy</Link>
+          <span aria-hidden>·</span>
+          <Link to="/disclaimer" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 2 }}>Medical Disclaimer</Link>
+        </div>
       </div>
 
       <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
