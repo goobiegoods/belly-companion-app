@@ -32,8 +32,6 @@ type TimelineItem = {
   isCustom?: boolean;
 };
 
-const dayMs = 24 * 60 * 60 * 1000;
-
 const YOURS_LINKS = [
   {
     to: "/me", label: "My profile", sub: "due date, name, premium",
@@ -85,12 +83,6 @@ const Journey = () => {
     if (user?.id) getStreak(user.id).then(setStreak);
   }, [user?.id]);
 
-  const [tick, setTick] = useState(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setTick(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
   const [showAdd, setShowAdd] = useState(false);
   const [momentTitle, setMomentTitle] = useState("");
   const [momentDate, setMomentDate] = useState("");
@@ -139,21 +131,6 @@ const Journey = () => {
     return items.sort((a, b) => a.date.getTime() - b.date.getTime());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWeek, JSON.stringify(customMilestones), profile?.due_date, conceptionDate]);
-
-  const nextUp = useMemo(
-    () => timelineItems.filter((it) => it.state === "future").sort((a, b) => a.date.getTime() - b.date.getTime())[0],
-    [timelineItems]
-  );
-
-  const countdown = useMemo(() => {
-    if (!nextUp) return null;
-    const remaining = Math.max(0, nextUp.date.getTime() - tick);
-    const days = Math.floor(remaining / dayMs);
-    const hours = Math.floor((remaining % dayMs) / (60 * 60 * 1000));
-    const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-    const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
-    return { days, hours, minutes, seconds };
-  }, [nextUp, tick]);
 
   const doneCount = timelineItems.filter((it) => it.state === "done").length;
 
@@ -245,39 +222,6 @@ const Journey = () => {
       </GhHeader>
 
       <div style={{ padding: "12px 16px 110px" }}>
-        {/* Next up: live countdown to the nearest milestone */}
-        <GlassCard>
-          <div className="gh-section-label">next up</div>
-          {nextUp && countdown ? (
-            <>
-              <div className="font-gh-serif" style={{ fontSize: 15, fontWeight: 500, color: "var(--cream)", marginTop: 4 }}>
-                {nextUp.title}
-              </div>
-              <div className="font-gh-mono" style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                {[
-                  { label: "days", value: countdown.days },
-                  { label: "hrs", value: countdown.hours },
-                  { label: "min", value: countdown.minutes },
-                  { label: "sec", value: countdown.seconds },
-                ].map((seg) => (
-                  <div key={seg.label} style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 20, color: "var(--gold)", lineHeight: 1 }}>
-                      {String(seg.value).padStart(2, "0")}
-                    </div>
-                    <div style={{ fontSize: 8.5, color: "rgba(251,238,224,0.5)", marginTop: 3, letterSpacing: "0.06em" }}>
-                      {seg.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="font-gh-serif" style={{ fontSize: 14, marginTop: 4, opacity: 0.85 }}>
-              Every moment so far is yours, mama.
-            </div>
-          )}
-        </GlassCard>
-
         {/* Moments earned: real streak + unlocked milestone count */}
         <GlassCard>
           <div className="gh-section-label">moments earned</div>

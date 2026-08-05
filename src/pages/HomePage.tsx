@@ -12,12 +12,12 @@ import {
   Clock,
   Flame,
   GraduationCap,
-  MessageCircle,
   UtensilsCrossed,
   Wind,
 } from "lucide-react";
 
-const SUGGESTIONS = ["Round ligament?", "Foods to avoid"];
+const PREGNANT_SUGGESTIONS = ["Round ligament?", "Foods to avoid"];
+const GENERAL_SUGGESTIONS = ["Trouble sleeping?", "Low energy days"];
 
 function greetingWord(): string {
   const h = new Date().getHours();
@@ -36,26 +36,6 @@ const TEAL_GLOW = glow(44, 156, 143);
 const EMBER_GLOW = glow(232, 98, 46);
 const MAGENTA_GLOW = glow(181, 56, 107);
 const GOLD_GLOW = glow(242, 182, 71);
-
-function relativeTime(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  const weeks = Math.floor(days / 7);
-  return `${weeks}w ago`;
-}
-
-interface FeedPost {
-  id: string;
-  title: string;
-  category: string;
-  created_at: string;
-}
 
 /** Three week-appropriate milestone tiles (hearing / lungs / viability style). */
 function milestonesForWeek(week: number): { icon: JSX.Element; label: string }[] {
@@ -106,6 +86,9 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
 
+  // Legacy accounts (season null, pre-seasons onboarding) were all pregnancy-track;
+  // keeping them on the pregnant layout preserves their exact current experience.
+  const isPregnant = !profile?.season || profile.season === "pregnant";
   const currentWeek = profile?.due_date ? getCurrentWeek(profile.due_date) : 20;
   const weekData = getWeekData(currentWeek);
   const weeksToGo = Math.max(0, 40 - currentWeek);
@@ -123,33 +106,38 @@ export default function HomePage() {
     return () => { cancelled = true; };
   }, [user?.id]);
 
-  // Deterministic daily recipe pick from this week's matched recipes.
+  // Deterministic daily recipe pick — from this week's matched recipes when
+  // pregnant, from the whole collection otherwise (week is meaningless then).
   const todaysRecipe = useMemo(() => {
-    const matched = recipes.filter(
-      (r) => currentWeek >= r.weekRange[0] && currentWeek <= r.weekRange[1]
-    );
+    const matched = isPregnant
+      ? recipes.filter((r) => currentWeek >= r.weekRange[0] && currentWeek <= r.weekRange[1])
+      : [];
     const pool = matched.length > 0 ? matched : recipes;
     const now = new Date();
     const dayOfYear = Math.floor(
       (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000
     );
     return pool[dayOfYear % pool.length];
-  }, [currentWeek]);
+  }, [currentWeek, isPregnant]);
 
-  // Recent community posts.
-  const [posts, setPosts] = useState<FeedPost[] | null>(null);
+  // Her last question to Bella — powers the "for you" card.
+  // undefined = still loading, null = no chat history yet.
+  const [lastAsk, setLastAsk] = useState<string | null | undefined>(undefined);
   useEffect(() => {
+    if (!user?.id) return;
     let cancelled = false;
     supabase
-      .from("posts")
-      .select("id, title, category, created_at")
+      .from("chat_messages")
+      .select("content")
+      .eq("user_id", user.id)
+      .eq("role", "user")
       .order("created_at", { ascending: false })
-      .limit(3)
+      .limit(1)
       .then(({ data }) => {
-        if (!cancelled) setPosts((data as FeedPost[]) ?? []);
+        if (!cancelled) setLastAsk(data && data.length > 0 ? data[0].content : null);
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [user?.id]);
 
   const goToAsk = (prefill?: string) =>
     navigate("/ask", { state: prefill ? { prefill } : undefined });
@@ -159,7 +147,7 @@ export default function HomePage() {
 
   return (
     <SceneBackground scene="today">
-      <GhHeader brand="belly" tag="virtual doula" brandSize={26} weekPill={`week ${currentWeek}`}>
+      <GhHeader brand="belly" tag="virtual doula" brandSize={26} weekPill={isPregnant ? `week ${currentWeek}` : undefined}>
         <div
           className="font-gh-serif"
           style={{ position: "relative", zIndex: 2, fontSize: 22, fontWeight: 500, marginTop: 16, lineHeight: 1.3 }}
@@ -174,19 +162,23 @@ export default function HomePage() {
             the light is on for you
           </span>
         </div>
-        <div className="gh-progress-track" style={{ position: "relative", zIndex: 2, marginTop: 14 }}>
-          <div className="gh-progress-fill" style={{ width: `${Math.round((currentWeek / 40) * 100)}%` }} />
-        </div>
-        <div
-          className="font-gh-mono"
-          style={{
-            position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between",
-            marginTop: 7, fontSize: 11, color: "rgba(251,238,224,0.75)",
-          }}
-        >
-          <span>trimester {weekData.trimester}</span>
-          <span>{weeksToGo} weeks to go</span>
-        </div>
+        {isPregnant && (
+          <>
+            <div className="gh-progress-track" style={{ position: "relative", zIndex: 2, marginTop: 14 }}>
+              <div className="gh-progress-fill" style={{ width: `${Math.round((currentWeek / 40) * 100)}%` }} />
+            </div>
+            <div
+              className="font-gh-mono"
+              style={{
+                position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between",
+                marginTop: 7, fontSize: 11, color: "rgba(251,238,224,0.75)",
+              }}
+            >
+              <span>trimester {weekData.trimester}</span>
+              <span>{weeksToGo} weeks to go</span>
+            </div>
+          </>
+        )}
       </GhHeader>
 
       <div style={{ padding: "12px 16px 110px" }}>
@@ -216,7 +208,7 @@ export default function HomePage() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {SUGGESTIONS.map((s) => (
+            {(isPregnant ? PREGNANT_SUGGESTIONS : GENERAL_SUGGESTIONS).map((s) => (
               <button key={s} className="gh-pill" onClick={() => goToAsk(s)}>
                 {s}
               </button>
@@ -224,7 +216,8 @@ export default function HomePage() {
           </div>
         </GlassCard>
 
-        {/* 3. Your baby this week — teal */}
+        {/* 3. Your baby this week — teal (pregnant seasons only) */}
+        {isPregnant && (
         <GlassCard onClick={() => navigate("/baby")} style={{ ...TEAL_GLOW, cursor: "pointer" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div
@@ -263,6 +256,7 @@ export default function HomePage() {
             {weekData.developmentHighlight}
           </p>
         </GlassCard>
+        )}
 
         {/* 4. Belly breathe — ember */}
         <GlassCard onClick={() => navigate("/breathe")} style={{ ...EMBER_GLOW, cursor: "pointer" }}>
@@ -359,46 +353,39 @@ export default function HomePage() {
           </GlassCard>
         )}
 
-        {/* 6. What's happening — community */}
-        <GlassCard onClick={() => navigate("/community")} style={{ cursor: "pointer" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: posts && posts.length > 0 ? 12 : 0 }}>
-            <MessageCircle size={18} strokeWidth={1.8} color="var(--gold)" style={{ flexShrink: 0 }} />
-            <div className="gh-section-label" style={{ marginBottom: 0, flex: 1 }}>what's happening</div>
+        {/* 6. For you — her last Bella thread, or a gentle journal nudge */}
+        <GlassCard
+          onClick={() => (lastAsk ? goToAsk() : navigate("/journal"))}
+          style={{ cursor: "pointer" }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <BellaOrb size={20} />
+            <div className="gh-section-label" style={{ marginBottom: 0, flex: 1 }}>for you</div>
             <ChevronRight size={18} strokeWidth={1.8} style={{ opacity: 0.6, flexShrink: 0 }} />
           </div>
-          {posts === null ? (
-            <p style={{ ...subText, margin: "10px 0 0" }}>Checking in with the mamas…</p>
-          ) : posts.length === 0 ? (
-            <p style={{ ...subText, margin: "10px 0 0" }}>
-              It's quiet right now — be the first to share with the mamas.
-            </p>
+          {lastAsk === undefined ? (
+            <p style={{ ...subText, margin: "10px 0 0" }}>Gathering your day…</p>
+          ) : lastAsk ? (
+            <>
+              <p className="font-gh-serif" style={{ ...cardTitle, marginTop: 10 }}>
+                Pick up where you left off
+              </p>
+              <p style={{ ...subText, margin: "5px 0 0", lineHeight: 1.5, fontStyle: "italic" }}>
+                “{lastAsk.length > 80 ? `${lastAsk.slice(0, 80).trimEnd()}…` : lastAsk}”
+              </p>
+              <p style={{ ...subText, margin: "7px 0 0" }}>
+                Bella kept your place — come back whenever you're ready.
+              </p>
+            </>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-              {posts.map((p) => (
-                <div
-                  key={p.id}
-                  className="gh-glass-subtle"
-                  style={{ padding: "10px 12px", display: "flex", alignItems: "center", gap: 10 }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p
-                      style={{
-                        fontSize: 13.5, fontWeight: 500, margin: 0,
-                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                      }}
-                    >
-                      {p.title}
-                    </p>
-                    <span
-                      className="font-gh-mono"
-                      style={{ fontSize: 10.5, color: "rgba(251,238,224,0.6)", textTransform: "capitalize" }}
-                    >
-                      {p.category} · {relativeTime(p.created_at)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <>
+              <p className="font-gh-serif" style={{ ...cardTitle, marginTop: 10 }}>
+                A quiet check-in
+              </p>
+              <p style={{ ...subText, margin: "5px 0 0", lineHeight: 1.5 }}>
+                How does today feel? A line or two in your journal is plenty.
+              </p>
+            </>
           )}
         </GlassCard>
 
@@ -416,7 +403,9 @@ export default function HomePage() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="gh-section-label" style={{ marginBottom: 3 }}>learn</div>
-              <p className="font-gh-serif" style={cardTitle}>Bite-size lessons for week {currentWeek}</p>
+              <p className="font-gh-serif" style={cardTitle}>
+                {isPregnant ? `Bite-size lessons for week ${currentWeek}` : "Bite-size lessons for your season"}
+              </p>
               <p style={{ ...subText, margin: "3px 0 0" }}>
                 Two minutes a day, from birth prep to baby care.
               </p>
@@ -425,24 +414,28 @@ export default function HomePage() {
           </div>
         </GlassCard>
 
-        {/* 8. This week's milestones */}
-        <div className="gh-section-label">this week's milestones</div>
-        <div style={{ display: "flex", gap: 9 }}>
-          {milestonesForWeek(currentWeek).map((m) => (
-            <div
-              key={m.label}
-              style={{
-                flex: 1, background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.16)", borderRadius: 15,
-                padding: "13px 6px", textAlign: "center",
-                backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-              }}
-            >
-              {m.icon}
-              <span style={{ fontSize: 11, fontWeight: 500, display: "block" }}>{m.label}</span>
+        {/* 8. This week's milestones (pregnant seasons only) */}
+        {isPregnant && (
+          <>
+            <div className="gh-section-label">this week's milestones</div>
+            <div style={{ display: "flex", gap: 9 }}>
+              {milestonesForWeek(currentWeek).map((m) => (
+                <div
+                  key={m.label}
+                  style={{
+                    flex: 1, background: "rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.16)", borderRadius: 15,
+                    padding: "13px 6px", textAlign: "center",
+                    backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+                  }}
+                >
+                  {m.icon}
+                  <span style={{ fontSize: 11, fontWeight: 500, display: "block" }}>{m.label}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
 
         {/* 9. Can't sleep — slide to unlock night mode */}
         <div style={{ marginTop: 18 }}>
