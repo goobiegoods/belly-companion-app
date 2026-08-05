@@ -684,6 +684,7 @@ export type Database = {
           description: string | null
           discount_type: string
           discount_value: number
+          grants_premium: boolean
           id: string
           is_active: boolean
           max_uses: number | null
@@ -699,6 +700,7 @@ export type Database = {
           description?: string | null
           discount_type: string
           discount_value: number
+          grants_premium?: boolean
           id?: string
           is_active?: boolean
           max_uses?: number | null
@@ -714,6 +716,7 @@ export type Database = {
           description?: string | null
           discount_type?: string
           discount_value?: number
+          grants_premium?: boolean
           id?: string
           is_active?: boolean
           max_uses?: number | null
@@ -722,6 +725,35 @@ export type Database = {
           valid_until?: string | null
         }
         Relationships: []
+      }
+      promo_redemptions: {
+        Row: {
+          code_id: string
+          id: string
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          id?: string
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          id?: string
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quiz_attempts: {
         Row: {
@@ -954,6 +986,13 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      redeem_promo_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: {
+          granted_premium: boolean
+          status: string
+        }[]
       }
       validate_promo_code: {
         Args: { _code: string }

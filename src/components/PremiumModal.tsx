@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { StripeEmbeddedCheckoutForm } from "./StripeEmbeddedCheckout";
+import { PromoCodeRedeem } from "./PromoCodeRedeem";
 import { BellaOrb } from "@/components/golden";
 
 interface Props {
@@ -163,6 +164,8 @@ export function PremiumModal({ open, onClose }: Props) {
                 }}>
                 Maybe later
               </button>
+
+              <PromoCodeRedeem />
             </div>
           </>
         )}

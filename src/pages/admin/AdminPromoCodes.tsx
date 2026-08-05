@@ -25,6 +25,7 @@ type Promo = {
   valid_from: string;
   valid_until: string | null;
   is_active: boolean;
+  grants_premium: boolean;
 };
 
 const blank = {
@@ -35,6 +36,7 @@ const blank = {
   min_order_value: 0,
   max_uses: "" as string | number,
   valid_until: "",
+  grants_premium: false,
 };
 
 const AdminPromoCodes = () => {
@@ -66,6 +68,7 @@ const AdminPromoCodes = () => {
       min_order_value: p.min_order_value,
       max_uses: p.max_uses ?? "",
       valid_until: p.valid_until ? p.valid_until.slice(0, 10) : "",
+      grants_premium: p.grants_premium ?? false,
     });
     setOpen(true);
   };
@@ -79,6 +82,7 @@ const AdminPromoCodes = () => {
       min_order_value: Number(form.min_order_value || 0),
       max_uses: form.max_uses === "" ? null : Number(form.max_uses),
       valid_until: form.valid_until ? new Date(form.valid_until).toISOString() : null,
+      grants_premium: form.grants_premium,
     };
     if (editing) await supabase.from("promo_codes").update(payload).eq("id", editing.id);
     else await supabase.from("promo_codes").insert(payload);
@@ -133,9 +137,11 @@ const AdminPromoCodes = () => {
                       <span style={{ fontFamily: "monospace", color: "#fff", fontWeight: 600 }}>{p.code}</span>
                       {p.description && <p style={{ margin: "2px 0 0", color: C.muted, fontSize: 11 }}>{p.description}</p>}
                     </td>
-                    <td style={{ padding: "12px 18px", color: "#aaa", textTransform: "capitalize" }}>{p.discount_type}</td>
+                    <td style={{ padding: "12px 18px", color: "#aaa", textTransform: "capitalize" }}>
+                      {p.grants_premium ? <span style={{ color: C.orange, fontWeight: 700, textTransform: "none" }}>✦ Grants Pro</span> : p.discount_type}
+                    </td>
                     <td style={{ padding: "12px 18px", color: C.orange, fontWeight: 600 }}>
-                      {p.discount_type === "percentage" ? `${p.discount_value}%` : `$${p.discount_value}`}
+                      {p.grants_premium ? "Pro" : p.discount_type === "percentage" ? `${p.discount_value}%` : `$${p.discount_value}`}
                     </td>
                     <td style={{ padding: "12px 18px", minWidth: 120 }}>
                       <p style={{ margin: 0, fontSize: 11, color: "#aaa" }}>{p.current_uses}{p.max_uses ? ` / ${p.max_uses}` : " / ∞"}</p>
@@ -201,6 +207,18 @@ const AdminPromoCodes = () => {
             <p style={{ ...fontUI, fontSize: 11, color: C.muted, marginBottom: 6 }}>Valid until</p>
             <Input type="date" value={form.valid_until} onChange={(e) => setForm({ ...form, valid_until: e.target.value })} />
           </div>
+          <label style={{ ...fontUI, display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: "#ddd", cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={form.grants_premium}
+              onChange={(e) => setForm({ ...form, grants_premium: e.target.checked })}
+              style={{ width: 15, height: 15, accentColor: C.orange }}
+            />
+            <span>
+              Grants Belly Pro — redeeming sets the user's account to premium (free).
+              <span style={{ color: C.muted }}> For founding creators, set Max uses = 1.</span>
+            </span>
+          </label>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 4 }}>
             <Btn variant="secondary" onClick={() => setOpen(false)}>Cancel</Btn>
             <Btn onClick={save} disabled={!form.code || !form.discount_value}>{editing ? "Save" : "Create"}</Btn>

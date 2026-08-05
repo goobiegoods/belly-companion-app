@@ -101,6 +101,14 @@ export async function dbUpdate(pathWithQuery: string, patch: object): Promise<vo
   );
 }
 
+export async function dbRpc<T = Record<string, unknown>>(fn: string, args: object): Promise<T[]> {
+  const resp = await assertOk(
+    await dbFetch(`rpc/${fn}`, { method: 'POST', body: JSON.stringify(args) }),
+    `rpc ${fn}`,
+  );
+  return (await resp.json()) as T[];
+}
+
 export async function dbUpsert(table: string, row: object, onConflict: string): Promise<void> {
   await assertOk(
     await dbFetch(`${table}?on_conflict=${onConflict}`, {

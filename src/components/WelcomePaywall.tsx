@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { X, Sparkles, ScanLine, GraduationCap, ChefHat, Users, Sun, History, Leaf } from "lucide-react";
 import { BellaOrb } from "@/components/golden";
+import { PromoCodeRedeem } from "@/components/PromoCodeRedeem";
 
 interface Props {
   open: boolean;
@@ -240,6 +241,8 @@ export function WelcomePaywall({ open, onClose }: Props) {
         >
           Maybe later
         </button>
+
+        <PromoCodeRedeem />
       </div>
 
       <style>{`
