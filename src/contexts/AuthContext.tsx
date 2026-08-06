@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { identifyUser, resetAnalytics } from "@/lib/analytics";
 
 export interface CustomMilestone {
   id: string;
@@ -108,6 +109,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
+  // Analytics identity: only the user id plus two non-health person
+  // properties. Re-runs when the realtime subscription flips is_premium.
+  useEffect(() => {
+    if (!user?.id || !profile) return;
+    identifyUser(user.id, { season: profile.season, is_premium: profile.is_premium });
+  }, [user?.id, profile?.season, profile?.is_premium]);
+
   const signUp = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -125,6 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
+    resetAnalytics();
   };
 
   // Presence tracking for admin "active users now" counter

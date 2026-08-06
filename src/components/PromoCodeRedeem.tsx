@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { track } from "@/lib/analytics";
 
 /**
  * "Have a promo code?" expander used inside the premium sheets.
@@ -32,6 +33,7 @@ export function PromoCodeRedeem() {
         setError(data.error ?? "Something went wrong. Try again.");
         return;
       }
+      track("promo_redeemed", { code: code.trim(), granted_premium: !!data.grantedPremium });
       setSuccess(data.grantedPremium ? "Code accepted — Belly Pro is yours 🎉" : "Code accepted!");
       await refreshProfile();
     } catch {

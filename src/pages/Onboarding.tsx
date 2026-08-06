@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics";
 import { Navigate, useNavigate } from "react-router-dom";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
 import { toast } from "sonner";
@@ -363,6 +364,7 @@ const Onboarding = () => {
       toast.error("Failed to save — please try again");
       return;
     }
+    track("onboarding_completed", { season });
     await refreshProfile();
     navigate("/welcome");
   };

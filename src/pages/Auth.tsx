@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics";
 import { toast } from "sonner";
 import { SceneBackground, GlassCard } from "@/components/golden";
 
@@ -101,6 +102,7 @@ const Auth = () => {
         setMode("signin");
         return;
       }
+      track("user_signed_up");
       // Autoconfirm is on, so a real signup returns a session and redirects;
       // only mention a confirmation email if one is actually required.
       if (!data?.session) toast.success("Account created! Check your email to confirm.");

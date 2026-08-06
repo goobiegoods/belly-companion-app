@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics";
 import { getCurrentWeek } from "@/data/pregnancyWeeks";
 import { Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -228,6 +229,7 @@ const Welcome = () => {
   const sendReply = async (text: string) => {
     if (!text.trim() || phase !== "awaitReply" || !user) return;
     const reply = text.trim();
+    track("bella_message_sent", { source: "welcome", has_image: false });
     setInput("");
     setPhase("replying");
     setMessages(prev => [...prev, { role: "user", content: reply }]);

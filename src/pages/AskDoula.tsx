@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
 import { isPregnantSeason, seasonTip } from "@/lib/season";
+import { track } from "@/lib/analytics";
 import { Send, Square, Camera, X, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -218,6 +219,8 @@ const AskDoula = () => {
 
     // Sending always snaps the view back to the bottom, even if scrolled up.
     forceScrollRef.current = true;
+
+    track("bella_message_sent", { source: "chat", has_image: !!activeImage });
 
     const hasImage = !!activeImage;
     const imageUrl = activeImage?.url;

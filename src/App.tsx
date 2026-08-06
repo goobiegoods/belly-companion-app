@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect, useRef } from "react";
 import { initTheme } from "@/lib/theme";
+import { trackPageview } from "@/lib/analytics";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
@@ -133,6 +134,8 @@ const FullScreenLayout = ({ children }: { children: React.ReactNode }) => (
 
 const AppContent = () => {
   useEffect(() => { initTheme(); }, []);
+  const location = useLocation();
+  useEffect(() => { trackPageview(); }, [location.pathname]);
   const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem("belly-splash-shown"));
 
   if (showSplash) {
