@@ -152,7 +152,9 @@ async function syncSubscription(sub: Stripe.Subscription) {
       current_period_start: period.start,
       current_period_end: period.end,
       cancel_at_period_end: sub.cancel_at_period_end || false,
-      environment: 'sandbox',
+      // Stripe's livemode flag is ground truth — live events label rows
+      // 'production', test-mode deliveries stay 'sandbox'.
+      environment: sub.livemode ? 'production' : 'sandbox',
       updated_at: now,
     },
     'stripe_subscription_id',
