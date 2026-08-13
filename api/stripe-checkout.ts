@@ -17,9 +17,10 @@ export default async function handler(req: Request) {
     const auth = await requireUser(req);
     if (auth instanceof Response) return auth;
 
-    const body = (await req.json().catch(() => ({}))) as { plan?: unknown };
+    const body = (await req.json().catch(() => ({}))) as { plan?: unknown; trial?: unknown };
     const priceId = PRICE_IDS[String(body.plan)];
     if (!priceId) return json({ error: 'Invalid plan' }, 400);
+    const trial = body.trial === true;
 
     const origin = req.headers.get('origin') || 'https://belly-companion-app.vercel.app';
 
@@ -30,7 +31,12 @@ export default async function handler(req: Request) {
       return_url: `${origin}/premium-success?session_id={CHECKOUT_SESSION_ID}`,
       ...(auth.email ? { customer_email: auth.email } : {}),
       metadata: { userId: auth.id },
-      subscription_data: { metadata: { userId: auth.id } },
+      subscription_data: {
+        metadata: { userId: auth.id },
+        ...(trial ? { trial_period_days: 7 } : {}),
+      },
+      // Card up front even though the trial invoice is $0 — day 8 must charge.
+      ...(trial ? { payment_method_collection: 'always' as const } : {}),
     });
 
     return json({ clientSecret: session.client_secret });

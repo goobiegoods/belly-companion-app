@@ -22,6 +22,9 @@ interface Profile {
   // Null on accounts onboarded before seasons existed.
   season: string | null;
   onboarding_answers: Record<string, string | string[]>;
+  // Set when the one-free-taste /welcome exchange finished; the HARD_PAYWALL
+  // gate reads it. Null until the manual welcome_taste migration runs.
+  welcome_completed_at?: string | null;
 }
 
 interface AuthContextType {

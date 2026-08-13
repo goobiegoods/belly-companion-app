@@ -8,6 +8,7 @@ import { Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { SceneBackground, BellaOrb } from "@/components/golden";
 import { WelcomePaywall } from "@/components/WelcomePaywall";
+import { HARD_PAYWALL } from "@/lib/flags";
 
 interface Message {
   role: "user" | "assistant";
@@ -59,7 +60,16 @@ const Welcome = () => {
     profile?.season === "pregnant" && profile.due_date ? getCurrentWeek(profile.due_date) : null;
 
   const markDone = () => {
-    if (user) localStorage.setItem(`belly-welcome-done-${user.id}`, "1");
+    if (!user) return;
+    localStorage.setItem(`belly-welcome-done-${user.id}`, "1");
+    // Server-side copy the HARD_PAYWALL gate reads, so the one free taste
+    // survives cleared storage. Fire-and-forget: before the manual
+    // welcome_taste migration runs this update fails and localStorage covers it.
+    void supabase
+      .from("profiles")
+      .update({ welcome_completed_at: new Date().toISOString() })
+      .eq("user_id", user.id)
+      .then(() => undefined);
   };
 
   const finishToHome = () => {
@@ -225,6 +235,13 @@ const Welcome = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages, showPaywall]);
+
+  // The hard-paywall sheet can't be dismissed, but a founding creator who
+  // redeems a promo at the wall flips is_premium via realtime — walk her in.
+  useEffect(() => {
+    if (HARD_PAYWALL && showPaywall && profile?.is_premium) finishToHome();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showPaywall, profile?.is_premium]);
 
   const sendReply = async (text: string) => {
     if (!text.trim() || phase !== "awaitReply" || !user) return;
@@ -466,7 +483,7 @@ const Welcome = () => {
         )}
       </div>
 
-      <WelcomePaywall open={showPaywall} onClose={finishToHome} />
+      <WelcomePaywall open={showPaywall} onClose={finishToHome} dismissible={!HARD_PAYWALL} source="welcome" />
     </SceneBackground>
   );
 };

@@ -638,6 +638,7 @@ export type Database = {
           season: string | null
           updated_at: string
           user_id: string
+          welcome_completed_at: string | null
         }
         Insert: {
           created_at?: string
@@ -655,6 +656,7 @@ export type Database = {
           season?: string | null
           updated_at?: string
           user_id: string
+          welcome_completed_at?: string | null
         }
         Update: {
           created_at?: string
@@ -672,6 +674,7 @@ export type Database = {
           season?: string | null
           updated_at?: string
           user_id?: string
+          welcome_completed_at?: string | null
         }
         Relationships: []
       }

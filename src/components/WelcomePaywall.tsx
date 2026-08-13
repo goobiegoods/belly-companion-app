@@ -3,16 +3,23 @@ import { toast } from "sonner";
 import { X, Sparkles, ScanLine, GraduationCap, ChefHat, Users, Sun, History, Leaf } from "lucide-react";
 import { BellaOrb } from "@/components/golden";
 import { PromoCodeRedeem } from "@/components/PromoCodeRedeem";
+import { StripeEmbeddedCheckoutForm } from "@/components/StripeEmbeddedCheckout";
+import { HARD_PAYWALL } from "@/lib/flags";
+import { track } from "@/lib/analytics";
 
 interface Props {
   open: boolean;
-  onClose: () => void;
+  // Optional because the hard-gate usage never closes the sheet.
+  onClose?: () => void;
+  // false = the hard paywall: no X, no "Maybe later", no Escape/backdrop close.
+  dismissible?: boolean;
+  source?: "welcome" | "hard_gate";
 }
 
 type Plan = "annual" | "monthly";
 
-// PLACEHOLDER — no payment is wired yet. Replace with the real Stripe
-// subscription checkout (see api/stripe-checkout.ts) once live keys are ready.
+// PLACEHOLDER — the flag-OFF path only. With HARD_PAYWALL on, the CTA opens
+// the real Stripe embedded checkout below instead.
 function startCheckout(plan: Plan) {
   void plan;
   toast("Checkout is coming soon — you're on the list");
@@ -41,23 +48,33 @@ const sheetStyle: React.CSSProperties = {
   fontFamily: "'Inter', system-ui, sans-serif",
 };
 
-export function WelcomePaywall({ open, onClose }: Props) {
+export function WelcomePaywall({ open, onClose, dismissible = true, source = "welcome" }: Props) {
   const [plan, setPlan] = useState<Plan>("annual");
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onCloseRef.current(); };
-    document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onCloseRef.current?.(); };
+    if (dismissible) document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("keydown", onKey);
+      if (dismissible) document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [open]);
+  }, [open, dismissible]);
+
+  useEffect(() => {
+    if (open) track("paywall_shown", { source, hard: !dismissible });
+  }, [open, source, dismissible]);
 
   if (!open) return null;
+
+  const startTrial = () => {
+    track("paywall_checkout_opened", { plan, trial: true, source });
+    setShowCheckout(true);
+  };
 
   const planCard = (
     which: Plan,
@@ -108,7 +125,7 @@ export function WelcomePaywall({ open, onClose }: Props) {
     <div
       className="fixed inset-0 z-[1000] flex items-end"
       style={{ background: "rgba(10,6,16,0.6)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
-      onClick={onClose}
+      onClick={dismissible ? () => onClose?.() : undefined}
     >
       <div
         className="w-full"
@@ -121,128 +138,162 @@ export function WelcomePaywall({ open, onClose }: Props) {
           animation: "sheetUp 280ms cubic-bezier(0.22,1,0.36,1)",
         }}
       >
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          style={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            width: 30,
-            height: 30,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.14)",
-            color: "rgba(251,238,224,0.7)",
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-          }}
-        >
-          <X size={14} />
-        </button>
-
-        <div style={{ textAlign: "center", marginBottom: 18 }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
-            <BellaOrb size={40} />
-          </div>
-          <div className="gh-section-label" style={{ marginBottom: 4 }}>belly pro</div>
-          <p className="gh-brand" style={{ fontSize: 25, lineHeight: 1.2 }}>
-            Keep Bella by your side
-          </p>
-          <p style={{ fontSize: 13, color: "rgba(251,238,224,0.7)", marginTop: 6, lineHeight: 1.5 }}>
-            Everything Belly has to offer, for every season you're in
-          </p>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "9px 12px",
-            marginBottom: 20,
-          }}
-        >
-          {BENEFITS.map(b => (
-            <span
-              key={b.label}
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "var(--cream)" }}
+        {showCheckout ? (
+          <>
+            <button
+              onClick={() => setShowCheckout(false)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--cream)",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                marginBottom: 12,
+              }}
             >
-              <span style={{ color: "var(--gold)", display: "inline-flex", flexShrink: 0 }}>{b.icon}</span>
-              {b.label}
-            </span>
-          ))}
-        </div>
+              ← Back
+            </button>
+            {/* Stripe's embedded checkout renders a light iframe — keep a white card behind it */}
+            <div style={{ background: "#fff", borderRadius: 16, padding: 12 }}>
+              <StripeEmbeddedCheckoutForm plan={plan === "annual" ? "yearly" : "monthly"} trial />
+            </div>
+          </>
+        ) : (
+          <>
+            {dismissible && (
+              <button
+                onClick={() => onClose?.()}
+                aria-label="Close"
+                style={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                  width: 30,
+                  height: 30,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  color: "rgba(251,238,224,0.7)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <X size={14} />
+              </button>
+            )}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
-          {planCard(
-            "annual",
-            <span style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-              <span>
-                <span style={{ display: "block", fontFamily: "'JetBrains Mono', monospace", fontSize: 19, fontWeight: 600, color: "var(--cream)" }}>
-                  $8.25<span style={{ fontSize: 12, fontWeight: 500, color: "rgba(251,238,224,0.6)", fontFamily: "'Inter', sans-serif" }}> /month</span>
+            <div style={{ textAlign: "center", marginBottom: 18 }}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
+                <BellaOrb size={40} />
+              </div>
+              <div className="gh-section-label" style={{ marginBottom: 4 }}>belly pro</div>
+              <p className="gh-brand" style={{ fontSize: 25, lineHeight: 1.2 }}>
+                Keep Bella by your side
+              </p>
+              <p style={{ fontSize: 13, color: "rgba(251,238,224,0.7)", marginTop: 6, lineHeight: 1.5 }}>
+                Everything Belly has to offer, for every season you're in
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "9px 12px",
+                marginBottom: 20,
+              }}
+            >
+              {BENEFITS.map(b => (
+                <span
+                  key={b.label}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "var(--cream)" }}
+                >
+                  <span style={{ color: "var(--gold)", display: "inline-flex", flexShrink: 0 }}>{b.icon}</span>
+                  {b.label}
                 </span>
-                <span style={{ display: "block", fontSize: 11.5, color: "rgba(251,238,224,0.6)", marginTop: 3 }}>
-                  billed annually at $99
+              ))}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
+              {planCard(
+                "annual",
+                <span style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
+                  <span>
+                    <span style={{ display: "block", fontFamily: "'JetBrains Mono', monospace", fontSize: 19, fontWeight: 600, color: "var(--cream)" }}>
+                      $8.25<span style={{ fontSize: 12, fontWeight: 500, color: "rgba(251,238,224,0.6)", fontFamily: "'Inter', sans-serif" }}> /month</span>
+                    </span>
+                    <span style={{ display: "block", fontSize: 11.5, color: "rgba(251,238,224,0.6)", marginTop: 3 }}>
+                      billed annually at $99
+                    </span>
+                  </span>
+                  <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--gold)", whiteSpace: "nowrap" }}>
+                    7-day free trial
+                  </span>
+                </span>,
+                "Best Value"
+              )}
+              {planCard(
+                "monthly",
+                <span style={{ display: "block" }}>
+                  <span style={{ display: "block", fontFamily: "'JetBrains Mono', monospace", fontSize: 19, fontWeight: 600, color: "var(--cream)" }}>
+                    $14.99<span style={{ fontSize: 12, fontWeight: 500, color: "rgba(251,238,224,0.6)", fontFamily: "'Inter', sans-serif" }}> /month</span>
+                  </span>
+                  <span style={{ display: "block", fontSize: 11.5, color: "rgba(251,238,224,0.6)", marginTop: 3 }}>
+                    {HARD_PAYWALL ? "7-day free trial · cancel anytime" : "cancel anytime"}
+                  </span>
                 </span>
-              </span>
-              <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--gold)", whiteSpace: "nowrap" }}>
-                7-day free trial
-              </span>
-            </span>,
-            "Best Value"
-          )}
-          {planCard(
-            "monthly",
-            <span style={{ display: "block" }}>
-              <span style={{ display: "block", fontFamily: "'JetBrains Mono', monospace", fontSize: 19, fontWeight: 600, color: "var(--cream)" }}>
-                $14.99<span style={{ fontSize: 12, fontWeight: 500, color: "rgba(251,238,224,0.6)", fontFamily: "'Inter', sans-serif" }}> /month</span>
-              </span>
-              <span style={{ display: "block", fontSize: 11.5, color: "rgba(251,238,224,0.6)", marginTop: 3 }}>
-                cancel anytime
-              </span>
-            </span>
-          )}
-        </div>
+              )}
+            </div>
 
-        <button
-          onClick={() => startCheckout(plan)}
-          style={{
-            width: "100%",
-            height: 52,
-            borderRadius: 14,
-            background: "linear-gradient(135deg, var(--gold), var(--ember))",
-            color: "var(--night)",
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 700,
-            fontSize: 15,
-            border: "none",
-            cursor: "pointer",
-            boxShadow: "0 8px 24px -8px rgba(242,182,71,0.5)",
-          }}
-        >
-          {plan === "annual" ? "Start my 7-day free trial" : "Subscribe monthly"}
-        </button>
+            <button
+              onClick={() => (HARD_PAYWALL ? startTrial() : startCheckout(plan))}
+              style={{
+                width: "100%",
+                height: 52,
+                borderRadius: 14,
+                background: "linear-gradient(135deg, var(--gold), var(--ember))",
+                color: "var(--night)",
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 700,
+                fontSize: 15,
+                border: "none",
+                cursor: "pointer",
+                boxShadow: "0 8px 24px -8px rgba(242,182,71,0.5)",
+              }}
+            >
+              {HARD_PAYWALL
+                ? "Start your 7-day free trial"
+                : plan === "annual"
+                  ? "Start my 7-day free trial"
+                  : "Subscribe monthly"}
+            </button>
 
-        <button
-          onClick={onClose}
-          style={{
-            width: "100%",
-            padding: 12,
-            marginTop: 8,
-            background: "none",
-            border: "none",
-            color: "rgba(251,238,224,0.6)",
-            fontSize: 12.5,
-            cursor: "pointer",
-            fontFamily: "'Inter', sans-serif",
-          }}
-        >
-          Maybe later
-        </button>
+            {dismissible && (
+              <button
+                onClick={() => onClose?.()}
+                style={{
+                  width: "100%",
+                  padding: 12,
+                  marginTop: 8,
+                  background: "none",
+                  border: "none",
+                  color: "rgba(251,238,224,0.6)",
+                  fontSize: 12.5,
+                  cursor: "pointer",
+                  fontFamily: "'Inter', sans-serif",
+                }}
+              >
+                Maybe later
+              </button>
+            )}
 
-        <PromoCodeRedeem />
+            <PromoCodeRedeem />
+          </>
+        )}
       </div>
 
       <style>{`

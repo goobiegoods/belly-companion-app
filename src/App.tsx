@@ -31,6 +31,9 @@ import FeedingTracker from "./pages/FeedingTracker";
 import Journey from "./pages/Journey";
 import { Terms, Privacy, Disclaimer } from "./pages/Legal";
 import { isPregnantSeason } from "./lib/season";
+import { HARD_PAYWALL } from "./lib/flags";
+import { resolveHardPaywall } from "./lib/paywallGate";
+import { WelcomePaywall } from "./components/WelcomePaywall";
 import BottomNav from "./components/BottomNav";
 import NotFound from "./pages/NotFound";
 import { SavedRecipesProvider } from "./contexts/SavedRecipesContext";
@@ -94,8 +97,18 @@ const SplashScreen = ({ onDone }: { onDone: () => void }) => {
   );
 };
 
+// HARD_PAYWALL lock screen: night gradient with the non-dismissible Pro
+// sheet — no app content mounts behind it. Promo redemption inside the sheet
+// (or checkout completing) flips is_premium via realtime and the gate opens.
+const HardPaywallScreen = () => (
+  <div className="min-h-screen" style={{ background: "linear-gradient(180deg, var(--night) 0%, #0d0713 100%)" }}>
+    <WelcomePaywall open dismissible={false} source="hard_gate" />
+  </div>
+);
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, profile, loading } = useAuth();
+  const location = useLocation();
   const Spinner = (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--gold)", borderTopColor: "transparent" }} />
@@ -105,6 +118,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (!session) return <Navigate to="/auth" replace />;
   if (!profile) return Spinner;
   if (!profile.onboarding_completed) return <Navigate to="/onboarding" replace />;
+  const gate = resolveHardPaywall({
+    enabled: HARD_PAYWALL,
+    profile,
+    localTasteDone: localStorage.getItem(`belly-welcome-done-${session.user.id}`) === "1",
+    pathname: location.pathname,
+  });
+  if (gate === "welcome") return <Navigate to="/welcome" replace />;
+  if (gate === "lock") return <HardPaywallScreen />;
   return <>{children}</>;
 };
 
