@@ -26,8 +26,8 @@ const MAX_PAGES = 10;
 // Pro price IDs (api/stripe-checkout.ts) mapped to their monthly-equivalent
 // dollar amount, for computing MRR from raw subscription rows.
 const MONTHLY_EQUIVALENT: Record<string, number> = {
-  price_1TvRZH3aGROnSTkwA5AGLshP: 9.99, // monthly
-  price_1TvRZH3aGROnSTkwcIdEonLx: 79.99 / 12, // yearly
+  price_1U3uzxQKaBNYAo4PJrfZTY7Z: 14.99, // monthly
+  price_1U3v35QKaBNYAo4PplGlvGUZ: 99 / 12, // yearly
 };
 
 /** Local-midnight timestamp for N days ago (0 = today). */

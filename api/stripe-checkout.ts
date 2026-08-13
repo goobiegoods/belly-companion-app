@@ -2,11 +2,11 @@ export const config = { runtime: 'edge' };
 
 import { CORS, json, getStripe, requireUser } from './_lib/stripe.js';
 
-// Stripe test-mode price IDs for Pro (not secrets). The client only ever
+// Stripe live-mode price IDs for Pro (not secrets). The client only ever
 // sends a plan name, so it can never inject an arbitrary price.
 const PRICE_IDS: Record<string, string> = {
-  monthly: 'price_1TvRZH3aGROnSTkwA5AGLshP', // $9.99 / month
-  yearly: 'price_1TvRZH3aGROnSTkwcIdEonLx', // $79.99 / year
+  monthly: 'price_1U3uzxQKaBNYAo4PJrfZTY7Z', // $14.99 / month
+  yearly: 'price_1U3v35QKaBNYAo4PplGlvGUZ', // $99 / year
 };
 
 export default async function handler(req: Request) {
