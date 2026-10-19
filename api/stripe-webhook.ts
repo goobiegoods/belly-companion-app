@@ -1,7 +1,7 @@
 export const config = { runtime: 'edge' };
 
 import Stripe from 'stripe';
-import { getStripe, dbSelect, dbUpdate, dbUpsert } from './_lib/stripe.js';
+import { getStripe, dbSelect, dbUpdate, dbUpsert, resolveStripeWebhookSecret } from './_lib/stripe.js';
 import {
   cleanEmail,
   findOrCreateUser,
@@ -25,7 +25,7 @@ const ok = () =>
 export default async function handler(req: Request) {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
 
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secret = resolveStripeWebhookSecret();
   if (!secret) {
     console.error('stripe-webhook: STRIPE_WEBHOOK_SECRET is not configured');
     return new Response('Webhook not configured', { status: 500 });

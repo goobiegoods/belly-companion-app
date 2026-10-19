@@ -30,8 +30,8 @@ Never commit these. Existing vars (`VITE_SUPABASE_*`, `VITE_POSTHOG_*`) stay as 
 
 | Var | Value |
 |---|---|
-| `STRIPE_SECRET_KEY` | `sk_test_…` (**test** for Preview) |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_…` from the **test-mode** webhook endpoint below |
+| `STRIPE_SECRET_KEY_PREVIEW` | `sk_test_…` — Preview only. Previews use this and **refuse any live key**; Production keeps using `STRIPE_SECRET_KEY` (untouched) |
+| `STRIPE_WEBHOOK_SECRET_PREVIEW` | `whsec_…` from the **test-mode** webhook endpoint — Preview only |
 | `VITE_PAYMENTS_CLIENT_TOKEN` | `pk_test_…` |
 | `SUPABASE_SERVICE_ROLE_KEY` | service role key |
 | `FUNNEL_SIGNING_SECRET` | random, 48+ chars (`openssl rand -base64 48`) |

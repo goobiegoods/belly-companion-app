@@ -10,7 +10,7 @@
  *    to Meta. Stage stays first-party (Supabase / PostHog).
  */
 import type Stripe from 'stripe';
-import { getStripe, dbRpc, dbSelect } from './stripe.js';
+import { getStripe, dbRpc, dbSelect, isProductionDeploy } from './stripe.js';
 
 // ---------------------------------------------------------------- variants
 // One entry per funnel variant (?v=a, ?v=b …). To A/B a new price or trial,
@@ -129,7 +129,7 @@ export const cleanKey = (v: unknown): string | null =>
 
 // ---------------------------------------------------------------- stripe mode
 export function stripeMode(): 'test' | 'live' | 'missing' {
-  const k = process.env.STRIPE_SECRET_KEY || '';
+  const k = (!isProductionDeploy() && process.env.STRIPE_SECRET_KEY_PREVIEW) || process.env.STRIPE_SECRET_KEY || '';
   if (!k) return 'missing';
   return /^(sk|rk)_live_/.test(k) ? 'live' : 'test';
 }
@@ -137,6 +137,7 @@ export function stripeMode(): 'test' | 'live' | 'missing' {
 export function checkoutAllowed(): { ok: true } | { ok: false; reason: string } {
   const m = stripeMode();
   if (m === 'missing') return { ok: false, reason: 'Checkout is not configured yet.' };
+  if (m === 'live' && !isProductionDeploy()) return { ok: false, reason: 'Checkout is not open yet.' };
   if (m === 'live' && process.env.FUNNEL_LIVE_APPROVED !== 'yes') {
     return { ok: false, reason: 'Checkout is not open yet.' };
   }

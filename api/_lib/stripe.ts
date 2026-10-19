@@ -10,10 +10,29 @@ export const json = (body: object, status = 200) =>
 
 let stripeClient: Stripe | null = null;
 
+/**
+ * Which Stripe key this deployment uses.
+ * - Production deploys: STRIPE_SECRET_KEY (unchanged).
+ * - Preview / dev: STRIPE_SECRET_KEY_PREVIEW if set, else STRIPE_SECRET_KEY —
+ *   and a LIVE key is refused outright, so a preview can never charge real money.
+ */
+export const isProductionDeploy = () => process.env.VERCEL_ENV === 'production';
+const isLiveKey = (k: string) => /^(sk|rk)_live_/.test(k);
+export function resolveStripeSecretKey(): string {
+  const key = (!isProductionDeploy() && process.env.STRIPE_SECRET_KEY_PREVIEW) || process.env.STRIPE_SECRET_KEY || '';
+  if (key && !isProductionDeploy() && isLiveKey(key)) {
+    throw new Error('Refusing a LIVE Stripe key outside production — set STRIPE_SECRET_KEY_PREVIEW to an sk_test_ key');
+  }
+  return key;
+}
+export function resolveStripeWebhookSecret(): string {
+  return (!isProductionDeploy() && process.env.STRIPE_WEBHOOK_SECRET_PREVIEW) || process.env.STRIPE_WEBHOOK_SECRET || '';
+}
+
 /** Stripe client for the edge runtime (fetch-based HTTP, no Node http module). */
 export function getStripe(): Stripe {
   if (!stripeClient) {
-    const key = process.env.STRIPE_SECRET_KEY;
+    const key = resolveStripeSecretKey();
     if (!key) throw new Error('STRIPE_SECRET_KEY is not configured');
     stripeClient = new Stripe(key, { httpClient: Stripe.createFetchHttpClient() });
   }

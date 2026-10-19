@@ -69,7 +69,22 @@ describe("live-mode safety switch", () => {
     process.env.FUNNEL_LIVE_APPROVED = "true";
     expect(checkoutAllowed().ok).toBe(false);
     process.env.FUNNEL_LIVE_APPROVED = "yes";
+    expect(checkoutAllowed().ok).toBe(false); // still refused: not a production deploy
+    process.env.VERCEL_ENV = "production";
     expect(checkoutAllowed().ok).toBe(true);
+  });
+  it("previews prefer STRIPE_SECRET_KEY_PREVIEW and never use a live key", async () => {
+    const { resolveStripeSecretKey } = await import("../../api/_lib/stripe");
+    process.env.VERCEL_ENV = "preview";
+    process.env.STRIPE_SECRET_KEY = "sk_live_shared";
+    process.env.STRIPE_SECRET_KEY_PREVIEW = "sk_test_preview";
+    expect(resolveStripeSecretKey()).toBe("sk_test_preview");
+    expect(checkoutAllowed().ok).toBe(true);
+    delete process.env.STRIPE_SECRET_KEY_PREVIEW;
+    expect(() => resolveStripeSecretKey()).toThrow(/LIVE/);
+    expect(checkoutAllowed().ok).toBe(false);
+    process.env.VERCEL_ENV = "production";
+    expect(resolveStripeSecretKey()).toBe("sk_live_shared");
   });
 });
 
