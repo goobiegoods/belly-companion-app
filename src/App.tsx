@@ -29,7 +29,8 @@ import Cart from "./pages/Cart";
 import BellyBreathe from "./pages/BellyBreathe";
 import FeedingTracker from "./pages/FeedingTracker";
 import Journey from "./pages/Journey";
-import { Terms, Privacy, Disclaimer } from "./pages/Legal";
+import { Terms, Privacy, Disclaimer, AutoRenewal } from "./pages/Legal";
+import AuthConfirm from "./pages/AuthConfirm";
 import { isPregnantSeason } from "./lib/season";
 import { HARD_PAYWALL } from "./lib/flags";
 import { resolveHardPaywall } from "./lib/paywallGate";
@@ -173,6 +174,7 @@ const AppContent = () => {
   return (
     <Routes>
       <Route path="/auth" element={<Auth />} />
+      <Route path="/auth/confirm" element={<AuthConfirm />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/welcome" element={<Welcome />} />
@@ -180,6 +182,7 @@ const AppContent = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/disclaimer" element={<Disclaimer />} />
+      <Route path="/auto-renewal" element={<AutoRenewal />} />
       <Route path="/" element={<ProtectedRoute><AppLayout><HomePage /></AppLayout></ProtectedRoute>} />
       <Route path="/baby" element={<ProtectedRoute><BabyRoute /></ProtectedRoute>} />
       <Route path="/ask" element={<ProtectedRoute><AppLayout><AskDoula /></AppLayout></ProtectedRoute>} />

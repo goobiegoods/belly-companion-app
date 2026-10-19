@@ -6,6 +6,7 @@ import type { Scene } from "@/components/golden";
 import termsMd from "../../Belly-Terms-of-Service.md?raw";
 import privacyMd from "../../Belly-Privacy-Policy.md?raw";
 import disclaimerMd from "../../Belly-Medical-Wellness-Disclaimer.md?raw";
+import autoRenewalMd from "../../Belly-Auto-Renewal-Terms.md?raw";
 
 const LEGAL_CSS = `
   .gh-legal h1 {
@@ -95,4 +96,5 @@ function LegalPage({ scene, label, markdown }: { scene: Scene; label: string; ma
 
 export const Terms = () => <LegalPage scene="today" label="terms of service" markdown={termsMd} />;
 export const Privacy = () => <LegalPage scene="ask" label="privacy policy" markdown={privacyMd} />;
+export const AutoRenewal = () => <LegalPage scene="today" label="automatic renewal terms" markdown={autoRenewalMd} />;
 export const Disclaimer = () => <LegalPage scene="baby" label="medical & wellness disclaimer" markdown={disclaimerMd} />;

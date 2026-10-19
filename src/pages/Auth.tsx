@@ -6,7 +6,7 @@ import { track } from "@/lib/analytics";
 import { toast } from "sonner";
 import { SceneBackground, GlassCard } from "@/components/golden";
 
-type Mode = "signin" | "signup" | "forgot";
+type Mode = "signin" | "signup" | "forgot" | "link";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -48,7 +48,9 @@ const linkBtnStyle: React.CSSProperties = {
 const Auth = () => {
   const { session, loading } = useAuth();
   const location = useLocation();
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(
+    new URLSearchParams(location.search).get("mode") === "link" ? "link" : "signin"
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
@@ -75,6 +77,25 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
+    if (mode === "link") {
+      // Passwordless sign-in (members who joined on meetbelly.com have no password).
+      // The endpoint always answers OK so it can't reveal which emails exist.
+      const resp = await fetch("/api/send-login-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      }).catch(() => null);
+      setSubmitting(false);
+      if (!resp || (!resp.ok && resp.status !== 200)) {
+        const j = resp ? await resp.json().catch(() => ({})) : {};
+        return toast.error((j as { error?: string }).error || "Couldn't send the link — try again.");
+      }
+      toast.success("If there's a Belly account for that email, a sign-in link is on its way.");
+      track("magic_link_requested");
+      setMode("signin");
+      return;
+    }
 
     if (mode === "forgot") {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -154,6 +175,7 @@ const Auth = () => {
           >
             {mode === "signup" ? "Join thousands of mamas on their journey" :
               mode === "forgot" ? "We'll email you a reset link" :
+              mode === "link" ? "We'll email you a one-tap sign-in link" :
                 "Welcome back, mama"}
           </p>
         </div>
@@ -169,7 +191,7 @@ const Auth = () => {
               className="gh-auth-input"
               style={inputStyle}
             />
-            {mode !== "forgot" && (
+            {mode !== "forgot" && mode !== "link" && (
               <input
                 type="password"
                 placeholder="Password"
@@ -220,13 +242,17 @@ const Auth = () => {
               {submitting ? "..." :
                 mode === "signup" ? "Create my account" :
                   mode === "forgot" ? "Send reset link" :
+                  mode === "link" ? "Email me a sign-in link" :
                     "Sign in"}
             </button>
           </form>
         </GlassCard>
 
         {mode === "signin" && (
-          <p style={{ textAlign: "center", marginTop: 16 }}>
+          <p style={{ textAlign: "center", marginTop: 16, display: "flex", justifyContent: "center", gap: 16 }}>
+            <button onClick={() => setMode("link")} style={linkBtnStyle}>
+              Email me a sign-in link
+            </button>
             <button onClick={() => setMode("forgot")} style={linkBtnStyle}>
               Forgot password?
             </button>
@@ -243,13 +269,13 @@ const Auth = () => {
           }}
         >
           {mode === "signup" ? "Already have an account?" :
-            mode === "forgot" ? "Remembered it?" :
+            mode === "forgot" || mode === "link" ? "Have a password?" :
               "Don't have an account?"}{" "}
           <button
-            onClick={() => setMode(mode === "signup" ? "signin" : mode === "forgot" ? "signin" : "signup")}
+            onClick={() => setMode(mode === "signup" || mode === "forgot" || mode === "link" ? "signin" : "signup")}
             style={linkBtnStyle}
           >
-            {mode === "signup" || mode === "forgot" ? "Sign in" : "Sign up"}
+            {mode === "signup" || mode === "forgot" || mode === "link" ? "Sign in" : "Sign up"}
           </button>
         </p>
 

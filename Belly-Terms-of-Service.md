@@ -1,6 +1,6 @@
 # Belly Terms of Service
 
-**Last Updated:** August 5, 2026
+**Last Updated:** October 19, 2026
 
 Welcome to Belly. We're glad you're here.
 
@@ -164,15 +164,17 @@ Belly does not store your complete payment card information.
 
 ---
 
-# 11. Subscriptions
+# 11. Subscriptions and Free Trials
 
-Certain Services may be offered through recurring monthly or annual subscriptions.
+Belly membership is offered as a recurring subscription. The price, billing interval, and any free-trial length are shown to you before you confirm, on the offer and on the secure Stripe checkout page.
 
-Unless canceled before renewal, subscriptions automatically renew at the applicable billing interval.
+**Free trials.** If your membership starts with a free trial, you will not be charged during the trial. A payment method is required to start a trial. Unless you cancel before the trial ends, your subscription starts automatically and you will be charged the price shown at signup, then again at the start of each billing period. Free trials are limited to one per person.
 
-You may cancel at any time through your account settings or the platform through which you subscribed.
+**Automatic renewal.** Your subscription renews automatically at the end of each billing period at the then-current price for your plan until you cancel. Our full [Automatic Renewal Terms](/auto-renewal) are part of these Terms.
 
-Cancellation prevents future renewals but does not automatically entitle you to a refund for amounts already paid.
+**Cancelling.** You can cancel at any time in the app (Me → Manage) or by emailing hello@meetbelly.com. If you cancel during a free trial, you will not be charged. If you cancel after a charge, you keep access until the end of the period you paid for.
+
+Cancellation prevents future renewals but does not automatically entitle you to a refund for amounts already paid, except as described in Section 12 or required by law.
 
 ---
 
@@ -180,7 +182,7 @@ Cancellation prevents future renewals but does not automatically entitle you to 
 
 Except where required by applicable law or where Belly expressly agrees otherwise, purchases, subscriptions, and digital content are non-refundable.
 
-If Belly introduces paid subscriptions, digital services, or additional purchase options, we may publish a separate Refund & Subscription Policy, which will become part of these Terms.
+If you believe you were charged in error, contact hello@meetbelly.com and we will review your request.
 
 ---
 

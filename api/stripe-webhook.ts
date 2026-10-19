@@ -2,6 +2,16 @@ export const config = { runtime: 'edge' };
 
 import Stripe from 'stripe';
 import { getStripe, dbSelect, dbUpdate, dbUpsert } from './_lib/stripe.js';
+import {
+  cleanEmail,
+  findOrCreateUser,
+  magicLinkFor,
+  sendEmail,
+  signInEmail,
+  metaCapi,
+  phCapture,
+  STAGE_TO_SEASON,
+} from './_lib/funnel.js';
 
 // WebCrypto-based signature verification for the edge runtime.
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
@@ -48,6 +58,9 @@ export default async function handler(req: Request) {
       case 'customer.subscription.deleted':
         await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
         break;
+      case 'invoice.paid':
+        await handleInvoicePaid(event.data.object as Stripe.Invoice);
+        break;
       case 'invoice.payment_failed':
         console.log('stripe-webhook: payment failed for invoice', (event.data.object as Stripe.Invoice).id);
         break;
@@ -72,6 +85,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     // subscription metadata hasn't propagated yet.
     if (!sub.metadata?.userId && session.metadata?.userId) {
       sub.metadata = { ...sub.metadata, userId: session.metadata.userId };
+    }
+    // Landing-page guest checkout: find/create the account, then sync.
+    if (session.metadata?.source === 'funnel') {
+      await fulfillFunnel(session, sub);
+      return;
     }
     await syncSubscription(sub);
     return;
@@ -178,5 +196,160 @@ async function handleSubscriptionDeleted(sub: Stripe.Subscription) {
   if (userId) {
     await dbUpdate(`profiles?user_id=eq.${userId}`, { is_premium: false });
     console.log('stripe-webhook: premium removed for', userId);
+  }
+}
+
+// ======================================================================
+// Landing funnel fulfillment (meetbelly.com guest checkout)
+// Every step is idempotent so Stripe retries resume where they stopped.
+// ======================================================================
+interface FunnelOrder {
+  stripe_session_id: string;
+  email: string;
+  variant: string;
+  offer: string;
+  trial_days: number;
+  ebook: boolean;
+  stage: string | null;
+  anon_id: string | null;
+  fbp: string | null;
+  fbc: string | null;
+  client_ip: string | null;
+  client_ua: string | null;
+  gpc: boolean | null;
+  user_id: string | null;
+  magic_link_sent_at: string | null;
+  capi_sent_at: string | null;
+}
+
+async function fulfillFunnel(session: Stripe.Checkout.Session, sub: Stripe.Subscription) {
+  const rows = await dbSelect<FunnelOrder>(
+    `funnel_orders?select=*&stripe_session_id=eq.${encodeURIComponent(session.id)}&limit=1`,
+  );
+  const order = rows[0];
+  const email = cleanEmail(session.customer_details?.email || session.customer_email || order?.email);
+  if (!email) throw new Error(`funnel: no email on session ${session.id}`);
+
+  // 1) Account — reuse the existing one for this email, never duplicate.
+  let userId = session.metadata?.userId || order?.user_id || null;
+  let created = false;
+  if (!userId) {
+    const r = await findOrCreateUser(email, { source: 'funnel', qa_account: !session.livemode });
+    userId = r.userId;
+    created = r.created;
+  }
+  if (created && order?.stage && STAGE_TO_SEASON[order.stage]) {
+    await dbUpdate(`profiles?user_id=eq.${userId}&season=is.null`, { season: STAGE_TO_SEASON[order.stage] });
+  }
+
+  // 2) Tie the subscription to the user (future events resolve by metadata).
+  if (sub.metadata?.userId !== userId) {
+    await getStripe().subscriptions.update(sub.id, { metadata: { ...sub.metadata, userId } });
+    sub.metadata = { ...sub.metadata, userId };
+  }
+  await syncSubscription(sub);
+
+  const record = {
+    user_id: userId,
+    stripe_subscription_id: sub.id,
+    status: 'fulfilled',
+    updated_at: new Date().toISOString(),
+    ...(created ? { created_user: true } : {}),
+  };
+  if (order) {
+    await dbUpdate(`funnel_orders?stripe_session_id=eq.${encodeURIComponent(session.id)}`, record);
+  } else {
+    await dbUpsert(
+      'funnel_orders',
+      {
+        stripe_session_id: session.id,
+        email,
+        variant: session.metadata?.variant || 'a',
+        offer: session.metadata?.offer || 'trial',
+        trial_days: 0,
+        livemode: session.livemode,
+        ...record,
+      },
+      'stripe_session_id',
+    );
+  }
+
+  // 3) Magic-link welcome email (once).
+  if (!order?.magic_link_sent_at) {
+    const link = await magicLinkFor(email);
+    const m = signInEmail(link, { welcome: true, trialDays: order?.trial_days || undefined });
+    await sendEmail(email, m.subject, m.html, m.text);
+    await dbUpdate(`funnel_orders?stripe_session_id=eq.${encodeURIComponent(session.id)}`, {
+      magic_link_sent_at: new Date().toISOString(),
+    });
+  }
+
+  // 4) Analytics. Meta: allow-listed fields only, no stage/product.
+  if (!order?.capi_sent_at) {
+    const trial = (order?.trial_days ?? 1) > 0;
+    if (!order?.gpc) {
+      await metaCapi({
+        eventName: trial ? 'StartTrial' : 'Purchase',
+        eventId: `trial_${session.id}`,
+        email,
+        ip: order?.client_ip,
+        ua: order?.client_ua,
+        fbp: order?.fbp,
+        fbc: order?.fbc,
+        value: trial ? 0 : (session.amount_total ?? 0) / 100,
+        currency: 'USD',
+      });
+    }
+    if (order?.anon_id) {
+      await phCapture('$create_alias', userId, { alias: order.anon_id });
+    }
+    await phCapture('funnel_trial_started', userId, {
+      variant: order?.variant,
+      offer: order?.offer,
+      trial_days: order?.trial_days,
+      path: order?.stage,
+      livemode: session.livemode,
+    });
+    await dbUpdate(`funnel_orders?stripe_session_id=eq.${encodeURIComponent(session.id)}`, {
+      capi_sent_at: new Date().toISOString(),
+    });
+  }
+  console.log(`stripe-webhook: funnel session ${session.id} fulfilled for ${userId} (created=${created})`);
+}
+
+/** First real charge after a funnel trial → Purchase (Meta) + PostHog. */
+async function handleInvoicePaid(inv: Stripe.Invoice) {
+  if (!inv.amount_paid || inv.amount_paid <= 0) return;
+  const raw = inv as unknown as {
+    subscription?: string | { id: string } | null;
+    parent?: { subscription_details?: { subscription?: string | { id: string } } };
+  };
+  const subRef = raw.parent?.subscription_details?.subscription ?? raw.subscription;
+  const subId = typeof subRef === 'string' ? subRef : subRef?.id;
+  if (!subId) return;
+  const rows = await dbSelect<FunnelOrder>(
+    `funnel_orders?select=*&stripe_subscription_id=eq.${encodeURIComponent(subId)}&limit=1`,
+  );
+  const order = rows[0];
+  if (!order) return; // not a funnel subscription
+  if (!order.gpc) {
+    await metaCapi({
+      eventName: 'Purchase',
+      eventId: `purchase_${inv.id}`,
+      email: order.email,
+      ip: order.client_ip,
+      ua: order.client_ua,
+      fbp: order.fbp,
+      fbc: order.fbc,
+      value: inv.amount_paid / 100,
+      currency: 'USD',
+    });
+  }
+  if (order.user_id) {
+    await phCapture('funnel_subscription_paid', order.user_id, {
+      variant: order.variant,
+      amount: inv.amount_paid / 100,
+      billing_reason: inv.billing_reason,
+    });
   }
 }

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>belly · privacy choices</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--night:#150A1F;--cream:#FBEEE0;--soft:rgba(251,238,224,.74);--faint:rgba(251,238,224,.52);--gold:#F2B647;
+--serif:Fraunces,Georgia,serif;--sans:Inter,-apple-system,"Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--night);color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+main{max-width:520px;margin:0 auto;padding:48px 16px 64px}
+.mono{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:var(--serif);font-weight:400;font-size:32px;margin:10px 0 16px}
+p,li{font-size:15px;font-weight:300;line-height:1.6;color:var(--soft)}
+.box{margin:24px 0;padding:18px;border-radius:16px;background:rgba(251,238,224,.06);border:1px solid rgba(242,182,71,.3)}
+label{display:flex;gap:12px;align-items:flex-start;font-size:15px;cursor:pointer}
+input{width:20px;height:20px;margin-top:2px;accent-color:var(--gold);flex-shrink:0}
+#state{margin-top:12px;font-size:13px;color:var(--gold)}
+a{color:var(--cream)}
+</style>
+</head>
+<body>
+<main>
+  <span class="mono">belly</span>
+  <h1>Your privacy choices</h1>
+  <p>Belly uses the Meta Pixel on this website to measure our ads. We never send Meta your pregnancy stage, what products you looked at, or anything you tell Belly. You can opt out of this “sharing” for targeted advertising on this browser below.</p>
+  <div class="box">
+    <label><input type="checkbox" id="opt"> <span>Do not sell or share my personal information for targeted advertising</span></label>
+    <p id="state" role="status" aria-live="polite"></p>
+  </div>
+  <p>If your browser sends a Global Privacy Control signal, we treat it as an opt-out automatically. To make a request about data we already hold, email <a href="mailto:hello@meetbelly.com">hello@meetbelly.com</a>. Read the full <a href="/privacy">Privacy Policy</a>.</p>
+</main>
+<script src="/landing/privacy-choices.js"></script>
+</body>
+</html>

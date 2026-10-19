@@ -1,6 +1,6 @@
 # Belly Privacy Policy
 
-**Last Updated:** August 5, 2026
+**Last Updated:** October 19, 2026
 
 Welcome to Belly.
 
@@ -40,6 +40,7 @@ When you create an account or use Belly, you may provide information such as:
 * Messages you send to Bella
 * Information you voluntarily submit to our community
 * Information you send when contacting support
+* Your email address when you join a waitlist or start a membership on our website, along with the product you asked to hear about and the path you chose on our website (for example, "pregnant" or "postpartum")
 
 You may choose not to provide certain information, but some features may not function properly without it.
 
@@ -108,7 +109,15 @@ When you use Belly, we may collect information about how the app is used, includ
 
 We use this information to improve Belly, understand how features are used, identify bugs, and enhance the user experience.
 
-We do not intentionally use analytics to collect the content of your private conversations with Bella.
+We use PostHog, an analytics provider, to understand how our website and app are used. On our website this includes screens viewed, buttons used, the path you chose, and campaign information from the link you followed. We do not intentionally use analytics to collect the content of your private conversations with Bella.
+
+## Advertising Measurement on Our Website
+
+Our marketing website (meetbelly.com) uses the Meta Pixel and Meta Conversions API to measure how our ads perform. When you visit the website, join a waitlist, start checkout, or start a membership, we may share with Meta: a hashed (scrambled) version of your email address, your IP address, browser and device information, Meta cookie identifiers, and the type of event (for example, "page view", "lead", or "started trial").
+
+**We do not share your pregnancy stage, the path you chose, the products you looked at, or anything you tell Belly or Bella with Meta or any other advertising platform.** The Meta Pixel is not used inside the Belly app.
+
+You can opt out on our [Your Privacy Choices](/landing/privacy-choices.html) page. We also honor the Global Privacy Control (GPC) browser signal as an opt-out.
 
 ---
 
@@ -169,9 +178,19 @@ Current providers include:
 **Resend**
 
 * transactional emails
+* sign-in links
 * verification emails
 * password reset emails
 * service notifications
+* waitlist ("notify me") emails
+
+**PostHog**
+
+* product and website analytics
+
+**Meta Platforms**
+
+* advertising measurement on our marketing website only (see "Advertising Measurement on Our Website")
 
 **Anthropic**
 
@@ -193,11 +212,13 @@ Belly is a consumer wellness platform and is not intended to serve as a medical 
 
 # 7. Sharing Information
 
-We do not sell your personal information.
+We do not sell your personal information for money.
 
 We do not rent your personal information.
 
-We do not share your personal information for third-party advertising.
+We do not share health-related information, including your pregnancy stage, with advertising platforms.
+
+Our use of the Meta Pixel and Conversions API on our marketing website may be considered "sharing" for cross-context behavioral advertising under some state privacy laws (such as California's). You can opt out at any time on our [Your Privacy Choices](/landing/privacy-choices.html) page, and we honor Global Privacy Control signals.
 
 We may share information only when necessary to:
 
@@ -244,7 +265,9 @@ Subject to applicable law, you may request to:
 * correct inaccurate information;
 * delete your account;
 * request deletion of your personal information;
-* receive a copy of certain information you have provided.
+* receive a copy of certain information you have provided;
+* opt out of "sharing" for targeted advertising (see [Your Privacy Choices](/landing/privacy-choices.html));
+* unsubscribe from waitlist or marketing emails using the link in the email.
 
 To make a request, contact us at:
 
