@@ -277,7 +277,18 @@ async function fulfillFunnel(session: Stripe.Checkout.Session, sub: Stripe.Subsc
   // 3) Magic-link welcome email (once).
   if (!order?.magic_link_sent_at) {
     const link = await magicLinkFor(email);
-    const m = signInEmail(link, { welcome: true, trialDays: order?.trial_days || undefined });
+    const price = sub.items?.data?.[0]?.price;
+    const m = signInEmail(link, {
+      welcome: true,
+      trialDays: order?.trial_days || undefined,
+      plan: price?.unit_amount
+        ? {
+            trialEnd: sub.trial_end ? new Date(sub.trial_end * 1000) : null,
+            amount: price.unit_amount / 100,
+            interval: price.recurring?.interval || 'year',
+          }
+        : undefined,
+    });
     await sendEmail(email, m.subject, m.html, m.text);
     await dbUpdate(`funnel_orders?stripe_session_id=eq.${encodeURIComponent(session.id)}`, {
       magic_link_sent_at: new Date().toISOString(),

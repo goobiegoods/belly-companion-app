@@ -465,7 +465,7 @@ var TK={
    sub:'Hand-blended loose leaf. Traditionally used to support late-pregnancy comfort and a calm evening.',bens:['raspberry leaf','lemon balm','caffeine-free'],
    facts:[['Midwife classic','A traditional third-trimester ritual.'],['Caffeine-free','Sip it at 9pm. Sleep anyway.'],['Lemon balm','A calm-evening herb, traditionally.'],['About 93¢ a cup','Roughly 30 cups in every jar.'],['Small batch','Whole leaf, hand-blended, no dust.'],['Ask first','Check with your midwife before starting herbs.']]},
   rec:{t:'Golden milk oats',m:'tonight · 15 min · one bowl',ri:[[.5,'cup','rolled oats'],[1,'tsp','turmeric'],[1,'tbsp','raw honey'],[.5,'tsp','cinnamon']],fine:'raw honey is not for children under 1',oat:['#F6C453','#C98414']},
-  crs:[[12,'Prep for birth','#6B2331','#B5386B'],[8,'Homeopathy, honestly','#1f5c56','#2C9C8F'],[6,'Rest &amp; your nervous system','#7a5410','#d69a2a'],[9,'Feeding &amp; recovery','#4A1730','#8A3A2C']],
+  crs:[[8,'Third Trimester Prep','#6B2331','#B5386B'],[4,'What is Homeopathy?','#1f5c56','#2C9C8F'],[5,'Sleep &amp; Rest Techniques','#7a5410','#d69a2a'],[7,'Postpartum Planning','#4A1730','#8A3A2C']],
   build:function(){var st=STOPS[0];STOPS.forEach(function(x){if(x.w<=ME.w)st=x;});return['Week '+ME.w+': about the size of '+st.n,'Bella tuned to trimester '+(ME.w<=13?1:ME.w<=27?2:3),'Your founding price, saved'];}
  },
  trying:{
@@ -477,7 +477,7 @@ var TK={
    sub:'Nettle, rose petal and peppermint. Warm, caffeine-free, and made for the wait.',bens:['nettle','rose petal','peppermint'],
    facts:[['Nettle','A leafy, mineral-rich classic.'],['Rose petal','Pretty enough for the two-week wait.'],['Peppermint','A cool, bright finish.'],['Caffeine-free','Sip it any hour of the day.'],['About 93¢ a cup','Roughly 30 cups in every jar.'],['Ask first','Check with your provider about herbs while trying.']]},
   rec:{t:'Warm lentil & greens bowl',m:'tonight · 20 min · one pot',ri:[[.5,'cup','red lentils'],[1,'cup','spinach'],[1,'tbsp','olive oil'],[.5,'','lemon, squeezed']],fine:'batch it once, eat well all week',oat:['#E8955A','#B4552A']},
-  crs:[[7,'Know your cycle','#6B2331','#B5386B'],[8,'Food for the wait','#1f5c56','#2C9C8F'],[6,'Stress, sleep &amp; you','#7a5410','#d69a2a'],[8,'Homeopathy, honestly','#4A1730','#8A3A2C']],
+  crs:[[7,'Nutrition &amp; Herbal Safety','#6B2331','#B5386B'],[6,'Stress &amp; Anxiety Support','#1f5c56','#2C9C8F'],[5,'Sleep &amp; Rest Techniques','#7a5410','#d69a2a'],[4,'What is Homeopathy?','#4A1730','#8A3A2C']],
   build:function(){return['Your cycle tracker, ready','Bella tuned to the wait','Your founding price, saved'];}
  },
  postpartum:{
@@ -489,7 +489,7 @@ var TK={
    sub:'Oatstraw, nettle and fennel for the fourth trimester. Traditionally used to support rest and recovery.',bens:['oatstraw','nettle','fennel'],
    facts:[['Fennel','Traditionally sipped by nursing mamas.'],['Oatstraw','A gentle, nourishing classic.'],['Caffeine-free','Made for 3am feeds.'],['One-handed','Warm cup in one hand, baby in the other.'],['About 93¢ a cup','Roughly 30 cups in every jar.'],['Ask first','Check with your provider if you’re nursing.']]},
   rec:{t:'Ginger chicken congee',m:'tonight · 25 min · one pot',ri:[[.5,'cup','rice'],[1,'cup','shredded chicken'],[1,'tbsp','fresh ginger'],[3,'cups','broth']],fine:'one-handed eating, approved',oat:['#F4E6C8','#CDB27A']},
-  crs:[[10,'The fourth trimester','#6B2331','#B5386B'],[9,'Feeding, your way','#1f5c56','#2C9C8F'],[7,'Recovery, gently','#7a5410','#d69a2a'],[6,'Sleep for two','#4A1730','#8A3A2C']],
+  crs:[[7,'Postpartum Planning','#6B2331','#B5386B'],[5,'Sleep &amp; Rest Techniques','#1f5c56','#2C9C8F'],[6,'Stress &amp; Anxiety Support','#7a5410','#d69a2a'],[7,'Nutrition &amp; Herbal Safety','#4A1730','#8A3A2C']],
   build:function(){return['Your fourth-trimester plan, ready','Bella tuned to 3am','Your founding price, saved'];}
  },
  little:{
@@ -501,7 +501,7 @@ var TK={
    sub:'Chamomile, lemon balm and lavender, for the minute bedtime ends. Traditionally used to support a calm evening.',bens:['chamomile','lemon balm','lavender'],
    facts:[['Chamomile','The original wind-down.'],['Lavender','Floral, soft, a little fancy.'],['The quiet hour','Brew it the minute they’re asleep.'],['Caffeine-free','Bedtime is for you too.'],['About 93¢ a cup','Roughly 30 cups in every jar.'],['Grown-ups only','This one’s yours, mama.']]},
   rec:{t:'Banana oat pancakes',m:'breakfast · 10 min · one bowl',ri:[[1,'','ripe banana'],[.5,'cup','rolled oats'],[1,'','egg'],[.25,'tsp','cinnamon']],fine:'picky-eater approved, no added sugar',oat:['#E9B866','#B57A2A']},
-  crs:[[8,'Big feelings, small people','#6B2331','#B5386B'],[6,'Picky eaters','#1f5c56','#2C9C8F'],[7,'Bedtime without battles','#7a5410','#d69a2a'],[5,'Mama’s own reset','#4A1730','#8A3A2C']],
+  crs:[[6,'Stress &amp; Anxiety Support','#6B2331','#B5386B'],[5,'Sleep &amp; Rest Techniques','#1f5c56','#2C9C8F'],[7,'Nutrition &amp; Herbal Safety','#7a5410','#d69a2a'],[4,'Building Your Home Remedy Kit','#4A1730','#8A3A2C']],
   build:function(){return['Your little-ones toolkit, ready','Bella tuned to big feelings','Your founding price, saved'];}
  }
 };

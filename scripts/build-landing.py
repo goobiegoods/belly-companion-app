@@ -25,6 +25,35 @@ def rep(text, old, new, count=1, label=""):
     return text.replace(old, new)
 
 
+# Course shelf = real courses that exist in the app (src/data/coursesData.ts,
+# src/data/shopData.ts homeopathyCourses), with their real lesson counts.
+REAL_COURSES = {
+    "pregnant":   [(8, "Third Trimester Prep"), (4, "What is Homeopathy?"), (5, "Sleep &amp; Rest Techniques"), (7, "Postpartum Planning")],
+    "trying":     [(7, "Nutrition &amp; Herbal Safety"), (6, "Stress &amp; Anxiety Support"), (5, "Sleep &amp; Rest Techniques"), (4, "What is Homeopathy?")],
+    "postpartum": [(7, "Postpartum Planning"), (5, "Sleep &amp; Rest Techniques"), (6, "Stress &amp; Anxiety Support"), (7, "Nutrition &amp; Herbal Safety")],
+    "little":     [(6, "Stress &amp; Anxiety Support"), (5, "Sleep &amp; Rest Techniques"), (7, "Nutrition &amp; Herbal Safety"), (4, "Building Your Home Remedy Kit")],
+}
+_seen = []
+def _fix_crs(m):
+    pre = html[max(0, m.start() - 3000):m.start()]
+    key = re.findall(r"\b(pregnant|trying|postpartum|little)\s*:\s*\{", pre)[-1]
+    _seen.append(key)
+    items = iter(REAL_COURSES[key])
+    def one(mm):
+        n, name = next(items)
+        return "[%d,'%s'" % (n, name)
+    return re.sub(r"\[\d+,'[^']+'", one, m.group(0))
+html = re.sub(r"crs:\[\[.*?\]\]", _fix_crs, html)
+if sorted(_seen) != sorted(REAL_COURSES):
+    sys.exit(f"build-landing: course shelves changed: {_seen}")
+_static = iter(REAL_COURSES["pregnant"])
+def _fix_static(m):
+    n, name = next(_static)
+    return '<span class="cn">%d</span><span class="mono" style="color:var(--cream)">lessons</span><p class="ct">%s</p>' % (n, name)
+html, _cnt = re.subn(r'<span class="cn">\d+</span><span class="mono" style="color:var\(--cream\)">lessons</span><p class="ct">[^<]+</p>', _fix_static, html)
+if _cnt != 4:
+    sys.exit(f"build-landing: expected 4 static course cards, found {_cnt}")
+
 # ---------------------------------------------------------------- split script
 m = re.search(r"<script>\n(.*?)</script>", html, re.S)
 if not m or html.count("<script>") != 1:
@@ -152,7 +181,7 @@ js = rep(js, "function fStart(){", "function fStart(){if(window.BellyFunnel)Bell
 js = rep(js, "'14 days free instead of 7, plus the recipe e-book. Then $89 a year, founding price.'",
          "'14 days free instead of 7. Then $89 a year, founding price.'")
 
-for bad in ["locked for life", "as long as you stay", "recipe e-book", "recipe book, on us", "demo only", "Face ID", "var FACE", "$199", "$28", "$38", "$12'", "$22", "$16"]:
+for bad in ["Prep for birth", "Homeopathy, honestly", "Know your cycle", "Big feelings, small people", "locked for life", "as long as you stay", "recipe e-book", "recipe book, on us", "demo only", "Face ID", "var FACE", "$199", "$28", "$38", "$12'", "$22", "$16"]:
     if bad in js or bad in html:
         sys.exit(f"build-landing: leftover {bad!r}")
 

@@ -20,6 +20,8 @@ export interface FunnelVariant {
   label: string;
   /** Stripe Price lookup_key. In TEST mode it is auto-created if missing. */
   lookupKey: string;
+  /** LIVE mode: the exact live Price ID (not a secret). Verified against amount/interval. */
+  livePriceId?: string;
   unitAmount: number; // cents — used to create (test) and to verify (live)
   interval: 'year' | 'month';
   trialDays: number;
@@ -33,6 +35,7 @@ export const VARIANTS: Record<string, FunnelVariant> = {
     code: 'a',
     label: 'founding-89-yearly',
     lookupKey: 'belly_founding_yearly_8900',
+    livePriceId: 'price_1USo28QKaBNYAo4PGAJy3hkS', // Belly AI live, $89/yr (created 2026-10-20)
     unitAmount: 8900,
     interval: 'year',
     trialDays: 7,
@@ -154,8 +157,14 @@ export async function ensurePrice(v: FunnelVariant): Promise<string> {
   const cached = priceCache.get(v.lookupKey);
   if (cached) return cached;
   const stripe = getStripe();
-  const found = await stripe.prices.list({ lookup_keys: [v.lookupKey], active: true, limit: 1 });
-  let price: Stripe.Price | undefined = found.data[0];
+  let price: Stripe.Price | undefined;
+  if (stripeMode() === 'live' && v.livePriceId) {
+    price = await stripe.prices.retrieve(v.livePriceId);
+    if (!price.active) throw new Error(`Live price ${v.livePriceId} is archived`);
+  } else {
+    const found = await stripe.prices.list({ lookup_keys: [v.lookupKey], active: true, limit: 1 });
+    price = found.data[0];
+  }
   if (!price) {
     if (stripeMode() !== 'test') throw new Error(`Live price ${v.lookupKey} missing — create it in Stripe first.`);
     const product = await stripe.products.create({
@@ -303,7 +312,34 @@ export async function sendEmail(to: string, subject: string, html: string, text:
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
-export function signInEmail(link: string, opts: { welcome: boolean; trialDays?: number }) {
+// Automatic-renewal acknowledgment (CA Bus. & Prof. Code §17602(a)(3)):
+// the signup confirmation must restate the renewal terms and how to cancel.
+const fmtDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+function planLines(p: PlanTerms): string[] {
+  const price = `$${p.amount % 1 ? p.amount.toFixed(2) : p.amount.toFixed(0)}`;
+  return [
+    p.trialEnd
+      ? `Your free trial ends ${fmtDate(p.trialEnd)}. You won't be charged before then.`
+      : `Your membership has started.`,
+    `${p.trialEnd ? 'After that, ' : ''}Belly renews automatically at ${price} every ${p.interval} until you cancel.`,
+    `Cancel anytime: in the app go to Me → Manage, or email hello@meetbelly.com.${p.trialEnd ? ' Cancel before your trial ends and you pay nothing.' : ''}`,
+  ];
+}
+function planHtml(p?: PlanTerms): string {
+  if (!p) return '';
+  return `<tr><td style="font-size:13px;line-height:1.6;color:rgba(251,238,224,.75);padding:0 0 20px"><div style="border:1px solid rgba(242,182,71,.3);border-radius:14px;padding:12px 14px"><b style="color:#F2B647">Your plan</b><br>${planLines(p).map(esc).join('<br>')}</div></td></tr>`;
+}
+function planText(p?: PlanTerms): string {
+  return p ? `Your plan:\n${planLines(p).join('\n')}\n\n` : '';
+}
+
+export interface PlanTerms {
+  trialEnd: Date | null;
+  amount: number; // dollars
+  interval: string; // 'year' | 'month'
+}
+
+export function signInEmail(link: string, opts: { welcome: boolean; trialDays?: number; plan?: PlanTerms }) {
   const head = opts.welcome ? "You're in. Welcome to Belly." : 'Your Belly sign-in link';
   const lead = opts.welcome
     ? `Your ${opts.trialDays ?? 7}-day free trial has started. Tap below to open Belly — no password needed.`
@@ -314,10 +350,10 @@ export function signInEmail(link: string, opts: { welcome: boolean; trialDays?: 
 <tr><td style="font-family:Georgia,serif;font-size:30px;color:#F2B647;padding-bottom:6px">belly</td></tr>
 <tr><td style="font-size:20px;font-weight:600;padding:8px 0">${esc(head)}</td></tr>
 <tr><td style="font-size:15px;line-height:1.55;color:rgba(251,238,224,.8);padding-bottom:22px">${esc(lead)}</td></tr>
-<tr><td><a href="${esc(link)}" style="display:block;text-align:center;background:#FBEEE0;color:#150A1F;text-decoration:none;font-weight:600;font-size:16px;padding:16px;border-radius:14px">Open Belly</a></td></tr>
+${planHtml(opts.plan)}<tr><td><a href="${esc(link)}" style="display:block;text-align:center;background:#FBEEE0;color:#150A1F;text-decoration:none;font-weight:600;font-size:16px;padding:16px;border-radius:14px">Open Belly</a></td></tr>
 <tr><td style="font-size:12px;line-height:1.5;color:rgba(251,238,224,.55);padding-top:20px">This link works once and expires soon. Need a new one? Go to ${esc(appUrl())}/auth and choose “Email me a sign-in link”. Didn't request this? You can ignore it.</td></tr>
 </table></td></tr></table></body></html>`;
-  const text = `${head}\n\n${lead}\n\nOpen Belly: ${link}\n\nThis link works once and expires soon. Need a new one? ${appUrl()}/auth`;
+  const text = `${head}\n\n${lead}\n\n${planText(opts.plan)}Open Belly: ${link}\n\nThis link works once and expires soon. Need a new one? ${appUrl()}/auth`;
   return { subject: opts.welcome ? "You're in — open Belly" : 'Your Belly sign-in link', html, text };
 }
 
