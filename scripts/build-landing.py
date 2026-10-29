@@ -59,7 +59,38 @@ m = re.search(r"<script>\n(.*?)</script>", html, re.S)
 if not m or html.count("<script>") != 1:
     sys.exit("build-landing: expected exactly one inline <script>")
 js = m.group(1)
-html = html[: m.start()] + '<script src="/landing/funnel.js"></script>\n<script src="/landing/feed.js"></script>' + html[m.end():]
+html = html[: m.start()] + '<script src="/landing/desktop.js"></script>\n<script src="/landing/funnel.js"></script>\n<script src="/landing/feed.js"></script>' + html[m.end():]
+
+# Desktop frame (public/landing/desktop.js adds .dk on wide screens).
+DESKTOP_CSS = """
+/* desktop frame */
+@media (min-width:1024px) and (min-height:640px){
+html.dk body{display:grid;grid-template-columns:minmax(0,500px) 430px;column-gap:clamp(48px,7vw,110px);align-items:center;justify-content:center;padding:24px;
+ background:radial-gradient(60% 70% at 15% 10%,rgba(242,182,71,.18),transparent 60%),radial-gradient(55% 65% at 90% 100%,rgba(181,56,107,.3),transparent 70%),var(--night)}
+html.dk .dk-phone{position:relative;width:430px;height:min(900px,calc(100vh - 48px));height:min(900px,calc(100dvh - 48px));border-radius:46px;overflow:hidden;transform:translateZ(0);background:var(--night);
+ box-shadow:0 0 0 10px #241326,0 0 0 11px rgba(251,238,224,.12),0 40px 120px rgba(0,0,0,.6),0 0 140px rgba(242,182,71,.14)}
+html.dk .dk-phone .feed{height:100%}
+.dk-side{color:var(--cream);max-width:500px}
+.dk-mark b{display:block;font:italic 400 34px var(--serif)}
+.dk-mark span{font:500 10px var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+.dk-eyebrow{margin:44px 0 0;font:500 12px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+.dk-h{margin:14px 0 0;font:400 clamp(40px,4.2vw,58px)/1.06 var(--serif);letter-spacing:-.01em;text-wrap:balance}
+.dk-h em{color:var(--gold,#F2B647)}
+.dk-p{margin:20px 0 0;font-size:17px;font-weight:300;line-height:1.55;color:var(--soft);max-width:40ch}
+.dk-list{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:10px;font-size:15px;color:var(--soft)}
+.dk-list li::before{content:"\\2713";color:var(--gold,#F2B647);margin-right:10px}
+.dk-qr{display:flex;align-items:center;gap:18px;margin-top:38px;padding:16px;border-radius:20px;background:rgba(251,238,224,.06);border:1px solid rgba(251,238,224,.14);width:max-content;max-width:100%}
+.dk-code{width:104px;height:104px;padding:8px;border-radius:12px;background:#FBEEE0;flex:none}
+.dk-code svg{width:100%;height:100%;display:block}
+.dk-code path{fill:#150A1F}
+.dk-qr b{display:block;font-size:15px;font-weight:600}
+.dk-qr span{display:block;margin-top:4px;font-size:13.5px;color:var(--soft);max-width:24ch;line-height:1.4}
+}
+"""
+if html.count("</style>") < 1:
+    sys.exit("build-landing: no </style> for desktop CSS")
+_i = html.index("</style>")
+html = html[:_i] + DESKTOP_CSS + html[_i:]
 
 # ---------------------------------------------------------------- markup
 html = rep(html, '<title>belly · virtual doula</title>',
