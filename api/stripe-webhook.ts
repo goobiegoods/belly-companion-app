@@ -8,6 +8,7 @@ import {
   magicLinkFor,
   sendEmail,
   signInEmail,
+  recoveryEmail,
   metaCapi,
   phCapture,
   STAGE_TO_SEASON,
@@ -117,11 +118,49 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
+  if (session.metadata?.source === 'funnel') {
+    await recoverFunnelCheckout(session);
+    return;
+  }
   if (session.mode !== 'payment') return;
   const orderId = session.metadata?.orderId;
   if (!orderId) return;
   await dbUpdate(`orders?id=eq.${orderId}&status=eq.pending_payment`, { status: 'abandoned' });
   console.log('stripe-webhook: order marked abandoned:', orderId);
+}
+
+/**
+ * Funnel checkout left unfinished (session expired). Mark the order expired and
+ * send ONE friendly reminder, unless: no postal address is configured, they
+ * opted out, they already started a trial, or they got a reminder this week.
+ */
+async function recoverFunnelCheckout(session: Stripe.Checkout.Session) {
+  const id = encodeURIComponent(session.id);
+  const rows = await dbSelect<{ email: string; status: string; trial_days: number; recovery_sent_at: string | null }>(
+    `funnel_orders?select=email,status,trial_days,recovery_sent_at&stripe_session_id=eq.${id}&limit=1`,
+  );
+  const order = rows[0];
+  if (!order || order.status !== 'pending') return;
+  await dbUpdate(`funnel_orders?stripe_session_id=eq.${id}`, { status: 'expired', updated_at: new Date().toISOString() });
+
+  if (!process.env.MAIL_POSTAL_ADDRESS) {
+    console.log('stripe-webhook: recovery email skipped (MAIL_POSTAL_ADDRESS not set)');
+    return;
+  }
+  const email = order.email.toLowerCase();
+  const e = encodeURIComponent(email);
+  const weekAgo = new Date(Date.now() - 7 * 24 * 3600_000).toISOString();
+  const [optedOut, converted, recent] = await Promise.all([
+    dbSelect(`email_optouts?select=email&email=eq.${e}&limit=1`),
+    dbSelect(`funnel_orders?select=stripe_session_id&email=eq.${e}&status=eq.fulfilled&limit=1`),
+    dbSelect(`funnel_orders?select=stripe_session_id&email=eq.${e}&recovery_sent_at=gte.${encodeURIComponent(weekAgo)}&limit=1`),
+  ]);
+  if (optedOut.length || converted.length || recent.length) return;
+
+  const msg = await recoveryEmail(email, order.trial_days);
+  await sendEmail(email, msg.subject, msg.html, msg.text);
+  await dbUpdate(`funnel_orders?stripe_session_id=eq.${id}`, { recovery_sent_at: new Date().toISOString() });
+  console.log('stripe-webhook: recovery email sent for', session.id);
 }
 
 /**

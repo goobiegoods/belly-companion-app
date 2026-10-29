@@ -107,6 +107,8 @@ export default async function handler(req: Request) {
       // Back to the same path + offer screen (funnel.js strips these before any pixel loads).
       cancel_url: `${base}/start?${stage ? `t=${stage}&` : ''}s=${offer === 'bonus' ? 'finale' : 'offer'}&v=${variant.code}&checkout=cancelled`,
       metadata: { source: 'funnel', variant: variant.code, offer, ...(userId ? { userId } : {}) },
+      // Expire unfinished checkouts after 2 hours so the one-time reminder email goes out the same day.
+      expires_at: Math.floor(Date.now() / 1000) + 2 * 60 * 60,
       subscription_data: {
         ...(trialDays > 0
           ? { trial_period_days: trialDays, trial_settings: { end_behavior: { missing_payment_method: 'cancel' } } }

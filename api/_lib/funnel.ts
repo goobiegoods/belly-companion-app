@@ -9,6 +9,7 @@
  *  - Nothing health-related (pregnancy stage, product interest) is ever sent
  *    to Meta. Stage stays first-party (Supabase / PostHog).
  */
+import { recovery, type Ctx } from './emails.js';
 import type Stripe from 'stripe';
 import { getStripe, dbRpc, dbSelect, isProductionDeploy } from './stripe.js';
 
@@ -355,6 +356,31 @@ ${planHtml(opts.plan)}<tr><td><a href="${esc(link)}" style="display:block;text-a
 </table></td></tr></table></body></html>`;
   const text = `${head}\n\n${lead}\n\n${planText(opts.plan)}Open Belly: ${link}\n\nThis link works once and expires soon. Need a new one? ${appUrl()}/auth`;
   return { subject: opts.welcome ? "You're in — open Belly" : 'Your Belly sign-in link', html, text };
+}
+
+// ---------------------------------------------------------------- checkout recovery
+/** HMAC token for one-click unsubscribe links (no login needed, can't be forged). */
+export async function optOutToken(email: string): Promise<string> {
+  const sig = await crypto.subtle.sign('HMAC', await hmacKey(), enc.encode(`optout:${email.toLowerCase()}`));
+  return b64url(sig).slice(0, 32);
+}
+export async function verifyOptOut(email: string, token: string): Promise<boolean> {
+  return typeof token === 'string' && token.length === 32 && (await optOutToken(email)) === token;
+}
+
+/** Shared context for lifecycle emails (links + CAN-SPAM footer). */
+export async function emailCtx(email: string): Promise<Ctx> {
+  return {
+    appUrl: appUrl(),
+    landingUrl: process.env.LANDING_URL || 'https://meetbelly.com',
+    unsubscribeUrl: `${appUrl()}/api/unsubscribe?e=${encodeURIComponent(email)}&t=${await optOutToken(email)}`,
+    address: process.env.MAIL_POSTAL_ADDRESS || '',
+  };
+}
+
+/** One reminder for someone who opened checkout but didn't start the trial. */
+export async function recoveryEmail(email: string, trialDays: number) {
+  return recovery(await emailCtx(email), trialDays);
 }
 
 // ---------------------------------------------------------------- PostHog (first-party analytics)
