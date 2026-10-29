@@ -67,9 +67,25 @@ export const AMAZON_TAG = "meetbelly-20";
 export const AMAZON_DISCLOSURE = "As an Amazon Associate, Belly earns from qualifying purchases.";
 
 /**
- * Amazon link for a product with Belly's tag. Uses the product's own link when
- * set (admin → Products → Amazon link), otherwise an Amazon search for the exact
- * brand + remedy. Any amazon.com link gets tag=meetbelly-20 added or replaced.
+ * Exact Amazon listings (ASINs) for the Boiron remedies, matched by name.
+ * Product pages never hit Amazon's sign-in wall the way search links can.
+ * Chamomilla 30C is sold as a 3-pack.
+ */
+const AMAZON_ASINS: Record<string, string> = {
+  "nux vomica": "B078WB36HB",
+  "sepia": "B006H9T4FA",
+  "arnica montana": "B0006NYI7C",
+  "pulsatilla": "B00014D2VY",
+  "chamomilla": "B00IM575OY",
+  "caulophyllum": "B002ISIT2S",
+  "kali phos": "B00IZKYWS8",
+  "ignatia": "B000FJ1DFW",
+};
+
+/**
+ * Amazon link for a product with Belly's tag: the product's own link when set
+ * (admin → Products → Amazon link), else the known Boiron listing, else an
+ * Amazon search. Any amazon.com link gets tag=meetbelly-20 added or replaced.
  */
 export function amazonLink(p: Pick<Product, "name" | "brand" | "affiliateUrl">): string {
   if (p.affiliateUrl) {
@@ -77,8 +93,11 @@ export function amazonLink(p: Pick<Product, "name" | "brand" | "affiliateUrl">):
       const u = new URL(p.affiliateUrl);
       if (/(^|\.)amazon\.com$/.test(u.hostname)) u.searchParams.set("tag", AMAZON_TAG);
       return u.toString();
-    } catch { /* fall through to search */ }
+    } catch { /* fall through */ }
   }
+  const name = p.name.toLowerCase();
+  const key = Object.keys(AMAZON_ASINS).find((k) => name.startsWith(k));
+  if (key) return `https://www.amazon.com/dp/${AMAZON_ASINS[key]}?tag=${AMAZON_TAG}`;
   const q = [p.brand, p.name].filter(Boolean).join(" ");
   return `https://www.amazon.com/s?k=${encodeURIComponent(q)}&tag=${AMAZON_TAG}`;
 }
