@@ -139,7 +139,7 @@ export function PremiumModal({ open, onClose }: Props) {
                     background: "var(--gold)", color: "var(--night)", fontFamily: "'Inter', sans-serif",
                     whiteSpace: "nowrap", letterSpacing: "0.04em",
                   }}>BEST VALUE</span>
-                  <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: "var(--cream)" }}>$99</p>
+                  <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: "var(--cream)" }}>$89</p>
                   <p style={{ fontSize: 11, color: "rgba(251,238,224,0.6)" }}>/year</p>
                 </button>
               </div>

@@ -35,7 +35,13 @@ const TABS = [
 ];
 
 const planFor = (price_id: string) => /annual|year/i.test(price_id) ? "Annual" : "Monthly";
-const mrrFor = (price_id: string) => /annual|year/i.test(price_id) ? 9.99 * 0.7 : 9.99;
+// Monthly-equivalent revenue per Stripe price (keep in sync with AdminDashboard).
+const MONTHLY_EQUIVALENT: Record<string, number> = {
+  price_1U3uzxQKaBNYAo4PJrfZTY7Z: 14.99,
+  price_1U3v35QKaBNYAo4PplGlvGUZ: 99 / 12,
+  price_1USo28QKaBNYAo4PGAJy3hkS: 89 / 12,
+};
+const mrrFor = (price_id: string) => MONTHLY_EQUIVALENT[price_id] ?? 0;
 
 const daysSince = (iso: string | null) => iso ? Math.floor((Date.now() - new Date(iso).getTime()) / 86400000) : null;
 
@@ -75,7 +81,7 @@ const AdminPremium = () => {
 
   const mrr = users.reduce((s, u) => {
     const sub = subFor(u.user_id);
-    return s + (sub ? mrrFor(sub.price_id) : 9.99);
+    return s + (sub ? mrrFor(sub.price_id) : 0);
   }, 0);
   const arr = mrr * 12;
 
@@ -114,7 +120,7 @@ const AdminPremium = () => {
                     <td style={{ padding: "12px 18px", color: "#aaa" }}>{s ? planFor(s.price_id) : "—"}</td>
                     <td style={{ padding: "12px 18px", color: "#888" }}>{u.premium_since ? new Date(u.premium_since).toLocaleDateString() : "—"}</td>
                     <td style={{ padding: "12px 18px", color: "#888" }}>{s?.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}</td>
-                    <td style={{ padding: "12px 18px", color: C.orange }}>${(s ? mrrFor(s.price_id) : 9.99).toFixed(2)}</td>
+                    <td style={{ padding: "12px 18px", color: C.orange }}>${(s ? mrrFor(s.price_id) : 0).toFixed(2)}</td>
                     <td style={{ padding: "12px 18px" }}><StatusPill tone={tone as any}>{risk}</StatusPill></td>
                   </tr>
                 );

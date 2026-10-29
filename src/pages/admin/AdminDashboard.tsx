@@ -27,7 +27,8 @@ const MAX_PAGES = 10;
 // dollar amount, for computing MRR from raw subscription rows.
 const MONTHLY_EQUIVALENT: Record<string, number> = {
   price_1U3uzxQKaBNYAo4PJrfZTY7Z: 14.99, // monthly
-  price_1U3v35QKaBNYAo4PplGlvGUZ: 99 / 12, // yearly
+  price_1U3v35QKaBNYAo4PplGlvGUZ: 99 / 12, // yearly (old $99)
+  price_1USo28QKaBNYAo4PGAJy3hkS: 89 / 12, // yearly $89 (app + landing)
 };
 
 /** Local-midnight timestamp for N days ago (0 = today). */

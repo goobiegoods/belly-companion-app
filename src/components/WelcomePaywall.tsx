@@ -224,10 +224,10 @@ export function WelcomePaywall({ open, onClose, dismissible = true, source = "we
                 <span style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
                   <span>
                     <span style={{ display: "block", fontFamily: "'JetBrains Mono', monospace", fontSize: 19, fontWeight: 600, color: "var(--cream)" }}>
-                      $8.25<span style={{ fontSize: 12, fontWeight: 500, color: "rgba(251,238,224,0.6)", fontFamily: "'Inter', sans-serif" }}> /month</span>
+                      $7.42<span style={{ fontSize: 12, fontWeight: 500, color: "rgba(251,238,224,0.6)", fontFamily: "'Inter', sans-serif" }}> /month</span>
                     </span>
                     <span style={{ display: "block", fontSize: 11.5, color: "rgba(251,238,224,0.6)", marginTop: 3 }}>
-                      billed annually at $99
+                      billed annually at $89
                     </span>
                   </span>
                   <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--gold)", whiteSpace: "nowrap" }}>

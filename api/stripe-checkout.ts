@@ -6,7 +6,7 @@ import { CORS, json, getStripe, requireUser } from './_lib/stripe.js';
 // sends a plan name, so it can never inject an arbitrary price.
 const PRICE_IDS: Record<string, string> = {
   monthly: 'price_1U3uzxQKaBNYAo4PJrfZTY7Z', // $14.99 / month
-  yearly: 'price_1U3v35QKaBNYAo4PplGlvGUZ', // $99 / year
+  yearly: 'price_1USo28QKaBNYAo4PGAJy3hkS', // $89 / year (same price as the landing page; was $99 price_1U3v35QKaBNYAo4PplGlvGUZ)
 };
 
 export default async function handler(req: Request) {
