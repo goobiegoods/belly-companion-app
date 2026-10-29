@@ -512,6 +512,7 @@ export type Database = {
       }
       products: {
         Row: {
+          affiliate_url: string | null
           brand: string | null
           category: string
           contents: string[] | null
@@ -532,6 +533,7 @@ export type Database = {
           use_case: string | null
         }
         Insert: {
+          affiliate_url?: string | null
           brand?: string | null
           category: string
           contents?: string[] | null
@@ -552,6 +554,7 @@ export type Database = {
           use_case?: string | null
         }
         Update: {
+          affiliate_url?: string | null
           brand?: string | null
           category?: string
           contents?: string[] | null

@@ -12,6 +12,8 @@ export interface Product {
   contents?: string[];
   safe?: boolean;
   stripePriceId?: string;
+  /** Amazon product link. Remedies with one (or any remedy) open Amazon instead of the cart. */
+  affiliateUrl?: string;
 }
 
 export const kits: Product[] = [
@@ -25,9 +27,9 @@ export const remedies: Product[] = [
   { id: "rem-1", name: "Nux Vomica 30c", brand: "Boiron", use: "Nausea, digestive upset, irritability", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", safe: true },
   { id: "rem-2", name: "Sepia 30c", brand: "Boiron", use: "Fatigue, mood swings, low libido", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", safe: true },
   { id: "rem-3", name: "Arnica Montana 30c", brand: "Boiron", use: "Muscle soreness, bruising, trauma", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", safe: true },
-  { id: "rem-4", name: "Pulsatilla 30c", brand: "Boiron", use: "Emotional sensitivity, sinus congestion, baby positioning", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", safe: true },
+  { id: "rem-4", name: "Pulsatilla 30c", brand: "Boiron", use: "Emotional sensitivity, sinus congestion", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", safe: true },
   { id: "rem-5", name: "Chamomilla 30c", brand: "Boiron", use: "Irritability, pain sensitivity, insomnia", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", safe: true },
-  { id: "rem-6", name: "Caulophyllum 30c", brand: "Boiron", use: "Birth preparation, uterine toning (third trimester only)", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", tag: "Third trimester +" },
+  { id: "rem-6", name: "Caulophyllum 30c", brand: "Boiron", use: "Late-pregnancy birth preparation (ask your midwife first)", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", tag: "Third trimester +" },
   { id: "rem-7", name: "Kali Phos 6x", brand: "Boiron", use: "Nervous exhaustion, anxiety, mental fatigue", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", safe: true },
   { id: "rem-8", name: "Ignatia 30c", brand: "Boiron", use: "Grief, emotional shock, anticipatory anxiety", price: 9.99, unit: "80 pellets", emoji: "🫧", type: "remedy", safe: true },
 ];
@@ -59,3 +61,24 @@ export const homeopathyCourses: HomeopathyCourse[] = [
 ];
 
 export const SHOP_DISCLAIMER = "Homeopathic remedies are not FDA-evaluated. Always consult your OB or midwife before starting any new supplement or remedy during pregnancy. Belly provides these products for informational and wellness purposes only.";
+
+/** Amazon Associates tracking ID for Belly (Associates → Manage Tracking IDs). */
+export const AMAZON_TAG = "meetbelly-20";
+export const AMAZON_DISCLOSURE = "As an Amazon Associate, Belly earns from qualifying purchases.";
+
+/**
+ * Amazon link for a product with Belly's tag. Uses the product's own link when
+ * set (admin → Products → Amazon link), otherwise an Amazon search for the exact
+ * brand + remedy. Any amazon.com link gets tag=meetbelly-20 added or replaced.
+ */
+export function amazonLink(p: Pick<Product, "name" | "brand" | "affiliateUrl">): string {
+  if (p.affiliateUrl) {
+    try {
+      const u = new URL(p.affiliateUrl);
+      if (/(^|\.)amazon\.com$/.test(u.hostname)) u.searchParams.set("tag", AMAZON_TAG);
+      return u.toString();
+    } catch { /* fall through to search */ }
+  }
+  const q = [p.brand, p.name].filter(Boolean).join(" ");
+  return `https://www.amazon.com/s?k=${encodeURIComponent(q)}&tag=${AMAZON_TAG}`;
+}

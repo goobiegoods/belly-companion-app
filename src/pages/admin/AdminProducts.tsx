@@ -6,6 +6,7 @@ interface Product {
   id: string; name: string; description: string; price: number; emoji: string;
   category: string; stripe_price_id: string; is_active: boolean; sort_order: number;
   tag: string | null; brand: string | null; unit: string | null; use_case: string | null;
+  affiliate_url?: string | null;
   contents: string[]; created_at: string; updated_at: string;
   // Present only after the image/stock migration has been applied
   image_url?: string | null; in_stock?: boolean;
@@ -108,6 +109,7 @@ export default function AdminProducts() {
       name: draft.name, description: draft.description, price: Number(draft.price),
       emoji: draft.emoji, stripe_price_id: draft.stripe_price_id, tag: draft.tag ?? null,
       brand: draft.brand ?? null, unit: draft.unit ?? null, use_case: draft.use_case ?? null,
+      ...(draft.category === "remedy" || selected.category === "remedy" ? { affiliate_url: draft.affiliate_url?.trim() || null } : {}),
       ...(extrasSupported ? { image_url: draft.image_url?.trim() || null, in_stock: draft.in_stock ?? true } : {}),
     }).eq("id", selected.id);
     if (error) {
@@ -140,6 +142,7 @@ export default function AdminProducts() {
       brand: draft.brand || null,
       unit: draft.unit || null,
       use_case: draft.use_case || null,
+      ...(draft.category === "remedy" ? { affiliate_url: draft.affiliate_url?.trim() || null } : {}),
       is_active: draft.is_active ?? true,
       sort_order: nextSort,
       ...(draft.emoji?.trim() ? { emoji: draft.emoji.trim() } : {}),
@@ -318,6 +321,12 @@ export default function AdminProducts() {
               <Label>Use Case</Label>
               <Input value={draft.use_case ?? ""} onChange={e => setDraft(d => ({ ...d, use_case: e.target.value }))} placeholder="What this product is for" />
             </div>
+            {(draft.category ?? selected?.category) === "remedy" && (
+              <div>
+                <Label>Amazon link</Label>
+                <Input value={draft.affiliate_url ?? ""} onChange={e => setDraft(d => ({ ...d, affiliate_url: e.target.value }))} placeholder="https://www.amazon.com/dp/… (blank = Amazon search)" style={{ fontFamily:"monospace" }} />
+              </div>
+            )}
             {formError && (
               <p style={{ ...fontUI, fontSize:12, color:C.danger, background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:8, padding:"9px 12px", margin:0 }}>{formError}</p>
             )}

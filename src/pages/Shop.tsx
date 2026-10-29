@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
-import { kits as staticKits, remedies as staticRemedies, teas as staticTeas, homeopathyCourses, SHOP_DISCLAIMER, Product } from "@/data/shopData";
+import { kits as staticKits, remedies as staticRemedies, teas as staticTeas, homeopathyCourses, SHOP_DISCLAIMER, Product, amazonLink, AMAZON_DISCLOSURE } from "@/data/shopData";
+import { track } from "@/lib/analytics";
 import { getCurrentWeek, getWeekData } from "@/data/pregnancyWeeks";
 import { isPregnantSeason } from "@/lib/season";
 import { getHomeopathyLessonContent } from "@/data/homeopathyLessons";
@@ -26,6 +27,7 @@ function useShopProducts() {
         unit: row.unit ?? undefined, use: row.use_case ?? undefined,
         contents: row.contents ?? undefined,
         stripePriceId: row.stripe_price_id || undefined,
+        affiliateUrl: row.affiliate_url || undefined,
       });
       setKits(data.filter((r: any) => r.category === "kit").map(map));
       setRemedies(data.filter((r: any) => r.category === "remedy").map(map));
@@ -286,22 +288,41 @@ const Shop = () => {
   }
 
   // --- MAIN SHOP ---
-  const ProductRow = ({ p }: { p: Product }) => (
-    <div className="gh-glass-subtle" style={{ padding: "12px 14px", marginBottom: 9, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-      <div style={{ minWidth: 0 }}>
-        <div className="font-gh-serif" style={{ fontSize: 14.5, color: "var(--cream)" }}>{p.emoji} {p.name}</div>
-        <div style={{ fontSize: 11, color: "rgba(251,238,224,0.5)", marginTop: 2 }}>
-          {[p.use, p.brand, p.unit].filter(Boolean).join(" · ")}
+  const ProductRow = ({ p }: { p: Product }) => {
+    // Remedies are sold through Amazon (affiliate); teas and kits stay in Belly's cart.
+    const onAmazon = p.type === "remedy";
+    const useLine = onAmazon && p.use ? `Traditionally used for ${p.use.charAt(0).toLowerCase()}${p.use.slice(1)}` : p.use;
+    return (
+      <div className="gh-glass-subtle" style={{ padding: "12px 14px", marginBottom: 9, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+        <div style={{ minWidth: 0 }}>
+          <div className="font-gh-serif" style={{ fontSize: 14.5, color: "var(--cream)" }}>{p.emoji} {p.name}</div>
+          <div style={{ fontSize: 11, color: "rgba(251,238,224,0.5)", marginTop: 2 }}>
+            {[useLine, p.brand, p.unit].filter(Boolean).join(" · ")}
+          </div>
+        </div>
+        <div style={{ textAlign: "right", flexShrink: 0 }}>
+          {onAmazon ? (
+            <a
+              href={amazonLink(p)}
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              onClick={() => track("affiliate_click", { product: p.id, merchant: "amazon" })}
+              style={{ display: "inline-block", fontSize: 11.5, fontWeight: 600, color: "var(--night)", background: "linear-gradient(135deg, var(--gold), var(--ember))", borderRadius: 999, padding: "6px 12px", textDecoration: "none", whiteSpace: "nowrap" }}
+            >
+              Buy on Amazon ↗
+            </a>
+          ) : (
+            <>
+              <div className="font-gh-mono" style={{ fontSize: 14, color: "var(--gold)", fontWeight: 600 }}>${p.price}</div>
+              <button onClick={() => addToCart(p)} style={{ fontSize: 11, color: addedId === p.id ? "#7fe0d3" : "#ffb187", marginTop: 3, fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>
+                {addedId === p.id ? "✓ Added" : "Add"}
+              </button>
+            </>
+          )}
         </div>
       </div>
-      <div style={{ textAlign: "right", flexShrink: 0 }}>
-        <div className="font-gh-mono" style={{ fontSize: 14, color: "var(--gold)", fontWeight: 600 }}>${p.price}</div>
-        <button onClick={() => addToCart(p)} style={{ fontSize: 11, color: addedId === p.id ? "#7fe0d3" : "#ffb187", marginTop: 3, fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>
-          {addedId === p.id ? "✓ Added" : "Add"}
-        </button>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const KitCard = ({ kit, recommended }: { kit: Product; recommended?: boolean }) => (
     <GlassCard>
@@ -376,6 +397,7 @@ const Shop = () => {
             )}
             <div className="gh-section-label">individual remedies</div>
             {remedies.map(r => <ProductRow key={r.id} p={r} />)}
+            <p style={{ fontSize: 10.5, color: "rgba(251,238,224,0.5)", margin: "2px 2px 12px" }}>{AMAZON_DISCLOSURE}</p>
           </>
         )}
 
