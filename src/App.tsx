@@ -55,6 +55,7 @@ import AdminSupport from "./pages/admin/AdminSupport";
 import AdminCommunity from "./pages/admin/AdminCommunity";
 import AdminBroadcast from "./pages/admin/AdminBroadcast";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminSocial from "./pages/admin/AdminSocial";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -217,6 +218,7 @@ const AppContent = () => {
         <Route path="support" element={<AdminSupport />} />
         <Route path="community" element={<AdminCommunity />} />
         <Route path="broadcast" element={<AdminBroadcast />} />
+        <Route path="social" element={<AdminSocial />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
       <Route path="*" element={<NotFound />} />

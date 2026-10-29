@@ -33,6 +33,7 @@ const NAV: { section: string; items: NavItem[] }[] = [
       { to: "/admin/ai", label: "Bella AI Insights", icon: "🤖" },
       { to: "/admin/community", label: "Community", icon: "📝" },
       { to: "/admin/broadcast", label: "Broadcast", icon: "📣" },
+      { to: "/admin/social", label: "Social", icon: "📲" },
     ],
   },
   {
