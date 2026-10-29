@@ -1,13 +1,16 @@
 export const config = { runtime: 'edge' };
 
 import { json, requireUser } from './_lib/stripe.js';
-import { getPost, metaStatus, publishPost, pullMetrics } from './_lib/meta.js';
+import { getPost, listComments, metaStatus, publishPost, pullMetrics, replyToComment, suggestReply } from './_lib/meta.js';
 
 /**
  * Admin-only social actions for the admin "Social" page.
  * POST { action: "status" }            -> who we post as (read-only)
  * POST { action: "publish", id }       -> publish one queued post now
  * POST { action: "metrics" }           -> pull yesterday's insights now
+ * POST { action: "comments" }          -> recent comments, unanswered first
+ * POST { action: "suggest", text, post } -> AI-drafted reply (not sent)
+ * POST { action: "reply", platform, commentId, message } -> reply as Belly
  *
  * The caller must be an admin with a two-factor (AAL2) session: we ask the
  * database's has_role() with the caller's own token, which enforces both.
@@ -31,10 +34,25 @@ export default async function handler(req: Request) {
   if (user instanceof Response) return user;
   if (!(await isAdmin(req, user.id))) return json({ error: 'Admins only.' }, 403);
 
-  const body = (await req.json().catch(() => ({}))) as { action?: string; id?: string };
+  const body = (await req.json().catch(() => ({}))) as {
+    action?: string; id?: string; text?: string; post?: string; platform?: string; commentId?: string; message?: string;
+  };
   try {
     if (body.action === 'status') return json(await metaStatus());
     if (body.action === 'metrics') return json(await pullMetrics());
+    if (body.action === 'comments') return json(await listComments());
+    if (body.action === 'suggest') {
+      if (!body.text) return json({ error: 'Missing comment text.' }, 400);
+      return json({ reply: await suggestReply(String(body.text).slice(0, 1000), String(body.post || '').slice(0, 300)) });
+    }
+    if (body.action === 'reply') {
+      const msg = String(body.message || '').trim();
+      if (!msg || msg.length > 1000) return json({ error: 'Reply must be 1-1000 characters.' }, 400);
+      if (!['instagram', 'facebook'].includes(String(body.platform)) || !/^[0-9_]+$/.test(String(body.commentId))) {
+        return json({ error: 'Bad comment reference.' }, 400);
+      }
+      return json({ id: await replyToComment(String(body.platform), String(body.commentId), msg) });
+    }
     if (body.action === 'publish') {
       if (!body.id || !/^[0-9a-f-]{36}$/i.test(body.id)) return json({ error: 'Missing post id.' }, 400);
       const post = await getPost(body.id);

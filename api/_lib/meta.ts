@@ -219,3 +219,111 @@ export async function pullMetrics(): Promise<{ saved: number; errors: string[] }
   for (const row of rows) await dbUpsert('social_metrics', row, 'day,source,metric');
   return { saved: rows.length, errors: errors.slice(0, 8) };
 }
+
+// ---------------------------------------------------------------- comments inbox
+export interface InboxComment {
+  platform: 'instagram' | 'facebook';
+  id: string;
+  text: string;
+  author: string;
+  at: string;
+  postId: string;
+  postCaption: string;
+  permalink: string | null;
+  answered: boolean;
+  replies: { author: string; text: string }[];
+}
+
+/**
+ * Recent comments on Belly's latest posts (Instagram + Facebook), unanswered
+ * first. "Answered" = Belly itself already replied in that thread.
+ */
+export async function listComments(postsPerPlatform = 8): Promise<{ comments: InboxComment[]; errors: string[] }> {
+  const a = await metaAccounts();
+  const out: InboxComment[] = [];
+  const errors: string[] = [];
+
+  if (a.igId) {
+    try {
+      const media = await graph<{ data: any[] }>(`/${a.igId}/media`, {
+        token: a.pageToken,
+        params: { fields: 'id,caption,permalink,comments_count', limit: String(postsPerPlatform) },
+      });
+      for (const m of media.data || []) {
+        if (!m.comments_count) continue;
+        const cs = await graph<{ data: any[] }>(`/${m.id}/comments`, {
+          token: a.pageToken,
+          params: { fields: 'id,text,username,timestamp,replies{username,text}', limit: '25' },
+        });
+        for (const c of cs.data || []) {
+          if (c.username === a.igUsername) continue;
+          const replies = (c.replies?.data || []).map((r: any) => ({ author: r.username, text: r.text }));
+          out.push({
+            platform: 'instagram', id: c.id, text: c.text || '', author: c.username || 'someone', at: c.timestamp,
+            postId: m.id, postCaption: (m.caption || '').slice(0, 120), permalink: m.permalink || null,
+            answered: replies.some((r: any) => r.author === a.igUsername), replies,
+          });
+        }
+      }
+    } catch (e) { errors.push(`Instagram: ${(e as Error).message}`); }
+  }
+
+  try {
+    const posts = await graph<{ data: any[] }>(`/${a.pageId}/posts`, {
+      token: a.pageToken,
+      params: { fields: 'id,message,permalink_url', limit: String(postsPerPlatform) },
+    });
+    for (const p of posts.data || []) {
+      const cs = await graph<{ data: any[] }>(`/${p.id}/comments`, {
+        token: a.pageToken,
+        params: { fields: 'id,message,from,created_time,comments{from,message}', limit: '25', filter: 'toplevel' },
+      });
+      for (const c of cs.data || []) {
+        if (c.from?.id === a.pageId) continue;
+        const replies = (c.comments?.data || []).map((r: any) => ({ author: r.from?.name || 'someone', text: r.message, fromPage: r.from?.id === a.pageId }));
+        out.push({
+          platform: 'facebook', id: c.id, text: c.message || '', author: c.from?.name || 'someone', at: c.created_time,
+          postId: p.id, postCaption: (p.message || '').slice(0, 120), permalink: p.permalink_url || null,
+          answered: replies.some((r: any) => r.fromPage), replies: replies.map(({ author, text }: any) => ({ author, text })),
+        });
+      }
+    }
+  } catch (e) { errors.push(`Facebook: ${(e as Error).message}`); }
+
+  out.sort((x, y) => Number(x.answered) - Number(y.answered) || (y.at || '').localeCompare(x.at || ''));
+  return { comments: out.slice(0, 60), errors };
+}
+
+/** Reply publicly as Belly under one comment. */
+export async function replyToComment(platform: string, commentId: string, message: string): Promise<string> {
+  const a = await metaAccounts();
+  if (platform === 'instagram') {
+    const r = await graph<{ id: string }>(`/${commentId}/replies`, { method: 'POST', token: a.pageToken, params: { message } });
+    return r.id;
+  }
+  const r = await graph<{ id: string }>(`/${commentId}/comments`, { method: 'POST', token: a.pageToken, params: { message } });
+  return r.id;
+}
+
+/** Draft a short, warm reply in Belly's voice (never sent automatically). */
+export async function suggestReply(comment: string, postCaption: string): Promise<string> {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) throw new MetaError('ANTHROPIC_API_KEY is not configured');
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 200,
+      system:
+        'You write public comment replies for Belly (@bellycircle), a warm pregnancy-support brand and app. ' +
+        'Reply in 1-2 short sentences, friendly and personal, with at most one emoji. Match the commenter\'s energy. ' +
+        'Never give medical advice or diagnose; if they describe a symptom or worry, be kind and suggest checking with their OB or midwife. ' +
+        'Never ask for personal details. Only mention the app (link in bio) if they ask about it. Output only the reply text.',
+      messages: [{ role: 'user', content: `Post: ${postCaption}\n\nComment: ${comment}\n\nWrite Belly's reply.` }],
+    }),
+  });
+  const body = (await resp.json().catch(() => ({}))) as any;
+  if (!resp.ok) throw new MetaError(`AI suggestion failed: ${body?.error?.message || resp.status}`);
+  return String(body?.content?.[0]?.text || '').trim().slice(0, 500);
+}

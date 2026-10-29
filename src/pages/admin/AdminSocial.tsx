@@ -14,6 +14,10 @@ type Post = {
   created_at: string;
   published_at: string | null;
 };
+type InboxComment = {
+  platform: "instagram" | "facebook"; id: string; text: string; author: string; at: string;
+  postCaption: string; permalink: string | null; answered: boolean; replies: { author: string; text: string }[];
+};
 type Metric = { day: string; source: string; metric: string; value: number };
 type Status = {
   facebook?: { name: string; followers: number | null };
@@ -47,6 +51,10 @@ const AdminSocial = () => {
   const [when, setWhen] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [comments, setComments] = useState<InboxComment[] | null>(null);
+  const [commentErr, setCommentErr] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [sent, setSent] = useState<Record<string, boolean>>({});
 
   const load = async () => {
     const [p, m] = await Promise.all([
@@ -126,6 +134,36 @@ const AdminSocial = () => {
     load();
   };
 
+  const loadComments = async () => {
+    setBusy("comments");
+    setCommentErr(null);
+    const r = await callSocial({ action: "comments" });
+    if (r.error) setCommentErr(r.error);
+    else {
+      setComments(r.comments || []);
+      if (r.errors?.length) setCommentErr(r.errors.join(" | "));
+    }
+    setBusy(null);
+  };
+
+  const suggest = async (c: InboxComment) => {
+    setBusy(`s-${c.id}`);
+    const r = await callSocial({ action: "suggest", text: c.text, post: c.postCaption });
+    setDrafts((d) => ({ ...d, [c.id]: r.reply || d[c.id] || "" }));
+    if (r.error) setCommentErr(r.error);
+    setBusy(null);
+  };
+
+  const sendReply = async (c: InboxComment) => {
+    const message = (drafts[c.id] || "").trim();
+    if (!message) return;
+    setBusy(`r-${c.id}`);
+    const r = await callSocial({ action: "reply", platform: c.platform, commentId: c.id, message });
+    if (r.error) setCommentErr(r.error);
+    else setSent((m) => ({ ...m, [c.id]: true }));
+    setBusy(null);
+  };
+
   const latestDay = metrics[0]?.day;
   const latest = metrics.filter((m) => m.day === latestDay);
 
@@ -188,6 +226,41 @@ const AdminSocial = () => {
           </div>
           {msg && <p style={{ color: C.text, margin: 0, fontSize: 13 }}>{msg}</p>}
         </div>
+      </Card>
+
+      <Card>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+          <SectionTitle>Comments</SectionTitle>
+          <Btn variant="secondary" onClick={loadComments} disabled={busy === "comments"}>{busy === "comments" ? "Loading…" : comments ? "Refresh" : "Load comments"}</Btn>
+        </div>
+        {commentErr && <p style={{ color: C.danger, fontSize: 12, margin: "6px 0" }}>{commentErr}</p>}
+        {comments === null ? <Empty>Load the latest comments from Instagram and Facebook.</Empty>
+          : comments.length === 0 ? <Empty>No comments on the latest posts yet.</Empty> : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {comments.map((c) => (
+              <div key={c.id} style={{ borderBottom: `1px solid ${C.border}`, paddingBottom: 12 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <StatusPill tone={c.answered || sent[c.id] ? "success" : "warning"}>{c.answered || sent[c.id] ? "replied" : "needs reply"}</StatusPill>
+                  <span style={{ color: C.text, fontSize: 12 }}>
+                    {c.platform} · {c.author} · {c.at ? ago(c.at) : ""}
+                    {c.permalink && <> · <a href={c.permalink} target="_blank" rel="noreferrer" style={{ color: C.orange }}>open post</a></>}
+                  </span>
+                </div>
+                <div style={{ color: C.white, fontSize: 14, marginTop: 4, overflowWrap: "anywhere" }}>{c.text}</div>
+                <div style={{ color: C.text, fontSize: 11, marginTop: 2 }}>on: {c.postCaption}</div>
+                {c.replies.map((r, i) => <div key={i} style={{ color: C.text, fontSize: 12, marginLeft: 12, marginTop: 2 }}>↳ {r.author}: {r.text}</div>)}
+                {!sent[c.id] && (
+                  <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "flex-start" }}>
+                    <Textarea id={`reply-${c.id}`} rows={2} value={drafts[c.id] || ""} onChange={(e) => setDrafts((d) => ({ ...d, [c.id]: e.target.value }))} placeholder="Write a reply, or tap Suggest" style={{ flex: 1, minWidth: 220 }} />
+                    <Btn variant="ghost" onClick={() => suggest(c)} disabled={busy === `s-${c.id}`}>{busy === `s-${c.id}` ? "…" : "Suggest"}</Btn>
+                    <Btn variant="primary" onClick={() => sendReply(c)} disabled={!drafts[c.id]?.trim() || busy === `r-${c.id}`}>{busy === `r-${c.id}` ? "Sending…" : "Send reply"}</Btn>
+                  </div>
+                )}
+                {sent[c.id] && <div style={{ color: C.success, fontSize: 12, marginTop: 6 }}>Reply posted.</div>}
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       <Card>
