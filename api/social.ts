@@ -35,7 +35,7 @@ export default async function handler(req: Request) {
   if (!(await isAdmin(req, user.id))) return json({ error: 'Admins only.' }, 403);
 
   const body = (await req.json().catch(() => ({}))) as {
-    action?: string; id?: string; text?: string; post?: string; platform?: string; commentId?: string; message?: string;
+    action?: string; id?: string; text?: string; post?: string; lead?: boolean; platform?: string; commentId?: string; message?: string;
   };
   try {
     if (body.action === 'status') return json(await metaStatus());
@@ -43,7 +43,7 @@ export default async function handler(req: Request) {
     if (body.action === 'comments') return json(await listComments());
     if (body.action === 'suggest') {
       if (!body.text) return json({ error: 'Missing comment text.' }, 400);
-      return json({ reply: await suggestReply(String(body.text).slice(0, 1000), String(body.post || '').slice(0, 300)) });
+      return json({ reply: await suggestReply(String(body.text).slice(0, 1000), String(body.post || '').slice(0, 300), body.lead === true) });
     }
     if (body.action === 'reply') {
       const msg = String(body.message || '').trim();

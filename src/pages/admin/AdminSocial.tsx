@@ -17,6 +17,7 @@ type Post = {
 type InboxComment = {
   platform: "instagram" | "facebook"; id: string; text: string; author: string; at: string;
   postCaption: string; permalink: string | null; answered: boolean; replies: { author: string; text: string }[];
+  intent: "lead" | "chatter"; score: number; why: string;
 };
 type Metric = { day: string; source: string; metric: string; value: number };
 type Status = {
@@ -50,6 +51,7 @@ const AdminSocial = () => {
   const [ig, setIg] = useState(true);
   const [when, setWhen] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [hiddenTags, setHiddenTags] = useState(0);
   const [msg, setMsg] = useState<string | null>(null);
   const [comments, setComments] = useState<InboxComment[] | null>(null);
   const [commentErr, setCommentErr] = useState<string | null>(null);
@@ -141,6 +143,7 @@ const AdminSocial = () => {
     if (r.error) setCommentErr(r.error);
     else {
       setComments(r.comments || []);
+      setHiddenTags(r.hiddenTags || 0);
       if (r.errors?.length) setCommentErr(r.errors.join(" | "));
     }
     setBusy(null);
@@ -148,7 +151,7 @@ const AdminSocial = () => {
 
   const suggest = async (c: InboxComment) => {
     setBusy(`s-${c.id}`);
-    const r = await callSocial({ action: "suggest", text: c.text, post: c.postCaption });
+    const r = await callSocial({ action: "suggest", text: c.text, post: c.postCaption, lead: c.intent === "lead" });
     setDrafts((d) => ({ ...d, [c.id]: r.reply || d[c.id] || "" }));
     if (r.error) setCommentErr(r.error);
     setBusy(null);
@@ -237,10 +240,15 @@ const AdminSocial = () => {
         {comments === null ? <Empty>Load the latest comments from Instagram and Facebook.</Empty>
           : comments.length === 0 ? <Empty>No comments on the latest posts yet.</Empty> : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ color: C.text, fontSize: 12 }}>
+              🔥 {comments.filter((c) => c.intent === "lead" && !c.answered && !sent[c.id]).length} leads to reply to · {hiddenTags} friend-tags hidden
+            </div>
             {comments.map((c) => (
               <div key={c.id} style={{ borderBottom: `1px solid ${C.border}`, paddingBottom: 12 }}>
                 <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                  <StatusPill tone={c.answered || sent[c.id] ? "success" : "warning"}>{c.answered || sent[c.id] ? "replied" : "needs reply"}</StatusPill>
+                  {c.intent === "lead" && <StatusPill tone="danger">🔥 lead</StatusPill>}
+                  <StatusPill tone={c.answered || sent[c.id] ? "success" : c.intent === "lead" ? "warning" : "neutral"}>{c.answered || sent[c.id] ? "replied" : c.intent === "lead" ? "reply now" : "optional"}</StatusPill>
+                  {c.intent === "lead" && <span style={{ color: C.orange, fontSize: 11 }}>{c.why}</span>}
                   <span style={{ color: C.text, fontSize: 12 }}>
                     {c.platform} · {c.author} · {c.at ? ago(c.at) : ""}
                     {c.permalink && <> · <a href={c.permalink} target="_blank" rel="noreferrer" style={{ color: C.orange }}>open post</a></>}

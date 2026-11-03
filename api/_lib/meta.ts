@@ -6,6 +6,7 @@
  * only ever read server-side. From it we resolve the Page (and its Page token)
  * and the linked Instagram business account.
  */
+import { classify, type Intent } from './leads.js';
 import { dbSelect, dbUpdate, dbUpsert } from './stripe.js';
 
 const GRAPH = 'https://graph.facebook.com/v25.0';
@@ -232,15 +233,18 @@ export interface InboxComment {
   permalink: string | null;
   answered: boolean;
   replies: { author: string; text: string }[];
+  intent: Intent;
+  score: number;
+  why: string;
 }
 
 /**
  * Recent comments on Belly's latest posts (Instagram + Facebook), unanswered
  * first. "Answered" = Belly itself already replied in that thread.
  */
-export async function listComments(postsPerPlatform = 8): Promise<{ comments: InboxComment[]; errors: string[] }> {
+export async function listComments(postsPerPlatform = 12): Promise<{ comments: InboxComment[]; errors: string[]; hiddenTags: number }> {
   const a = await metaAccounts();
-  const out: InboxComment[] = [];
+  const out: Omit<InboxComment, 'intent' | 'score' | 'why'>[] = [];
   const errors: string[] = [];
 
   if (a.igId) {
@@ -253,7 +257,7 @@ export async function listComments(postsPerPlatform = 8): Promise<{ comments: In
         if (!m.comments_count) continue;
         const cs = await graph<{ data: any[] }>(`/${m.id}/comments`, {
           token: a.pageToken,
-          params: { fields: 'id,text,username,timestamp,replies{username,text}', limit: '25' },
+          params: { fields: 'id,text,username,timestamp,replies{username,text}', limit: '50' },
         });
         for (const c of cs.data || []) {
           if (c.username === a.igUsername) continue;
@@ -276,7 +280,7 @@ export async function listComments(postsPerPlatform = 8): Promise<{ comments: In
     for (const p of posts.data || []) {
       const cs = await graph<{ data: any[] }>(`/${p.id}/comments`, {
         token: a.pageToken,
-        params: { fields: 'id,message,from,created_time,comments{from,message}', limit: '25', filter: 'toplevel' },
+        params: { fields: 'id,message,from,created_time,comments{from,message}', limit: '50', filter: 'toplevel' },
       });
       for (const c of cs.data || []) {
         if (c.from?.id === a.pageId) continue;
@@ -290,8 +294,12 @@ export async function listComments(postsPerPlatform = 8): Promise<{ comments: In
     }
   } catch (e) { errors.push(`Facebook: ${(e as Error).message}`); }
 
-  out.sort((x, y) => Number(x.answered) - Number(y.answered) || (y.at || '').localeCompare(x.at || ''));
-  return { comments: out.slice(0, 60), errors };
+  // Triage: hide friend-tags, then leads (by score) before chatter, unanswered first.
+  const scored = out.map((c) => ({ ...c, ...classify(c.text) }));
+  const kept = scored.filter((c) => c.intent !== 'tag');
+  const rank = (c: InboxComment) => (c.answered ? 1000 : 0) + (c.intent === 'lead' ? 0 : 500) - c.score;
+  kept.sort((x, y) => rank(x) - rank(y) || (y.at || '').localeCompare(x.at || ''));
+  return { comments: kept.slice(0, 60), errors, hiddenTags: scored.length - kept.length };
 }
 
 /** Reply publicly as Belly under one comment. */
@@ -306,7 +314,7 @@ export async function replyToComment(platform: string, commentId: string, messag
 }
 
 /** Draft a short, warm reply in Belly's voice (never sent automatically). */
-export async function suggestReply(comment: string, postCaption: string): Promise<string> {
+export async function suggestReply(comment: string, postCaption: string, lead = false): Promise<string> {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new MetaError('ANTHROPIC_API_KEY is not configured');
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -319,7 +327,10 @@ export async function suggestReply(comment: string, postCaption: string): Promis
         'You write public comment replies for Belly (@bellycircle), a warm pregnancy-support brand and app. ' +
         'Reply in 1-2 short sentences, friendly and personal, with at most one emoji. Match the commenter\'s energy. ' +
         'Never give medical advice or diagnose; if they describe a symptom or worry, be kind and suggest checking with their OB or midwife. ' +
-        'Never ask for personal details. Only mention the app (link in bio) if they ask about it. Output only the reply text.',
+        'Never ask for personal details. Output only the reply text. ' +
+        (lead
+          ? 'This commenter is pregnant, expecting or asking for help: be genuinely helpful first, then end with a soft, non-pushy invite such as "Bella, our virtual doula, is free for 7 days (link in bio) if you want 3am answers 💛". Vary the wording.'
+          : 'Only mention the app (link in bio) if they ask about it.'),
       messages: [{ role: 'user', content: `Post: ${postCaption}\n\nComment: ${comment}\n\nWrite Belly's reply.` }],
     }),
   });
