@@ -178,6 +178,21 @@ export async function duePosts(limit = 3): Promise<SocialPost[]> {
   );
 }
 
+/** Autopilot: the oldest draft that has media and isn't marked as a test. */
+export async function nextAutopilotDraft(): Promise<SocialPost | null> {
+  const rows = await dbSelect<SocialPost>(
+    `social_posts?select=*&status=eq.draft&media_url=not.is.null&order=created_at.asc&limit=5`,
+  );
+  return rows.find((r) => !/\btest\b/i.test(r.caption)) ?? null;
+}
+
+/** Did anything go out in the last 20 hours? (so autopilot posts at most once a day) */
+export async function postedRecently(): Promise<boolean> {
+  const since = new Date(Date.now() - 20 * 3600_000).toISOString();
+  const rows = await dbSelect(`social_posts?select=id&status=eq.published&published_at=gte.${encodeURIComponent(since)}&limit=1`);
+  return rows.length > 0;
+}
+
 /**
  * Pull yesterday's account-level numbers into social_metrics. Each metric is
  * tried on its own so one renamed metric never blocks the rest.

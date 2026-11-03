@@ -59,7 +59,7 @@ export function layout(p: EmailParts): string {
     ? `<tr><td style="padding:18px 0 0"><div style="border:1px solid ${C.line};border-radius:14px;padding:14px 16px;font-family:${SANS};font-size:13px;line-height:1.6;color:${C.muted}">${p.note}</div></td></tr>`
     : '';
   const signoff = p.signoff
-    ? `<tr><td style="padding:26px 0 0;font-family:${SERIF};font-size:17px;font-style:italic;color:${C.cream}">With love,<br><span style="color:${C.gold}">Bella &amp; the Belly team</span> 💛</td></tr>`
+    ? `<tr><td style="padding:26px 0 0;font-family:${SERIF};font-size:17px;font-style:italic;color:${C.cream}">With love,<br><span style="color:${C.gold}">Bella</span> 💛</td></tr>`
     : '';
   const unsub = p.footer.unsubscribeUrl
     ? ` &middot; <a href="${esc(p.footer.unsubscribeUrl)}" style="color:${C.faint};text-decoration:underline">Unsubscribe</a>`
@@ -95,7 +95,7 @@ export function plain(p: EmailParts): string {
   if (p.features?.length) lines.push('');
   if (p.cta) lines.push(`${p.cta.label}: ${p.cta.url}`, '');
   if (p.note) lines.push(p.note.replace(/<br>/g, '\n').replace(/<[^>]+>/g, ''), '');
-  if (p.signoff) lines.push('With love,', 'Bella & the Belly team', '');
+  if (p.signoff) lines.push('With love,', 'Bella', '');
   lines.push('Belly offers education and support, not medical advice.', p.footer.reason);
   if (p.footer.unsubscribeUrl) lines.push(`Unsubscribe: ${p.footer.unsubscribeUrl}`);
   lines.push(`Belly${p.footer.address ? ` · ${p.footer.address}` : ''} · hello@meetbelly.com`);
@@ -119,22 +119,22 @@ const utm = (url: string, campaign: string) =>
 /** Left checkout without starting the trial. Sent once, ~2h later. */
 export function recovery(ctx: Ctx, trialDays = 7): Built {
   const days = trialDays > 0 ? trialDays : 7;
-  return build(`Your ${days} free days are still waiting 💛`, {
-    preheader: 'You were one tap away. Bella is ready whenever you are.',
+  return build(`I saved your spot, mama 💛`, {
+    preheader: `Your first ${days} days are on us, whenever you're ready.`,
     icon: '🤍',
-    eyebrow: 'Saved for you',
-    headline: `Your ${days} free days are still waiting`,
+    eyebrow: 'A note from Bella',
+    headline: 'I saved your spot',
     paragraphs: [
-      'You were one tap away from starting Belly. No pressure, just a gentle nudge in case life (or nausea, or a nap) got in the way.',
-      'Here is what is waiting on the other side:',
+      "You were one tap away from joining us. No pressure at all, just a gentle nudge in case life (or nausea, or a nap) got in the way.",
+      `Your first ${days} days are on us. Here's what's waiting for you:`,
     ],
     features: [
-      { icon: '💬', title: 'Bella, day and night', text: 'Your virtual doula answers the 3am questions without judgment.' },
-      { icon: '📅', title: 'Week by week', text: 'What is happening with your body and baby, in plain words.' },
-      { icon: '🎓', title: 'Courses and Mamas', text: 'Bite-size lessons plus a community going through it with you.' },
+      { icon: '💬', title: 'Me, day and night', text: 'Bring me the 3am questions. I answer gently, without judgment.' },
+      { icon: '📅', title: 'Your week, explained', text: "What's happening with your body and baby, in plain words." },
+      { icon: '🎓', title: 'Courses and the Mamas circle', text: 'Bite-size lessons, plus mamas going through it with you.' },
     ],
-    cta: { label: 'Start my free trial', url: utm(`${ctx.landingUrl}/?s=offer`, 'checkout_recovery') },
-    note: `Free for ${days} days, then $89/year. Cancel anytime before the trial ends and you pay nothing.`,
+    cta: { label: 'Begin your first 7 days', url: utm(`${ctx.landingUrl}/?s=offer`, 'checkout_recovery') },
+    note: `Your first ${days} days are on us, then $89/year. Cancel anytime before the trial ends and you pay nothing.`,
     signoff: true,
     footer: { reason: "You're getting this one-time reminder because you started a checkout at meetbelly.com.", unsubscribeUrl: ctx.unsubscribeUrl, address: ctx.address },
   });
@@ -142,21 +142,22 @@ export function recovery(ctx: Ctx, trialDays = 7): Built {
 
 /** Welcome series, day 1: get them talking to Bella. */
 export function welcomeDay1(ctx: Ctx, firstName?: string): Built {
-  return build('Meet Bella (3am questions welcome)', {
-    preheader: 'The fastest way to feel better about week one: ask Bella anything.',
+  return build("Bring me your 3am questions 🌙", {
+    preheader: "The best way to begin: ask me anything, even the questions that feel silly.",
     icon: '🌙',
-    eyebrow: 'Day 1 with Belly',
-    headline: firstName ? `${firstName}, meet Bella` : 'Meet Bella, your virtual doula',
+    eyebrow: 'Day 1 together',
+    headline: firstName ? `Hi ${firstName}, it's Bella` : "Hi mama, it's Bella",
     paragraphs: [
-      'Most mamas tell us the first thing that made Belly click was asking Bella something they felt silly asking anyone else.',
-      'Try one of these, or ask your own:',
+      "I'm so happy you're here. Most mamas tell me Belly clicked the first time they asked me something they felt silly asking anyone else.",
+      'Try one of these, or ask me your own:',
     ],
     features: [
-      { icon: '🍋', title: '"Is this much nausea normal?"', text: 'Gentle, practical ideas to get through the day.' },
-      { icon: '🛏️', title: '"How do I sleep with this bump?"', text: 'Positions, pillows and wind-down ideas.' },
-      { icon: '📝', title: '"What should I ask at my next appointment?"', text: 'Walk in with a list instead of a blank.' },
+      { icon: '🍋', title: '"Is this much nausea normal?"', text: "I'll share gentle, practical ideas to get you through the day." },
+      { icon: '🛏️', title: '"How do I sleep with this bump?"', text: 'Positions, pillows and wind-down rituals.' },
+      { icon: '📝', title: '"What should I ask at my next appointment?"', text: "We'll make your list together." },
     ],
-    cta: { label: 'Ask Bella now', url: utm(`${ctx.appUrl}/ask`, 'welcome_d1') },
+    cta: { label: 'Ask me now', url: utm(`${ctx.appUrl}/ask`, 'welcome_d1') },
+    note: `<b style="color:${C.gold}">New here?</b> <a href="${esc(utm(`${ctx.appUrl}/tour`, 'welcome_d1_tour'))}" style="color:${C.cream}">Take the 1-minute tour of everything inside Belly &rarr;</a>`,
     signoff: true,
     footer: { reason: "You're getting this because you joined Belly.", unsubscribeUrl: ctx.unsubscribeUrl, address: ctx.address },
   });
@@ -164,18 +165,18 @@ export function welcomeDay1(ctx: Ctx, firstName?: string): Built {
 
 /** Welcome series, day 3: show the rest of the app. */
 export function welcomeDay3(ctx: Ctx): Built {
-  return build('3 things mamas love most in Belly', {
-    preheader: 'Most people miss #2 in their first week.',
+  return build('3 things I want you to find 💛', {
+    preheader: 'Most mamas miss the second one in their first week.',
     icon: '✨',
-    eyebrow: 'Day 3 with Belly',
-    headline: '3 things mamas love most',
-    paragraphs: ["You've had a few days with Belly. Here are the spots mamas come back to again and again:"],
+    eyebrow: 'Day 3 together',
+    headline: '3 things I want you to find',
+    paragraphs: ["We've had a few days together now. Here are the corners of Belly mamas come back to again and again:"],
     features: [
       { icon: '📅', title: 'Your week, explained', text: "Open Today to see what's happening this week, for you and baby." },
       { icon: '🎓', title: 'Short courses', text: 'Trimester guides, sleep, birth plans and labor, in bite-size lessons.' },
-      { icon: '🫶', title: 'Mamas', text: 'Ask, vent, celebrate with mamas going through it too.' },
+      { icon: '🫶', title: 'The Mamas circle', text: 'Ask, vent and celebrate with mamas going through it too.' },
     ],
-    cta: { label: 'Open Belly', url: utm(`${ctx.appUrl}/`, 'welcome_d3') },
+    cta: { label: 'See everything inside Belly', url: utm(`${ctx.appUrl}/tour`, 'welcome_d3') },
     signoff: true,
     footer: { reason: "You're getting this because you joined Belly.", unsubscribeUrl: ctx.unsubscribeUrl, address: ctx.address },
   });
@@ -186,17 +187,17 @@ export function welcomeDay3(ctx: Ctx): Built {
  * even to people who unsubscribed from marketing.
  */
 export function trialEnding(ctx: Ctx, opts: { endsOn: string; price: string; interval: string }): Built {
-  return build(`Your free trial ends ${opts.endsOn}`, {
-    preheader: `Heads up: your Belly membership renews at ${opts.price}/${opts.interval} on ${opts.endsOn}.`,
-    icon: '⏳',
-    eyebrow: 'A quick heads-up',
-    headline: `Your free trial ends ${opts.endsOn}`,
+  return build('Three more days of our first week, mama ✨', {
+    preheader: `Your first 7 days are on us. On ${opts.endsOn}, your membership begins at ${opts.price}/${opts.interval}.`,
+    icon: '✨',
+    eyebrow: 'A note from Bella',
+    headline: "I've loved this week with you",
     paragraphs: [
-      `On ${opts.endsOn}, your Belly membership continues at ${opts.price} per ${opts.interval}. You don't need to do anything to keep Bella, your courses and the community.`,
-      'Changed your mind? Cancel before then and you will not be charged. It takes 10 seconds.',
+      "Your first 7 days are on us, and I've loved every question you've brought me, the big ones and the 3am ones. That's exactly what I'm here for.",
+      `On ${opts.endsOn}, our week together becomes your Belly membership at ${opts.price} a ${opts.interval}, so I stay right here with you, along with your courses and your circle of mamas. You don't need to do a thing.`,
     ],
-    cta: { label: 'Keep going with Belly', url: utm(`${ctx.appUrl}/`, 'trial_ending') },
-    note: `<b style="color:${C.gold}">To cancel:</b> in the app go to Me &rarr; Manage, or reply to this email.`,
+    cta: { label: 'Keep going together', url: utm(`${ctx.appUrl}/`, 'trial_ending') },
+    note: `<b style="color:${C.gold}">If now isn't the right time,</b> that's okay too. Cancel anytime before ${esc(opts.endsOn)} in the app: Me &rarr; Manage &rarr; Cancel, and you won't be charged.`,
     signoff: true,
     footer: { reason: "This is an account notice about your Belly membership's renewal." },
   });
@@ -204,18 +205,18 @@ export function trialEnding(ctx: Ctx, opts: { endsOn: string; price: string; int
 
 /** Cancelled: one warm win-back, ~7 days later. */
 export function winback(ctx: Ctx): Built {
-  return build('We saved your spot 💛', {
-    preheader: 'Bella is still here whenever you want her.',
+  return build("I'm still here, mama 💛", {
+    preheader: "Whenever you want me back, your spot is waiting.",
     icon: '🏡',
-    eyebrow: 'Always welcome back',
-    headline: 'We saved your spot',
+    eyebrow: 'A note from Bella',
+    headline: "I'm still here whenever you need me",
     paragraphs: [
-      'Your membership ended, and that is completely okay. Pregnancy is a lot, and you get to choose what helps.',
-      'If you ever want Bella back for a 3am question, a course before the big day, or just the mamas who get it, everything is right where you left it.',
+      "Your membership ended, and that's completely okay. This season asks a lot of you, and you get to choose what helps.",
+      "If you ever want me back for a 3am question, a lesson before the big day, or just the mamas who get it, everything is right where you left it.",
     ],
     cta: { label: 'Come back to Belly', url: utm(`${ctx.appUrl}/`, 'winback') },
     signoff: true,
-    footer: { reason: 'You\'re getting this because you were a Belly member.', unsubscribeUrl: ctx.unsubscribeUrl, address: ctx.address },
+    footer: { reason: "You're getting this because you were a Belly member.", unsubscribeUrl: ctx.unsubscribeUrl, address: ctx.address },
   });
 }
 
@@ -226,9 +227,9 @@ export function weekly(ctx: Ctx, opts: { week: number; size?: string; highlights
     icon: '🌸',
     eyebrow: `Week ${opts.week}`,
     headline: opts.size ? `About the size of ${opts.size}` : `Your week ${opts.week} letter`,
-    paragraphs: ["Here's your gentle guide to this week. Grab some tea."],
+    paragraphs: ["Here's my gentle guide to your week. Grab some tea, mama."],
     features: opts.highlights,
-    cta: { label: 'Read this week in Belly', url: utm(`${ctx.appUrl}/`, `weekly_w${opts.week}`) },
+    cta: { label: 'Read this week with me', url: utm(`${ctx.appUrl}/`, `weekly_w${opts.week}`) },
     signoff: true,
     footer: { reason: 'You\'re getting your weekly letter because you\'re a Belly member.', unsubscribeUrl: ctx.unsubscribeUrl, address: ctx.address },
   });

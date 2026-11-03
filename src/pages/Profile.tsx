@@ -96,6 +96,7 @@ const Profile = () => {
 
   const menuItems = [
     { Icon: Pencil, label: isPregnant ? "Edit pregnancy details" : "Edit details", action: () => setEditing(true) },
+    { Icon: Sparkles, label: "How to use Belly", action: () => navigate("/tour") },
     { Icon: BookOpen, label: "Journal & Symptom Tracker", action: () => navigate("/journal") },
     { Icon: Baby, label: "Feeding tracker", action: () => navigate("/feeding") },
     { Icon: Wind, label: "Belly breathe & rest", action: () => navigate("/breathe") },

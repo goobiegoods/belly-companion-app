@@ -139,6 +139,15 @@ export default function HomePage() {
     return () => { cancelled = true; };
   }, [user?.id]);
 
+  const [showTourCard, setShowTourCard] = useState<boolean>(() => {
+    try { return localStorage.getItem("belly_tour_seen") !== "1"; } catch { return true; }
+  });
+  const openTour = () => {
+    try { localStorage.setItem("belly_tour_seen", "1"); } catch { /* private mode */ }
+    setShowTourCard(false);
+    navigate("/tour");
+  };
+
   const goToAsk = (prefill?: string) =>
     navigate("/ask", { state: prefill ? { prefill } : undefined });
 
@@ -182,6 +191,17 @@ export default function HomePage() {
       </GhHeader>
 
       <div style={{ padding: "12px 16px 110px" }}>
+        {/* 1b. How to use Belly — shown until she opens the tour */}
+        {showTourCard && (
+          <button
+            onClick={openTour}
+            className="gh-pill"
+            style={{ width: "100%", marginBottom: 12, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 14, ...GOLD_GLOW }}
+          >
+            <span>✨ How to use Belly: see everything inside</span>
+            <ChevronRight size={16} />
+          </button>
+        )}
         {/* 2. Ask your doula */}
         <GlassCard>
           <div

@@ -67,10 +67,20 @@ const AdminSocial = () => {
     setMetrics(((m.data ?? []) as unknown) as Metric[]);
   };
 
+  const [autopilot, setAutopilot] = useState<boolean | null>(null);
   useEffect(() => {
     load();
     callSocial({ action: "status" }).then(setStatus);
+    supabase.from("app_config" as never).select("social_autopilot").eq("id", 1).maybeSingle()
+      .then(({ data }) => setAutopilot(Boolean((data as { social_autopilot?: boolean } | null)?.social_autopilot)));
   }, []);
+
+  const toggleAutopilot = async () => {
+    const next = !autopilot;
+    setAutopilot(next);
+    const { error } = await supabase.from("app_config" as never).update({ social_autopilot: next } as never).eq("id", 1);
+    if (error) { setAutopilot(!next); setMsg(`Couldn't change autopilot: ${error.message}`); }
+  };
 
   const upload = async (file: File) => {
     setBusy("upload");
@@ -167,6 +177,30 @@ const AdminSocial = () => {
     setBusy(null);
   };
 
+  // Batch: draft replies for every unanswered lead, then send them all.
+  const openLeads = (comments || []).filter((c) => c.intent === "lead" && !c.answered && !sent[c.id]);
+  const suggestAll = async () => {
+    setBusy("suggest-all");
+    for (const c of openLeads) {
+      if (drafts[c.id]?.trim()) continue;
+      const r = await callSocial({ action: "suggest", text: c.text, post: c.postCaption, lead: true });
+      if (r.reply) setDrafts((d) => ({ ...d, [c.id]: r.reply }));
+    }
+    setBusy(null);
+  };
+  const sendAll = async () => {
+    setBusy("send-all");
+    for (const c of openLeads) {
+      const message = (drafts[c.id] || "").trim();
+      if (!message) continue;
+      const r = await callSocial({ action: "reply", platform: c.platform, commentId: c.id, message });
+      if (r.error) { setCommentErr(r.error); break; }
+      setSent((m) => ({ ...m, [c.id]: true }));
+    }
+    setBusy(null);
+  };
+  const readyToSend = openLeads.filter((c) => drafts[c.id]?.trim()).length;
+
   const latestDay = metrics[0]?.day;
   const latest = metrics.filter((m) => m.day === latestDay);
 
@@ -184,6 +218,20 @@ const AdminSocial = () => {
               <div>Instagram: {status.instagram ? <><b>@{status.instagram.username}</b> · {status.instagram.followers.toLocaleString()} followers</> : <span style={{ color: C.danger }}>not linked</span>}</div>
             </div>
           )}
+      </Card>
+
+      <Card>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div>
+            <SectionTitle>Autopilot</SectionTitle>
+            <p style={{ color: C.text, fontSize: 13, margin: 0 }}>
+              {autopilot ? "On: every day at 9am the oldest draft with a picture or video goes out (unless something already posted that day)." : "Off: only posts you schedule or publish go out."}
+            </p>
+          </div>
+          <Btn variant={autopilot ? "primary" : "secondary"} onClick={toggleAutopilot} disabled={autopilot === null}>
+            {autopilot === null ? "…" : autopilot ? "Autopilot ON" : "Turn on autopilot"}
+          </Btn>
+        </div>
       </Card>
 
       <Card>
@@ -234,7 +282,15 @@ const AdminSocial = () => {
       <Card>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
           <SectionTitle>Comments</SectionTitle>
-          <Btn variant="secondary" onClick={loadComments} disabled={busy === "comments"}>{busy === "comments" ? "Loading…" : comments ? "Refresh" : "Load comments"}</Btn>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {comments && openLeads.length > 0 && (
+              <Btn variant="ghost" onClick={suggestAll} disabled={!!busy}>{busy === "suggest-all" ? "Writing…" : `✨ Suggest all ${openLeads.length} leads`}</Btn>
+            )}
+            {readyToSend > 0 && (
+              <Btn variant="primary" onClick={sendAll} disabled={!!busy}>{busy === "send-all" ? "Sending…" : `Send all ${readyToSend}`}</Btn>
+            )}
+            <Btn variant="secondary" onClick={loadComments} disabled={busy === "comments"}>{busy === "comments" ? "Loading…" : comments ? "Refresh" : "Load comments"}</Btn>
+          </div>
         </div>
         {commentErr && <p style={{ color: C.danger, fontSize: 12, margin: "6px 0" }}>{commentErr}</p>}
         {comments === null ? <Empty>Load the latest comments from Instagram and Facebook.</Empty>
