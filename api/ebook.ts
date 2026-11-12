@@ -10,7 +10,7 @@ function page(msg: string, status: number) {
   return new Response(
     `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Belly</title>` +
       `<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#150A1F;color:#FBEEE0;font-family:Georgia,serif;text-align:center;padding:24px">` +
-      `<div><p style="font-size:26px;font-style:italic;margin:0 0 12px">${msg}</p><p style="font-family:sans-serif;font-size:14px;opacity:.7">Need help? Email hello@meetbelly.com</p></div>`,
+      `<div><p style="font-size:26px;font-style:italic;margin:0 0 12px">${msg}</p><p style="font-family:sans-serif;font-size:14px;opacity:.7"><a href="/first30/access" style="color:#F2B647">Get your link again</a> · Need help? Email hello@meetbelly.com</p></div>`,
     { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } },
   );
 }
