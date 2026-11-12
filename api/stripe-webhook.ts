@@ -2,6 +2,7 @@ export const config = { runtime: 'edge' };
 
 import Stripe from 'stripe';
 import { getStripe, dbSelect, dbUpdate, dbUpsert, resolveStripeWebhookSecret } from './_lib/stripe.js';
+import { layout } from './_lib/emails.js';
 import {
   cleanEmail,
   findOrCreateUser,
@@ -420,16 +421,26 @@ async function deliverEbook(session: Stripe.Checkout.Session) {
   if (!email || !name) { console.log('ebook: missing email or product', session.id); return; }
   const base = (process.env.LANDING_URL || 'https://meetbelly.com').replace(/\/+$/, '');
   const link = `${base}/api/ebook?sid=${encodeURIComponent(session.id)}`;
-  const html = `<div style="background:#150A1F;padding:40px 20px;font-family:Inter,Arial,sans-serif;color:#FBEEE0">
-<table role="presentation" width="100%" style="max-width:520px;margin:0 auto"><tr><td>
-<div style="width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE7A8,#F2B647 30%,#E8622E 72%,#B5386B);box-shadow:0 0 26px #F2B64788"></div>
-<p style="font:600 11px monospace;letter-spacing:.18em;text-transform:uppercase;color:#F2B647;margin:22px 0 6px">Belly · Your book is here</p>
-<h1 style="font-family:Georgia,serif;font-weight:400;font-size:38px;line-height:1.05;margin:0 0 14px">${name}, <em style="color:#F2B647">yours.</em></h1>
-<p style="font-size:16px;line-height:1.6;color:#FBEEE0cc;margin:0 0 26px">Hi mama, I'm Bella. One page a day, one warm bowl, one tiny win. Open it on your phone and tick your first day tonight. Your moon starts filling.</p>
-<a href="${link}" style="display:inline-block;background:#FBEEE0;color:#150A1F;text-decoration:none;font-weight:600;font-size:16px;padding:16px 28px;border-radius:999px">Open ${name} &rarr;</a>
-<p style="font-size:13px;line-height:1.6;color:#FBEEE088;margin:26px 0 0">Keep this email. That button is your copy, forever. Want me with you at 3am too? Belly is free for 7 days at app.meetbelly.com.</p>
-<p style="font-family:Georgia,serif;font-style:italic;color:#F2B647;font-size:18px;margin:22px 0 0">— Bella</p>
-</td></tr></table></div>`;
+  const mail = layout({
+    preheader: `${name} is yours. Open it tonight, mama.`,
+    icon: '',
+    eyebrow: 'Your book is here',
+    headline: `${name}, *yours.*`,
+    paragraphs: [
+      "Hi mama, I'm Bella. One page a day, one warm bowl, one tiny win.",
+      'Open it on your phone and tick your first day tonight. Your moon starts filling.',
+    ],
+    features: [
+      { icon: '', title: 'Save this email', text: 'The button below is your copy, forever. Any phone, any time.' },
+      { icon: '', title: 'Print the fridge pages', text: 'The Herbivore list and the 30-day check look beautiful on paper.' },
+      { icon: '', title: 'Want me at 3am too?', text: 'Belly is free for 7 days at app.meetbelly.com.' },
+    ],
+    cta: { label: `Open ${name}`, url: link },
+    note: `Receipt: ${name} · one-time purchase · no subscription. Questions? Just reply.`,
+    signoff: true,
+    footer: { reason: `You're getting this because you bought ${name}.` },
+  });
+  const html = mail;
   const text = `Hi mama, I'm Bella. ${name} is yours.\n\nOpen it: ${link}\n\nKeep this email, that link is your copy forever.\n\n— Bella, Belly`;
   await sendEmail(email, `${name} is yours, mama`, html, text);
   await dbUpsert('funnel_leads', { email, kind: 'ebook_purchase', product_key: product, variant: 'a', stage: null, anon_id: null }, 'email,kind,product_key').catch((e) => console.error('ebook lead', e));
