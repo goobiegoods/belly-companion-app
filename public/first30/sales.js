@@ -1,0 +1,16 @@
+(function(){
+var stage=document.getElementById('stage');setTimeout(function(){stage.classList.add('open')},900);stage.addEventListener('click',function(){stage.classList.toggle('open')});
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.12});document.querySelectorAll('section.s').forEach(function(s){io.observe(s)});
+var st=document.getElementById('sticky');addEventListener('scroll',function(){var b=document.getElementById('buy').getBoundingClientRect();st.classList.toggle('on',scrollY>innerHeight*.8&&b.top>innerHeight)},{passive:true});
+var tks=[].slice.call(document.querySelectorAll('#ticks .tk')),mf=document.getElementById('mf');
+tks.forEach(function(t){t.onclick=function(){t.classList.toggle('on');var n=tks.filter(function(x){return x.classList.contains('on')}).length;mf.style.setProperty('--p',(100-n*33.4)+'%');if(n===3){mf.style.boxShadow='0 0 22px #F2B647';document.getElementById('mft').textContent='There it is. 29 more moons inside.'}else{mf.style.boxShadow='none';document.getElementById('mft').textContent='Tick all three and tonight’s moon fills.'}}});
+var CODES={MAMA5:5,FIRST5:5,BELLY5:5},code=document.getElementById('code'),msg=document.getElementById('msg'),bp=document.getElementById('bprice'),sp=document.getElementById('sp'),applied='';
+function setPrice(off){bp.innerHTML=(off?'<s>$29</s>$'+(29-off):'$29')+'<small>one time · instant access · no subscription</small>';sp.textContent='$'+(29-off)}
+function apply(){var c=code.value.trim().toUpperCase();if(!c){applied='';setPrice(0);msg.textContent='';return}if(CODES[c]){applied=c;setPrice(CODES[c]);msg.className='msg ok';msg.textContent=c+' applied. $'+CODES[c]+' off, mama.'}else{applied='';setPrice(0);msg.className='msg bad';msg.textContent='That code isn’t valid.'}}
+document.getElementById('apply').onclick=apply;code.addEventListener('keydown',function(e){if(e.key==='Enter')apply()});
+var q=new URLSearchParams(location.search).get('code');if(q){code.value=q;apply()}
+document.getElementById('chip').onclick=function(){code.value='MAMA5';apply();try{navigator.clipboard.writeText('MAMA5')}catch(e){}this.textContent='MAMA5 applied · $5 off';location.hash='buy'};
+var go=document.getElementById('go');go.onclick=function(){if(go.disabled)return;go.disabled=true;go.innerHTML='Opening secure checkout…';
+ fetch('/api/ebook-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:'first30',code:applied})}).then(function(r){return r.json()}).then(function(j){if(j.url){location.href=j.url}else{throw new Error(j.error||'Checkout is unavailable')}}).catch(function(e){go.disabled=false;go.innerHTML='Get The First 30 <i>→</i>';msg.className='msg bad';msg.textContent=e.message})};
+if(new URLSearchParams(location.search).get('checkout')==='cancelled'){msg.className='msg';msg.textContent='No worries. It’s here when you’re ready.';}
+})();

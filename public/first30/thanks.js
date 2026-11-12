@@ -1,0 +1,1 @@
+(function(){var sid=new URLSearchParams(location.search).get('sid')||'';var u='/api/ebook?sid='+encodeURIComponent(sid);var a=document.getElementById('open');a.href=u;setTimeout(function(){location.href=u},3200)})();

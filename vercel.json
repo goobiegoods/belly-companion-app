@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/first30",
+      "destination": "/first30/index.html"
+    },
+    {
       "source": "/start",
       "destination": "/landing/index.html"
     },
