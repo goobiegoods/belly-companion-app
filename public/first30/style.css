@@ -83,3 +83,4 @@ h2{font:500 clamp(36px,7vw,58px)/1.02 Fraunces,serif;letter-spacing:-.015em;marg
 @media(max-width:360px){.stage{height:330px;--yo:44px}.bk{top:66%}}
 .buy ul li{text-wrap:pretty}
 .buy ul{line-height:1.45}.buy ul li{margin-bottom:10px}
+.acc-form{display:flex;flex-direction:column;gap:12px;width:100%;max-width:380px;margin:30px auto 0}.acc-form input{padding:18px 22px;border-radius:999px;border:1.5px solid #FBEEE033;background:#FBEEE00d;color:var(--cream);font:500 16px Inter;outline:none;text-align:center}.acc-form input:focus{border-color:var(--gold)}.acc-form .pill{justify-content:center}

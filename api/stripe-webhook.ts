@@ -2,7 +2,7 @@ export const config = { runtime: 'edge' };
 
 import Stripe from 'stripe';
 import { getStripe, dbSelect, dbUpdate, dbUpsert, resolveStripeWebhookSecret } from './_lib/stripe.js';
-import { layout } from './_lib/emails.js';
+import { sendEbookEmail } from './_lib/ebook-mail.js';
 import {
   cleanEmail,
   findOrCreateUser,
@@ -413,36 +413,9 @@ async function handleInvoicePaid(inv: Stripe.Invoice) {
 // ======================================================================
 // E-book delivery (meetbelly.com/first30 guest checkout)
 // ======================================================================
-const EBOOK_NAMES: Record<string, string> = { first30: 'The First 30' };
 async function deliverEbook(session: Stripe.Checkout.Session) {
-  const email = cleanEmail(session.customer_details?.email || session.customer_email);
-  const product = session.metadata?.product || '';
-  const name = EBOOK_NAMES[product];
-  if (!email || !name) { console.log('ebook: missing email or product', session.id); return; }
-  const base = (process.env.LANDING_URL || 'https://meetbelly.com').replace(/\/+$/, '');
-  const link = `${base}/api/ebook?sid=${encodeURIComponent(session.id)}`;
-  const mail = layout({
-    preheader: `${name} is yours. Open it tonight, mama.`,
-    icon: '',
-    eyebrow: 'Your book is here',
-    headline: `${name}, *yours.*`,
-    paragraphs: [
-      "Hi mama, I'm Bella. One page a day, one warm bowl, one tiny win.",
-      'Open it on your phone and tick your first day tonight. Your moon starts filling.',
-    ],
-    features: [
-      { icon: '', title: 'Save this email', text: 'The button below is your copy, forever. Any phone, any time.' },
-      { icon: '', title: 'Print the fridge pages', text: 'The Herbivore list and the 30-day check look beautiful on paper.' },
-      { icon: '', title: 'Want me at 3am too?', text: 'Belly is free for 7 days at app.meetbelly.com.' },
-    ],
-    cta: { label: `Open ${name}`, url: link },
-    note: `Receipt: ${name} · one-time purchase · no subscription. Questions? Just reply.`,
-    signoff: true,
-    footer: { reason: `You're getting this because you bought ${name}.` },
-  });
-  const html = mail;
-  const text = `Hi mama, I'm Bella. ${name} is yours.\n\nOpen it: ${link}\n\nKeep this email, that link is your copy forever.\n\n— Bella, Belly`;
-  await sendEmail(email, `${name} is yours, mama`, html, text);
-  await dbUpsert('funnel_leads', { email, kind: 'ebook_purchase', product_key: product, variant: 'a', stage: null, anon_id: null }, 'email,kind,product_key').catch((e) => console.error('ebook lead', e));
-  console.log('ebook delivered', product, session.id);
+  const sent = await sendEbookEmail(session);
+  if (!sent) return;
+  await dbUpsert('funnel_leads', { email: sent.email, kind: 'ebook_purchase', product_key: sent.product, variant: 'a', stage: null, anon_id: null }, 'email,kind,product_key').catch((e) => console.error('ebook lead', e));
+  console.log('ebook delivered', sent.product, session.id);
 }
