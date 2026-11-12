@@ -102,6 +102,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     console.log('stripe-webhook: skipping session, payment_status =', session.payment_status);
     return;
   }
+  if (session.metadata?.source === 'ebook') {
+    await deliverEbook(session);
+    return;
+  }
   const orderId = session.metadata?.orderId;
   if (!orderId) {
     console.log('stripe-webhook: no orderId in checkout session metadata');
@@ -402,4 +406,32 @@ async function handleInvoicePaid(inv: Stripe.Invoice) {
       billing_reason: inv.billing_reason,
     });
   }
+}
+
+
+// ======================================================================
+// E-book delivery (meetbelly.com/first30 guest checkout)
+// ======================================================================
+const EBOOK_NAMES: Record<string, string> = { first30: 'The First 30' };
+async function deliverEbook(session: Stripe.Checkout.Session) {
+  const email = cleanEmail(session.customer_details?.email || session.customer_email);
+  const product = session.metadata?.product || '';
+  const name = EBOOK_NAMES[product];
+  if (!email || !name) { console.log('ebook: missing email or product', session.id); return; }
+  const base = (process.env.LANDING_URL || 'https://meetbelly.com').replace(/\/+$/, '');
+  const link = `${base}/api/ebook?sid=${encodeURIComponent(session.id)}`;
+  const html = `<div style="background:#150A1F;padding:40px 20px;font-family:Inter,Arial,sans-serif;color:#FBEEE0">
+<table role="presentation" width="100%" style="max-width:520px;margin:0 auto"><tr><td>
+<div style="width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE7A8,#F2B647 30%,#E8622E 72%,#B5386B);box-shadow:0 0 26px #F2B64788"></div>
+<p style="font:600 11px monospace;letter-spacing:.18em;text-transform:uppercase;color:#F2B647;margin:22px 0 6px">Belly · Your book is here</p>
+<h1 style="font-family:Georgia,serif;font-weight:400;font-size:38px;line-height:1.05;margin:0 0 14px">${name}, <em style="color:#F2B647">yours.</em></h1>
+<p style="font-size:16px;line-height:1.6;color:#FBEEE0cc;margin:0 0 26px">Hi mama, I'm Bella. One page a day, one warm bowl, one tiny win. Open it on your phone and tick your first day tonight. Your moon starts filling.</p>
+<a href="${link}" style="display:inline-block;background:#FBEEE0;color:#150A1F;text-decoration:none;font-weight:600;font-size:16px;padding:16px 28px;border-radius:999px">Open ${name} &rarr;</a>
+<p style="font-size:13px;line-height:1.6;color:#FBEEE088;margin:26px 0 0">Keep this email. That button is your copy, forever. Want me with you at 3am too? Belly is free for 7 days at app.meetbelly.com.</p>
+<p style="font-family:Georgia,serif;font-style:italic;color:#F2B647;font-size:18px;margin:22px 0 0">— Bella</p>
+</td></tr></table></div>`;
+  const text = `Hi mama, I'm Bella. ${name} is yours.\n\nOpen it: ${link}\n\nKeep this email, that link is your copy forever.\n\n— Bella, Belly`;
+  await sendEmail(email, `${name} is yours, mama`, html, text);
+  await dbUpsert('funnel_leads', { email, kind: 'ebook_purchase', product_key: product, variant: 'a', stage: null, anon_id: null }, 'email,kind,product_key').catch((e) => console.error('ebook lead', e));
+  console.log('ebook delivered', product, session.id);
 }
