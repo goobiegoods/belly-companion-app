@@ -289,6 +289,7 @@ function SOLD(key,item,done){return{soldout:true,key:key,item:item,price:'sold o
 var OFFERS={trial:function(){return{plan:'trial',item:"belly · 7 days free",price:"$0.00 today",ship:false,bump:true,terms:T7,done:"You're in. Bella's waiting."};},
  bonus:function(){return{plan:'bonus',item:"belly · 14 days free",price:"$0.00 today",ship:false,bump:true,terms:T14,done:"You're in, founding mama"};},
  rem:function(){var r=REM[remSel];return SOLD('remedy_'+slug(r.n),r.n);},
+ first30:function(){var o=SOLD('ebook_first_30',"The First 30 (e-book)");o.price='coming soon';o.terms='The First 30 is almost here. One email the moment it drops. No spam.';o.done="You're first in line, mama";return o;},
  book:function(){var o=SOLD('recipe_book',"The Belly Recipe Book (e-book)");o.price='coming soon';o.terms='Coming soon. We’ll email you when it’s ready. No spam.';return o;},
  calm:function(){return SOLD('calm_'+slug(CALMN()),CALMN());},
  pick:function(){return SOLD('comfort_pick',"Comfort pick, "+(STOPS[Math.max(cur,0)].lab||"week "+STOPS[Math.max(cur,0)].w));},
@@ -437,18 +438,18 @@ var RI=[[.5,'cup','rolled oats'],[1,'tsp','turmeric'],[1,'tbsp','raw honey'],[.5
 function rcp(){document.getElementById('ri').innerHTML=RI.map(function(r){return '<li><b>'+(Math.round(r[0]*sv/2*4)/4)+'</b> '+r[1]+' '+r[2]+'</li>';}).join('');document.getElementById('svn').textContent='serves '+sv;}
 document.getElementById('svp').onclick=function(){sv=Math.min(8,sv+1);rcp();};document.getElementById('svm').onclick=function(){sv=Math.max(1,sv-1);rcp();};rcp();setFeat();
 var COL0=document.getElementById('col2').innerHTML;
-var TR={pregnant:{nm:'Growing',o:['bella','scan','offer','glow','meme','breathe','courses','comm','feat','recipes','jar','shelf','herbs','finale'],
+var TR={pregnant:{nm:'Growing',o:['bella','scan','offer','first30','glow','meme','breathe','courses','comm','feat','recipes','jar','shelf','herbs','finale'],
  me:['me at 3am, googling:','is this normal?','why am I crying at a commercial','can I eat this','Skip the 3am spiral.'],
  sc:['lavender calm','BODY LOTION · 8 FL OZ',"Know what's in it before it's on them.",''],sh:'Remedies chosen for this week.'},
-trying:{nm:'The Wait',o:['bella','glow','offer','meme','scan','breathe','courses','comm','feat','recipes','jar','shelf','herbs','finale'],
+trying:{nm:'The Wait',o:['bella','glow','offer','meme','first30','scan','breathe','courses','comm','feat','recipes','jar','shelf','herbs','finale'],
  me:['me, day 9 of the wait:','is this a symptom or wishful thinking','how many days until I can test','did I do this right','Skip the two-week-wait spiral.'],
  sc:['rose glow','FACE SERUM · 1 FL OZ',"Know what's in it before it's on you.",''],sh:'Remedies chosen for your cycle.',
  po:[['A','ana · cycle 4','#2C9C8F','Two pink lines. I still do not believe it.'],['S','sade · cycle 9','#B5386B','Nine months of trying. Be gentle with yourself.'],['K','kim · cycle 2','#E8622E','Anyone else counting days to testing?'],['L','lena · cycle 6','#F2B647','Warm meals and early nights. That is my whole plan.']]},
-postpartum:{nm:'Mama Mode',o:['bella','glow','offer','breathe','meme','scan','courses','comm','feat','recipes','jar','shelf','herbs','finale'],
+postpartum:{nm:'Mama Mode',o:['bella','first30','glow','offer','breathe','meme','scan','courses','comm','feat','recipes','jar','shelf','herbs','finale'],
  me:['me, holding baby at 3am:','is it normal that I cry every evening','how often should they eat','am I doing this right','Skip the 3am-feed spiral.'],
  sc:['soft wash','BABY WASH · 8 FL OZ',"Know what's in it before it's on them.",''],sh:'Remedies chosen for recovery.',
  po:[['M','maya · day 6','#2C9C8F','Nobody warned me about the 3am quiet.'],['J','jo · week 3','#B5386B','Cried happy tears and tired tears in the same hour.'],['T','tia · week 8','#E8622E','We left the house today. Victory.'],['R','rae · day 12','#F2B647','Anyone else awake feeding right now?']]},
-little:{nm:'Big Feelings',o:['bella','scan','offer','meme','glow','breathe','courses','comm','feat','recipes','jar','shelf','herbs','finale'],
+little:{nm:'Big Feelings',o:['bella','scan','offer','first30','meme','glow','breathe','courses','comm','feat','recipes','jar','shelf','herbs','finale'],
  me:['me, after bedtime, googling:','why will they only eat beige food','how do I get them to sleep','is this a phase','Skip the bedtime-battle spiral.'],
  sc:['sunny splash','KIDS SHAMPOO · 8 FL OZ',"Know what's in it before it's on them.",''],sh:'Remedies chosen for little ones.',
  po:[['D','dee · 2 yrs','#E8622E','Toddler ate a green thing. Frame it.'],['P','pia · 4 mo','#2C9C8F','Sleep regression is not a personality trait.'],['N','nia · 18 mo','#B5386B','Big feelings at the grocery store again.'],['C','cam · 3 yrs','#F2B647','Bedtime took 90 minutes. We survived.']]}};
