@@ -1,0 +1,113 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@300..700&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet"><meta name="description" content="Solids in 7 Days: one food a day, one calm week. The starting-solids guide from Belly."><title>Solids in 7 Days — Belly</title><style>
+
+
+
+
+:root{--night:#150A1F;--night2:#22122F;--teal:#2C9C8F;--mag:#B5386B;--ember:#E8622E;--gold:#F2B647;--cream:#FBEEE0;--ink:#1E1428;--dim:#6E6276}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.serif{font-family:Fraunces,serif;font-variation-settings:"SOFT" 50,"opsz" 144}
+.acc{font-style:italic;color:var(--gold);font-weight:400}
+.mono{font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.18em;font-size:11px;font-weight:600}
+.orb{width:var(--s,44px);height:var(--s,44px);border-radius:50%;flex:none;
+  background:radial-gradient(circle at 35% 30%,#FFE7A8 0%,#F2B647 30%,#E8622E 72%,#B5386B 100%);
+  box-shadow:0 0 calc(var(--s,44px)*.6) #F2B64788,0 0 calc(var(--s,44px)*1.4) #E8622E44}
+.glowbg{background:
+  radial-gradient(60% 45% at 12% 8%,#2C9C8F55,transparent 70%),
+  radial-gradient(55% 40% at 92% 30%,#B5386B55,transparent 70%),
+  radial-gradient(70% 50% at 70% 105%,#E8622E55,transparent 70%),
+  radial-gradient(40% 30% at 30% 95%,#F2B64733,transparent 70%),var(--night);color:var(--cream)}
+.grain{position:relative}.grain:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.card{background:#fff;border-radius:22px;color:var(--ink);box-shadow:0 30px 60px -20px #0009,0 2px 0 #ffffff10 inset}
+.pill{display:inline-flex;align-items:center;gap:12px;background:var(--night);color:var(--cream);border-radius:999px;padding:16px 26px 16px 30px;font:600 15px Inter;text-decoration:none;box-shadow:0 12px 28px -10px #150A1F99}
+.pill i{font-style:normal;color:var(--gold);font-size:18px}
+.row{display:grid;grid-template-columns:56px 1fr;gap:14px;padding:16px 0;border-top:1px solid #1E142814}
+.row:first-child{border-top:0}
+.row .n{font:600 13px 'JetBrains Mono';color:var(--ember);letter-spacing:.08em;padding-top:3px}
+.row b{display:block;font:600 11px 'JetBrains Mono';letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+
+body{min-height:100vh;overflow-x:hidden}
+.stage{width:1080px;height:1350px;margin:0 auto;position:relative;overflow:hidden;padding:84px 80px}
+.hd{display:flex;align-items:center;gap:16px}
+h1{font-size:118px;line-height:.92;font-weight:500;letter-spacing:-.025em;margin-top:44px}
+.sub{font-size:22px;line-height:1.5;color:#FBEEE0c0;max-width:640px;margin-top:22px}
+.C{--cx:540px;--cy:850px}
+.halo{position:absolute;left:540px;top:820px;width:900px;height:760px;margin:-380px 0 0 -450px;border-radius:50%;background:radial-gradient(closest-side,#F2B64755,#E8622E22 50%,transparent);opacity:.35;transition:opacity 1.6s}
+.open .halo{opacity:1}
+.book{position:absolute;left:540px;top:850px;width:300px;height:400px;margin:-200px 0 0 -150px;perspective:2000px;transition:transform 1.4s cubic-bezier(.6,.05,.2,1);cursor:pointer}
+.open .book{transform:translateX(150px)}
+.pages{position:absolute;inset:0;border-radius:4px 14px 14px 4px;background:linear-gradient(90deg,#e7d7c4,#fff 7%,#FBEEE0);box-shadow:0 60px 90px -30px #000d;padding:38px 32px;color:var(--ink)}
+.ln{display:block;height:6px;border-radius:3px;background:#1E142818;margin:11px 0}.ln.s{width:58%}
+.flap{position:absolute;inset:0;transform-origin:left center;transform-style:preserve-3d;transition:transform 1.4s cubic-bezier(.6,.05,.2,1)}
+.open .flap{transform:rotateY(-178deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:4px 14px 14px 4px;padding:34px 28px}
+.front{color:var(--cream);background:radial-gradient(90% 60% at 10% 0%,#2C9C8F88,transparent 70%),radial-gradient(80% 60% at 100% 70%,#B5386B88,transparent 70%),radial-gradient(70% 50% at 40% 110%,#E8622E77,transparent 70%),var(--night);box-shadow:inset 6px 0 0 #0006,0 0 0 1px #F2B64755,0 50px 80px -30px #000d}
+.front h2{font:500 48px/.95 Fraunces;margin-top:66px}
+.back{transform:rotateY(180deg);background:linear-gradient(270deg,#e7d7c4,#fff 7%,#FBEEE0);color:var(--ink);border-radius:14px 4px 4px 14px}
+.back .r{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid #1E142812;font:500 17px Fraunces}.back .r .mono{font-size:9.5px;width:46px}
+.dc{position:absolute;left:540px;top:850px;width:196px;height:128px;margin:-64px 0 0 -98px;background:#fff;border-radius:16px;padding:15px 17px;color:var(--ink);
+ box-shadow:0 26px 44px -16px #000c,0 0 40px color-mix(in srgb,var(--c) 45%,transparent);border-top:4px solid var(--c);opacity:0;transform:scale(.4);
+ transition:transform 1.1s cubic-bezier(.2,.9,.25,1.12),opacity .5s;transition-delay:calc(1s + var(--i)*.08s)}
+.dc .mono{color:var(--c);font-size:10px} .dc b{display:block;font-size:21px;font-weight:500;margin:6px 0 10px;white-space:nowrap}
+.open .dc{opacity:1;transform:translate(var(--x),var(--y)) rotate(var(--r))}
+.buy{position:absolute;left:80px;right:80px;bottom:76px;display:flex;align-items:center;justify-content:space-between}
+.price{font:500 64px Fraunces} .price small{display:block;font:600 12px 'JetBrains Mono';letter-spacing:.18em;text-transform:uppercase;color:#FBEEE099;margin-top:6px}
+.buy .pill{background:var(--cream);color:var(--night);font-size:20px;padding:22px 34px 22px 40px}
+.tap{position:absolute;left:0;right:0;top:1078px;text-align:center;color:#FBEEE088;transition:opacity .5s}.open .tap{opacity:0}
+
+.hero-wrap{width:100%;overflow:hidden;display:flex;justify-content:center}
+.hero-wrap .stage{transform-origin:top center;flex:none}
+.sec{max-width:880px;margin:0 auto;padding:70px 24px 0}
+.sec h3{font:500 clamp(36px,6vw,54px)/1 Fraunces;letter-spacing:-.015em;margin:12px 0 28px}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.ba .card{padding:24px 26px}.ba p{font-size:16px;line-height:1.6;margin-top:10px}
+.inside{padding:8px 30px}.inside .row{grid-template-columns:72px 1fr 1fr;align-items:baseline}
+.inside .row .serif{font-size:21px}.inside .row span.d{color:var(--dim);font-size:14px}
+.buybox{margin-top:0;padding:34px;text-align:center;background:linear-gradient(180deg,#fff,#FFF6EA)}
+.buybox .price{font:500 76px Fraunces;color:var(--night)} .buybox ul{list-style:none;margin:16px 0 26px;color:var(--dim);font-size:15px;line-height:2}
+.buybox .pill{font-size:18px;padding:20px 34px 20px 40px}
+.fine{font-size:12.5px;color:var(--dim);margin-top:16px}
+.faq .row{grid-template-columns:56px 1fr}
+.endline{text-align:center;padding:70px 24px 60px}
+@media(max-width:640px){.ba{grid-template-columns:1fr}.inside .row{grid-template-columns:56px 1fr}.inside .row span.d{grid-column:2}}
+button.pill{border:0;cursor:pointer;font-family:Inter,sans-serif}button.pill:disabled{opacity:.7}</style></head><body class="glowbg">
+<div class="hero-wrap" id="hw"><div class="stage grain" id="s">
+<div class="hd"><div class="orb" style="--s:46px"></div><span class="mono" style="color:var(--gold);font-size:13px">Belly · Week-one guide</span></div>
+<h1 class="serif">Solids in <span class="acc">seven</span> days.</h1>
+<p class="sub">One food a day. One calm week. No more 3am googling.</p>
+<div class="halo"></div>
+<div class="book" id="bk">
+ <div class="pages" style="padding:30px 28px"><span class="mono" style="color:var(--ember);font-size:9.5px">Before Day 01</span><div class="serif" style="font-size:27px;margin:8px 0 12px">Hi mama. I’m <em style="color:var(--ember)">Bella.</em></div>
+<p style="font-size:11.6px;line-height:1.55;color:#1E1428cc">I know what 3am feels like. The googling. The forums that make it worse.</p>
+<p style="font-size:11.6px;line-height:1.55;color:#1E1428cc;margin-top:8px">Week one sets the tone. Not the food — the feeling. So we do one food a day. That’s it.</p>
+<div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:linear-gradient(135deg,#F2B64726,#E8622E14)"><span class="mono" style="font-size:8.5px;color:var(--ember)">Tonight</span><p style="font:italic 13px/1.4 Fraunces;margin-top:4px">After a milk feed, when baby’s calm and not starving. 1–2 teaspoons. If it comes back out, that’s a win.</p></div>
+<p style="font-size:11.6px;line-height:1.55;color:#1E1428cc;margin-top:10px">You don’t need perfect. You need someone who already figured it out, sitting next to you. That’s me.</p></div>
+ <div class="flap"><div class="face front"><div class="orb" style="--s:32px"></div><h2>Solids in<br><em style="color:var(--gold)">seven</em><br>days.</h2><div class="mono" style="position:absolute;bottom:28px;color:#FBEEE099;font-size:9px">Belly · 12 pages · printable</div></div>
+  <div class="face back"><span class="mono" style="color:var(--dim)">Inside</span><div style="margin-top:14px"><div class="r"><span class="mono" style="color:#2C9C8F">Day 01</span>Avocado</div><div class="r"><span class="mono" style="color:#3E8F9A">Day 02</span>Sweet potato</div><div class="r"><span class="mono" style="color:#B5386B">Day 03</span>Banana + iron oats</div><div class="r"><span class="mono" style="color:#C24A55">Day 04</span>Carrot</div><div class="r"><span class="mono" style="color:#E8622E">Day 05</span>Finger foods</div><div class="r"><span class="mono" style="color:#EC8A36">Day 06</span>Egg day</div><div class="r"><span class="mono" style="color:#F2B647">Day 07</span>The full day</div></div></div></div>
+</div>
+<div class="dc" style="--c:#2C9C8F;--i:0;--x:-396px;--y:-219px;--r:-18deg"><span class="mono">Day 01</span><b class="serif">Avocado</b><span class="ln"></span><span class="ln s"></span></div><div class="dc" style="--c:#3E8F9A;--i:1;--x:-264px;--y:-289px;--r:-12deg"><span class="mono">Day 02</span><b class="serif">Sweet potato</b><span class="ln"></span><span class="ln s"></span></div><div class="dc" style="--c:#B5386B;--i:2;--x:-132px;--y:-331px;--r:-6deg"><span class="mono">Day 03</span><b class="serif">Banana + iron oats</b><span class="ln"></span><span class="ln s"></span></div><div class="dc" style="--c:#C24A55;--i:3;--x:0px;--y:-345px;--r:0deg"><span class="mono">Day 04</span><b class="serif">Carrot</b><span class="ln"></span><span class="ln s"></span></div><div class="dc" style="--c:#E8622E;--i:4;--x:132px;--y:-331px;--r:6deg"><span class="mono">Day 05</span><b class="serif">Finger foods</b><span class="ln"></span><span class="ln s"></span></div><div class="dc" style="--c:#EC8A36;--i:5;--x:264px;--y:-289px;--r:12deg"><span class="mono">Day 06</span><b class="serif">Egg day</b><span class="ln"></span><span class="ln s"></span></div><div class="dc" style="--c:#F2B647;--i:6;--x:396px;--y:-219px;--r:18deg"><span class="mono">Day 07</span><b class="serif">The full day</b><span class="ln"></span><span class="ln s"></span></div>
+<div class="tap mono">Tap to open</div>
+<div class="buy"><div class="price">$29<small>Instant access · printable</small></div><a class="pill" href="#buy">Get the guide <i>→</i></a></div>
+</div>
+</div>
+<section class="sec"><span class="mono" style="color:var(--gold)">The week, before and after</span><h3 class="serif">From guessing to <span class="acc">knowing.</span></h3>
+ <div class="ba"><div class="card"><span class="mono" style="color:var(--mag)">Before</span><p>Guessing what to feed, when, how much — and worrying about what to watch for.</p></div>
+ <div class="card"><span class="mono" style="color:var(--teal)">After · Day 07</span><p>A full day of meals, put together. Six foods tried, one at a time — and you know which ones your baby loves.</p></div></div></section>
+<section class="sec"><span class="mono" style="color:var(--gold)">What’s inside · 12 printable pages</span><h3 class="serif">One food, <span class="acc">one</span> day.</h3>
+ <div class="card inside"><div class="row"><span class="n">01</span><span class="serif">Avocado</span><span class="d">First taste</span></div><div class="row"><span class="n">02</span><span class="serif">Sweet potato</span><span class="d">Same seat, same calm</span></div><div class="row"><span class="n">03</span><span class="serif">Banana + iron oats</span><span class="d">Iron comes in early, on purpose</span></div><div class="row"><span class="n">04</span><span class="serif">Carrot</span><span class="d">First tiny lumps</span></div><div class="row"><span class="n">05</span><span class="serif">Finger foods</span><span class="d">Gagging vs. choking, made simple</span></div><div class="row"><span class="n">06</span><span class="serif">Egg</span><span class="d">The allergy-watch morning</span></div><div class="row"><span class="n">07</span><span class="serif">The full day</span><span class="d">Everything baby now knows, on one plate</span></div><div class="row"><span class="n">＋</span><span class="serif">Fridge sheet</span><span class="d">Allergy watch + not-before-12-months list</span></div><div class="row"><span class="n">＋</span><span class="serif">Shopping list</span><span class="d">One trip, the whole week</span></div></div>
+ <p style="color:#FBEEE0aa;margin-top:18px;font-size:15px">Plus a printable daily tracker on every day-page: loved it, so-so, not today, and room for notes.</p></section>
+<section class="sec" id="buy"><div class="card buybox"><div style="display:flex;justify-content:center"><div class="orb" style="--s:44px"></div></div>
+ <div class="mono" style="color:var(--ember);margin-top:18px">Solids in 7 Days · Belly</div><div class="price">$29</div>
+ <ul><li>Opens instantly, right after you pay</li><li>A copy in your inbox from Bella</li><li>One time · no subscription</li></ul>
+ <button class="pill" id="go" type="button">Get the guide <i>→</i></button><p class="fine" id="msg" style="min-height:16px"></p>
+ <p class="fine">Digital download · all sales final · please read before you buy.</p></div></section>
+<section class="sec faq"><span class="mono" style="color:var(--gold)">Good to know</span><h3 class="serif">Quick <span class="acc">answers.</span></h3>
+ <div class="card" style="padding:8px 30px">
+  <div class="row"><span class="n">01</span><div><b>Who is it for?</b>First-time moms with a baby 6–12 months old who’s starting solids.</div></div>
+  <div class="row"><span class="n">02</span><div><b>How do I get it?</b>Right after you pay it opens on your phone, and Bella emails you a lifetime link. No waiting.</div></div>
+  <div class="row"><span class="n">03</span><div><b>Lost your link?</b>Get it again any time at meetbelly.com/first30/access, or just reply to Bella’s email.</div></div>
+  <div class="row"><span class="n">04</span><div><b>Anything else to buy?</b>No. $29 is the whole thing. When you’re ready for more, Belly is free for 7 days at app.meetbelly.com.</div></div>
+ </div></section>
+<div class="endline"><p class="serif" style="font-size:30px;font-style:italic;color:var(--gold)">You’ve got this, mama.</p><p class="mono" style="color:#FBEEE088;margin-top:14px">— Bella · @bellycircle · meetbelly.com</p></div>
+<script src="/solids/sales.js" defer></script></body></html>

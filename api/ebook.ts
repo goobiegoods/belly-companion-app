@@ -3,8 +3,9 @@ export const config = { runtime: 'edge' };
 // Serves a purchased e-book. Access = a paid Stripe Checkout session id for that product.
 import { getStripe } from './_lib/stripe.js';
 import { FIRST30_HTML } from './_lib/first30-book.js';
+import { SOLIDS_HTML } from './_lib/solids-book.js';
 
-const BOOKS: Record<string, string> = { first30: FIRST30_HTML };
+const BOOKS: Record<string, string> = { first30: FIRST30_HTML, solids: SOLIDS_HTML };
 
 function page(msg: string, status: number) {
   return new Response(

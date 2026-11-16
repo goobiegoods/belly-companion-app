@@ -3,7 +3,7 @@ import type Stripe from 'stripe';
 import { layout } from './emails.js';
 import { cleanEmail, sendEmail } from './funnel.js';
 
-export const EBOOK_NAMES: Record<string, string> = { first30: 'The First 30' };
+export const EBOOK_NAMES: Record<string, string> = { first30: 'The First 30', solids: 'Solids in 7 Days' };
 
 export async function sendEbookEmail(session: Stripe.Checkout.Session, again = false) {
   const email = cleanEmail(session.customer_details?.email || session.customer_email);
