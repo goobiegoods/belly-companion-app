@@ -14,3 +14,4 @@ var go=document.getElementById('go');go.onclick=function(){if(go.disabled)return
  fetch('/api/ebook-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:'first30',code:applied})}).then(function(r){return r.json()}).then(function(j){if(j.url){location.href=j.url}else{throw new Error(j.error||'Checkout is unavailable')}}).catch(function(e){go.disabled=false;go.innerHTML='Get The First 30 <i>→</i>';msg.className='msg bad';msg.textContent=e.message})};
 if(new URLSearchParams(location.search).get('checkout')==='cancelled'){msg.className='msg';msg.textContent='No worries. It’s here when you’re ready.';}
 })();
+addEventListener('pageshow',function(){var g=document.getElementById('go');if(g){g.disabled=false;g.innerHTML='Get The First 30 <i>→</i>'}});

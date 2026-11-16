@@ -5,6 +5,10 @@
       "destination": "/first30/access.html"
     },
     {
+      "source": "/solids",
+      "destination": "/solids/index.html"
+    },
+    {
       "source": "/first30",
       "destination": "/first30/index.html"
     },
