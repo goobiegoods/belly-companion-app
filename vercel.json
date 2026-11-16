@@ -9,6 +9,10 @@
       "destination": "/solids/index.html"
     },
     {
+      "source": "/first30/preview",
+      "destination": "/first30/preview.html"
+    },
+    {
       "source": "/first30",
       "destination": "/first30/index.html"
     },
