@@ -20,17 +20,22 @@ function same(a: string, b: string) {
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 
 /** Caller proves it holds a Belly Supabase secret/service key (any format) by Supabase accepting it for an admin-only call. */
+let why = '';
 async function holdsServiceKey(k: string): Promise<boolean> {
   const url = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/+$/, '');
-  if (!url || !/^(sb_secret_|eyJ)/.test(k)) return false;
-  const r = await fetch(`${url}/auth/v1/admin/users?per_page=1`, { headers: { apikey: k, Authorization: `Bearer ${k}` } }).catch(() => null);
+  if (!url) { why = 'no-url'; return false; }
+  if (!/^(sb_secret_|eyJ)/.test(k)) { why = k ? 'key-format' : 'no-key'; return false; }
+  const h: Record<string, string> = { apikey: k };
+  if (k.startsWith('eyJ')) h.Authorization = `Bearer ${k}`;
+  const r = await fetch(`${url}/auth/v1/admin/users?per_page=1`, { headers: h }).catch(() => null);
+  why = 'supabase-' + (r ? r.status : 'fetch-failed');
   return !!r && r.ok;
 }
 
 export default async function handler(req: Request) {
   const got = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
   const key = req.headers.get('x-belly-key') || '';
-  if (!same(got, await expected()) && !(await holdsServiceKey(key))) return json({ error: 'unauthorized' }, 401);
+  if (!same(got, await expected()) && !(await holdsServiceKey(key))) return json({ error: 'unauthorized', why }, 401);
   const days = Math.min(90, Math.max(1, Number(new URL(req.url).searchParams.get('days')) || 60));
   const since = Math.floor(Date.now() / 1000) - days * 86400;
   const out: unknown[] = [];
