@@ -113,18 +113,18 @@ borb.addEventListener('click',function(){
 });
 
 /* ---------- 5 · apothecary ---------- */
-var REM=[{n:"First Trimester Kit",f:"Nux Vomica 30c · Sepia 30c · Ginger Blend Tea",p:"sold out",kit:true,c:["#8a3a12","#c2561f"]},
-{n:"Nux Vomica 30c",f:"Traditionally used to support digestive comfort",p:"sold out",c:["#6a2a12","#c2561f"]},
-{n:"Sepia 30c",f:"Traditionally used to support steady energy and mood",p:"sold out",c:["#5b1d3c","#a3386a"]},
-{n:"Pulsatilla 30c",f:"Traditionally used to support emotional balance",p:"sold out",c:["#1f5c56","#2C9C8F"]},
-{n:"Chamomilla 30c",f:"Traditionally used to support rest",p:"sold out",c:["#7a5410","#d69a2a"]}];
+var REM=[{n:"First Trimester Kit",f:"Nux Vomica 30c · Sepia 30c · Ginger Blend Tea",p:"on Amazon",kit:true,c:["#8a3a12","#c2561f"]},
+{n:"Nux Vomica 30c",f:"Traditionally used to support digestive comfort",p:"on Amazon",c:["#6a2a12","#c2561f"]},
+{n:"Sepia 30c",f:"Traditionally used to support steady energy and mood",p:"on Amazon",c:["#5b1d3c","#a3386a"]},
+{n:"Pulsatilla 30c",f:"Traditionally used to support emotional balance",p:"on Amazon",c:["#1f5c56","#2C9C8F"]},
+{n:"Chamomilla 30c",f:"Traditionally used to support rest",p:"on Amazon",c:["#7a5410","#d69a2a"]}];
 var car=document.getElementById('car'),remtxt=document.getElementById('remtxt'),remSel=0;
 car.innerHTML=REM.map(function(r,k){var grad='linear-gradient(90deg,'+r.c[0]+','+r.c[1]+' 45%,'+r.c[0]+')';
  var vials=r.kit?'<i class="v" style="height:92px;background:linear-gradient(90deg,#6a2a12,#c2561f 45%,#6a2a12)"></i><i class="v" style="height:110px;background:linear-gradient(90deg,#5b1d3c,#a3386a 45%,#5b1d3c);animation-delay:-2s"></i><i class="v" style="height:74px;width:54px;border-radius:8px;background:linear-gradient(90deg,#DCC29F,#F4E2C8 50%,#CDB594);animation-delay:-4s"></i>'
   :'<i class="v" style="height:112px;background:'+grad+';animation-delay:-'+k+'s"></i>';
  return '<div class="card'+(k===0?' on':'')+'" data-k="'+k+'"><div class="bot">'+vials+'</div><span class="mono">'+(r.kit?'bella recommends':'single remedy')+'</span><p class="n">'+r.n+'</p><p class="f">'+r.f+'</p><span class="p">'+r.p+'</span></div>';}).join('');
 var cards=[].slice.call(car.children);
-function pickRem(k){remSel=k;cards.forEach(function(c,j){c.classList.toggle('on',j===k);});var s=document.querySelector('[data-offer="rem"]');if(!s.classList.contains('done'))remtxt.textContent=/^\$/.test(REM[k].p)?'slide to add · '+REM[k].p:'sold out · notify me';}
+function pickRem(k){remSel=k;cards.forEach(function(c,j){c.classList.toggle('on',j===k);});var s=document.querySelector('[data-offer="rem"]');if(!s.classList.contains('done'))remtxt.textContent=/^\$/.test(REM[k].p)?'slide to add · '+REM[k].p:'slide to shop on Amazon ↗';}
 function nearest(){var mid=car.scrollLeft+car.clientWidth/2,best=0,bd=1e9;cards.forEach(function(c,j){var d=Math.abs(c.offsetLeft+c.offsetWidth/2-mid);if(d<bd){bd=d;best=j;}});if(best!==remSel||!cards[best].classList.contains('on'))pickRem(best);}
 var rt;car.addEventListener('scroll',function(){clearTimeout(rt);rt=setTimeout(nearest,60);});
 function centerFirst(){car.scrollLeft=cards[0].offsetLeft-(car.clientWidth-cards[0].offsetWidth)/2;pickRem(0);}
@@ -286,6 +286,10 @@ var T14='Free for 14 days, then $89/year. Renews automatically every year until 
 var TN='$89 today, then $89 every year. Renews automatically until you cancel. Cancel anytime.';
 var TW='Sold out for now. We’ll email you when it’s available. No spam.';
 function SOLD(key,item,done){return{soldout:true,key:key,item:item,price:'sold out',ship:false,terms:TW,done:done||"We'll let you know"};}
+var AMZ={'nux vomica':'B078WB36HB','sepia':'B006H9T4FA','arnica':'B0006NYI7C','pulsatilla':'B00014D2VY','chamomilla':'B00IM575OY'};
+function amzURL(n){var k=String(n).toLowerCase(),a=null;Object.keys(AMZ).forEach(function(x){if(k.indexOf(x)===0)a=AMZ[x];});
+ return a?'https://www.amazon.com/dp/'+a+'?tag=meetbelly-20':'https://www.amazon.com/s?k='+encodeURIComponent('Boiron '+(/kit/i.test(n)?'Nux Vomica Sepia 30c':n))+'&tag=meetbelly-20';}
+function AMAZON(n){BF.track('affiliate_click',{product:slug(n),merchant:'amazon'});var u=amzURL(n),w=window.open(u,'_blank');if(w){try{w.opener=null;}catch(e){}}else location.href=u;return null;}
 function TEA(n){n=String(n).replace(/&amp;/g,'&');return{shop:true,sku:'tea',name:n,item:n+" · mason jar + 2 tea cups",price:"$99.00",terms:'One-time purchase. Hand-blended loose-leaf tea in a glass mason jar, with two tea cups. Free US shipping.',done:"Steeping its way to you"};}
 var ELIX=[{sku:'golden_elixir',n:'Golden Elixir',h:'Golden elixir.',b:['turmeric','raw honey','black pepper'],l1:'golden elixir',l2:'TURMERIC · RAW HONEY',s:'Turmeric, ginger, raw honey and black pepper. One spoon in warm milk is golden milk.'},
  {sku:'ginger_zest_elixir',n:'Ginger Zest Elixir',h:'Ginger zest elixir.',b:['ginger','lemon zest','raw honey'],l1:'ginger zest',l2:'GINGER · LEMON · HONEY',s:'Ginger, lemon zest and raw honey with a little turmeric. One spoon in hot water, bright and warming.'}],elxSel=0;
@@ -296,7 +300,7 @@ function pickElx(k){elxSel=k;var e=ELIX[k],h=document.getElementById('elxh'),b=d
 [].forEach.call(document.querySelectorAll('.elx button'),function(x){x.onclick=function(){pickElx(+x.dataset.k);};});
 var OFFERS={trial:function(){return{plan:'trial',item:"belly · 7 days free",price:"$0.00 today",ship:false,bump:true,terms:T7,done:"You're in. Bella's waiting."};},
  bonus:function(){return{plan:'bonus',item:"belly · 14 days free",price:"$0.00 today",ship:false,bump:true,terms:T14,done:"You're in, founding mama"};},
- rem:function(){var r=REM[remSel];return /^\$/.test(r.p)?TEA(r.n):SOLD('remedy_'+slug(r.n),r.n);},
+ rem:function(){var r=REM[remSel];return /^\$/.test(r.p)?TEA(r.n):AMAZON(r.n);},
  first30:function(){var o=SOLD('ebook_first_30',"The First 30 (e-book)");o.price='coming soon';o.terms='The First 30 is almost here. One email the moment it drops. No spam.';o.done="You're first in line, mama";return o;},
  book:function(){var o=SOLD('recipe_book',"The Belly Recipe Book (e-book)");o.price='coming soon';o.terms='Coming soon. We’ll email you when it’s ready. No spam.';return o;},
  calm:function(){return TEA(CALMN());},
@@ -344,7 +348,7 @@ veil.onclick=function(){if(!busy)closeS(false);};
  var t=s.querySelector('.thumb'),f=s.querySelector('.fill'),tx=s.querySelector('.txt'),x=0,x0=0,max=0,drag=false,T='transform .3s, width .3s';
  function set(v){x=Math.max(0,Math.min(max,v));t.style.transform='translateX('+x+'px)';f.style.width=(54+x)+'px';tx.style.opacity=1-Math.min(1,x/(max*.6));}
  s._reset=function(){t.style.transition=f.style.transition=T;set(0);};
- function fire(){if(navigator.vibrate)navigator.vibrate(12);if(s.dataset.offer==='first30'){location.href='/first30';return;}openS(OFFERS[s.dataset.offer](),s);}
+ function fire(){if(navigator.vibrate)navigator.vibrate(12);if(s.dataset.offer==='first30'){location.href='/first30';return;}var o=OFFERS[s.dataset.offer](s);if(!o){setTimeout(s._reset,400);return;}openS(o,s);}
  t.addEventListener('pointerdown',function(e){if(s.classList.contains('done'))return;drag=true;max=s.clientWidth-54;x0=e.clientX-x;t.style.transition=f.style.transition='none';t.setPointerCapture(e.pointerId);});
  t.addEventListener('pointermove',function(e){if(drag)set(e.clientX-x0);});
  function up(){if(!drag)return;drag=false;if(x>max*.85){t.style.transition=f.style.transition=T;set(max);fire();}else s._reset();}
@@ -372,9 +376,9 @@ var SEAS={trying:mk([['cycle day 1','moon','a fresh start','Rest, warm food and 
 postpartum:mk([['day 1','moon','rest first','Nothing is expected of you but rest and feeding.'],['week 1','heart','milk and mood','Warmth, water, and one person whose only job is you.'],['week 6','sprout','finding your rhythm','Your body is healing. Slow and steady wins.'],['month 3','star','you made it','The fourth trimester is ending. Look how far you have come.']],[0,1,2,1]),
 little:mk([['newborn','moon','all the cuddles','Sleep when they sleep. Everything else can wait.'],['6 months','sprout','first foods','New tastes, new messes. Bella has gentle ideas.'],['1 year','star','first steps','Wobbly, brave, and so proud. So are you.'],['toddler','heart','big feelings','Big feelings need a calm grown-up. That is you.']],[0,1,2,1])};
 var PREG=STOPS.slice(),PREGREM=REM.slice(),PREGHTML=car.innerHTML;
-var SREM={trying:[['Cycle Balance Blend','Traditionally used to support cycle balance',PRICES.tea,'#6a2a12','#c2561f'],['Sepia 30c','Traditionally used to support hormonal balance','sold out','#5b1d3c','#a3386a'],['Pulsatilla 30c','Traditionally used to support emotional balance','sold out','#1f5c56','#2C9C8F']],
-postpartum:[['Postpartum Recovery Blend','Traditionally used to support rest and recovery',PRICES.tea,'#6a2a12','#c2561f'],['Arnica 30c','Traditionally used to support body recovery','sold out','#7a5410','#d69a2a'],['Night Feed Calm blend','Warm, caffeine-free, made for 3am',PRICES.calm,'#1f5c56','#2C9C8F']],
-little:[['Little Sleep Blend','A caffeine-free wind-down tea for you',PRICES.tea,'#6a2a12','#c2561f'],['Chamomilla 30c','Traditionally used to support rest','sold out','#7a5410','#d69a2a'],['After Bedtime Calm blend','Your quiet hour in a cup',PRICES.calm,'#1f5c56','#2C9C8F']]};
+var SREM={trying:[['Cycle Balance Blend','Traditionally used to support cycle balance',PRICES.tea,'#6a2a12','#c2561f'],['Sepia 30c','Traditionally used to support hormonal balance','on Amazon','#5b1d3c','#a3386a'],['Pulsatilla 30c','Traditionally used to support emotional balance','on Amazon','#1f5c56','#2C9C8F']],
+postpartum:[['Postpartum Recovery Blend','Traditionally used to support rest and recovery',PRICES.tea,'#6a2a12','#c2561f'],['Arnica 30c','Traditionally used to support body recovery','on Amazon','#7a5410','#d69a2a'],['Night Feed Calm blend','Warm, caffeine-free, made for 3am',PRICES.calm,'#1f5c56','#2C9C8F']],
+little:[['Little Sleep Blend','A caffeine-free wind-down tea for you',PRICES.tea,'#6a2a12','#c2561f'],['Chamomilla 30c','Traditionally used to support rest','on Amazon','#7a5410','#d69a2a'],['After Bedtime Calm blend','Your quiet hour in a cup',PRICES.calm,'#1f5c56','#2C9C8F']]};
 function setRems(list){if(!list){REM=PREGREM;car.innerHTML=PREGHTML;}else{REM=list.map(function(r){return{n:r[0],f:r[1],p:r[2],c:[r[3],r[4]]};});
  car.innerHTML=REM.map(function(r,k){return '<div class="card'+(k===0?' on':'')+'" data-k="'+k+'"><div class="bot"><i class="v" style="height:112px;background:linear-gradient(90deg,'+r.c[0]+','+r.c[1]+' 45%,'+r.c[0]+')"></i></div><span class="mono">bella recommends</span><p class="n">'+r.n+'</p><p class="f">'+r.f+'</p><span class="p">'+r.p+'</span></div>';}).join('');}
  cards=[].slice.call(car.children);cards.forEach(function(c){c.addEventListener('click',function(){car.scrollTo({left:c.offsetLeft-(car.clientWidth-c.offsetWidth)/2,behavior:'smooth'});});});pickRem(0);car._c=0;}
