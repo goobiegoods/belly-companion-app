@@ -12,6 +12,7 @@ import {
   recoveryEmail,
   metaCapi,
   phCapture,
+  phCaptureStrict,
   attrFromMeta,
   stableUuid,
   STAGE_TO_SEASON,
@@ -50,14 +51,14 @@ export default async function handler(req: Request) {
   try {
     switch (event.type) {
       case 'checkout.session.completed':
-        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session, event);
         break;
       case 'checkout.session.async_payment_succeeded':
         // Delayed payment methods: the session completed earlier as unpaid; deliver now.
-        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session, event);
         break;
       case 'checkout.session.async_payment_failed':
-        console.log('stripe-webhook: async payment failed', (event.data.object as Stripe.Checkout.Session).id);
+        await trackPaymentFailed(event.data.object as Stripe.Checkout.Session, event);
         break;
       case 'checkout.session.expired':
         await handleCheckoutExpired(event.data.object as Stripe.Checkout.Session);
@@ -86,7 +87,7 @@ export default async function handler(req: Request) {
   }
 }
 
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+async function handleCheckoutCompleted(session: Stripe.Checkout.Session, event?: Stripe.Event) {
   // SUBSCRIPTION checkout — sync immediately in case subscription.created
   // raced with (or was delivered after) the success-page polling.
   if (session.mode === 'subscription') {
@@ -112,12 +113,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     console.log('stripe-webhook: skipping session, payment_status =', session.payment_status);
     return;
   }
-  if (session.metadata?.source === 'ebook') {
-    await deliverEbook(session);
-    return;
-  }
-  if (session.metadata?.source === 'shop') {
-    await notifyShopOrder(session);
+  if (session.metadata?.source === 'ebook' || session.metadata?.source === 'shop') {
+    await fulfillOneTime(session, event);
     return;
   }
   const orderId = session.metadata?.orderId;
@@ -426,33 +423,83 @@ async function handleInvoicePaid(inv: Stripe.Invoice) {
 // ======================================================================
 // E-book delivery (meetbelly.com/first30 guest checkout)
 // ======================================================================
-/**
- * First-party paid-order record in PostHog. Only called after Stripe says payment_status === 'paid'
- * on a signature-verified event. Same uuid on retries, so one order = one event.
- * Never sent to Meta (health-adjacent products).
+/*
+ * One-time orders (e-books, shop). Durable ledger = the Checkout Session's own metadata:
+ *   bx_fulfilled=1  email/ship notice sent      bx_tracked=1  order_paid acknowledged by PostHog
+ * Each step re-reads the live session first, so Stripe retries skip steps already done
+ * (no duplicate emails or ship notices) and redo only what failed. If tracking is not
+ * acknowledged we throw → webhook returns 500 → Stripe retries for up to 3 days.
+ * Unacked orders are also findable later: paid sessions without bx_tracked=1.
  */
-async function trackPaidOrder(session: Stripe.Checkout.Session, kind: 'ebook' | 'shop') {
+async function markSession(id: string, patch: Record<string, string>) {
+  await getStripe().checkout.sessions.update(id, { metadata: patch });
+}
+
+async function fulfillOneTime(evSession: Stripe.Checkout.Session, event?: Stripe.Event) {
+  const session = await getStripe().checkout.sessions.retrieve(evSession.id);
+  if (session.payment_status !== 'paid') return;
+  const md = (session.metadata || {}) as Record<string, string>;
+  // Verified payment-confirmation time: the signed event that reported it paid.
+  const paidAt = md.bx_paid_at || new Date((event?.created ?? Math.floor(Date.now() / 1000)) * 1000).toISOString();
+  if (!md.bx_paid_at) await markSession(session.id, { bx_paid_at: paidAt });
+
+  if (md.bx_fulfilled !== '1') {
+    if (md.source === 'ebook') await deliverEbook(session);
+    else await notifyShopOrder(session);
+    await markSession(session.id, { bx_fulfilled: '1' });
+  }
+  if (md.bx_tracked !== '1') {
+    await trackPaidOrder(session, md.source === 'ebook' ? 'ebook' : 'shop', paidAt, event?.id);
+    await markSession(session.id, { bx_tracked: '1' });
+  }
+}
+
+function orderProps(session: Stripe.Checkout.Session) {
   const a = attrFromMeta(session.metadata as Record<string, string>);
-  const distinct = a.anon_id || `stripe_${session.id}`;
-  await phCapture('order_paid', distinct, {
-    $process_person_profile: false,
+  return {
+    distinct: a.anon_id || `stripe_${session.id}`,
+    props: {
+      $process_person_profile: false,
+      product: session.metadata?.product || session.metadata?.sku || '',
+      stripe_session: session.id,
+      livemode: session.livemode,
+      is_qa: a.qa === '1',
+      attributed: !!(a.utm_source || a.fbclid),
+      utm_source: a.utm_source || null, utm_medium: a.utm_medium || null, utm_campaign: a.utm_campaign || null,
+      utm_content: a.utm_content || null, utm_term: a.utm_term || null, has_fbclid: !!a.fbclid,
+      ref_host: a.ref_host || null, landing: a.landing || null, first_campaign: a.first_campaign || null,
+      checkout_created_at: new Date(session.created * 1000).toISOString(),
+    },
+  };
+}
+
+/** Paid order → PostHog, timestamped at verified payment confirmation. Never sent to Meta. */
+async function trackPaidOrder(session: Stripe.Checkout.Session, kind: 'ebook' | 'shop', paidAt: string, eventId?: string) {
+  const { distinct, props } = orderProps(session);
+  await phCaptureStrict('order_paid', distinct, {
+    ...props,
     kind,
-    product: session.metadata?.product || session.metadata?.sku || '',
     revenue: typeof session.amount_total === 'number' ? session.amount_total / 100 : null,
     currency: (session.currency || 'usd').toUpperCase(),
     promo_code: session.metadata?.code || null,
-    stripe_session: session.id,
-    livemode: session.livemode,
-    is_qa: a.qa === '1',
-    attributed: !!(a.utm_source || a.fbclid),
-    utm_source: a.utm_source || null, utm_medium: a.utm_medium || null, utm_campaign: a.utm_campaign || null,
-    utm_content: a.utm_content || null, utm_term: a.utm_term || null, has_fbclid: !!a.fbclid,
-    ref_host: a.ref_host || null, landing: a.landing || null, first_campaign: a.first_campaign || null,
-  }, { uuid: await stableUuid(`order_paid:${session.id}`), timestamp: new Date(session.created * 1000).toISOString() });
+    payment_confirmed_at: paidAt,
+    ingested_at: new Date().toISOString(),
+    stripe_event: eventId || null,
+  }, { uuid: await stableUuid(`order_paid:${session.id}`), timestamp: paidAt });
+}
+
+/** Delayed payment failed → non-revenue event. No side effects, so a throw just means Stripe retries. */
+async function trackPaymentFailed(session: Stripe.Checkout.Session, event: Stripe.Event) {
+  const src = session.metadata?.source;
+  if (src !== 'ebook' && src !== 'shop' && src !== 'funnel') return;
+  const { distinct, props } = orderProps(session);
+  const at = new Date(event.created * 1000).toISOString();
+  await phCaptureStrict('order_payment_failed', distinct, {
+    ...props, kind: src, revenue: 0, failed_at: at, ingested_at: new Date().toISOString(), stripe_event: event.id,
+  }, { uuid: await stableUuid(`order_payment_failed:${session.id}`), timestamp: at });
 }
 
 async function deliverEbook(session: Stripe.Checkout.Session) {
-  await trackPaidOrder(session, 'ebook').catch((e) => console.error('order_paid ebook', e));
   const sent = await sendEbookEmail(session);
   if (!sent) return;
   await dbUpsert('funnel_leads', { email: sent.email, kind: 'ebook_purchase', product_key: sent.product, variant: 'a', stage: null, anon_id: null }, 'email,kind,product_key').catch((e) => console.error('ebook lead', e));
@@ -461,7 +508,6 @@ async function deliverEbook(session: Stripe.Checkout.Session) {
 
 /** Landing-feed shop order paid → email the owner everything needed to pack and ship it. */
 async function notifyShopOrder(session: Stripe.Checkout.Session) {
-  await trackPaidOrder(session, 'shop').catch((e) => console.error('order_paid shop', e));
   const s = session as any;
   const ship = s.collected_information?.shipping_details || s.shipping_details || {};
   const a = ship.address || {};
@@ -476,8 +522,7 @@ async function notifyShopOrder(session: Stripe.Checkout.Session) {
   const phone = session.customer_details?.phone || '';
   const text = `New Belly shop order ${total}\n\n${lines}\n\nShip to:\n${addr}\n\n${email}${phone ? ' · ' + phone : ''}\nStripe session: ${session.id}`;
   const to = process.env.SHOP_ORDER_NOTIFY || 'orel.shemen@gmail.com';
-  await sendEmail(to, `🫖 New Belly order ${total} — ship it`, `<pre style="font:14px/1.5 ui-monospace,monospace">${text.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]!)}</pre>`, text)
-    .catch((e) => console.error('shop notify', e));
+  await sendEmail(to, `🫖 New Belly order ${total} — ship it`, `<pre style="font:14px/1.5 ui-monospace,monospace">${text.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]!)}</pre>`, text);
   if (email) {
     await dbUpsert('funnel_leads', { email, kind: 'shop_purchase', product_key: session.metadata?.sku || '', variant: 'a', stage: null, anon_id: null }, 'email,kind,product_key')
       .catch((e) => console.error('shop lead', e));

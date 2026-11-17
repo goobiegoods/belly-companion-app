@@ -414,14 +414,32 @@ export async function phCapture(event: string, distinctId: string, props: Record
   if (!key || !distinctId) return;
   const host = (process.env.POSTHOG_HOST || process.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com').replace(/\/+$/, '');
   try {
-    await fetch(`${host}/capture/`, {
+    const r = await fetch(`${host}/capture/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ api_key: key, event, distinct_id: distinctId, properties: { $lib: 'belly-funnel-server', ...props }, ...(opts.uuid ? { uuid: opts.uuid } : {}), ...(opts.timestamp ? { timestamp: opts.timestamp } : {}) }),
     });
+    if (!r.ok) console.error('posthog capture rejected', event, r.status);
   } catch (e) {
     console.error('posthog capture failed', e);
   }
+}
+
+/**
+ * Like phCapture, but for events that must not be lost (paid orders). Throws unless PostHog
+ * acknowledges with 2xx, so the caller can fail the webhook and let Stripe retry.
+ * Throws when PostHog is not configured too: a missing key must be visible, not silent.
+ */
+export async function phCaptureStrict(event: string, distinctId: string, props: Record<string, unknown>, opts: { uuid: string; timestamp: string }) {
+  const key = process.env.POSTHOG_KEY || process.env.VITE_POSTHOG_KEY;
+  if (!key) throw new Error('POSTHOG_KEY not configured');
+  const host = (process.env.POSTHOG_HOST || process.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com').replace(/\/+$/, '');
+  const r = await fetch(`${host}/capture/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ api_key: key, event, distinct_id: distinctId, uuid: opts.uuid, timestamp: opts.timestamp, properties: { $lib: 'belly-funnel-server', ...props } }),
+  });
+  if (!r.ok) throw new Error(`posthog ${event} rejected: HTTP ${r.status}`);
 }
 
 // ---------------------------------------------------------------- Meta Conversions API (ads)
