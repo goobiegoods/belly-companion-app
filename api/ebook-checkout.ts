@@ -8,6 +8,7 @@ import { cleanEmail, checkoutAllowed, originAllowed, limited, clientIp, fjson, l
 export const EBOOKS: Record<string, { name: string; cents: number; path: string }> = {
   first30: { name: 'The First 30 · Belly field guide (e-book)', cents: 2900, path: '/first30' },
   solids: { name: 'Solids in 7 Days · Belly guide (e-book)', cents: 2900, path: '/solids' },
+  recipes: { name: 'The Belly Recipe Book (e-book)', cents: 1900, path: '/recipes' },
 };
 export const CODES: Record<string, number> = { MAMA5: 500, FIRST5: 500, BELLY5: 500 };
 

@@ -4,8 +4,9 @@ export const config = { runtime: 'edge' };
 import { getStripe } from './_lib/stripe.js';
 import { FIRST30_HTML } from './_lib/first30-book.js';
 import { SOLIDS_HTML } from './_lib/solids-book.js';
+import { RECIPES_HTML } from './_lib/recipes-book.js';
 
-const BOOKS: Record<string, string> = { first30: FIRST30_HTML, solids: SOLIDS_HTML };
+const BOOKS: Record<string, string> = { first30: FIRST30_HTML, solids: SOLIDS_HTML, recipes: RECIPES_HTML };
 
 function page(msg: string, status: number) {
   return new Response(

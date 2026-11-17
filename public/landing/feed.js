@@ -7,7 +7,7 @@ function qp(k){var I=window.__BELLY_INIT||{};if(I[k])return I[k];var v=new URLSe
  var T=['pregnant','trying','postpartum','little'];for(var i=0;i<HP.length;i++){if(k==='t'&&T.indexOf(HP[i])>=0)return HP[i];if(k==='s'&&T.indexOf(HP[i])<0&&HP[i])return HP[i];}return null;}
 /* edit these three once prices are set */
 /* Shop prices. Server (api/shop-checkout.ts) is the source of truth for what is charged. */
-var PRICES={tea:'$99',herbs:'$34',book:'coming soon',calm:'$99',pick:'$99'};
+var PRICES={tea:'$99',herbs:'$34',book:'$19',calm:'$99',pick:'$99'};
 [].forEach.call(document.querySelectorAll('[data-price]'),function(e){e.textContent=PRICES[e.dataset.price];});
 document.getElementById('join').onclick=function(){var ys=document.querySelector('.slide[data-offer="year"]');
  if(scr1&&scr1.revealed&&!ys.classList.contains('done')){openS(OFFERS.year(),ys);return;}
@@ -348,7 +348,7 @@ veil.onclick=function(){if(!busy)closeS(false);};
  var t=s.querySelector('.thumb'),f=s.querySelector('.fill'),tx=s.querySelector('.txt'),x=0,x0=0,max=0,drag=false,T='transform .3s, width .3s';
  function set(v){x=Math.max(0,Math.min(max,v));t.style.transform='translateX('+x+'px)';f.style.width=(54+x)+'px';tx.style.opacity=1-Math.min(1,x/(max*.6));}
  s._reset=function(){t.style.transition=f.style.transition=T;set(0);};
- function fire(){if(navigator.vibrate)navigator.vibrate(12);if(s.dataset.offer==='first30'){location.href='/first30';return;}var o=OFFERS[s.dataset.offer](s);if(!o){setTimeout(s._reset,400);return;}openS(o,s);}
+ function fire(){if(navigator.vibrate)navigator.vibrate(12);if(s.dataset.offer==='first30'){location.href='/first30';return;}if(s.dataset.offer==='book'){BF.track('recipes_click',{});location.href='/recipes';return;}var o=OFFERS[s.dataset.offer](s);if(!o){setTimeout(s._reset,400);return;}openS(o,s);}
  t.addEventListener('pointerdown',function(e){if(s.classList.contains('done'))return;drag=true;max=s.clientWidth-54;x0=e.clientX-x;t.style.transition=f.style.transition='none';t.setPointerCapture(e.pointerId);});
  t.addEventListener('pointermove',function(e){if(drag)set(e.clientX-x0);});
  function up(){if(!drag)return;drag=false;if(x>max*.85){t.style.transition=f.style.transition=T;set(max);fire();}else s._reset();}
