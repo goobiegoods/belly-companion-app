@@ -6,6 +6,6 @@ document.getElementById('bk').addEventListener('click',function(){st.classList.t
 var go=document.getElementById('go'),msg=document.getElementById('msg'),label=go.innerHTML;
 function reset(){go.disabled=false;go.innerHTML=label}
 addEventListener('pageshow',reset);
-go.addEventListener('click',function(){if(go.disabled)return;go.disabled=true;go.innerHTML='Opening secure checkout…';msg.textContent='';
- fetch('/api/ebook-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:'recipes'})}).then(function(r){return r.json()}).then(function(j){if(j.url){location.href=j.url}else{throw new Error(j.error||'Checkout is unavailable')}}).catch(function(e){reset();msg.textContent=e.message})});
+go.addEventListener('click',function(){if(go.disabled)return;if(window.BellyAttr)BellyAttr.track('ebook_checkout_click',{product:'recipes'});go.disabled=true;go.innerHTML='Opening secure checkout…';msg.textContent='';
+ fetch('/api/ebook-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:'recipes',attr:window.BellyAttr?BellyAttr.get():null})}).then(function(r){return r.json()}).then(function(j){if(j.url){location.href=j.url}else{throw new Error(j.error||'Checkout is unavailable')}}).catch(function(e){reset();msg.textContent=e.message})});
 

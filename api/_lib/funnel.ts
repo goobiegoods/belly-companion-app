@@ -384,7 +384,32 @@ export async function recoveryEmail(email: string, trialDays: number) {
 }
 
 // ---------------------------------------------------------------- PostHog (first-party analytics)
-export async function phCapture(event: string, distinctId: string, props: Record<string, unknown> = {}) {
+/** Ad-source fields from the browser, made safe for Stripe metadata (strings only, short, allow-listed). */
+const ATTR_KEYS = ['anon_id', 'qa', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'ref_host', 'landing', 'first_campaign', 'first_at'];
+export function cleanAttr(raw: unknown): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const k of ATTR_KEYS) {
+    const v = (raw as Record<string, unknown>)[k];
+    if (typeof v !== 'string' || !v) continue;
+    const clean = v.replace(/[^\w .:/@%+=,-]/g, '').slice(0, k === 'fbclid' ? 120 : 100);
+    if (clean) out[`a_${k}`] = clean;
+  }
+  return out;
+}
+/** Read attribution back off Stripe metadata. */
+export function attrFromMeta(md: Record<string, string> | null | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(md || {})) if (k.startsWith('a_') && v) out[k.slice(2)] = v;
+  return out;
+}
+/** Deterministic UUID from any string, so webhook retries don't double-count in PostHog. */
+export async function stableUuid(seed: string): Promise<string> {
+  const h = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(seed)))].map((b) => b.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
+}
+
+export async function phCapture(event: string, distinctId: string, props: Record<string, unknown> = {}, opts: { uuid?: string; timestamp?: string } = {}) {
   const key = process.env.POSTHOG_KEY || process.env.VITE_POSTHOG_KEY;
   if (!key || !distinctId) return;
   const host = (process.env.POSTHOG_HOST || process.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com').replace(/\/+$/, '');
@@ -392,7 +417,7 @@ export async function phCapture(event: string, distinctId: string, props: Record
     await fetch(`${host}/capture/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_key: key, event, distinct_id: distinctId, properties: { $lib: 'belly-funnel-server', ...props } }),
+      body: JSON.stringify({ api_key: key, event, distinct_id: distinctId, properties: { $lib: 'belly-funnel-server', ...props }, ...(opts.uuid ? { uuid: opts.uuid } : {}), ...(opts.timestamp ? { timestamp: opts.timestamp } : {}) }),
     });
   } catch (e) {
     console.error('posthog capture failed', e);

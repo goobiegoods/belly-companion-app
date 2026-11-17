@@ -19,6 +19,7 @@ import {
   stripeMode,
   phCapture,
   metaCapi,
+  cleanAttr,
 } from './_lib/funnel.js';
 
 /**
@@ -106,14 +107,14 @@ export default async function handler(req: Request) {
       success_url: `${base}/landing/welcome.html?sid={CHECKOUT_SESSION_ID}&k=${trialDays > 0 ? 't' : 'p'}`,
       // Back to the same path + offer screen (funnel.js strips these before any pixel loads).
       cancel_url: `${base}/start?${stage ? `t=${stage}&` : ''}s=${offer === 'bonus' ? 'finale' : 'offer'}&v=${variant.code}&checkout=cancelled`,
-      metadata: { source: 'funnel', variant: variant.code, offer, ...(userId ? { userId } : {}) },
+      metadata: { source: 'funnel', variant: variant.code, offer, ...(userId ? { userId } : {}), ...cleanAttr(body.attr) },
       // Expire unfinished checkouts after 2 hours so the one-time reminder email goes out the same day.
       expires_at: Math.floor(Date.now() / 1000) + 2 * 60 * 60,
       subscription_data: {
         ...(trialDays > 0
           ? { trial_period_days: trialDays, trial_settings: { end_behavior: { missing_payment_method: 'cancel' } } }
           : {}),
-        metadata: { source: 'funnel', variant: variant.code, ...(userId ? { userId } : {}) },
+        metadata: { source: 'funnel', variant: variant.code, ...(userId ? { userId } : {}), ...cleanAttr(body.attr) },
       },
       custom_text: { submit: { message: terms } },
       ...(process.env.STRIPE_REQUIRE_TOS === '1' ? { consent_collection: { terms_of_service: 'required' as const } } : {}),

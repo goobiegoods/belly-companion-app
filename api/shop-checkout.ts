@@ -12,6 +12,7 @@ import {
   fjson,
   landingUrl,
   stripeMode,
+  cleanAttr,
 } from './_lib/funnel.js';
 
 /**
@@ -107,7 +108,7 @@ export default async function handler(req: Request) {
       allow_promotion_codes: true,
       success_url: `${base}/landing/thanks.html?sid={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/start?${stage ? `t=${stage}&` : ''}checkout=cancelled`,
-      metadata: { source: 'shop', sku, item: item.name.slice(0, 200) },
+      metadata: { source: 'shop', sku, item: item.name.slice(0, 200), ...cleanAttr(body.attr) },
       payment_intent_data: { metadata: { source: 'shop', sku } },
     });
 

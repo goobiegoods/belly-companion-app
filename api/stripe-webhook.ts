@@ -12,6 +12,8 @@ import {
   recoveryEmail,
   metaCapi,
   phCapture,
+  attrFromMeta,
+  stableUuid,
   STAGE_TO_SEASON,
 } from './_lib/funnel.js';
 
@@ -49,6 +51,13 @@ export default async function handler(req: Request) {
     switch (event.type) {
       case 'checkout.session.completed':
         await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        break;
+      case 'checkout.session.async_payment_succeeded':
+        // Delayed payment methods: the session completed earlier as unpaid; deliver now.
+        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        break;
+      case 'checkout.session.async_payment_failed':
+        console.log('stripe-webhook: async payment failed', (event.data.object as Stripe.Checkout.Session).id);
         break;
       case 'checkout.session.expired':
         await handleCheckoutExpired(event.data.object as Stripe.Checkout.Session);
@@ -417,7 +426,33 @@ async function handleInvoicePaid(inv: Stripe.Invoice) {
 // ======================================================================
 // E-book delivery (meetbelly.com/first30 guest checkout)
 // ======================================================================
+/**
+ * First-party paid-order record in PostHog. Only called after Stripe says payment_status === 'paid'
+ * on a signature-verified event. Same uuid on retries, so one order = one event.
+ * Never sent to Meta (health-adjacent products).
+ */
+async function trackPaidOrder(session: Stripe.Checkout.Session, kind: 'ebook' | 'shop') {
+  const a = attrFromMeta(session.metadata as Record<string, string>);
+  const distinct = a.anon_id || `stripe_${session.id}`;
+  await phCapture('order_paid', distinct, {
+    $process_person_profile: false,
+    kind,
+    product: session.metadata?.product || session.metadata?.sku || '',
+    revenue: typeof session.amount_total === 'number' ? session.amount_total / 100 : null,
+    currency: (session.currency || 'usd').toUpperCase(),
+    promo_code: session.metadata?.code || null,
+    stripe_session: session.id,
+    livemode: session.livemode,
+    is_qa: a.qa === '1',
+    attributed: !!(a.utm_source || a.fbclid),
+    utm_source: a.utm_source || null, utm_medium: a.utm_medium || null, utm_campaign: a.utm_campaign || null,
+    utm_content: a.utm_content || null, utm_term: a.utm_term || null, has_fbclid: !!a.fbclid,
+    ref_host: a.ref_host || null, landing: a.landing || null, first_campaign: a.first_campaign || null,
+  }, { uuid: await stableUuid(`order_paid:${session.id}`), timestamp: new Date(session.created * 1000).toISOString() });
+}
+
 async function deliverEbook(session: Stripe.Checkout.Session) {
+  await trackPaidOrder(session, 'ebook').catch((e) => console.error('order_paid ebook', e));
   const sent = await sendEbookEmail(session);
   if (!sent) return;
   await dbUpsert('funnel_leads', { email: sent.email, kind: 'ebook_purchase', product_key: sent.product, variant: 'a', stage: null, anon_id: null }, 'email,kind,product_key').catch((e) => console.error('ebook lead', e));
@@ -426,6 +461,7 @@ async function deliverEbook(session: Stripe.Checkout.Session) {
 
 /** Landing-feed shop order paid → email the owner everything needed to pack and ship it. */
 async function notifyShopOrder(session: Stripe.Checkout.Session) {
+  await trackPaidOrder(session, 'shop').catch((e) => console.error('order_paid shop', e));
   const s = session as any;
   const ship = s.collected_information?.shipping_details || s.shipping_details || {};
   const a = ship.address || {};

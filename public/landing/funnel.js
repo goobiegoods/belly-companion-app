@@ -44,6 +44,26 @@
   ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (k) {
     var v = q.get(k); if (v) UTM[k] = v.slice(0, 100);
   });
+  var REF = document.referrer || '';
+  if (q.get('qa') === '1') ls.set('belly_qa', '1');
+  if (q.get('qa') === '0') ls.set('belly_qa', '');
+  var QA = ls.get('belly_qa') === '1';
+  if (Object.keys(UTM).length || fbclid) {
+    var tch = {}; for (var uk in UTM) tch[uk] = UTM[uk];
+    if (fbclid) tch.fbclid = fbclid.slice(0, 120);
+    tch.landing = location.pathname.slice(0, 60); tch.at = new Date().toISOString();
+    if (!ls.get('belly_first_touch')) ls.set('belly_first_touch', JSON.stringify(tch));
+    ls.set('belly_last_touch', JSON.stringify(tch));
+  }
+  function attr() {
+    var last = {}, first = {};
+    try { last = JSON.parse(ls.get('belly_last_touch') || '{}') || {}; first = JSON.parse(ls.get('belly_first_touch') || '{}') || {}; } catch (e) {}
+    var o = { anon_id: ANON, qa: QA ? '1' : '0' };
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'landing'].forEach(function (k) { if (last[k]) o[k] = String(last[k]); });
+    if (first.utm_campaign) o.first_campaign = String(first.utm_campaign);
+    if (first.at) o.first_at = String(first.at);
+    return o;
+  }
   var cancelled = q.get('checkout') === 'cancelled';
   ['t', 's', 'checkout'].forEach(function (k) { q.delete(k); });
   try { history.replaceState(history.state, '', url.pathname + (q.toString() ? '?' + q.toString() : '')); } catch (e) {}
@@ -74,7 +94,7 @@
   function ph(event, props) {
     if (!CFG) { queue.push([event, props]); return; }
     if (!CFG.posthogKey) return;
-    var p = { $current_url: location.origin + location.pathname, $process_person_profile: false, variant: VARIANT, path: t || null, test_mode: !!CFG.testMode };
+    var p = { $current_url: location.origin + location.pathname, $process_person_profile: false, $raw_user_agent: navigator.userAgent, $referrer: REF || '$direct', $screen_width: screen && screen.width, is_qa: QA, variant: VARIANT, path: t || null, test_mode: !!CFG.testMode };
     for (var k in UTM) p[k] = UTM[k];
     for (var k2 in (props || {})) p[k2] = props[k2];
     try {
@@ -166,7 +186,7 @@
       ph('funnel_checkout_submit', { offer: plan });
       return post('/api/funnel-checkout', {
         offer: plan, email: email, variant: VARIANT, bonusToken: plan === 'bonus' ? tok : null,
-        stage: t, anonId: ANON, fbp: fbp(), fbc: fbc(), gpc: GPC
+        stage: t, anonId: ANON, fbp: fbp(), fbc: fbc(), gpc: GPC, attr: attr()
       }).then(function (r) {
         if (r && r.url) pixel('InitiateCheckout', { currency: 'USD', value: 0 }, r.eventId);
         else ph('funnel_checkout_blocked', { offer: plan, code: (r && r.code) || 'unknown' });
@@ -188,7 +208,7 @@
     shop: function (sku, name, email) {
       ls.set('belly_email', email);
       ph('shop_checkout_submit', { sku: sku });
-      return post('/api/shop-checkout', { sku: sku, name: name, email: email, stage: t, anonId: ANON }).then(function (r) {
+      return post('/api/shop-checkout', { sku: sku, name: name, email: email, stage: t, anonId: ANON, attr: attr() }).then(function (r) {
         if (r && r.url) pixel('InitiateCheckout', { currency: 'USD', value: sku === 'tea' ? 99 : 34 }, uid('ic'));
         return r;
       });

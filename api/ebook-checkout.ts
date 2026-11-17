@@ -3,7 +3,7 @@ export const config = { runtime: 'edge' };
 // Guest checkout for Belly e-books (one-time payment). Price and promo codes
 // live here on the server, so the client can't change what it pays.
 import { getStripe } from './_lib/stripe.js';
-import { cleanEmail, checkoutAllowed, originAllowed, limited, clientIp, fjson, landingUrl } from './_lib/funnel.js';
+import { cleanEmail, checkoutAllowed, originAllowed, limited, clientIp, fjson, landingUrl, cleanAttr } from './_lib/funnel.js';
 
 export const EBOOKS: Record<string, { name: string; cents: number; path: string }> = {
   first30: { name: 'The First 30 · Belly field guide (e-book)', cents: 2900, path: '/first30' },
@@ -20,7 +20,8 @@ export default async function handler(req: Request) {
   if (!allowed.ok) return fjson({ error: 'Checkout is unavailable right now.', code: allowed.reason }, 503);
 
   try {
-    const body = (await req.json().catch(() => ({}))) as { product?: string; code?: string; email?: string };
+    const body = (await req.json().catch(() => ({}))) as { product?: string; code?: string; email?: string; attr?: unknown };
+    const attr = cleanAttr(body.attr);
     const product = EBOOKS[String(body.product || '')];
     if (!product) return fjson({ error: 'Unknown product' }, 400);
     const code = String(body.code || '').trim().toUpperCase().slice(0, 24);
@@ -47,7 +48,7 @@ export default async function handler(req: Request) {
       customer_creation: 'always',
       success_url: `${base}${product.path}/thanks.html?sid={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}${product.path}?checkout=cancelled`,
-      metadata: { source: 'ebook', product: slug, code: off ? code : '' },
+      metadata: { source: 'ebook', product: slug, code: off ? code : '', ...attr },
       payment_intent_data: { metadata: { source: 'ebook', product: slug } },
       custom_text: { submit: { message: 'Instant digital access. One-time payment, no subscription.' } },
     });

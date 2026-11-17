@@ -10,8 +10,8 @@ function apply(){var c=code.value.trim().toUpperCase();if(!c){applied='';setPric
 document.getElementById('apply').onclick=apply;code.addEventListener('keydown',function(e){if(e.key==='Enter')apply()});
 var q=new URLSearchParams(location.search).get('code');if(q){code.value=q}apply();
 document.getElementById('chip').onclick=function(){code.value='MAMA5';apply();try{navigator.clipboard.writeText('MAMA5')}catch(e){}location.hash='buy'};
-var go=document.getElementById('go');go.onclick=function(){if(go.disabled)return;go.disabled=true;go.innerHTML='Opening secure checkout…';
- fetch('/api/ebook-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:'first30',code:applied})}).then(function(r){return r.json()}).then(function(j){if(j.url){location.href=j.url}else{throw new Error(j.error||'Checkout is unavailable')}}).catch(function(e){go.disabled=false;go.innerHTML='Get The First 30 <i>→</i>';msg.className='msg bad';msg.textContent=e.message})};
+var go=document.getElementById('go');go.onclick=function(){if(go.disabled)return;if(window.BellyAttr)BellyAttr.track('ebook_checkout_click',{product:'first30',code:applied||null});go.disabled=true;go.innerHTML='Opening secure checkout…';
+ fetch('/api/ebook-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:'first30',code:applied,attr:window.BellyAttr?BellyAttr.get():null})}).then(function(r){return r.json()}).then(function(j){if(j.url){location.href=j.url}else{throw new Error(j.error||'Checkout is unavailable')}}).catch(function(e){go.disabled=false;go.innerHTML='Get The First 30 <i>→</i>';msg.className='msg bad';msg.textContent=e.message})};
 if(new URLSearchParams(location.search).get('checkout')==='cancelled'){msg.className='msg';msg.textContent='No worries. It’s here when you’re ready.';}
 })();
 addEventListener('pageshow',function(){var g=document.getElementById('go');if(g){g.disabled=false;g.innerHTML='Get The First 30 <i>→</i>'}});
