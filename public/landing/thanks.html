@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>belly · order placed</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--night:#150A1F;--cream:#FBEEE0;--soft:rgba(251,238,224,.74);--faint:rgba(251,238,224,.52);--gold:#F2B647;--ember:#E8622E;
+--serif:Fraunces,Georgia,serif;--sans:Inter,-apple-system,"Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--night);color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:32px 16px;
+ background:radial-gradient(120% 70% at 50% 0%,rgba(242,182,71,.28),transparent 60%),radial-gradient(90% 60% at 50% 100%,rgba(181,56,107,.32),transparent 70%),var(--night)}
+.card{width:100%;max-width:400px;text-align:center}
+.orb{width:84px;height:84px;margin:0 auto 26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE3A8,var(--gold) 45%,var(--ember));box-shadow:0 0 60px rgba(242,182,71,.5);animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(.95)}50%{transform:scale(1.05)}}
+@media (prefers-reduced-motion:reduce){.orb{animation:none}}
+.mono{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:var(--serif);font-weight:400;font-size:36px;line-height:1.1;margin:10px 0 12px}
+p{font-size:15px;font-weight:300;line-height:1.55;color:var(--soft);margin:0 auto 22px;max-width:32ch}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;height:54px;border:0;border-radius:14px;background:var(--cream);color:var(--night);font:600 16px var(--sans);text-decoration:none;cursor:pointer}
+.ghost{display:block;margin:10px auto 0;background:none;border:0;color:var(--soft);font:500 14px var(--sans);padding:12px 18px;cursor:pointer}
+.ghost:disabled{opacity:.6;cursor:default}
+.note{margin-top:22px;font-size:12px;color:var(--faint)}
+.note a{color:var(--soft)}
+em{font-style:italic;color:var(--gold)}
+.rows{text-align:left;margin:0 auto 24px;max-width:320px}.rows div{display:flex;gap:14px;padding:12px 0;border-top:1px solid rgba(251,238,224,.12);font-size:14px;color:var(--soft)}.rows b{font:500 11px var(--mono);color:var(--gold);padding-top:2px}
+</style>
+<meta property="og:image" content="https://meetbelly.com/og.jpg">
+<meta property="og:site_name" content="Belly">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://meetbelly.com/og.jpg">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#150A1F">
+<meta name="apple-mobile-web-app-title" content="Belly">
+</head>
+<body data-page="thanks">
+<main class="card">
+  <div class="orb" aria-hidden="true"></div>
+  <span class="mono">order placed · thank you</span>
+  <h1>It's on its <em>way</em>, mama.</h1>
+  <p>Your receipt is in your inbox. We blend and pack every order by hand.</p>
+  <div class="rows"><div><b>01</b>We pack it fresh, usually within 2 days.</div><div><b>02</b>Tracking lands in your email when it ships.</div><div><b>03</b>Free shipping, always.</div></div>
+  <a class="btn" href="/start">Back to Belly</a>
+  <p class="note">Questions? <a href="mailto:hello@meetbelly.com">hello@meetbelly.com</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
+</main>
+<script src="/landing/funnel.js"></script>
+</body>
+</html>

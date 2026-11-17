@@ -185,6 +185,14 @@
         return r;
       });
     },
+    shop: function (sku, name, email) {
+      ls.set('belly_email', email);
+      ph('shop_checkout_submit', { sku: sku });
+      return post('/api/shop-checkout', { sku: sku, name: name, email: email, stage: t, anonId: ANON }).then(function (r) {
+        if (r && r.url) pixel('InitiateCheckout', { currency: 'USD', value: sku === 'tea' ? 99 : 34 }, uid('ic'));
+        return r;
+      });
+    },
     loginLink: function (email) { return post('/api/send-login-link', { email: email }); },
     optOut: function (on) { if (on) ls.set('belly_optout', '1'); else ls.del('belly_optout'); },
     optedOut: function () { return GPC; }

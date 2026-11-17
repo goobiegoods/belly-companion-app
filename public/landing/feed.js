@@ -6,8 +6,8 @@ var HP=(location.hash||'').slice(1).split(/[.\-]/);
 function qp(k){var I=window.__BELLY_INIT||{};if(I[k])return I[k];var v=new URLSearchParams(location.search).get(k);if(v)return v;
  var T=['pregnant','trying','postpartum','little'];for(var i=0;i<HP.length;i++){if(k==='t'&&T.indexOf(HP[i])>=0)return HP[i];if(k==='s'&&T.indexOf(HP[i])<0&&HP[i])return HP[i];}return null;}
 /* edit these three once prices are set */
-/* Placeholder prices removed until products + prices are confirmed. */
-var PRICES={tea:'sold out',herbs:'sold out',book:'coming soon',calm:'sold out',pick:'sold out'};
+/* Shop prices. Server (api/shop-checkout.ts) is the source of truth for what is charged. */
+var PRICES={tea:'$99',herbs:'$34',book:'coming soon',calm:'$99',pick:'$99'};
 [].forEach.call(document.querySelectorAll('[data-price]'),function(e){e.textContent=PRICES[e.dataset.price];});
 document.getElementById('join').onclick=function(){var ys=document.querySelector('.slide[data-offer="year"]');
  if(scr1&&scr1.revealed&&!ys.classList.contains('done')){openS(OFFERS.year(),ys);return;}
@@ -124,7 +124,7 @@ car.innerHTML=REM.map(function(r,k){var grad='linear-gradient(90deg,'+r.c[0]+','
   :'<i class="v" style="height:112px;background:'+grad+';animation-delay:-'+k+'s"></i>';
  return '<div class="card'+(k===0?' on':'')+'" data-k="'+k+'"><div class="bot">'+vials+'</div><span class="mono">'+(r.kit?'bella recommends':'single remedy')+'</span><p class="n">'+r.n+'</p><p class="f">'+r.f+'</p><span class="p">'+r.p+'</span></div>';}).join('');
 var cards=[].slice.call(car.children);
-function pickRem(k){remSel=k;cards.forEach(function(c,j){c.classList.toggle('on',j===k);});var s=document.querySelector('[data-offer="rem"]');if(!s.classList.contains('done'))remtxt.textContent='sold out · notify me';}
+function pickRem(k){remSel=k;cards.forEach(function(c,j){c.classList.toggle('on',j===k);});var s=document.querySelector('[data-offer="rem"]');if(!s.classList.contains('done'))remtxt.textContent=/^\$/.test(REM[k].p)?'slide to add · '+REM[k].p:'sold out · notify me';}
 function nearest(){var mid=car.scrollLeft+car.clientWidth/2,best=0,bd=1e9;cards.forEach(function(c,j){var d=Math.abs(c.offsetLeft+c.offsetWidth/2-mid);if(d<bd){bd=d;best=j;}});if(best!==remSel||!cards[best].classList.contains('on'))pickRem(best);}
 var rt;car.addEventListener('scroll',function(){clearTimeout(rt);rt=setTimeout(nearest,60);});
 function centerFirst(){car.scrollLeft=cards[0].offsetLeft-(car.clientWidth-cards[0].offsetWidth)/2;pickRem(0);}
@@ -286,35 +286,44 @@ var T14='Free for 14 days, then $89/year. Renews automatically every year until 
 var TN='$89 today, then $89 every year. Renews automatically until you cancel. Cancel anytime.';
 var TW='Sold out for now. We’ll email you when it’s available. No spam.';
 function SOLD(key,item,done){return{soldout:true,key:key,item:item,price:'sold out',ship:false,terms:TW,done:done||"We'll let you know"};}
+function TEA(n){n=String(n).replace(/&amp;/g,'&');return{shop:true,sku:'tea',name:n,item:n+" · mason jar + 2 tea cups",price:"$99.00",terms:'One-time purchase. Hand-blended loose-leaf tea in a glass mason jar, with two tea cups. Free US shipping.',done:"Steeping its way to you"};}
+var ELIX=[{sku:'golden_elixir',n:'Golden Elixir',h:'Golden elixir.',b:['turmeric','raw honey','black pepper'],l1:'golden elixir',l2:'TURMERIC · RAW HONEY',s:'Turmeric, ginger, raw honey and black pepper. One spoon in warm milk is golden milk.'},
+ {sku:'ginger_zest_elixir',n:'Ginger Zest Elixir',h:'Ginger zest elixir.',b:['ginger','lemon zest','raw honey'],l1:'ginger zest',l2:'GINGER · LEMON · HONEY',s:'Ginger, lemon zest and raw honey with a little turmeric. One spoon in hot water, bright and warming.'}],elxSel=0;
+function pickElx(k){elxSel=k;var e=ELIX[k],h=document.getElementById('elxh'),b=document.getElementById('elxb');if(h)h.textContent=e.h;var sb=document.getElementById('elxsub');if(sb)sb.textContent=e.s;
+ if(b)b.innerHTML=e.b.map(function(x){return '<span>'+x+'</span>';}).join('');
+ [].forEach.call(document.querySelectorAll('.elx button'),function(x){x.setAttribute('aria-pressed',x.dataset.k==k);});
+ [].forEach.call(document.querySelectorAll('[data-n="herbs"] svg text'),function(t){var v=t.textContent;if(v===ELIX[0].l1||v===ELIX[1].l1)t.textContent=e.l1;else if(v===ELIX[0].l2||v===ELIX[1].l2)t.textContent=e.l2;});}
+[].forEach.call(document.querySelectorAll('.elx button'),function(x){x.onclick=function(){pickElx(+x.dataset.k);};});
 var OFFERS={trial:function(){return{plan:'trial',item:"belly · 7 days free",price:"$0.00 today",ship:false,bump:true,terms:T7,done:"You're in. Bella's waiting."};},
  bonus:function(){return{plan:'bonus',item:"belly · 14 days free",price:"$0.00 today",ship:false,bump:true,terms:T14,done:"You're in, founding mama"};},
- rem:function(){var r=REM[remSel];return SOLD('remedy_'+slug(r.n),r.n);},
+ rem:function(){var r=REM[remSel];return /^\$/.test(r.p)?TEA(r.n):SOLD('remedy_'+slug(r.n),r.n);},
  first30:function(){var o=SOLD('ebook_first_30',"The First 30 (e-book)");o.price='coming soon';o.terms='The First 30 is almost here. One email the moment it drops. No spam.';o.done="You're first in line, mama";return o;},
  book:function(){var o=SOLD('recipe_book',"The Belly Recipe Book (e-book)");o.price='coming soon';o.terms='Coming soon. We’ll email you when it’s ready. No spam.';return o;},
- calm:function(){return SOLD('calm_'+slug(CALMN()),CALMN());},
- pick:function(){return SOLD('comfort_pick',"Comfort pick, "+(STOPS[Math.max(cur,0)].lab||"week "+STOPS[Math.max(cur,0)].w));},
- tip:function(b){return SOLD('tea_'+slug(b.dataset.item),b.dataset.item);},
- tea:function(){return SOLD('tea_raspberry_leaf_and_lemon_balm',"Raspberry Leaf & Lemon Balm");},
- herbs:function(){return SOLD('golden_elixir',"Golden Elixir (turmeric + raw honey)");},
+ calm:function(){return TEA(CALMN());},
+ pick:function(){return TEA(CALMN());},
+ tip:function(b){return TEA(b.dataset.item);},
+ tea:function(){return TEA("Raspberry Leaf & Lemon Balm");},
+ herbs:function(){var e=ELIX[elxSel];return{shop:true,sku:e.sku,name:e.n,item:e.n+" · 4 oz",price:"$34.00",terms:'One-time purchase. Free US shipping. Made fresh in small batches. Raw honey is not for children under 1.',done:"Made fresh, on its way"};},
  year:function(){return{plan:'year',item:"belly · 7 days free, then $89/yr",price:"$0.00 today",ship:false,bump:true,terms:T7,done:"Welcome, founding mama"};}};
 var sheet=document.getElementById('sheet'),veil=document.getElementById('veil'),pay=document.getElementById('pay'),semail=document.getElementById('semail'),serr=document.getElementById('serr'),pend=null,busy=false;
 function shipRows(on){[].forEach.call(document.querySelectorAll('.ship'),function(e){e.style.display=on?'':'none';});}
-function payLabel(){return pend&&pend.o.soldout?'Notify me':(pend&&pend.o.plan==='notrial'?'Continue · $89 today':'Continue to secure checkout');}
+function payLabel(){return pend&&pend.o.soldout?'Notify me':pend&&pend.o.shop?'Continue · '+pend.o.price:(pend&&pend.o.plan==='notrial'?'Continue · $89 today':'Continue to secure checkout');}
 function paint(){var o=pend.o;document.getElementById('sItem').textContent=o.item;document.getElementById('sPrice').textContent=o.price;
- document.getElementById('sTotL').textContent=o.soldout?'Status':'Total';shipRows(false);document.getElementById('terms').textContent=o.terms||'';
- document.getElementById('bumpl').textContent='Also tell me when the '+CALMN()+' is back';
+ document.getElementById('sTotL').textContent=o.soldout?'Status':'Total';shipRows(!!o.shop);document.getElementById('terms').textContent=o.terms||'';
+ document.getElementById('bumpl').textContent='Also email me about the '+CALMN()+' mason jar set';
  document.getElementById('bump').style.display=o.bump?'':'none';
  document.getElementById('sfoot').textContent=o.soldout?'one email when it’s back · unsubscribe anytime':(BF.isTestMode()?'secure checkout by stripe · test mode, no real charge':'secure checkout by stripe');
  pay.disabled=false;pay.textContent=payLabel();}
 function openS(o,s){pend={o:o,s:s};serr.textContent='';semail.value=semail.value||BF.email();document.getElementById('bumpcb').checked=false;paint();
- veil.classList.add('on');sheet.classList.add('on');BF.track(o.soldout?'waitlist_sheet_open':'checkout_sheet_open',o.soldout?{product:o.key}:{offer:o.plan});
+ veil.classList.add('on');sheet.classList.add('on');BF.track(o.soldout?'waitlist_sheet_open':'checkout_sheet_open',o.soldout?{product:o.key}:o.shop?{sku:o.sku}:{offer:o.plan});
  setTimeout(function(){(semail.value?pay:semail).focus();},60);}
 function closeS(ok){if(busy)return;veil.classList.remove('on');sheet.classList.remove('on');if(!pend)return;
  if(ok){pop(pend.s);pend.s.classList.add('done');pend.s.querySelector('.txt').textContent=pend.o.done;}else pend.s._reset();pend=null;}
 function fail(msg){busy=false;pay.disabled=false;pay.textContent=payLabel();serr.textContent=msg||'Something went wrong. Try again.';}
 function submit(){if(!pend||busy)return;var em=semail.value.trim().toLowerCase();
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){serr.textContent='Enter your email so we can send your sign-in link.';semail.focus();return;}
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){serr.textContent=pend.o.shop?'Enter your email for your receipt and tracking.':'Enter your email so we can send your sign-in link.';semail.focus();return;}
  serr.textContent='';busy=true;pay.disabled=true;pay.innerHTML='<span class="spin"></span>';
+ if(pend.o.shop){if(!BF.shop){fail('Checkout is loading. Try again in a second.');return;}BF.shop(pend.o.sku,pend.o.name,em).then(function(r){if(r&&r.url){pay.innerHTML='<span>Opening secure checkout…</span>';location.href=r.url;return;}if(r&&r.code==='closed'){BF.waitlist([pend.o.sku==='tea'?'tea_'+slug(pend.o.name):pend.o.sku],em).then(function(){},function(){});fail('The shop opens very soon. We saved your spot and will email you.');return;}fail(r&&r.error);});return;}
  if(pend.o.soldout){BF.waitlist([pend.o.key],em).then(function(){busy=false;pay.innerHTML='<span>You’re on the list</span>';setTimeout(function(){closeS(true);},750);},function(e){fail(e&&e.message);});return;}
  var extra=document.getElementById('bumpcb').checked?['calm_'+slug(CALMN())]:[];
  BF.checkout(pend.o.plan,em,extra).then(function(r){
@@ -601,7 +610,7 @@ var factT=null,factI={};
  for(var i=0;i<7;i++){var t=document.createElement('i');t.className='tw4';t.style.left=(12+Math.random()*76)+'%';t.style.top=(6+Math.random()*80)+'%';t.style.animationDelay=(Math.random()*2.8).toFixed(2)+'s';if(i%2)t.style.width=t.style.height='8px';v.appendChild(t);}
  var js=v.querySelector('.jarstage');if(js){js.style.position='relative';var th=document.createElement('span');th.className='taphint';th.textContent='tap the jar';v.appendChild(th);
   js.addEventListener('click',function(){js.classList.remove('tapped');void js.offsetWidth;js.classList.add('tapped');pop(js);if(f._one)f._one();});}});
-(function(){var hs=document.querySelector('[data-n="herbs"] .copy h2');if(hs&&!document.getElementById('elxsub')){var p=document.createElement('p');p.className='sub';p.id='elxsub';p.textContent='Turmeric, raw honey and black pepper. One spoon in warm milk is golden milk.';hs.parentNode.insertBefore(p,hs.nextSibling);}})();
+(function(){var hs=document.querySelector('[data-n="herbs"] .copy h2');if(hs&&!document.getElementById('elxsub')){var p=document.createElement('p');p.className='sub';p.id='elxsub';p.textContent='Turmeric, ginger, raw honey and black pepper. One spoon in warm milk is golden milk.';hs.parentNode.insertBefore(p,hs.nextSibling);}})();
 function factsStart(n){factsStop();var sc=document.querySelector('[data-n="'+n+'"]'),box=sc&&sc.querySelector('.facts');if(!box)return;
  var list=n==='jar'?TKC().tea.facts:ELX,slots=[[0,'1%'],[1,'17%'],[0,'50%'],[1,'66%']],k=factI[n]||0;
  function one(){var f=list[k%list.length],s=slots[k%4];k++;factI[n]=k;var e=document.createElement('div');e.className='fact';e.style[s[0]?'right':'left']='0';e.style.top=s[1];
@@ -623,7 +632,7 @@ function applyTK(){var T=TKC();buildLens();
  var st=document.querySelectorAll('#oat stop');if(st.length>1){st[0].setAttribute('stop-color',T.rec.oat[0]);st[1].setAttribute('stop-color',T.rec.oat[1]);}
  document.querySelector('.crs').innerHTML=T.crs.map(function(c,i){return '<div class="cc" style="--a:'+c[2]+';--b:'+c[3]+'"><span class="cn">'+c[0]+'</span><span class="mono" style="color:var(--cream)">lessons</span><p class="ct">'+c[1]+'</p>'+(i===0?'<div class="eq"><i></i><i></i><i></i><i></i></div>':'')+'</div>';}).join('');
  factI={};}
-OFFERS.tea=function(){return SOLD('tea_'+slug(TKC().tea.n),TKC().tea.n);};
+OFFERS.tea=function(){return TEA(TKC().tea.n);};
 
 /* ---------- the 'building your Belly' moment ---------- */
 function showBuild(cb){var h=document.querySelector('.hello'),b=h.querySelector('.build');if(!b){b=document.createElement('div');b.className='build';h.appendChild(b);}

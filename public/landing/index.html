@@ -564,6 +564,7 @@ html.dk .dk-phone .feed{height:100%}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .pay:disabled{opacity:.7;cursor:default}
 .veil{z-index:41}.sheet{z-index:42} /* keep checkout above finale fireworks */
+.elx{display:flex;gap:8px;margin:10px 0 2px}.elx button{min-height:38px;padding:0 16px;border-radius:999px;border:1px solid rgba(251,238,224,.22);background:rgba(251,238,224,.06);color:var(--cream);font:500 13px var(--sans);cursor:pointer;transition:all .2s}.elx button[aria-pressed=true]{background:var(--gold);border-color:var(--gold);color:#150A1F}
 </style>
 <meta property="og:image" content="https://meetbelly.com/og.jpg">
 <meta property="og:site_name" content="Belly">
@@ -722,8 +723,8 @@ html.dk .dk-phone .feed{height:100%}
     <h2>Raspberry leaf &amp; lemon balm.</h2>
     <p class="sub">A loose-leaf blend, hand-mixed in small batches. Traditionally used to support late-pregnancy comfort and a calm evening.</p>
     <div class="bens"><span>raspberry leaf</span><span>lemon balm</span><span>caffeine-free</span></div>
-    <div class="price"><b data-price="tea"></b><span class="mono">shipped with love</span></div>
-    <div class="slide" data-offer="tea"><div class="fill"></div><span class="txt">sold out · notify me</span><button class="thumb" aria-label="Get notified when the tea is back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+    <div class="price"><b data-price="tea"></b><span class="mono">mason jar + 2 tea cups · ships free</span></div>
+    <div class="slide" data-offer="tea"><div class="fill"></div><span class="txt">slide to steep it · $99</span><button class="thumb" aria-label="Buy the mason jar tea set"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
     <p class="note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.5 12a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>Ask your midwife or doctor before using herbs in pregnancy.</p>
   </div>
 </section>
@@ -771,10 +772,11 @@ html.dk .dk-phone .feed{height:100%}
 <rect x="60" y="150" width="80" height="60" rx="7" fill="#E6D2B0"/><rect x="64" y="154" width="72" height="52" rx="5" fill="none" stroke="#B89A6E" stroke-width="1" stroke-dasharray="3 3"/><text x="100" y="180" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-style="italic" font-size="20" fill="#4A1730">belly</text><text x="100" y="196" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" letter-spacing="1.5" fill="#6B2331">LOOSE LEAF</text>
 </svg></div></div>
   <div class="copy">
-    <h2>Golden elixir.</h2>
-    <div class="bens"><span>turmeric</span><span>raw honey</span><span>black pepper</span></div>
-    <div class="price"><b data-price="herbs"></b><span class="mono">not for under 1s</span></div>
-    <div class="slide" data-offer="herbs"><div class="fill"></div><span class="txt">sold out · notify me</span><button class="thumb" aria-label="Get notified when the golden elixir is back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+    <h2 id="elxh">Golden elixir.</h2>
+    <div class="elx" role="group" aria-label="Choose your elixir"><button type="button" aria-pressed="true" data-k="0">Golden</button><button type="button" aria-pressed="false" data-k="1">Ginger Zest</button></div>
+    <div class="bens" id="elxb"><span>turmeric</span><span>raw honey</span><span>black pepper</span></div>
+    <div class="price"><b data-price="herbs"></b><span class="mono">4 oz · ships free · not for under 1s</span></div>
+    <div class="slide" data-offer="herbs"><div class="fill"></div><span class="txt">slide to make it yours · $34</span><button class="thumb" aria-label="Buy the elixir"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
   </div>
 </section>
 

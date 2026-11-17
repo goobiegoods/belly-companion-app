@@ -107,6 +107,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     await deliverEbook(session);
     return;
   }
+  if (session.metadata?.source === 'shop') {
+    await notifyShopOrder(session);
+    return;
+  }
   const orderId = session.metadata?.orderId;
   if (!orderId) {
     console.log('stripe-webhook: no orderId in checkout session metadata');
@@ -418,4 +422,28 @@ async function deliverEbook(session: Stripe.Checkout.Session) {
   if (!sent) return;
   await dbUpsert('funnel_leads', { email: sent.email, kind: 'ebook_purchase', product_key: sent.product, variant: 'a', stage: null, anon_id: null }, 'email,kind,product_key').catch((e) => console.error('ebook lead', e));
   console.log('ebook delivered', sent.product, session.id);
+}
+
+/** Landing-feed shop order paid → email the owner everything needed to pack and ship it. */
+async function notifyShopOrder(session: Stripe.Checkout.Session) {
+  const s = session as any;
+  const ship = s.collected_information?.shipping_details || s.shipping_details || {};
+  const a = ship.address || {};
+  const addr = [ship.name, a.line1, a.line2, [a.city, a.state, a.postal_code].filter(Boolean).join(' '), a.country].filter(Boolean).join('\n');
+  let lines = session.metadata?.item || session.metadata?.sku || 'item';
+  try {
+    const li = await getStripe().checkout.sessions.listLineItems(session.id, { limit: 20 });
+    lines = li.data.map((l) => `${l.quantity} × ${l.description}`).join('\n') || lines;
+  } catch (e) { console.error('shop line items', e); }
+  const total = typeof session.amount_total === 'number' ? `$${(session.amount_total / 100).toFixed(2)}` : '';
+  const email = session.customer_details?.email || session.customer_email || '';
+  const phone = session.customer_details?.phone || '';
+  const text = `New Belly shop order ${total}\n\n${lines}\n\nShip to:\n${addr}\n\n${email}${phone ? ' · ' + phone : ''}\nStripe session: ${session.id}`;
+  const to = process.env.SHOP_ORDER_NOTIFY || 'orel.shemen@gmail.com';
+  await sendEmail(to, `🫖 New Belly order ${total} — ship it`, `<pre style="font:14px/1.5 ui-monospace,monospace">${text.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]!)}</pre>`, text)
+    .catch((e) => console.error('shop notify', e));
+  if (email) {
+    await dbUpsert('funnel_leads', { email, kind: 'shop_purchase', product_key: session.metadata?.sku || '', variant: 'a', stage: null, anon_id: null }, 'email,kind,product_key')
+      .catch((e) => console.error('shop lead', e));
+  }
 }
