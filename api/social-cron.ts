@@ -27,7 +27,7 @@ export default async function handler(req: Request) {
     }
   };
   try {
-    for (const post of await duePosts(3)) await run(post);
+    for (const post of await duePosts(1)) await run(post); // one per run: stay under the edge time limit
   } catch (e) {
     results.push({ id: '-', status: 'error', error: (e as Error).message.slice(0, 200) });
   }
