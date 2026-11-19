@@ -173,7 +173,7 @@ const Auth = () => {
               marginTop: 14,
             }}
           >
-            {mode === "signup" ? "Join thousands of mamas on their journey" :
+            {mode === "signup" ? "Bella is here, even at 3am" :
               mode === "forgot" ? "We'll email you a reset link" :
               mode === "link" ? "We'll email you a one-tap sign-in link" :
                 "Welcome back, mama"}
