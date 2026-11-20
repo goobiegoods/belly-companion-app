@@ -210,7 +210,8 @@ h2{font-size:clamp(28px,8vw,40px)}
 .veil{position:fixed;inset:0;z-index:20;background:rgba(10,4,14,.62);opacity:0;pointer-events:none;transition:opacity .3s}
 .veil.on{opacity:1;pointer-events:auto}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;max-width:440px;margin:0 auto;background:#221022;border-radius:26px 26px 0 0;border-top:1px solid rgba(242,182,71,.25);padding:14px 22px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .38s cubic-bezier(.2,.9,.3,1)}
-.sheet.on{transform:none}
+.sheet{visibility:hidden;transition:transform .38s cubic-bezier(.2,.9,.3,1),visibility 0s linear .38s}
+.sheet.on{transform:none;visibility:visible;transition:transform .38s cubic-bezier(.2,.9,.3,1)}
 .grab{width:38px;height:5px;border-radius:5px;background:rgba(251,238,224,.25);margin:0 auto 18px}
 .sheet dl{margin:0 0 18px;display:grid;grid-template-columns:auto 1fr;gap:11px 16px;font-size:14.5px}
 .sheet dt{color:var(--faint)}.sheet dd{margin:0;text-align:right}

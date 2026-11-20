@@ -345,13 +345,13 @@ veil.onclick=function(){if(!busy)closeS(false);};
 
 /* ---------- slide-to-act ---------- */
 [].forEach.call(document.querySelectorAll('.slide'),function(s){
- var t=s.querySelector('.thumb'),f=s.querySelector('.fill'),tx=s.querySelector('.txt'),x=0,x0=0,max=0,drag=false,T='transform .3s, width .3s';
+ var t=s.querySelector('.thumb'),f=s.querySelector('.fill'),tx=s.querySelector('.txt'),x=0,x0=0,max=0,drag=false,mv=0,sx=0,T='transform .3s, width .3s';
  function set(v){x=Math.max(0,Math.min(max,v));t.style.transform='translateX('+x+'px)';f.style.width=(54+x)+'px';tx.style.opacity=1-Math.min(1,x/(max*.6));}
  s._reset=function(){t.style.transition=f.style.transition=T;set(0);};
  function fire(){if(navigator.vibrate)navigator.vibrate(12);if(s.dataset.offer==='first30'){location.href='/first30';return;}if(s.dataset.offer==='book'){BF.track('recipes_click',{});location.href='/recipes';return;}var o=OFFERS[s.dataset.offer](s);if(!o){setTimeout(s._reset,400);return;}openS(o,s);}
- t.addEventListener('pointerdown',function(e){if(s.classList.contains('done'))return;drag=true;max=s.clientWidth-54;x0=e.clientX-x;t.style.transition=f.style.transition='none';t.setPointerCapture(e.pointerId);});
- t.addEventListener('pointermove',function(e){if(drag)set(e.clientX-x0);});
- function up(){if(!drag)return;drag=false;if(x>max*.85){t.style.transition=f.style.transition=T;set(max);fire();}else s._reset();}
+ t.addEventListener('pointerdown',function(e){if(s.classList.contains('done'))return;drag=true;mv=0;sx=e.clientX;max=s.clientWidth-54;x0=e.clientX-x;t.style.transition=f.style.transition='none';t.setPointerCapture(e.pointerId);});
+ t.addEventListener('pointermove',function(e){if(drag){mv=Math.max(mv,Math.abs(e.clientX-sx));set(e.clientX-x0);}});
+ function up(){if(!drag)return;drag=false;if(x>max*.85||mv<6){t.style.transition=f.style.transition=T;set(max);fire();}else s._reset();}
  t.addEventListener('pointerup',up);t.addEventListener('pointercancel',up);
  t.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' '||e.key==='ArrowRight')&&!s.classList.contains('done')){e.preventDefault();max=s.clientWidth-54;t.style.transition=f.style.transition=T;set(max);setTimeout(fire,300);}});
 });
