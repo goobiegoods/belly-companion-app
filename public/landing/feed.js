@@ -185,7 +185,7 @@ function runScan(){scanT.forEach(clearTimeout);scanT=[];vf.classList.remove('foc
 /* ---------- scratch to reveal (two cards) ---------- */
 function makeScratch(card,cv,title,sub,onReveal){var me={ready:false,revealed:false},ctx=cv.getContext('2d'),moves=0,dust=null;
  me.setDust=function(d){dust=d;};
- me.init=function(){if(me.ready||me.revealed)return;me.ready=true;var r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1,W=r.width,H=r.height;
+ me.init=function(){if(me.ready||me.revealed)return;me.ready=true;card.classList.add('ready');var r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1,W=r.width,H=r.height;
   cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0);
   var g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#B98530');g.addColorStop(.22,'#F7DC93');g.addColorStop(.42,'#DDA845');g.addColorStop(.62,'#FCE7AE');g.addColorStop(.82,'#D49B3A');g.addColorStop(1,'#A8762A');
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
