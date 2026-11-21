@@ -284,6 +284,9 @@ button:focus-visible,.track:focus-visible,.card:focus-visible{outline:2px solid 
 .scard .was s{color:var(--faint)}
 .scard canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;transition:opacity .6s}
 .scard.revealed canvas{opacity:0;pointer-events:none}
+/* before the foil is painted, nothing under it may show through (QA Nov21: '14 days free' ghost next to '7 days free') */
+.scard:not(.ready):not(.revealed){background:linear-gradient(135deg,#B98530,#F7DC93 22%,#DDA845 42%,#FCE7AE 62%,#D49B3A 82%,#A8762A)!important}
+.scard:not(.ready):not(.revealed)>:not(canvas){visibility:hidden}
 .confetti{position:absolute;width:7px;height:10px;border-radius:2px;top:40%;left:50%;opacity:0;pointer-events:none}
 .scard.revealed .confetti{animation:burst 1.1s cubic-bezier(.2,.8,.3,1) forwards}
 @keyframes burst{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) rotate(var(--r))}}
