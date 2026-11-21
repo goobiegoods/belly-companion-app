@@ -88,14 +88,15 @@ export default async function handler(req: Request) {
     recent.push(now);
     const results: { id: string; status: string; error?: string }[] = [];
     try {
-      for (const post of await duePosts(3)) {
+      // One post per call keeps us under the edge time limit (Nov 18 FUNCTION_INVOCATION_TIMEOUT). Call again for the next.
+      for (const post of await duePosts(1)) {
         try { results.push({ id: post.id, ...(await publishPost(post)) }); }
         catch (e) { results.push({ id: post.id, status: 'error', error: (e as Error).message.slice(0, 200) }); }
       }
     } catch (e) {
       return json({ error: (e as Error).message.slice(0, 200) }, 502);
     }
-    return json({ ok: true, results });
+    return json({ ok: true, results, more: results.length > 0 });
   }
 
   const caption = typeof b.caption === 'string' ? b.caption.trim() : '';

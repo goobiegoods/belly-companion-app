@@ -116,6 +116,8 @@ export async function publishPost(post: SocialPost): Promise<{ status: string; e
         r = await graph(`/${a.pageId}/feed`, { method: 'POST', token: a.pageToken, params: { message: post.caption } });
       }
       patch.fb_post_id = r.post_id || r.id;
+      // Checkpoint now: if the function times out later (IG polling), the next run must not post to Facebook again.
+      await dbUpdate(`social_posts?id=eq.${encodeURIComponent(post.id)}`, { fb_post_id: patch.fb_post_id, updated_at: new Date().toISOString() });
     }
   } catch (e) {
     errors.push(`Facebook: ${(e as Error).message}`);
@@ -133,13 +135,16 @@ export async function publishPost(post: SocialPost): Promise<{ status: string; e
         else params.image_url = post.media_url;
         container = (await graph<{ id: string }>(`/${a.igId}/media`, { method: 'POST', token: a.pageToken, params })).id;
         patch.ig_container_id = container;
+        // Checkpoint the container so a timed-out run resumes it instead of creating a second one.
+        await dbUpdate(`social_posts?id=eq.${encodeURIComponent(post.id)}`, { ig_container_id: container, updated_at: new Date().toISOString() });
       }
       let ready = false;
-      for (let i = 0; i < 6; i++) {
+      // Short poll only (edge functions must answer in ~25s). Not ready -> "processing"; the next run finishes it.
+      for (let i = 0; i < 3; i++) {
         const s = await graph<{ status_code: string }>(`/${container}`, { token: a.pageToken, params: { fields: 'status_code' } });
         if (s.status_code === 'FINISHED') { ready = true; break; }
         if (s.status_code === 'ERROR' || s.status_code === 'EXPIRED') throw new MetaError(`media container ${s.status_code}`);
-        await sleep(2500);
+        await sleep(2000);
       }
       if (ready) {
         const pub = await graph<{ id: string }>(`/${a.igId}/media_publish`, { method: 'POST', token: a.pageToken, params: { creation_id: container } });
