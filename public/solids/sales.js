@@ -1,5 +1,5 @@
 const st=document.getElementById('s'),hw=document.getElementById('hw');
-function fit(){const k=Math.min(1,innerWidth/1080);st.style.transform='scale('+k+')';hw.style.height=(1350*k)+'px'}
+function fit(){const k=Math.min(1,innerWidth/1080);if(innerWidth<=640){st.style.transform='scale('+k+') translateY(-420px)';hw.style.height=(740*k)+'px'}else{st.style.transform='scale('+k+')';hw.style.height=(1350*k)+'px'}}
 fit();addEventListener('resize',fit);
 const io=new IntersectionObserver(e=>{if(e[0].isIntersecting){setTimeout(()=>st.classList.add('open'),500);io.disconnect()}});io.observe(st);
 document.getElementById('bk').addEventListener('click',function(){st.classList.toggle('open')});

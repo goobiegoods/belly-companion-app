@@ -71,6 +71,14 @@ h1{font-size:118px;line-height:.92;font-weight:500;letter-spacing:-.025em;margin
 .faq .row{grid-template-columns:56px 1fr}
 .endline{text-align:center;padding:70px 24px 60px}
 @media(max-width:640px){.ba{grid-template-columns:1fr}.inside .row{grid-template-columns:56px 1fr}.inside .row span.d{grid-column:2}}
+.mhero,.mbuy{display:none}
+@media(max-width:640px){
+.mhero{display:block;padding:36px 20px 4px;color:var(--cream)}
+.mhero h1{font-size:clamp(44px,13vw,58px);margin-top:26px}
+.mhero .sub{font-size:17px;margin-top:14px}
+.mbuy{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:4px 20px 8px;color:var(--cream)}
+.mbuy .price{font-size:44px}.mbuy .pill{background:var(--cream);color:var(--night);font-size:16px;padding:16px 20px 16px 24px;white-space:nowrap}.mbuy .price small{letter-spacing:.12em}
+.stage .hd,.stage h1,.stage .sub,.stage .buy,.stage .tap{display:none}}
 button.pill{border:0;cursor:pointer;font-family:Inter,sans-serif}button.pill:disabled{opacity:.7}</style><meta property="og:image" content="https://meetbelly.com/og.jpg">
 <meta property="og:site_name" content="Belly">
 <meta name="twitter:card" content="summary_large_image">
@@ -82,6 +90,9 @@ button.pill{border:0;cursor:pointer;font-family:Inter,sans-serif}button.pill:dis
 <meta name="theme-color" content="#150A1F">
 <meta name="apple-mobile-web-app-title" content="Belly">
 </head><body class="glowbg">
+<div class="mhero"><div class="hd"><div class="orb" style="--s:38px"></div><span class="mono" style="color:var(--gold);font-size:12px">Belly · Week-one guide</span></div>
+<h1 class="serif">Solids in <span class="acc">seven</span> days.</h1>
+<p class="sub">One food a day. One calm week. No more 3am googling.</p></div>
 <div class="hero-wrap" id="hw"><div class="stage grain" id="s">
 <div class="hd"><div class="orb" style="--s:46px"></div><span class="mono" style="color:var(--gold);font-size:13px">Belly · Week-one guide</span></div>
 <h1 class="serif">Solids in <span class="acc">seven</span> days.</h1>
@@ -101,6 +112,7 @@ button.pill{border:0;cursor:pointer;font-family:Inter,sans-serif}button.pill:dis
 <div class="buy"><div class="price">$29<small>Instant access · printable</small></div><a class="pill" href="#buy">Get the guide <i>→</i></a></div>
 </div>
 </div>
+<div class="mbuy"><div class="price">$29<small>Instant access · printable</small></div><a class="pill" href="#buy">Get the guide <i>→</i></a></div>
 <section class="sec"><span class="mono" style="color:var(--gold)">The week, before and after</span><h3 class="serif">From guessing to <span class="acc">knowing.</span></h3>
  <div class="ba"><div class="card"><span class="mono" style="color:var(--mag)">Before</span><p>Guessing what to feed, when, how much — and worrying about what to watch for.</p></div>
  <div class="card"><span class="mono" style="color:var(--teal)">After · Day 07</span><p>A full day of meals, put together. Six foods tried, one at a time — and you know which ones your baby loves.</p></div></div></section>
