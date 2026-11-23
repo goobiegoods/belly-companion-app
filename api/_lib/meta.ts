@@ -176,10 +176,14 @@ export async function getPost(id: string): Promise<SocialPost | null> {
 }
 
 /** Posts whose time has come (or Instagram reels still processing), oldest first. */
+/** Scheduled posts older than this never auto-publish: a stale slot is publish-by-hand in Admin (Nov 23: one unverified Nov 17 row froze run_due for 6 days). */
+export const STALE_HOURS = 36;
+
 export async function duePosts(limit = 3): Promise<SocialPost[]> {
   const now = new Date().toISOString();
+  const cut = new Date(Date.now() - STALE_HOURS * 3600_000).toISOString();
   return dbSelect<SocialPost>(
-    `social_posts?select=*&or=${encodeURIComponent(`(and(status.eq.scheduled,scheduled_at.lte."${now}"),status.eq.processing)`)}&order=scheduled_at.asc.nullslast&limit=${limit}`,
+    `social_posts?select=*&or=${encodeURIComponent(`(and(status.eq.scheduled,scheduled_at.lte."${now}",scheduled_at.gte."${cut}"),and(status.eq.processing,or(scheduled_at.is.null,scheduled_at.gte."${cut}")))`)}&order=scheduled_at.asc.nullslast&limit=${limit}`,
   );
 }
 
