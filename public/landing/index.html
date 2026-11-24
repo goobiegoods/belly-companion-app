@@ -421,7 +421,9 @@ button.ft{cursor:pointer}
 .ftimer .bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--gold),var(--ember));transform-origin:left;transition:transform 1s linear}
 .ftimer.low .clock{color:var(--ember);animation:blink 1s infinite}
 .scard .expired{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(34,16,34,.88);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
-.scard.isexp .expired{display:flex}
+.scard.isexp .expired{display:flex;background:#221022}
+/* QA Nov24: once the bonus ends, nothing of the old 14-day card may show under the overlay */
+.scard.isexp>:not(.expired){visibility:hidden}
 .expired b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:24px}
 .expired span{font-size:12.5px;color:var(--soft);max-width:26ch;line-height:1.4}
 #fw{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
