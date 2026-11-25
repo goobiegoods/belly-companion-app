@@ -185,7 +185,7 @@ function runScan(){scanT.forEach(clearTimeout);scanT=[];vf.classList.remove('foc
 /* ---------- scratch to reveal (two cards) ---------- */
 function makeScratch(card,cv,title,sub,onReveal){var me={ready:false,revealed:false},ctx=cv.getContext('2d'),moves=0,dust=null;
  me.setDust=function(d){dust=d;};
- me.init=function(){if(me.ready||me.revealed)return;me.ready=true;card.classList.add('ready');var r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1,W=r.width,H=r.height;
+ me.init=function(){if(me.ready||me.revealed)return;var r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1,W=r.width,H=r.height;if(W<40||H<40)return;/* not laid out yet: try again on next view */me.ready=true;card.classList.add('ready');
   cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0);
   var g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#B98530');g.addColorStop(.22,'#F7DC93');g.addColorStop(.42,'#DDA845');g.addColorStop(.62,'#FCE7AE');g.addColorStop(.82,'#D49B3A');g.addColorStop(1,'#A8762A');
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
@@ -193,9 +193,17 @@ function makeScratch(card,cv,title,sub,onReveal){var me={ready:false,revealed:fa
   for(var yy=12,row=0;yy<H;yy+=22,row++)for(var xx=(row%2)*11+8;xx<W;xx+=22){ctx.fillStyle='rgba(120,78,18,.30)';star(ctx,xx+.7,yy+.7,3.4,.4);ctx.fillStyle='rgba(255,247,220,.45)';star(ctx,xx-.4,yy-.4,3.4,.4);}
   var pg=ctx.createLinearGradient(0,H*.28,0,H*.72);pg.addColorStop(0,'rgba(255,246,220,.42)');pg.addColorStop(1,'rgba(255,236,190,.18)');ctx.fillStyle=pg;rr(ctx,W*.11,H*.28,W*.78,H*.44,16);ctx.fill();
   ctx.strokeStyle='rgba(120,78,18,.25)';ctx.lineWidth=1;rr(ctx,W*.11+.5,H*.28+.5,W*.78,H*.44,16);ctx.stroke();
-  ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='italic 500 21px Fraunces, Georgia, serif';
-  ctx.fillStyle='rgba(255,250,232,.8)';ctx.fillText(title,W/2,H/2-6);ctx.fillStyle='rgba(74,23,48,.86)';ctx.fillText(title,W/2,H/2-7);
-  ctx.font='500 8.5px "JetBrains Mono", ui-monospace, monospace';ctx.fillStyle='rgba(74,23,48,.6)';ctx.fillText(sub,W/2,H/2+16);
+  /* QA Nov24: keep every letter inside the plaque, clear of the ticket cutouts */
+  ctx.textAlign='center';ctx.textBaseline='middle';var safe=W*.78-24,fs=21;
+  function tf(n){ctx.font='italic 500 '+n+'px Fraunces, Georgia, serif';}
+  tf(fs);while(fs>15&&ctx.measureText(title).width>safe){fs-=.5;tf(fs);}
+  var lines=[title];if(ctx.measureText(title).width>safe){var w=title.split(' '),h=Math.ceil(w.length/2);lines=[w.slice(0,h).join(' '),w.slice(h).join(' ')];}
+  var lh=fs*1.05,ty=H/2-7-(lines.length-1)*lh/2;
+  lines.forEach(function(l,i){var y=ty+i*lh;ctx.fillStyle='rgba(255,250,232,.8)';ctx.fillText(l,W/2,y+1);ctx.fillStyle='rgba(74,23,48,.86)';ctx.fillText(l,W/2,y);});
+  var ss=sub,ms=8.5;ctx.font='500 '+ms+'px "JetBrains Mono", ui-monospace, monospace';
+  if(ctx.measureText(ss).width>safe)ss=sub.replace(/   /g,'\u2002').replace(/ (?=\S)/g,'');
+  while(ms>7&&ctx.measureText(ss).width>safe){ms-=.5;ctx.font='500 '+ms+'px "JetBrains Mono", ui-monospace, monospace';}
+  ctx.fillStyle='rgba(74,23,48,.6)';ctx.fillText(ss,W/2,ty+(lines.length-1)*lh+23);
   ctx.strokeStyle='rgba(255,247,220,.6)';rr(ctx,6.5,6.5,W-13,H-13,16);ctx.stroke();
   var drawing=false,last=null;
   function pt(e){var b=cv.getBoundingClientRect();return{x:e.clientX-b.left,y:e.clientY-b.top,cx:e.clientX,cy:e.clientY};}
