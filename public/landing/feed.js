@@ -367,7 +367,7 @@ veil.onclick=function(){if(!busy)closeS(false);};
 function wireAdd(b){b._reset=function(){};b.addEventListener('click',function(){if(!b.classList.contains('done'))openS(OFFERS[b.dataset.offer](b),b);});}
 [].forEach.call(document.querySelectorAll('.addbtn'),wireAdd);
 document.getElementById('skip').onclick=function(){scenes[1].scrollIntoView({behavior:'smooth'});};
-var TBT=[['Ginger Blend Tea',PRICES.tea],['Calm Evenings blend',PRICES.calm],['Raspberry Leaf & Lemon Balm',PRICES.tea]],feedN=0;
+var TBT=[['Ginger Blend Tea',PRICES.tea],['Everyday Calm',PRICES.calm],['Raspberry Leaf & Lemon Balm',PRICES.tea]],feedN=0;
 function tipScene(){var st=STOPS[feedN%STOPS.length],k=feedN++,t=TRI[st.t],tb=TBT[st.t]||TBT[1],yr=(k%2===0)||k%5===2||!ME.s||ME.s!=='pregnant';
  var e=document.createElement('section');e.className='scene';e.dataset.n='tip';
  e.innerHTML='<div class="amb" style="--c:'+t.c+';--y:35%"></div><div class="visual"><div class="gorb tipfruit" style="--g:'+t.g+';--gs:'+t.gs+'"><div class="fruit" style="--fs:'+st.s+'">'+cute(F[st.f],st.f)+'</div></div></div><div class="copy"><p class="mono">'+(st.lab||'week '+st.w)+' · '+(st.nm||'size of '+st.n)+'</p><h2 style="margin-top:8px">'+st.b+'</h2>'+(yr?'<button class="addbtn" data-offer="trial"><span class="txt">start 7 days free · $89/yr after</span></button>':'<button class="addbtn" data-offer="tip" data-item="'+tb[0]+'" data-price="'+tb[1]+'"><span class="txt">'+tb[0]+' · '+tb[1]+'</span></button>')+'</div>';
@@ -390,7 +390,7 @@ little:[['Little Sleep Blend','A caffeine-free wind-down tea for you',PRICES.tea
 function setRems(list){if(!list){REM=PREGREM;car.innerHTML=PREGHTML;}else{REM=list.map(function(r){return{n:r[0],f:r[1],p:r[2],c:[r[3],r[4]]};});
  car.innerHTML=REM.map(function(r,k){return '<div class="card'+(k===0?' on':'')+'" data-k="'+k+'"><div class="bot"><i class="v" style="height:112px;background:linear-gradient(90deg,'+r.c[0]+','+r.c[1]+' 45%,'+r.c[0]+')"></i></div><span class="mono">bella recommends</span><p class="n">'+r.n+'</p><p class="f">'+r.f+'</p><span class="p">'+r.p+'</span></div>';}).join('');}
  cards=[].slice.call(car.children);cards.forEach(function(c){c.addEventListener('click',function(){car.scrollTo({left:c.offsetLeft-(car.clientWidth-c.offsetWidth)/2,behavior:'smooth'});});});pickRem(0);car._c=0;}
-var CALM={pregnant:'Calm Evenings blend',trying:'Calm Evenings blend',postpartum:'Night Feed Calm blend',little:'After Bedtime Calm blend'};
+var CALM={pregnant:'Everyday Calm',trying:'Everyday Calm',postpartum:'Night Feed Calm blend',little:'After Bedtime Calm blend'};
 function CALMN(){return CALM[ME.s]||CALM.pregnant;}
 var GT={pregnant:['Forty weeks, one glow.','Drag it. Watch your baby grow.'],trying:['Every cycle, one glow.','Drag it. See what is ahead.'],postpartum:['Your fourth trimester, one glow.','Drag it. Look how far you have come.'],little:['Every stage, one glow.','Drag it. Watch them grow.']};
 function applySeason(){var d=SEAS[ME.s];STOPS=d||PREG;
