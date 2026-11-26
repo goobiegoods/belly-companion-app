@@ -86,7 +86,7 @@ export default async function handler(req: Request) {
   if (b.action === 'run_due') {
     if (!publishAllowed) return json({ error: 'Publishing by agents is off (SOCIAL_AGENT_PUBLISH).' }, 403);
     recent.push(now);
-    const results: { id: string; status: string; error?: string }[] = [];
+    const results: { id: string; status: string; error?: string; fb_post_id?: string | null; ig_media_id?: string | null }[] = [];
     try {
       // One post per call keeps us under the edge time limit (Nov 18 FUNCTION_INVOCATION_TIMEOUT). Call again for the next.
       for (const post of await duePosts(1)) {
