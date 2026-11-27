@@ -824,7 +824,7 @@ function cute(svg,k){var p=FP[k];if(!p)return svg;var x=p[0],y=p[1],sc=p[2],e=6*
 var STOPS=[{w:4,f:'poppy',n:'a poppy seed',cm:'0.2 cm',s:.35,t:0,b:"A tiny heartbeat is starting. You might not even know yet."},
 {w:8,f:'rasp',n:'a raspberry',cm:'1.6 cm',s:.45,t:0,b:"Fingers and toes are forming. Nausea, meet ginger tea."},
 {w:12,f:'lime',n:'a lime',cm:'5.4 cm',s:.52,t:0,b:"The 12-week scan. Who are you ready to tell?"},
-{w:16,f:'avo',n:'an avocado',cm:'11.6 cm',s:.6,t:1,b:"Baby can hear your voice now. Talk to them."},
+{w:16,f:'avo',n:'an avocado',cm:'11.6 cm',s:.6,t:1,b:"Baby can hear your voice now. Talk to baby."},
 {w:20,f:'banana',n:'a banana',cm:'25 cm',s:.68,t:1,b:"Halfway. The anatomy scan, and maybe a first flutter."},
 {w:24,f:'corn',n:'an ear of corn',cm:'30 cm',s:.74,t:1,b:"Kicks you can feel from the outside. Sleep on your side."},
 {w:28,f:'egg',n:'an eggplant',cm:'37 cm',s:.8,t:2,b:"Eyes open and close. Start counting kicks."},
@@ -1192,7 +1192,7 @@ little:{nm:'Big Feelings',o:['bella','scan','offer','meme','glow','breathe','cou
  po:[['D','dee · 2 yrs','#E8622E','Toddler ate a green thing. Frame it.'],['P','pia · 4 mo','#2C9C8F','Sleep regression is not a personality trait.'],['N','nia · 18 mo','#B5386B','Big feelings at the grocery store again.'],['C','cam · 3 yrs','#F2B647','Bedtime took 90 minutes. We survived.']]}};
 function postsHtml(a){var h='';a.concat(a).forEach(function(q){h+='<div class="post"><div class="h"><span class="av" style="background:'+q[2]+'">'+q[0]+'</span><span class="w">'+q[1]+'</span></div><p class="t">'+q[3]+'</p></div>';});return h;}
 /* ================= v3 module: custom funnels, Lens 2, ticket cards, product facts ================= */
-var CUP='about 93¢ a cup';
+var CUP='mason jar + 2 tea cups · ships free';
 var TK={
  pregnant:{
   scan:{n:'lavender calm',ty:'BABY LOTION · 8 FL OZ',h:"Know what’s in it before it’s on them.",lab:'#C9D8C2',ink:'#2F3F2C',
@@ -1201,7 +1201,7 @@ var TK={
   offer:"Founding mamas, this one’s yours.",
   tea:{n:'Raspberry Leaf & Lemon Balm',l1:'RASPBERRY LEAF',l2:'&amp; LEMON BALM',h:'Raspberry leaf &amp; lemon balm.',
    sub:'Hand-blended loose leaf. Traditionally used to support late-pregnancy comfort and a calm evening.',bens:['raspberry leaf','lemon balm','caffeine-free'],
-   facts:[['Midwife classic','A traditional third-trimester ritual.'],['Caffeine-free','Sip it at 9pm. Sleep anyway.'],['Lemon balm','A calm-evening herb, traditionally.'],['About 93¢ a cup','Roughly 30 cups in every jar.'],['Small batch','Whole leaf, hand-blended, no dust.'],['Ask first','Check with your midwife before starting herbs.']]},
+   facts:[['Midwife classic','A traditional third-trimester ritual.'],['Caffeine-free','Sip it at 9pm. Sleep anyway.'],['Lemon balm','A calm-evening herb, traditionally.'],['Two cups included','Mason jar set, ships free in the US.'],['Small batch','Whole leaf, hand-blended, no dust.'],['Ask first','Check with your midwife before starting herbs.']]},
   rec:{t:'Golden milk oats',m:'tonight · 15 min · one bowl',ri:[[.5,'cup','rolled oats'],[1,'tsp','turmeric'],[1,'tbsp','raw honey'],[.5,'tsp','cinnamon']],fine:'raw honey is not for children under 1',oat:['#F6C453','#C98414']},
   crs:[[12,'Prep for birth','#6B2331','#B5386B'],[8,'Homeopathy, honestly','#1f5c56','#2C9C8F'],[6,'Rest &amp; your nervous system','#7a5410','#d69a2a'],[9,'Feeding &amp; recovery','#4A1730','#8A3A2C']],
   build:function(){var st=STOPS[0];STOPS.forEach(function(x){if(x.w<=ME.w)st=x;});return['Week '+ME.w+': about the size of '+st.n,'Bella tuned to trimester '+(ME.w<=13?1:ME.w<=27?2:3),'Your founding price, saved'];}
@@ -1213,7 +1213,7 @@ var TK={
   offer:'For every month of waiting.',
   tea:{n:'Cycle Comfort',l1:'NETTLE &amp; ROSE',l2:'+ PEPPERMINT',h:'Cycle Comfort.',
    sub:'Nettle, rose petal and peppermint. Warm, caffeine-free, and made for the wait.',bens:['nettle','rose petal','peppermint'],
-   facts:[['Nettle','A leafy, mineral-rich classic.'],['Rose petal','Pretty enough for the two-week wait.'],['Peppermint','A cool, bright finish.'],['Caffeine-free','Sip it any hour of the day.'],['About 93¢ a cup','Roughly 30 cups in every jar.'],['Ask first','Check with your provider about herbs while trying.']]},
+   facts:[['Nettle','A leafy, mineral-rich classic.'],['Rose petal','Pretty enough for the two-week wait.'],['Peppermint','A cool, bright finish.'],['Caffeine-free','Sip it any hour of the day.'],['Two cups included','Mason jar set, ships free in the US.'],['Ask first','Check with your provider about herbs while trying.']]},
   rec:{t:'Warm lentil & greens bowl',m:'tonight · 20 min · one pot',ri:[[.5,'cup','red lentils'],[1,'cup','spinach'],[1,'tbsp','olive oil'],[.5,'','lemon, squeezed']],fine:'batch it once, eat well all week',oat:['#E8955A','#B4552A']},
   crs:[[7,'Know your cycle','#6B2331','#B5386B'],[8,'Food for the wait','#1f5c56','#2C9C8F'],[6,'Stress, sleep &amp; you','#7a5410','#d69a2a'],[8,'Homeopathy, honestly','#4A1730','#8A3A2C']],
   build:function(){return['Your cycle tracker, ready','Bella tuned to the wait','Your founding price, saved'];}
@@ -1225,7 +1225,7 @@ var TK={
   offer:'For the 3am mamas.',
   tea:{n:'Nourish & Restore',l1:'OATSTRAW',l2:'NETTLE &amp; FENNEL',h:'Nourish &amp; Restore.',
    sub:'Oatstraw, nettle and fennel for the fourth trimester. Traditionally used to support rest and recovery.',bens:['oatstraw','nettle','fennel'],
-   facts:[['Fennel','Traditionally sipped by nursing mamas.'],['Oatstraw','A gentle, nourishing classic.'],['Caffeine-free','Made for 3am feeds.'],['One-handed','Warm cup in one hand, baby in the other.'],['About 93¢ a cup','Roughly 30 cups in every jar.'],['Ask first','Check with your provider if you’re nursing.']]},
+   facts:[['Fennel','Traditionally sipped by nursing mamas.'],['Oatstraw','A gentle, nourishing classic.'],['Caffeine-free','Made for 3am feeds.'],['One-handed','Warm cup in one hand, baby in the other.'],['Two cups included','Mason jar set, ships free in the US.'],['Ask first','Check with your provider if you’re nursing.']]},
   rec:{t:'Ginger chicken congee',m:'tonight · 25 min · one pot',ri:[[.5,'cup','rice'],[1,'cup','shredded chicken'],[1,'tbsp','fresh ginger'],[3,'cups','broth']],fine:'one-handed eating, approved',oat:['#F4E6C8','#CDB27A']},
   crs:[[10,'The fourth trimester','#6B2331','#B5386B'],[9,'Feeding, your way','#1f5c56','#2C9C8F'],[7,'Recovery, gently','#7a5410','#d69a2a'],[6,'Sleep for two','#4A1730','#8A3A2C']],
   build:function(){return['Your fourth-trimester plan, ready','Bella tuned to 3am','Your founding price, saved'];}
@@ -1237,7 +1237,7 @@ var TK={
   offer:'For the mamas of little ones.',
   tea:{n:'Mama’s Quiet Hour',l1:'CHAMOMILE',l2:'&amp; LAVENDER',h:'Mama’s Quiet Hour.',
    sub:'Chamomile, lemon balm and lavender, for the minute bedtime ends. Traditionally used to support a calm evening.',bens:['chamomile','lemon balm','lavender'],
-   facts:[['Chamomile','The original wind-down.'],['Lavender','Floral, soft, a little fancy.'],['The quiet hour','Brew it the minute they’re asleep.'],['Caffeine-free','Bedtime is for you too.'],['About 93¢ a cup','Roughly 30 cups in every jar.'],['Grown-ups only','This one’s yours, mama.']]},
+   facts:[['Chamomile','The original wind-down.'],['Lavender','Floral, soft, a little fancy.'],['The quiet hour','Brew it the minute they’re asleep.'],['Caffeine-free','Bedtime is for you too.'],['Two cups included','Mason jar set, ships free in the US.'],['Grown-ups only','This one’s yours, mama.']]},
   rec:{t:'Banana oat pancakes',m:'breakfast · 10 min · one bowl',ri:[[1,'','ripe banana'],[.5,'cup','rolled oats'],[1,'','egg'],[.25,'tsp','cinnamon']],fine:'picky-eater approved, no added sugar',oat:['#E9B866','#B57A2A']},
   crs:[[8,'Big feelings, small people','#6B2331','#B5386B'],[6,'Picky eaters','#1f5c56','#2C9C8F'],[7,'Bedtime without battles','#7a5410','#d69a2a'],[5,'Mama’s own reset','#4A1730','#8A3A2C']],
   build:function(){return['Your little-ones toolkit, ready','Bella tuned to big feelings','Your founding price, saved'];}
@@ -1245,7 +1245,7 @@ var TK={
 };
 TK.all={scan:TK.pregnant.scan,offer:'Founding mamas, this one’s yours.',
  tea:{n:'Everyday Calm',l1:'CHAMOMILE',l2:'&amp; LEMON BALM',h:'Everyday Calm.',sub:'Chamomile and lemon balm, hand-blended. Traditionally used to support a calm evening.',bens:['chamomile','lemon balm','caffeine-free'],
-  facts:[['Chamomile','The original wind-down.'],['Lemon balm','A calm-evening herb, traditionally.'],['Caffeine-free','Sip it at 9pm. Sleep anyway.'],['About 93¢ a cup','Roughly 30 cups in every jar.'],['Small batch','Whole leaf, hand-blended, no dust.'],['Ask first','Pregnant or nursing? Check with your provider.']]},
+  facts:[['Chamomile','The original wind-down.'],['Lemon balm','A calm-evening herb, traditionally.'],['Caffeine-free','Sip it at 9pm. Sleep anyway.'],['Two cups included','Mason jar set, ships free in the US.'],['Small batch','Whole leaf, hand-blended, no dust.'],['Ask first','Pregnant or nursing? Check with your provider.']]},
  rec:TK.pregnant.rec,crs:TK.pregnant.crs,build:function(){return['A little of everything, all yours','Bella, on call day and night','Your founding price, saved'];}};
 var ELX=[['Turmeric + black pepper','Pepper’s piperine helps your body absorb turmeric.'],['Raw honey','Unpasteurized, straight from the hive.'],['Golden milk','Stir a spoon into warm milk. That’s the recipe.'],['An old ritual','A kitchen staple long before it was a latte.'],['4 oz jar','Weeks of golden evenings.'],['Heads up','Raw honey isn’t for babies under 1.']];
 function TKC(){return TK[ME.s]||TK.all;}
