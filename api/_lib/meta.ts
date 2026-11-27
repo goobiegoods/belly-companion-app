@@ -98,7 +98,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * processed by Meta asynchronously: if the container isn't ready yet the post
  * stays "processing" and the next run (button or daily job) finishes it.
  */
-export async function publishPost(post: SocialPost): Promise<{ status: string; error?: string }> {
+export async function publishPost(post: SocialPost): Promise<{ status: string; error?: string; fb_post_id?: string | null; ig_media_id?: string | null }> {
   const a = await metaAccounts();
   const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
   const errors: string[] = [];
@@ -167,7 +167,13 @@ export async function publishPost(post: SocialPost): Promise<{ status: string; e
   patch.error = errors.length ? errors.join(' | ').slice(0, 900) : null;
   if (status === 'published') patch.published_at = new Date().toISOString();
   await dbUpdate(`social_posts?id=eq.${encodeURIComponent(post.id)}`, patch);
-  return { status, error: patch.error as string | undefined };
+  // Provider IDs ride back so agents get a receipt (HERMES: published + provider post ID).
+  return {
+    status,
+    error: patch.error as string | undefined,
+    fb_post_id: (patch.fb_post_id as string | undefined) ?? post.fb_post_id ?? null,
+    ig_media_id: (patch.ig_media_id as string | undefined) ?? post.ig_media_id ?? null,
+  };
 }
 
 export async function getPost(id: string): Promise<SocialPost | null> {
